@@ -9,7 +9,6 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="300dp"
-        android:alpha="0.8"
         android:background="@drawable/shape_ll_background"
         android:layout_height="200dp"
         android:layout_alignParentTop="true"

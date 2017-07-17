@@ -3,6 +3,7 @@ package com.nandi.disastermanager;
 import android.animation.ObjectAnimator;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -83,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayout llEquipment;
     @BindView(R.id.ll_rainfall)
     LinearLayout llRainfall;
+    @BindView(R.id.rl_main)
+    RelativeLayout rlMain;
     @BindView(R.id.sceneView)
     SceneView sceneView;
     @BindView(R.id.rb_ssyl)
@@ -101,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean llDataState = false;
     private int llMoreState = -1;
     private int llMoreStateBefore = -1;
+    private View view;
+
     ArcGISMapImageLayer lowImageLayer;
     ArcGISMapImageLayer highImageLayer;
     ArcGISMapImageLayer vectorLayer;
@@ -235,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreStateBefore = llMoreState;
                 llMoreState = 1;
                 setRainfallMore();
+                setDisasterLegend(R.layout.activity_rainfall_legend);
                 if (llMoreStateBefore!=1){
                     layers.clear();
                     elevationSources.clear();
@@ -248,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreStateBefore = llMoreState;
                 llMoreState = 2;
                 setRainfallMore();
+                setDisasterLegend(R.layout.activity_disaster_legend);
                 if (llMoreStateBefore!=2){
                     layers.clear();
                     elevationSources.clear();
@@ -271,6 +279,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setRainfallMore();
                 break;
 
+        }
+    }
+
+    private void setDisasterLegend(@LayoutRes int resource) {
+        LayoutInflater inflater = getLayoutInflater();
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        lp.rightMargin=10;
+        lp.bottomMargin=20;
+        if (view==null){
+        view = inflater.inflate(resource, null);
+        view.setLayoutParams(lp);
+        rlMain.addView(view);
+        }else{
+            rlMain.removeView(view);
+            view = inflater.inflate(resource, null);
+            view.setLayoutParams(lp);
+            rlMain.addView(view);
         }
     }
 
@@ -352,10 +380,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setRainfallMore() {
-        rgRainfall.clearCheck();
-        rgDangerpoint.clearCheck();
-        rgStaff.clearCheck();
-        rgEquipment.clearCheck();
         switch (llMoreState) {
             case 1:
                 rgRainfall.setVisibility(View.VISIBLE);
@@ -385,6 +409,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         if (llMoreState != llMoreStateBefore) {
+            rgRainfall.clearCheck();
+            rgDangerpoint.clearCheck();
+            rgStaff.clearCheck();
+            rgEquipment.clearCheck();
             Log.d("limeng", "llMoreState:" + llMoreState + "\n" + "llMoreStateBefore:" + llMoreStateBefore);
             ObjectAnimator animator3 = null;
             ObjectAnimator animator4 = null;

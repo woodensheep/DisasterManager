@@ -9,11 +9,17 @@
     <color name="colorblack">#000000</color>
     <color name="colorwhite">#ffffff</color>
 
+    <color name="color_circular_1">#FF3030</color>
+    <color name="color_circular_2">#FF7F00</color>
+    <color name="color_circular_3">#FFFF00</color>
+    <color name="color_circular_4">#1E90FF</color>
+    <color name="color_circular_5">#9AFF9A</color>
+
 
     <color name="color_solid1">#616161</color>
-    <color name="color_solid">#D6D6D6</color>
+    <color name="color_solid">#99D6D6D6</color>
     <color name="color_title">#000000</color>
-    <color name="color_neirong">#616161</color>
+    <color name="color_neirong">#ffffff</color>
 
 
 </resources>
