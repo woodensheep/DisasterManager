@@ -5,7 +5,7 @@ android {
     buildToolsVersion "26.0.0"
     defaultConfig {
         applicationId "com.nandi.disastermanager"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -30,4 +30,7 @@ dependencies {
 
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
     compile 'com.jakewharton:butterknife:8.0.1'
+    compile 'com.esri.arcgisruntime:arcgis-android:100.1.0'
+    compile 'com.zhy:okhttputils:2.6.2'
+    compile 'com.google.code.gson:gson:2.7'
 }

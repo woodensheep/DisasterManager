@@ -4,9 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/ceshimap"
     tools:context="com.nandi.disastermanager.MainActivity">
 
+    <com.esri.arcgisruntime.mapping.view.SceneView
+        android:id="@+id/sceneView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </com.esri.arcgisruntime.mapping.view.SceneView>
 
     <LinearLayout
         android:id="@+id/ll_area"

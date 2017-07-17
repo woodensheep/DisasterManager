@@ -6,12 +6,12 @@
     android:layout_marginTop="20dp">
 
     <LinearLayout
-        android:alpha="0.8"
         android:layout_width="300dp"
         android:layout_height="250dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:alpha="0.8"
         android:background="@drawable/shape_ll_background"
         android:orientation="vertical">
 
@@ -46,12 +46,12 @@
 
 
             <LinearLayout
-                android:id="@+id/ll_rainfall"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/ll_rainfall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/margin_neirong"
@@ -66,10 +66,10 @@
 
                         <ImageView
                             android:id="@+id/iv_rainfall_more"
-                            android:padding="2dp"
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginLeft="5dp"
+                            android:padding="2dp"
                             android:src="@mipmap/more" />
 
                         <TextView
@@ -103,11 +103,11 @@
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:padding="2dp"
                             android:id="@+id/iv_dangerpoint_more"
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginLeft="5dp"
+                            android:padding="2dp"
                             android:src="@mipmap/more" />
 
                         <TextView
@@ -120,7 +120,7 @@
                             android:textSize="@dimen/leirong_text_size" />
                     </LinearLayout>
 
-                    <include layout="@layout/item_dangerpoint"/>
+                    <include layout="@layout/item_dangerpoint" />
 
                 </LinearLayout>
 
@@ -139,11 +139,11 @@
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:padding="2dp"
                             android:id="@+id/iv_staff_more"
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginLeft="5dp"
+                            android:padding="2dp"
                             android:src="@mipmap/more" />
 
                         <TextView
@@ -156,7 +156,7 @@
                             android:textSize="@dimen/leirong_text_size" />
                     </LinearLayout>
 
-                    <include layout="@layout/item_staff"/>
+                    <include layout="@layout/item_staff" />
 
                 </LinearLayout>
 
@@ -175,11 +175,11 @@
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:padding="2dp"
                             android:id="@+id/iv_equipment_more"
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginLeft="5dp"
+                            android:padding="2dp"
                             android:src="@mipmap/more" />
 
                         <TextView
@@ -192,7 +192,7 @@
                             android:textSize="@dimen/leirong_text_size" />
                     </LinearLayout>
 
-                    <include layout="@layout/item_equipment"/>
+                    <include layout="@layout/item_equipment" />
 
                 </LinearLayout>
 
