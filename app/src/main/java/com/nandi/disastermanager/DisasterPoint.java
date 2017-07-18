@@ -6,17 +6,22 @@ package com.nandi.disastermanager;
 
 public class DisasterPoint {
 
+
     /**
      * id : 62684
      * dis_name : 关山沟滑坡
      * dis_lon : 106.8088
      * dis_lat : 28.8683
+     * dis_state : 1
+     * dis_type : 1
      */
 
     private int id;
     private String dis_name;
     private String dis_lon;
     private String dis_lat;
+    private int dis_state;
+    private int dis_type;
 
     public int getId() {
         return id;
@@ -50,13 +55,19 @@ public class DisasterPoint {
         this.dis_lat = dis_lat;
     }
 
-    @Override
-    public String toString() {
-        return "DisasterPoint{" +
-                "id=" + id +
-                ", dis_name='" + dis_name + '\'' +
-                ", dis_lon='" + dis_lon + '\'' +
-                ", dis_lat='" + dis_lat + '\'' +
-                '}';
+    public int getDis_state() {
+        return dis_state;
+    }
+
+    public void setDis_state(int dis_state) {
+        this.dis_state = dis_state;
+    }
+
+    public int getDis_type() {
+        return dis_type;
+    }
+
+    public void setDis_type(int dis_type) {
+        this.dis_type = dis_type;
     }
 }

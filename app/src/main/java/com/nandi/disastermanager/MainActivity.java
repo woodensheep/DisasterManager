@@ -21,9 +21,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
+import com.esri.arcgisruntime.data.ServiceFeatureTable;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.ArcGISMapImageLayer;
+import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.mapping.ArcGISScene;
 import com.esri.arcgisruntime.mapping.ArcGISTiledElevationSource;
 import com.esri.arcgisruntime.mapping.Basemap;
@@ -43,6 +45,7 @@ import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -96,9 +99,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @BindView(R.id.rb_disaster_point)
     RadioButton rbDisasterPoint;
     @BindView(R.id.rb_canceled_point)
-    RadioButton rbCanceledPoint;
+    RadioButton rbCanceledPoint;//已消耗
     @BindView(R.id.rb_handled_point)
-    RadioButton rbHandledPoint;
+    RadioButton rbHandledPoint;//未消耗
     private boolean llAreaState = false;
     private boolean llDataState = false;
     private int llMoreState = -1;
@@ -109,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArcGISMapImageLayer highImageLayer;
     ArcGISMapImageLayer vectorLayer;
     ArcGISMapImageLayer dengZXLayer;
-    ArcGISMapImageLayer ssYLLayer;
+    FeatureLayer ssYLLayer;
     private ArcGISScene scene;
     private ArcGISTiledElevationSource elevationSource;
     private LayerList layers;
@@ -117,6 +120,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<DisasterPoint> disasterPoints;
     private GraphicsOverlay graphicsOverlay;
     private ListenableList<GraphicsOverlay> graphicsOverlays;
+    private List<Graphic> allGraphics = new ArrayList<>();//所有的灾害点图标
+    private List<Graphic> consumedGraphics = new ArrayList<>();//已消耗灾害点图标
+    private List<Graphic> notConsumeGraphics = new ArrayList<>();//未消耗灾害点图标
+    private List<Graphic> allHuaPOGraphics = new ArrayList<>();
+    private List<Graphic> allNiSHILiuGraphics = new ArrayList<>();
+    private List<Graphic> allWeiYanGraphics = new ArrayList<>();
+    private List<Graphic> allXiePoGraphics = new ArrayList<>();
+    private List<Graphic> allTanTaGraphics = new ArrayList<>();
+    private List<Graphic> allLieFengGraphics = new ArrayList<>();
+    private List<Graphic> allTaAnGraphics = new ArrayList<>();
+
+    private List<Graphic> notHuaPOGraphics = new ArrayList<>();
+    private List<Graphic> notNiSHILiuGraphics = new ArrayList<>();
+    private List<Graphic> notWeiYanGraphics = new ArrayList<>();
+    private List<Graphic> notXiePoGraphics = new ArrayList<>();
+    private List<Graphic> notTanTaGraphics = new ArrayList<>();
+    private List<Graphic> notLieFengGraphics = new ArrayList<>();
+    private List<Graphic> notTaAnGraphics = new ArrayList<>();
+
+    private List<Graphic> conHuaPOGraphics = new ArrayList<>();
+    private List<Graphic> conNiSHILiuGraphics = new ArrayList<>();
+    private List<Graphic> conWeiYanGraphics = new ArrayList<>();
+    private List<Graphic> conXiePoGraphics = new ArrayList<>();
+    private List<Graphic> conTanTaGraphics = new ArrayList<>();
+    private List<Graphic> conLieFengGraphics = new ArrayList<>();
+    private List<Graphic> conTaAnGraphics = new ArrayList<>();
+    private ListenableList<Graphic> graphics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,12 +157,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         highImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_19_url));
         vectorLayer = new ArcGISMapImageLayer(getResources().getString(R.string.shiliangtu_url));
         dengZXLayer = new ArcGISMapImageLayer(getResources().getString(R.string.yuliang_url));
-        ssYLLayer = new ArcGISMapImageLayer(getResources().getString(R.string.ssyl_url));
+        ssYLLayer = new FeatureLayer(new ServiceFeatureTable(getResources().getString(R.string.ssyl_url)));
         elevationSource = new ArcGISTiledElevationSource(
                 getResources().getString(R.string.elevation_url));
         scene = new ArcGISScene();
         layers = scene.getOperationalLayers();
         graphicsOverlay = new GraphicsOverlay();
+        graphics = graphicsOverlay.getGraphics();
         graphicsOverlays = sceneView.getGraphicsOverlays();
         elevationSources = scene.getBaseSurface().getElevationSources();
         scene.setBasemap(Basemap.createImagery());
@@ -238,8 +269,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreStateBefore = llMoreState;
                 llMoreState = 1;
                 setRainfallMore();
-                setDisasterLegend(R.layout.activity_rainfall_legend,1);
-                if (llMoreStateBefore!=1){
+                setDisasterLegend(R.layout.activity_rainfall_legend, 1);
+                if (llMoreStateBefore != 1) {
                     layers.clear();
                     elevationSources.clear();
                     graphicsOverlays.clear();
@@ -252,8 +283,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreStateBefore = llMoreState;
                 llMoreState = 2;
                 setRainfallMore();
-                setDisasterLegend(R.layout.activity_disaster_legend,2);
-                if (llMoreStateBefore!=2){
+                setDisasterLegend(R.layout.activity_disaster_legend, 2);
+                if (llMoreStateBefore != 2) {
                     layers.clear();
                     elevationSources.clear();
                     graphicsOverlays.clear();
@@ -279,25 +310,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void setDisasterLegend(@LayoutRes int resource,int type) {
+    private void setDisasterLegend(@LayoutRes int resource, int type) {
         LayoutInflater inflater = getLayoutInflater();
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        lp.rightMargin=10;
-        lp.bottomMargin=20;
-        if (view==null){
-        view = inflater.inflate(resource, null);
-        view.setLayoutParams(lp);
-        rlMain.addView(view);
-        }else{
+        lp.rightMargin = 10;
+        lp.bottomMargin = 30;
+        if (view == null) {
+            view = inflater.inflate(resource, null);
+            view.setLayoutParams(lp);
+            rlMain.addView(view);
+        } else {
             rlMain.removeView(view);
             view = inflater.inflate(resource, null);
             view.setLayoutParams(lp);
             rlMain.addView(view);
+
         }
-        if(type==2) {
+        if (type == 2) {
             LinearLayout linearLayout1 = (LinearLayout) view.findViewById(R.id.ll_legend_1);
             LinearLayout linearLayout2 = (LinearLayout) view.findViewById(R.id.ll_legend_2);
             LinearLayout linearLayout3 = (LinearLayout) view.findViewById(R.id.ll_legend_3);
@@ -308,43 +340,85 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             linearLayout1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(MainActivity.this,"11111",Toast.LENGTH_SHORT).show();
+                    if (rbDisasterPoint.isChecked()){
+                        updateGraphic(allHuaPOGraphics);
+                    }else if (rbHandledPoint.isChecked()){
+                        updateGraphic(notHuaPOGraphics);
+                    }else if (rbCanceledPoint.isChecked()){
+                        updateGraphic(conHuaPOGraphics);
+                    }
                 }
             });
             linearLayout2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(MainActivity.this,"2",Toast.LENGTH_SHORT).show();
+                    if (rbDisasterPoint.isChecked()){
+                        updateGraphic(allNiSHILiuGraphics);
+                    }else if (rbHandledPoint.isChecked()){
+                        updateGraphic(notNiSHILiuGraphics);
+                    }else if (rbCanceledPoint.isChecked()){
+                        updateGraphic(conNiSHILiuGraphics);
+                    }
                 }
             });
             linearLayout3.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(MainActivity.this,"3",Toast.LENGTH_SHORT).show();
+                    if (rbDisasterPoint.isChecked()){
+                        updateGraphic(allWeiYanGraphics);
+                    }else if (rbHandledPoint.isChecked()){
+                        updateGraphic(notWeiYanGraphics);
+                    }else if (rbCanceledPoint.isChecked()){
+                        updateGraphic(conWeiYanGraphics);
+                    }
                 }
             });
             linearLayout4.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(MainActivity.this,"4",Toast.LENGTH_SHORT).show();
+                    if (rbDisasterPoint.isChecked()){
+                        updateGraphic(allXiePoGraphics);
+                    }else if (rbHandledPoint.isChecked()){
+                        updateGraphic(notXiePoGraphics);
+                    }else if (rbCanceledPoint.isChecked()){
+                        updateGraphic(conXiePoGraphics);
+                    }
                 }
             });
             linearLayout5.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(MainActivity.this,"5",Toast.LENGTH_SHORT).show();
+                    if (rbDisasterPoint.isChecked()){
+                        updateGraphic(allTanTaGraphics);
+                    }else if (rbHandledPoint.isChecked()){
+                        updateGraphic(notTanTaGraphics);
+                    }else if (rbCanceledPoint.isChecked()){
+                        updateGraphic(conTaAnGraphics);
+                    }
                 }
             });
             linearLayout6.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(MainActivity.this,"6",Toast.LENGTH_SHORT).show();
+                    if (rbDisasterPoint.isChecked()){
+                        updateGraphic(allLieFengGraphics);
+                    }else if (rbHandledPoint.isChecked()){
+                        updateGraphic(notLieFengGraphics);
+                    }else if (rbCanceledPoint.isChecked()){
+                        updateGraphic(conLieFengGraphics);
+                    }
                 }
             });
             linearLayout7.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(MainActivity.this,"7",Toast.LENGTH_SHORT).show();
+                    if (rbDisasterPoint.isChecked()){
+                        updateGraphic(allTaAnGraphics);
+                    }else if (rbHandledPoint.isChecked()){
+                        updateGraphic(notTaAnGraphics);
+                    }else if (rbCanceledPoint.isChecked()){
+                        updateGraphic(conTaAnGraphics);
+                    }
                 }
             });
 
@@ -372,16 +446,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.rb_disaster_point:
+                Log.d(TAG, "所有的灾害点集合大小：" + allGraphics.size() + "\n"
+                        + "已消耗灾害点集合大小：" + consumedGraphics.size() + "\n"
+                        + "未消耗灾害点集合大小：" + notConsumeGraphics.size());
                 if (b) {
-                    graphicsOverlays.add(graphicsOverlay);
-                } else {
-                    graphicsOverlays.clear();
+                    updateGraphic(allGraphics);
                 }
-
+                break;
+            case R.id.rb_canceled_point://已消耗
+                if (b){
+                    updateGraphic(consumedGraphics);
+                }
+                break;
+            case R.id.rb_handled_point:
+                if (b){
+                    updateGraphic(notConsumeGraphics);
+                }
                 break;
         }
     }
 
+    /**
+     * 更新地图上的图标
+     * @param g 图标集合
+     */
+    private void updateGraphic(List<Graphic> g){
+        graphics.clear();
+        graphics.addAll(g);
+        graphicsOverlays.clear();
+        graphicsOverlays.add(graphicsOverlay);
+    }
     private void initData() {
         OkHttpUtils.get().url(getResources().getString(R.string.get_disaster_point))
                 .build()
@@ -404,28 +498,122 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setOverlay() {
-        BitmapDrawable pinStarBlueDrawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.sign);
-        final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(pinStarBlueDrawable);
-        //Optionally set the size, if not set the image will be auto sized based on its size in pixels,
-        //its appearance would then differ across devices with different resolutions.
-        pinStarBlueSymbol.setHeight(40);
-        pinStarBlueSymbol.setWidth(40);
-        //Optionally set the offset, to align the base of the symbol aligns with the point geometry
-        pinStarBlueSymbol.setOffsetY(
-                11); //The image used for the symbol has a transparent buffer around it, so the offset is not simply height/2
-        pinStarBlueSymbol.loadAsync();
-        //[DocRef: END]
-        pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
-            @Override
-            public void run() {
-                for (DisasterPoint disasterPoint : disasterPoints) {
-                    Point point = new Point(Double.valueOf(disasterPoint.getDis_lon()), Double.valueOf(disasterPoint.getDis_lat()), SpatialReferences.getWgs84());
-                    Graphic graphic = new Graphic(point, pinStarBlueSymbol);
-                    graphic.setZIndex(disasterPoint.getId());
-                    graphicsOverlay.getGraphics().add(graphic);
+        BitmapDrawable huapo = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_1);
+        BitmapDrawable nishiliu = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_2);
+        BitmapDrawable weiyan = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_3);
+        BitmapDrawable xiepo = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_4);
+        BitmapDrawable tanta = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_5);
+        BitmapDrawable liefeng = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_6);
+        BitmapDrawable taan = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_7);
+        List<BitmapDrawable> drawables = new ArrayList<>();
+        drawables.add(huapo);
+        drawables.add(nishiliu);
+        drawables.add(weiyan);
+        drawables.add(xiepo);
+        drawables.add(tanta);
+        drawables.add(liefeng);
+        drawables.add(taan);
+        for (int i = 1; i <= 7; i++) {
+            final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawables.get(i - 1));
+            //Optionally set the size, if not set the image will be auto sized based on its size in pixels,
+            //its appearance would then differ across devices with different resolutions.
+            pinStarBlueSymbol.setHeight(40);
+            pinStarBlueSymbol.setWidth(40);
+            //Optionally set the offset, to align the base of the symbol aligns with the point geometry
+            pinStarBlueSymbol.setOffsetY(
+                    11); //The image used for the symbol has a transparent buffer around it, so the offset is not simply height/2
+            pinStarBlueSymbol.loadAsync();
+            //[DocRef: END]
+            final int finalI = i;
+            pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
+                @Override
+                public void run() {
+                    for (DisasterPoint disasterPoint : disasterPoints) {
+                        if (disasterPoint.getDis_type() == finalI) {
+                            Point point = new Point(Double.valueOf(disasterPoint.getDis_lon()), Double.valueOf(disasterPoint.getDis_lat()), SpatialReferences.getWgs84());
+                            Graphic graphic = new Graphic(point, pinStarBlueSymbol);
+                            graphic.setZIndex(disasterPoint.getId());
+                            allGraphics.add(graphic);
+                            switch (finalI) {
+                                case 1:
+                                    allHuaPOGraphics.add(graphic);
+                                    break;
+                                case 2:
+                                    allNiSHILiuGraphics.add(graphic);
+                                    break;
+                                case 3:
+                                    allWeiYanGraphics.add(graphic);
+                                    break;
+                                case 4:
+                                    allXiePoGraphics.add(graphic);
+                                    break;
+                                case 5:
+                                    allTanTaGraphics.add(graphic);
+                                    break;
+                                case 6:
+                                    allLieFengGraphics.add(graphic);
+                                    break;
+                                case 7:
+                                    allTaAnGraphics.add(graphic);
+                                    break;
+                            }
+                            if (disasterPoint.getDis_state() == 1) {
+                                notConsumeGraphics.add(graphic);
+                                switch (finalI) {
+                                    case 1:
+                                        notHuaPOGraphics.add(graphic);
+                                        break;
+                                    case 2:
+                                        notNiSHILiuGraphics.add(graphic);
+                                        break;
+                                    case 3:
+                                        notWeiYanGraphics.add(graphic);
+                                        break;
+                                    case 4:
+                                        notXiePoGraphics.add(graphic);
+                                        break;
+                                    case 5:
+                                        notTanTaGraphics.add(graphic);
+                                        break;
+                                    case 6:
+                                        notLieFengGraphics.add(graphic);
+                                        break;
+                                    case 7:
+                                        notTaAnGraphics.add(graphic);
+                                        break;
+                                }
+                            } else {
+                                consumedGraphics.add(graphic);
+                                switch (finalI) {
+                                    case 1:
+                                        conHuaPOGraphics.add(graphic);
+                                        break;
+                                    case 2:
+                                        conNiSHILiuGraphics.add(graphic);
+                                        break;
+                                    case 3:
+                                        conWeiYanGraphics.add(graphic);
+                                        break;
+                                    case 4:
+                                        conXiePoGraphics.add(graphic);
+                                        break;
+                                    case 5:
+                                        conTanTaGraphics.add(graphic);
+                                        break;
+                                    case 6:
+                                        conLieFengGraphics.add(graphic);
+                                        break;
+                                    case 7:
+                                        conTaAnGraphics.add(graphic);
+                                        break;
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-        });
+            });
+        }
+
     }
 
     private void setRainfallMore() {
