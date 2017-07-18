@@ -99,8 +99,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RadioButton rbCanceledPoint;
     @BindView(R.id.rb_handled_point)
     RadioButton rbHandledPoint;
-    @BindView(R.id.rb_moved_point)
-    RadioButton rbMovedPoint;
     private boolean llAreaState = false;
     private boolean llDataState = false;
     private int llMoreState = -1;
@@ -154,7 +152,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rbDisasterPoint.setOnCheckedChangeListener(this);
         rbCanceledPoint.setOnCheckedChangeListener(this);
         rbHandledPoint.setOnCheckedChangeListener(this);
-        rbMovedPoint.setOnCheckedChangeListener(this);
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
