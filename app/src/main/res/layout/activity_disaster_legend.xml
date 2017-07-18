@@ -43,6 +43,7 @@
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/ll_legend_1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/margin_neirong"
@@ -78,6 +79,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/ll_legend_2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/margin_neirong"
@@ -111,6 +113,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/ll_legend_3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/margin_neirong"
@@ -144,6 +147,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/ll_legend_4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/margin_neirong"
@@ -177,6 +181,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/ll_legend_5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/margin_neirong"
@@ -210,6 +215,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/ll_legend_6"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/margin_neirong"
@@ -243,6 +249,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/ll_legend_7"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/margin_neirong"
