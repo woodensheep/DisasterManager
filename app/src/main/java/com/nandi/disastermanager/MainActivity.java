@@ -296,58 +296,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             view = inflater.inflate(resource, null);
             view.setLayoutParams(lp);
             rlMain.addView(view);
-            if(type==2) {
-                LinearLayout linearLayout1 = (LinearLayout) view.findViewById(R.id.ll_legend_1);
-                LinearLayout linearLayout2 = (LinearLayout) view.findViewById(R.id.ll_legend_2);
-                LinearLayout linearLayout3 = (LinearLayout) view.findViewById(R.id.ll_legend_3);
-                LinearLayout linearLayout4 = (LinearLayout) view.findViewById(R.id.ll_legend_4);
-                LinearLayout linearLayout5 = (LinearLayout) view.findViewById(R.id.ll_legend_5);
-                LinearLayout linearLayout6 = (LinearLayout) view.findViewById(R.id.ll_legend_6);
-                LinearLayout linearLayout7 = (LinearLayout) view.findViewById(R.id.ll_legend_7);
-                linearLayout1.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(MainActivity.this,"11111",Toast.LENGTH_SHORT).show();
-                    }
-                });
-                linearLayout2.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(MainActivity.this,"2",Toast.LENGTH_SHORT).show();
-                    }
-                });
-                linearLayout3.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(MainActivity.this,"3",Toast.LENGTH_SHORT).show();
-                    }
-                });
-                linearLayout4.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(MainActivity.this,"4",Toast.LENGTH_SHORT).show();
-                    }
-                });
-                linearLayout5.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(MainActivity.this,"5",Toast.LENGTH_SHORT).show();
-                    }
-                });
-                linearLayout6.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(MainActivity.this,"6",Toast.LENGTH_SHORT).show();
-                    }
-                });
-                linearLayout7.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(MainActivity.this,"7",Toast.LENGTH_SHORT).show();
-                    }
-                });
+        }
+        if(type==2) {
+            LinearLayout linearLayout1 = (LinearLayout) view.findViewById(R.id.ll_legend_1);
+            LinearLayout linearLayout2 = (LinearLayout) view.findViewById(R.id.ll_legend_2);
+            LinearLayout linearLayout3 = (LinearLayout) view.findViewById(R.id.ll_legend_3);
+            LinearLayout linearLayout4 = (LinearLayout) view.findViewById(R.id.ll_legend_4);
+            LinearLayout linearLayout5 = (LinearLayout) view.findViewById(R.id.ll_legend_5);
+            LinearLayout linearLayout6 = (LinearLayout) view.findViewById(R.id.ll_legend_6);
+            LinearLayout linearLayout7 = (LinearLayout) view.findViewById(R.id.ll_legend_7);
+            linearLayout1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this,"11111",Toast.LENGTH_SHORT).show();
+                }
+            });
+            linearLayout2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this,"2",Toast.LENGTH_SHORT).show();
+                }
+            });
+            linearLayout3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this,"3",Toast.LENGTH_SHORT).show();
+                }
+            });
+            linearLayout4.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this,"4",Toast.LENGTH_SHORT).show();
+                }
+            });
+            linearLayout5.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this,"5",Toast.LENGTH_SHORT).show();
+                }
+            });
+            linearLayout6.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this,"6",Toast.LENGTH_SHORT).show();
+                }
+            });
+            linearLayout7.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this,"7",Toast.LENGTH_SHORT).show();
+                }
+            });
 
-            }
         }
     }
 
