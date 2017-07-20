@@ -300,11 +300,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreStateBefore = llMoreState;
                 llMoreState = 3;
                 setRainfallMore();
+                if(view!=null){
+                    rlMain.removeView(view);
+                }
                 break;
             case R.id.ll_equipment:
                 llMoreStateBefore = llMoreState;
                 llMoreState = 4;
                 setRainfallMore();
+                if(view!=null){
+                    rlMain.removeView(view);
+                }
                 break;
 
         }
