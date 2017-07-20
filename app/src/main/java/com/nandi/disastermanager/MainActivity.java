@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArcGISMapImageLayer highImageLayer;
     ArcGISMapImageLayer vectorLayer;
     ArcGISMapImageLayer dengZXLayer;
+    ArcGISMapImageLayer dianziLayer;
     FeatureLayer ssYLLayer;
     private ArcGISScene scene;
     private ArcGISTiledElevationSource elevationSource;
@@ -153,11 +154,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        dianziLayer=new ArcGISMapImageLayer(getResources().getString(R.string.dianziditu_url));
         lowImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_url));
         highImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_19_url));
         vectorLayer = new ArcGISMapImageLayer(getResources().getString(R.string.shiliangtu_url));
         dengZXLayer = new ArcGISMapImageLayer(getResources().getString(R.string.yuliang_url));
-        ssYLLayer = new FeatureLayer(new ServiceFeatureTable(getResources().getString(R.string.ssyl_url)));
+        ServiceFeatureTable serviceFeatureTable = new ServiceFeatureTable(getResources().getString(R.string.ssyl_url));
+        ssYLLayer = new FeatureLayer(serviceFeatureTable);
         elevationSource = new ArcGISTiledElevationSource(
                 getResources().getString(R.string.elevation_url));
         scene = new ArcGISScene();
@@ -302,6 +305,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setRainfallMore();
                 if(view!=null){
                     rlMain.removeView(view);
+                }
+                if (llMoreStateBefore!=3){
+                    layers.clear();
+                    elevationSources.clear();
+                    graphicsOverlays.clear();
+                    layers.add(dianziLayer);
+                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+                    sceneView.setViewpointCamera(camera);
                 }
                 break;
             case R.id.ll_equipment:
