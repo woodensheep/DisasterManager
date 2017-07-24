@@ -187,7 +187,7 @@
                             android:layout_height="match_parent"
                             android:gravity="left|center"
                             android:paddingLeft="7dp"
-                            android:text="设备管理"
+                            android:text="设备管理(万盛暂无)"
                             android:textColor="@color/color_neirong"
                             android:textSize="@dimen/leirong_text_size" />
                     </LinearLayout>

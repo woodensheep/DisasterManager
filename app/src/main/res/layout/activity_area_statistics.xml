@@ -67,15 +67,15 @@
                     />
 
                 <TextView
+                    android:id="@+id/tv_disaster_number"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:gravity="left|center"
                     android:text="@string/ceshi"
-                    android:textSize="@dimen/leirong_text_size"
                     android:textColor="@color/color_neirong"
 
-                    />
+                    android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
 
             <LinearLayout
@@ -98,15 +98,15 @@
                     />
 
                 <TextView
+                    android:id="@+id/tv_person_number"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:gravity="left|center"
                     android:text="@string/ceshi"
-                    android:textSize="@dimen/leirong_text_size"
                     android:textColor="@color/color_neirong"
 
-                    />
+                    android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
             <LinearLayout
                 android:layout_marginTop="@dimen/margin_neirong"
@@ -128,15 +128,15 @@
                     />
 
                 <TextView
+                    android:id="@+id/tv_equipment_number"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:gravity="left|center"
                     android:text="@string/ceshi"
-                    android:textSize="@dimen/leirong_text_size"
                     android:textColor="@color/color_neirong"
 
-                    />
+                    android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
 
             <LinearLayout
@@ -159,15 +159,15 @@
                     />
 
                 <TextView
+                    android:id="@+id/tv_leader_number"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:gravity="left|center"
                     android:text="@string/ceshi"
-                    android:textSize="@dimen/leirong_text_size"
                     android:textColor="@color/color_neirong"
 
-                    />
+                    android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
             <LinearLayout
                 android:layout_marginTop="@dimen/margin_neirong"
@@ -189,15 +189,15 @@
                     />
 
                 <TextView
+                    android:id="@+id/tv_charge_number"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:gravity="left|center"
                     android:text="@string/ceshi"
-                    android:textSize="@dimen/leirong_text_size"
                     android:textColor="@color/color_neirong"
 
-                    />
+                    android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
 
         </LinearLayout>

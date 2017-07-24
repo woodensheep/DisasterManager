@@ -12,6 +12,7 @@
         android:layout_height="match_parent">
 
         <RadioButton
+            android:id="@+id/rb_qcqf_person"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="@dimen/margin_neirong_2"
@@ -26,6 +27,7 @@
             android:textSize="@dimen/data_text_size_2" />
 
         <RadioButton
+            android:id="@+id/rb_zs_person"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="@dimen/margin_neirong_2"
@@ -40,6 +42,7 @@
             android:textSize="@dimen/data_text_size_2" />
 
         <RadioButton
+            android:id="@+id/rb_pq_person"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="@dimen/margin_neirong_2"
@@ -54,6 +57,7 @@
             android:textSize="@dimen/data_text_size_2" />
 
         <RadioButton
+            android:id="@+id/rb_dhz_person"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="@dimen/margin_neirong_2"

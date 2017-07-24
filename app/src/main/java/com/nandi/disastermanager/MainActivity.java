@@ -1,6 +1,7 @@
 package com.nandi.disastermanager;
 
 import android.animation.ObjectAnimator;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -43,6 +44,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -102,6 +107,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RadioButton rbCanceledPoint;//已消耗
     @BindView(R.id.rb_handled_point)
     RadioButton rbHandledPoint;//未消耗
+    @BindView(R.id.tv_disaster_number)
+    TextView tvDisasterNumber;
+    @BindView(R.id.tv_person_number)
+    TextView tvPersonNumber;
+    @BindView(R.id.tv_equipment_number)
+    TextView tvEquipmentNumber;
+    @BindView(R.id.tv_leader_number)
+    TextView tvLeaderNumber;
+    @BindView(R.id.tv_charge_number)
+    TextView tvChargeNumber;
+    @BindView(R.id.rb_qcqf_person)
+    RadioButton rbQcqfPerson;
+    @BindView(R.id.rb_zs_person)
+    RadioButton rbZsPerson;
+    @BindView(R.id.rb_pq_person)
+    RadioButton rbPqPerson;
+    @BindView(R.id.rb_dhz_person)
+    RadioButton rbDhzPerson;
     private boolean llAreaState = false;
     private boolean llDataState = false;
     private int llMoreState = -1;
@@ -119,7 +142,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private LayerList layers;
     private Surface.ElevationSourceList elevationSources;
     private List<DisasterPoint> disasterPoints;
+    private List<PersonLocation> qcPersons = new ArrayList<>();
+    private List<PersonLocation> zsPersons = new ArrayList<>();
+    private List<PersonLocation> pqPersons = new ArrayList<>();
+    private List<PersonLocation> dhzPersons = new ArrayList<>();
     private GraphicsOverlay graphicsOverlay;
+    private GraphicsOverlay personGraphicsOverlay;
+    private GraphicsOverlay localGraphicsOverlay;
     private ListenableList<GraphicsOverlay> graphicsOverlays;
     private List<Graphic> allGraphics = new ArrayList<>();//所有的灾害点图标
     private List<Graphic> consumedGraphics = new ArrayList<>();//已消耗灾害点图标
@@ -147,14 +176,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<Graphic> conTanTaGraphics = new ArrayList<>();
     private List<Graphic> conLieFengGraphics = new ArrayList<>();
     private List<Graphic> conTaAnGraphics = new ArrayList<>();
+    private List<Graphic> qcGraphics = new ArrayList<>();
+    private List<Graphic> zsGraphics = new ArrayList<>();
+    private List<Graphic> pqGraphics = new ArrayList<>();
+    private List<Graphic> dhzGraphics = new ArrayList<>();
     private ListenableList<Graphic> graphics;
+    private ListenableList<Graphic> personGraphics;
+    private ListenableList<Graphic> localGraphics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        dianziLayer=new ArcGISMapImageLayer(getResources().getString(R.string.dianziditu_url));
+        initStaData();
+        initLocalData();
+        dianziLayer = new ArcGISMapImageLayer(getResources().getString(R.string.dianziditu_url));
         lowImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_url));
         highImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_19_url));
         vectorLayer = new ArcGISMapImageLayer(getResources().getString(R.string.shiliangtu_url));
@@ -162,16 +199,102 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ServiceFeatureTable serviceFeatureTable = new ServiceFeatureTable(getResources().getString(R.string.ssyl_url));
         ssYLLayer = new FeatureLayer(serviceFeatureTable);
         elevationSource = new ArcGISTiledElevationSource(
-                getResources().getString(R.string.elevation_url));
+                getResources().getString(R.string.elevation_image_service));
         scene = new ArcGISScene();
         layers = scene.getOperationalLayers();
         graphicsOverlay = new GraphicsOverlay();
+        personGraphicsOverlay = new GraphicsOverlay();
+        localGraphicsOverlay=new GraphicsOverlay();
         graphics = graphicsOverlay.getGraphics();
+        personGraphics = personGraphicsOverlay.getGraphics();
+        localGraphics=localGraphicsOverlay.getGraphics();
         graphicsOverlays = sceneView.getGraphicsOverlays();
         elevationSources = scene.getBaseSurface().getElevationSources();
         scene.setBasemap(Basemap.createImagery());
         sceneView.setScene(scene);
         setListeners();
+    }
+
+    private void initLocalData() {
+        pqPersons.add(new PersonLocation("28.95514","106.926366",10011));
+        pqPersons.add(new PersonLocation("28.816001","106.816087",10021));
+        pqPersons.add(new PersonLocation("28.943602","106.882525",10031));
+        pqPersons.add(new PersonLocation("29.031026","106.965438",10041));
+        pqPersons.add(new PersonLocation("28.869188","106.908478",10051));
+        pqPersons.add(new PersonLocation("28.940619","106.945398",10061));
+        pqPersons.add(new PersonLocation("28.861747","106.842987",10071));
+        pqPersons.add(new PersonLocation("28.914455","107.003855",10081));
+        pqPersons.add(new PersonLocation("29.070643","106.880268",10091));
+        pqPersons.add(new PersonLocation("28.95102","106.923961",10101));
+
+        dhzPersons.add(new PersonLocation("28.96346","106.927437",293));
+        dhzPersons.add(new PersonLocation("28.96446","106.928437",303));
+        dhzPersons.add(new PersonLocation("28.96546","106.929437",313));
+        dhzPersons.add(new PersonLocation("28.96646","106.927437",333));
+
+        zsPersons.add(new PersonLocation("28.961367","106.932906",10012));
+        zsPersons.add(new PersonLocation("28.948905","106.888573",10022));
+        zsPersons.add(new PersonLocation("29.07643","106.886891",10032));
+        zsPersons.add(new PersonLocation("28.9435","106.955571",10042));
+
+        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.person);
+        final PictureMarkerSymbol symbol = new PictureMarkerSymbol(drawable);
+        symbol.setWidth(30);
+        symbol.setHeight(30);
+        symbol.setOffsetY(11);
+        symbol.loadAsync();
+        symbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                for (PersonLocation disasterPoint : pqPersons) {
+                    Point point = new Point(Double.valueOf(disasterPoint.getLon()), Double.valueOf(disasterPoint.getLat()), SpatialReferences.getWgs84());
+                    Graphic graphic = new Graphic(point, symbol);
+                    graphic.setZIndex(disasterPoint.getId());
+                    pqGraphics.add(graphic);
+                }
+                for (PersonLocation disasterPoint : zsPersons) {
+                    Point point = new Point(Double.valueOf(disasterPoint.getLon()), Double.valueOf(disasterPoint.getLat()), SpatialReferences.getWgs84());
+                    Graphic graphic = new Graphic(point, symbol);
+                    graphic.setZIndex(disasterPoint.getId());
+                    zsGraphics.add(graphic);
+                }
+                for (PersonLocation disasterPoint : dhzPersons) {
+                    Point point = new Point(Double.valueOf(disasterPoint.getLon()), Double.valueOf(disasterPoint.getLat()), SpatialReferences.getWgs84());
+                    Graphic graphic = new Graphic(point, symbol);
+                    graphic.setZIndex(disasterPoint.getId());
+                    dhzGraphics.add(graphic);
+                }
+
+            }
+
+        });
+    }
+
+
+    private void initStaData() {
+        OkHttpUtils.get().url(getResources().getString(R.string.statistics_url))
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        Toast.makeText(getApplicationContext(), "统计信息获取失败，请检查网路！", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        try {
+                            JSONObject object = new JSONObject(response);
+                            JSONObject oj = object.getJSONObject("data");
+                            tvDisasterNumber.setText(oj.getString("disasterTotal"));
+                            tvPersonNumber.setText(oj.getString("personnelTotal"));
+                            tvChargeNumber.setText(oj.getString("LandTotal"));
+                            tvEquipmentNumber.setText(oj.getString("equipmentTotal"));
+                            tvLeaderNumber.setText(oj.getString("townshipTotal"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
     }
 
     private void setListeners() {
@@ -186,6 +309,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rbDisasterPoint.setOnCheckedChangeListener(this);
         rbCanceledPoint.setOnCheckedChangeListener(this);
         rbHandledPoint.setOnCheckedChangeListener(this);
+        rbQcqfPerson.setOnCheckedChangeListener(this);
+        rbDhzPerson.setOnCheckedChangeListener(this);
+        rbZsPerson.setOnCheckedChangeListener(this);
+        rbPqPerson.setOnCheckedChangeListener(this);
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -193,7 +320,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
                 // identify graphics on the graphics overlay
                 final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = sceneView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 10.0, false, 2);
-
+                final ListenableFuture<IdentifyGraphicsOverlayResult> personIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(personGraphicsOverlay, screenPoint, 10.0, false, 2);
+                final ListenableFuture<IdentifyGraphicsOverlayResult> localIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(localGraphicsOverlay, screenPoint, 10.0, false, 2);
                 identifyGraphic.addDoneListener(new Runnable() {
                     @Override
                     public void run() {
@@ -209,10 +337,145 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 });
+                personIdentifyGraphic.addDoneListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = personIdentifyGraphic.get();
+                            if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
+                                int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+                                showPersonInfo(zIndex);
+                            }
+                        } catch (InterruptedException | ExecutionException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
+                localIdentifyGraphic.addDoneListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = localIdentifyGraphic.get();
+                            if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
+                                int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+                                showLocalPersonInfo(zIndex);
+                            }
+                        } catch (InterruptedException | ExecutionException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
 
                 return super.onSingleTapConfirmed(e);
             }
         });
+    }
+
+    private void showLocalPersonInfo(int zIndex) {
+        final String id,type;
+        String s= String.valueOf(zIndex);
+        id=s.substring(0,s.length()-1);
+        type= String.valueOf(s.charAt(s.length()-1));
+        Log.d(TAG,"id:"+id+"\ntype:"+type);
+        OkHttpUtils.get().url(getResources().getString(R.string.get_local_person_info))
+                .addParams("id",id)
+                .addParams("type",type)
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        Toast.makeText(getApplicationContext(), "网络连接失败！", Toast.LENGTH_SHORT).show();
+
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        try {
+                            JSONObject object=new JSONObject(response);
+                            String info = "";
+                            if ("1".equals(type)){
+                                String name =object.getString("admin_name");
+                                String address=object.getString("area_location");
+                                String mobile=object.getString("real_mobile");
+                                info="姓名："+name+"\n"
+                                        +"乡镇："+address+"\n"
+                                        +"电话："+mobile;
+                            }else if ("3".equals(type)){
+                                String name =object.getString("name");
+                                String address=object.getString("location");
+                                String tel=object.getString("zhibantel");
+                                String job=object.getString("job");
+                                String mobile=object.getString("iphone");
+                                info="姓名："+name+"\n"
+                                        +"地址："+address+"\n"
+                                        +"值班电话："+tel+"\n"
+                                        +"职位："+job+"\n"
+                                        +"手机："+mobile;
+                            }else if ("2".equals(type)){
+                                String name=object.getString("disname");
+                                String gender=object.getString("gender");
+                                String age=object.getString("age");
+                                String mobile=object.getString("phone");
+                                String manage_area=object.getString("manage_area");
+                                String address=object.getString("disarea");
+                                String danwei=object.getString("unit_name");
+                                info="姓名："+name+"\n"
+                                        +"性别："+gender+"\n"
+                                        +"年龄："+age+"\n"
+                                        +"电话："+mobile+"\n"
+                                        +"地址："+address+"\n"
+                                        +"单位："+danwei+"\n"
+                                        +"管理区域："+manage_area+"\n";
+                            }
+                            TextView textview=new TextView(MainActivity.this);
+                            textview.setTextColor(Color.BLACK);
+                            textview.setTextSize(18);
+                            textview.setText(info);
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setView(textview)
+                                    .show();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
+    private void showPersonInfo(int zIndex) {
+        OkHttpUtils.get().url(getResources().getString(R.string.get_person_info))
+                .addParams("id",zIndex+"")
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        Toast.makeText(getApplicationContext(), "网络连接失败！", Toast.LENGTH_SHORT).show();
+
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        Gson gson=new Gson();
+                        Type type = new TypeToken<List<PersonInfo>>() {
+                        }.getType();
+                        List<PersonInfo> personInfos=gson.fromJson(response,type);
+                        PersonInfo personInfo=personInfos.get(0);
+                        Log.d(TAG,"人员信息："+personInfo);
+                        String info="姓名："+personInfo.getName()+"\n"
+                        +"手机号码："+personInfo.getMobile()+"\n"
+                        +"村社："+personInfo.getVillage()+"\n"
+                        +"家庭住址"+personInfo.getAddress()+"\n"
+                        +"民族："+personInfo.getNation()+"\n"
+                        +"工作岗位："+personInfo.getWork()+"\n"
+                        +"出生年月："+personInfo.getBrithday()+"\n";
+                        TextView textView=new TextView(MainActivity.this);
+                        textView.setText(info);
+                        textView.setTextColor(Color.BLACK);
+                        textView.setTextSize(18);
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setView(textView)
+                                .show();
+                    }
+                });
     }
 
     private void showInfo(int zIndex) {
@@ -303,13 +566,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreStateBefore = llMoreState;
                 llMoreState = 3;
                 setRainfallMore();
-                if(view!=null){
+                if (view != null) {
                     rlMain.removeView(view);
                 }
-                if (llMoreStateBefore!=3){
+                if (llMoreStateBefore != 3) {
                     layers.clear();
                     elevationSources.clear();
                     graphicsOverlays.clear();
+                    initPersonData();
                     layers.add(dianziLayer);
                     Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
                     sceneView.setViewpointCamera(camera);
@@ -319,12 +583,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreStateBefore = llMoreState;
                 llMoreState = 4;
                 setRainfallMore();
-                if(view!=null){
+                if (view != null) {
                     rlMain.removeView(view);
                 }
                 break;
 
         }
+    }
+
+    private void initPersonData() {
+        OkHttpUtils.get().url(getResources().getString(R.string.get_person_location))
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        Toast.makeText(getApplicationContext(), "网络连接失败！", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        try {
+                            JSONObject object = new JSONObject(response);
+                            JSONObject oj = object.getJSONObject("data");
+                            JSONArray array = oj.getJSONArray("群测群防人");
+                            for (int i = 0; i < array.length() - 1; i++) {
+                                JSONObject o = array.getJSONObject(i);
+                                PersonLocation personLocation = new PersonLocation();
+                                personLocation.setId(o.getInt("id"));
+                                personLocation.setLat(o.getString("dis_lat"));
+                                personLocation.setLon(o.getString("dis_lon"));
+                                qcPersons.add(personLocation);
+                            }
+                            setPersonGraphic();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
+    private void setPersonGraphic() {
+        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.person);
+        final PictureMarkerSymbol symbol = new PictureMarkerSymbol(drawable);
+        symbol.setWidth(30);
+        symbol.setHeight(30);
+        symbol.setOffsetY(11);
+        symbol.loadAsync();
+        symbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                for (PersonLocation disasterPoint : qcPersons) {
+                    Point point = new Point(Double.valueOf(disasterPoint.getLon()), Double.valueOf(disasterPoint.getLat()), SpatialReferences.getWgs84());
+                    Graphic graphic = new Graphic(point, symbol);
+                    graphic.setZIndex(disasterPoint.getId());
+                    qcGraphics.add(graphic);
+                }
+
+            }
+
+        });
     }
 
     private void setDisasterLegend(@LayoutRes int resource, int type) {
@@ -357,11 +674,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             linearLayout1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (rbDisasterPoint.isChecked()){
+                    if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allHuaPOGraphics);
-                    }else if (rbHandledPoint.isChecked()){
+                    } else if (rbHandledPoint.isChecked()) {
                         updateGraphic(notHuaPOGraphics);
-                    }else if (rbCanceledPoint.isChecked()){
+                    } else if (rbCanceledPoint.isChecked()) {
                         updateGraphic(conHuaPOGraphics);
                     }
                 }
@@ -369,11 +686,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             linearLayout2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (rbDisasterPoint.isChecked()){
+                    if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allNiSHILiuGraphics);
-                    }else if (rbHandledPoint.isChecked()){
+                    } else if (rbHandledPoint.isChecked()) {
                         updateGraphic(notNiSHILiuGraphics);
-                    }else if (rbCanceledPoint.isChecked()){
+                    } else if (rbCanceledPoint.isChecked()) {
                         updateGraphic(conNiSHILiuGraphics);
                     }
                 }
@@ -381,11 +698,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             linearLayout3.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (rbDisasterPoint.isChecked()){
+                    if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allWeiYanGraphics);
-                    }else if (rbHandledPoint.isChecked()){
+                    } else if (rbHandledPoint.isChecked()) {
                         updateGraphic(notWeiYanGraphics);
-                    }else if (rbCanceledPoint.isChecked()){
+                    } else if (rbCanceledPoint.isChecked()) {
                         updateGraphic(conWeiYanGraphics);
                     }
                 }
@@ -393,11 +710,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             linearLayout4.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (rbDisasterPoint.isChecked()){
+                    if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allXiePoGraphics);
-                    }else if (rbHandledPoint.isChecked()){
+                    } else if (rbHandledPoint.isChecked()) {
                         updateGraphic(notXiePoGraphics);
-                    }else if (rbCanceledPoint.isChecked()){
+                    } else if (rbCanceledPoint.isChecked()) {
                         updateGraphic(conXiePoGraphics);
                     }
                 }
@@ -405,11 +722,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             linearLayout5.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (rbDisasterPoint.isChecked()){
+                    if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allTanTaGraphics);
-                    }else if (rbHandledPoint.isChecked()){
+                    } else if (rbHandledPoint.isChecked()) {
                         updateGraphic(notTanTaGraphics);
-                    }else if (rbCanceledPoint.isChecked()){
+                    } else if (rbCanceledPoint.isChecked()) {
                         updateGraphic(conTaAnGraphics);
                     }
                 }
@@ -417,11 +734,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             linearLayout6.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (rbDisasterPoint.isChecked()){
+                    if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allLieFengGraphics);
-                    }else if (rbHandledPoint.isChecked()){
+                    } else if (rbHandledPoint.isChecked()) {
                         updateGraphic(notLieFengGraphics);
-                    }else if (rbCanceledPoint.isChecked()){
+                    } else if (rbCanceledPoint.isChecked()) {
                         updateGraphic(conLieFengGraphics);
                     }
                 }
@@ -429,11 +746,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             linearLayout7.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (rbDisasterPoint.isChecked()){
+                    if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allTaAnGraphics);
-                    }else if (rbHandledPoint.isChecked()){
+                    } else if (rbHandledPoint.isChecked()) {
                         updateGraphic(notTaAnGraphics);
-                    }else if (rbCanceledPoint.isChecked()){
+                    } else if (rbCanceledPoint.isChecked()) {
                         updateGraphic(conTaAnGraphics);
                     }
                 }
@@ -471,28 +788,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.rb_canceled_point://已消耗
-                if (b){
+                if (b) {
                     updateGraphic(consumedGraphics);
                 }
                 break;
             case R.id.rb_handled_point:
-                if (b){
+                if (b) {
                     updateGraphic(notConsumeGraphics);
+                }
+                break;
+            case R.id.rb_qcqf_person:
+                if (b){
+                    updatePersonGraphic(qcGraphics);
+                }
+                break;
+            case R.id.rb_zs_person:
+                if (b){
+                    updateLocalGraphic(zsGraphics);
+                }
+                break;
+            case R.id.rb_pq_person:
+                if (b){
+                    updateLocalGraphic(pqGraphics);
+                }
+                break;
+            case R.id.rb_dhz_person:
+                if (b){
+                    updateLocalGraphic(dhzGraphics);
                 }
                 break;
         }
     }
 
+    private void updateLocalGraphic(List<Graphic> g) {
+        localGraphics.clear();
+        localGraphics.addAll(g);
+        graphicsOverlays.clear();
+        graphicsOverlays.add(localGraphicsOverlay);
+    }
+
+    private void updatePersonGraphic(List<Graphic> q) {
+        personGraphics.clear();
+        personGraphics.addAll(q);
+        graphicsOverlays.clear();
+        graphicsOverlays.add(personGraphicsOverlay);
+    }
+
     /**
      * 更新地图上的图标
+     *
      * @param g 图标集合
      */
-    private void updateGraphic(List<Graphic> g){
+    private void updateGraphic(List<Graphic> g) {
         graphics.clear();
         graphics.addAll(g);
         graphicsOverlays.clear();
         graphicsOverlays.add(graphicsOverlay);
     }
+
     private void initData() {
         OkHttpUtils.get().url(getResources().getString(R.string.get_disaster_point))
                 .build()
