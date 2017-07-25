@@ -21,5 +21,7 @@
     <color name="color_title">#000000</color>
     <color name="color_neirong">#ffffff</color>
 
-
+    <color name="white">#ffffff</color>
+    <color name="relic_text_color">#2caeaa</color>
+    <color name="relic_text_edit_color">#2caeaa</color>
 </resources>

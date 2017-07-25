@@ -1,7 +1,6 @@
 package com.nandi.disastermanager;
 
 import android.animation.ObjectAnimator;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -204,10 +203,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         layers = scene.getOperationalLayers();
         graphicsOverlay = new GraphicsOverlay();
         personGraphicsOverlay = new GraphicsOverlay();
-        localGraphicsOverlay=new GraphicsOverlay();
+        localGraphicsOverlay = new GraphicsOverlay();
         graphics = graphicsOverlay.getGraphics();
         personGraphics = personGraphicsOverlay.getGraphics();
-        localGraphics=localGraphicsOverlay.getGraphics();
+        localGraphics = localGraphicsOverlay.getGraphics();
         graphicsOverlays = sceneView.getGraphicsOverlays();
         elevationSources = scene.getBaseSurface().getElevationSources();
         scene.setBasemap(Basemap.createImagery());
@@ -216,26 +215,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initLocalData() {
-        pqPersons.add(new PersonLocation("28.95514","106.926366",10011));
-        pqPersons.add(new PersonLocation("28.816001","106.816087",10021));
-        pqPersons.add(new PersonLocation("28.943602","106.882525",10031));
-        pqPersons.add(new PersonLocation("29.031026","106.965438",10041));
-        pqPersons.add(new PersonLocation("28.869188","106.908478",10051));
-        pqPersons.add(new PersonLocation("28.940619","106.945398",10061));
-        pqPersons.add(new PersonLocation("28.861747","106.842987",10071));
-        pqPersons.add(new PersonLocation("28.914455","107.003855",10081));
-        pqPersons.add(new PersonLocation("29.070643","106.880268",10091));
-        pqPersons.add(new PersonLocation("28.95102","106.923961",10101));
+        pqPersons.add(new PersonLocation("28.95514", "106.926366", 10011));
+        pqPersons.add(new PersonLocation("28.816001", "106.816087", 10021));
+        pqPersons.add(new PersonLocation("28.943602", "106.882525", 10031));
+        pqPersons.add(new PersonLocation("29.031026", "106.965438", 10041));
+        pqPersons.add(new PersonLocation("28.869188", "106.908478", 10051));
+        pqPersons.add(new PersonLocation("28.940619", "106.945398", 10061));
+        pqPersons.add(new PersonLocation("28.861747", "106.842987", 10071));
+        pqPersons.add(new PersonLocation("28.914455", "107.003855", 10081));
+        pqPersons.add(new PersonLocation("29.070643", "106.880268", 10091));
+        pqPersons.add(new PersonLocation("28.95102", "106.923961", 10101));
 
-        dhzPersons.add(new PersonLocation("28.96346","106.927437",293));
-        dhzPersons.add(new PersonLocation("28.96446","106.928437",303));
-        dhzPersons.add(new PersonLocation("28.96546","106.929437",313));
-        dhzPersons.add(new PersonLocation("28.96646","106.927437",333));
+        dhzPersons.add(new PersonLocation("28.96346", "106.927437", 293));
+        dhzPersons.add(new PersonLocation("28.96446", "106.928437", 303));
+        dhzPersons.add(new PersonLocation("28.96546", "106.929437", 313));
+        dhzPersons.add(new PersonLocation("28.96646", "106.927437", 333));
 
-        zsPersons.add(new PersonLocation("28.961367","106.932906",10012));
-        zsPersons.add(new PersonLocation("28.948905","106.888573",10022));
-        zsPersons.add(new PersonLocation("29.07643","106.886891",10032));
-        zsPersons.add(new PersonLocation("28.9435","106.955571",10042));
+        zsPersons.add(new PersonLocation("28.961367", "106.932906", 10012));
+        zsPersons.add(new PersonLocation("28.948905", "106.888573", 10022));
+        zsPersons.add(new PersonLocation("29.07643", "106.886891", 10032));
+        zsPersons.add(new PersonLocation("28.9435", "106.955571", 10042));
 
         BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.person);
         final PictureMarkerSymbol symbol = new PictureMarkerSymbol(drawable);
@@ -372,14 +371,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showLocalPersonInfo(int zIndex) {
-        final String id,type;
-        String s= String.valueOf(zIndex);
-        id=s.substring(0,s.length()-1);
-        type= String.valueOf(s.charAt(s.length()-1));
-        Log.d(TAG,"id:"+id+"\ntype:"+type);
+        final String id, type;
+        String s = String.valueOf(zIndex);
+        id = s.substring(0, s.length() - 1);
+        type = String.valueOf(s.charAt(s.length() - 1));
+        Log.d(TAG, "id:" + id + "\ntype:" + type);
         OkHttpUtils.get().url(getResources().getString(R.string.get_local_person_info))
-                .addParams("id",id)
-                .addParams("type",type)
+                .addParams("id", id)
+                .addParams("type", type)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -390,49 +389,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onResponse(String response, int id) {
+                        Log.d("limeng","response:"+response);
+
                         try {
-                            JSONObject object=new JSONObject(response);
+                            JSONObject object = new JSONObject(response);
                             String info = "";
-                            if ("1".equals(type)){
-                                String name =object.getString("admin_name");
-                                String address=object.getString("area_location");
-                                String mobile=object.getString("real_mobile");
-                                info="姓名："+name+"\n"
-                                        +"乡镇："+address+"\n"
-                                        +"电话："+mobile;
-                            }else if ("3".equals(type)){
-                                String name =object.getString("name");
-                                String address=object.getString("location");
-                                String tel=object.getString("zhibantel");
-                                String job=object.getString("job");
-                                String mobile=object.getString("iphone");
-                                info="姓名："+name+"\n"
-                                        +"地址："+address+"\n"
-                                        +"值班电话："+tel+"\n"
-                                        +"职位："+job+"\n"
-                                        +"手机："+mobile;
-                            }else if ("2".equals(type)){
-                                String name=object.getString("disname");
-                                String gender=object.getString("gender");
-                                String age=object.getString("age");
-                                String mobile=object.getString("phone");
-                                String manage_area=object.getString("manage_area");
-                                String address=object.getString("disarea");
-                                String danwei=object.getString("unit_name");
-                                info="姓名："+name+"\n"
-                                        +"性别："+gender+"\n"
-                                        +"年龄："+age+"\n"
-                                        +"电话："+mobile+"\n"
-                                        +"地址："+address+"\n"
-                                        +"单位："+danwei+"\n"
-                                        +"管理区域："+manage_area+"\n";
+                            View view = null;
+                            if ("1".equals(type)) {
+                                String name = object.getString("admin_name");
+                                String address = object.getString("area_location");
+                                String mobile = object.getString("real_mobile");
+                                info = "姓名：" + name + "\n"
+                                        + "乡镇：" + address + "\n"
+                                        + "电话：" + mobile;
+                                view= LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info1, null);
+                                ((TextView)view.findViewById(R.id.tv_1_person_name)).append(name==null?"":name);
+                                ((TextView)view.findViewById(R.id.tv_1_person_address)).append(address==null?"":address);
+                                ((TextView)view.findViewById(R.id.tv_1_person_mobile)).append(mobile==null?"":mobile);
+
+                            } else if ("3".equals(type)) {
+                                String name = object.getString("name");
+                                String address = object.getString("location");
+                                String tel = object.getString("zhibantel");
+                                String job = object.getString("job");
+                                String mobile = object.getString("iphone");
+                                info = "姓名：" + name + "\n"
+                                        + "地址：" + address + "\n"
+                                        + "值班电话：" + tel + "\n"
+                                        + "职位：" + job + "\n"
+                                        + "手机：" + mobile;
+                                view= LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info2, null);
+                                ((TextView)view.findViewById(R.id.tv_2_person_name)).append(name==null?"":name);
+                                ((TextView)view.findViewById(R.id.tv_2_person_address)).append(address==null?"":address);
+                                ((TextView)view.findViewById(R.id.tv_2_person_mobile)).append(mobile==null?"":mobile);
+                                ((TextView)view.findViewById(R.id.tv_2_person_tel)).append(tel==null?"":tel);
+                                ((TextView)view.findViewById(R.id.tv_2_person_job)).append(job==null?"":job);
+                            } else if ("2".equals(type)) {
+                                String name = object.getString("disname");
+                                String gender = object.getString("gender");
+                                String age = object.getString("age");
+                                String mobile = object.getString("phone");
+                                String manage_area = object.getString("manage_area");
+                                String address = object.getString("disarea");
+                                String danwei = object.getString("unit_name");
+                                info = "姓名：" + name + "\n"
+                                        + "性别：" + gender + "\n"
+                                        + "年龄：" + age + "\n"
+                                        + "电话：" + mobile + "\n"
+                                        + "地址：" + address + "\n"
+                                        + "单位：" + danwei + "\n"
+                                        + "管理区域：" + manage_area + "\n";
+                                view= LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info3, null);
+                                ((TextView)view.findViewById(R.id.tv_3_person_name)).append(name==null?"":name);
+                                ((TextView)view.findViewById(R.id.tv_3_person_gender)).append(gender==null?"":gender);
+                                ((TextView)view.findViewById(R.id.tv_3_person_age)).append(age==null?"":age);
+                                ((TextView)view.findViewById(R.id.tv_3_person_mobile)).append(mobile==null?"":mobile);
+                                ((TextView)view.findViewById(R.id.tv_3_person_address)).append(address==null?"":address);
+                                ((TextView)view.findViewById(R.id.tv_3_person_danwei)).append(danwei==null?"":danwei);
+                                ((TextView)view.findViewById(R.id.tv_3_person_manage_area)).append(manage_area==null?"":manage_area);
                             }
-                            TextView textview=new TextView(MainActivity.this);
-                            textview.setTextColor(Color.BLACK);
-                            textview.setTextSize(18);
-                            textview.setText(info);
                             new AlertDialog.Builder(MainActivity.this)
-                                    .setView(textview)
+                                    .setView(view)
                                     .show();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -443,7 +460,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void showPersonInfo(int zIndex) {
         OkHttpUtils.get().url(getResources().getString(R.string.get_person_info))
-                .addParams("id",zIndex+"")
+                .addParams("id", zIndex + "")
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -454,25 +471,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onResponse(String response, int id) {
-                        Gson gson=new Gson();
+                        Gson gson = new Gson();
                         Type type = new TypeToken<List<PersonInfo>>() {
                         }.getType();
-                        List<PersonInfo> personInfos=gson.fromJson(response,type);
-                        PersonInfo personInfo=personInfos.get(0);
-                        Log.d(TAG,"人员信息："+personInfo);
-                        String info="姓名："+personInfo.getName()+"\n"
-                        +"手机号码："+personInfo.getMobile()+"\n"
-                        +"村社："+personInfo.getVillage()+"\n"
-                        +"家庭住址"+personInfo.getAddress()+"\n"
-                        +"民族："+personInfo.getNation()+"\n"
-                        +"工作岗位："+personInfo.getWork()+"\n"
-                        +"出生年月："+personInfo.getBrithday()+"\n";
-                        TextView textView=new TextView(MainActivity.this);
-                        textView.setText(info);
-                        textView.setTextColor(Color.BLACK);
-                        textView.setTextSize(18);
+                        List<PersonInfo> personInfos = gson.fromJson(response, type);
+                        PersonInfo personInfo = personInfos.get(0);
+                        Log.d(TAG, "人员信息：" + personInfo);
+                        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info, null);
+                        ((TextView)view.findViewById(R.id.tv_0_person_name)).append(personInfo.getName()==null?"":personInfo.getName());
+                        ((TextView)view.findViewById(R.id.tv_0_person_work)).append(personInfo.getWork()==null?"":personInfo.getWork());
+                        String polics="";
+                        switch (personInfo.getPolics()==null?-1:Integer.parseInt(personInfo.getPolics())){
+                            case 1: polics="中共党员" ;break;
+                            case 2: polics="中共预备党员" ;break;
+                            case 3: polics="共青团员" ;break;
+                            case 4: polics="群众" ;break;
+                            case 5: polics="民革党员" ;break;
+                            case 6: polics="民盟盟员" ;break;
+                            case 7: polics="民建会员" ;break;
+                        }
+                        ((TextView)view.findViewById(R.id.tv_0_person_polics)).append(polics);
+                        ((TextView)view.findViewById(R.id.tv_0_person_nation)).append(personInfo.getNation()==null?"":personInfo.getNation());
+                        ((TextView)view.findViewById(R.id.tv_0_person_address)).append(personInfo.getAddress()==null?"":personInfo.getAddress());
+
+                        ((TextView)view.findViewById(R.id.tv_0_person_ismonitor)).append(personInfo.getIs_monitor()==1?"监测负责人":"监测人");
+                        ((TextView)view.findViewById(R.id.tv_0_person_brithday)).append(personInfo.getBrithday()==null?"":personInfo.getBrithday());
+                        ((TextView)view.findViewById(R.id.tv_0_person_realmobile)).append(personInfo.getReal_mobile()==null?"":personInfo.getReal_mobile());
+                        ((TextView)view.findViewById(R.id.tv_0_person_mobile)).append(personInfo.getMobile()==null?"":personInfo.getMobile());
                         new AlertDialog.Builder(MainActivity.this)
-                                .setView(textView)
+                                .setView(view)
                                 .show();
                     }
                 });
@@ -495,30 +522,128 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }.getType();
                         List<DisasterInfo> disasterInfos = gson.fromJson(response, type);
                         DisasterInfo disasterInfo = disasterInfos.get(0);
-                        String info = "名称：" + disasterInfo.getDis_name() + "\n"
-                                + "地点：" + disasterInfo.getDis_location() + "\n"
-                                + "经纬度：" + disasterInfo.getDis_lon() + "," + disasterInfo.getDis_lat() + "\n"
-                                + "灾害因素：" + disasterInfo.getDis_cause() + "\n"
-                                + "受灾面积：" + disasterInfo.getDis_area() + "\n"
-                                + "受灾体积：" + disasterInfo.getDis_volume() + "\n"
-                                + "威胁户数：" + disasterInfo.getImperil_families() + "\n"
-                                + "威胁人数：" + disasterInfo.getImperil_man() + "\n"
-                                + "威胁房屋：" + disasterInfo.getImperil_house() + "\n"
-                                + "威胁房屋面积：" + disasterInfo.getImperil_area() + "\n"
-                                + "影响对象：" + disasterInfo.getMain_object() + "\n"
-                                + "威胁财产：" + disasterInfo.getImperil_money() + "\n"
-                                + "灾害等级：" + disasterInfo.getImperil_level() + "\n"
-                                + "是否涉水：" + (disasterInfo.getDis_sfss() == 1 ? "是" : "否") + "\n"
-                                + "告警号码:" + disasterInfo.getWarn_mobile() + "\n"
-                                + "入库时间:" + disasterInfo.getCome_time() + "\n";
-                        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_disaster_info, null);
-                        TextView tvInfo = (TextView) view.findViewById(R.id.dialog_text);
-                        tvInfo.setText(info);
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setView(view)
-                                .show();
+//                        String info = "名称：" + disasterInfo.getDis_name() + "\n"
+//                                + "地点：" + disasterInfo.getDis_location() + "\n"
+//                                + "经纬度：" + disasterInfo.getDis_lon() + "," + disasterInfo.getDis_lat() + "\n"
+//                                + "灾害因素：" + disasterInfo.getDis_cause() + "\n"
+//                                + "受灾面积：" + disasterInfo.getDis_area() + "\n"
+//                                + "受灾体积：" + disasterInfo.getDis_volume() + "\n"
+//                                + "威胁户数：" + disasterInfo.getImperil_families() + "\n"
+//                                + "威胁人数：" + disasterInfo.getImperil_man() + "\n"
+//                                + "威胁房屋：" + disasterInfo.getImperil_house() + "\n"
+//                                + "威胁房屋面积：" + disasterInfo.getImperil_area() + "\n"
+//                                + "影响对象：" + disasterInfo.getMain_object() + "\n"
+//                                + "威胁财产：" + disasterInfo.getImperil_money() + "\n"
+//                                + "灾害等级：" + disasterInfo.getImperil_level() + "\n"
+//                                + "是否涉水：" + (disasterInfo.getDis_sfss() == 1 ? "是" : "否") + "\n"
+//                                + "告警号码:" + disasterInfo.getWarn_mobile() + "\n"
+//                                + "入库时间:" + disasterInfo.getCome_time() + "\n";
+//                        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_disaster_info, null);
+//                        TextView tvInfo = (TextView) view.findViewById(R.id.dialog_text);
+//                        tvInfo.setText(info);
+//                        new AlertDialog.Builder(MainActivity.this)
+//                                .setView(view)
+//                                .show();
+
+                        setDialogViewDatas(disasterInfo);
                     }
                 });
+    }
+
+
+    private void setDialogViewDatas(DisasterInfo pointInfo) {
+        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_disasterinfo, null);
+        final LinearLayout llBaseInfo = (LinearLayout) view.findViewById(R.id.ll_base_info);
+        final LinearLayout llImageInfo = (LinearLayout) view.findViewById(R.id.ll_image_info);
+        RadioGroup rg = (RadioGroup) view.findViewById(R.id.rg_disaster_info);
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.rbtn_base_info:
+                        llBaseInfo.setVisibility(View.VISIBLE);
+                        llImageInfo.setVisibility(View.GONE);
+                        break;
+                    case R.id.rbtn_image_info:
+                        llBaseInfo.setVisibility(View.GONE);
+                        llImageInfo.setVisibility(View.VISIBLE);
+                        break;
+                }
+            }
+        });
+
+        TextView tvDisName = (TextView) view.findViewById(R.id.tv_dis_name);
+        TextView tvDisType = (TextView) view.findViewById(R.id.tv_dis_type);
+        TextView tvDisState = (TextView) view.findViewById(R.id.tv_dis_state);
+        TextView tvDisLocation = (TextView) view.findViewById(R.id.tv_dis_location);
+        TextView tvDisLon = (TextView) view.findViewById(R.id.tv_dis_lon);
+        TextView tvDisLat = (TextView) view.findViewById(R.id.tv_dis_lat);
+        TextView tvDisCause = (TextView) view.findViewById(R.id.tv_dis_cause);
+        TextView tvDisSlope = (TextView) view.findViewById(R.id.tv_dis_slope);
+        TextView tvDisArea = (TextView) view.findViewById(R.id.tv_dis_area);
+        TextView tvDisVolume = (TextView) view.findViewById(R.id.tv_dis_volume);
+        TextView tvDisBefore = (TextView) view.findViewById(R.id.tv_dis_before);
+        TextView tvDisAfter = (TextView) view.findViewById(R.id.tv_dis_after);
+        TextView tvImperilFamilies = (TextView) view.findViewById(R.id.tv_imperil_families);
+        TextView tvImperilMan = (TextView) view.findViewById(R.id.tv_imperil_man);
+        TextView tvImperilHouse = (TextView) view.findViewById(R.id.tv_imperil_house);
+        TextView tvImperilArea = (TextView) view.findViewById(R.id.tv_imperil_area);
+        TextView tvMainObject = (TextView) view.findViewById(R.id.tv_main_object);
+        TextView tvImperilMoney = (TextView) view.findViewById(R.id.tv_imperil_money);
+        TextView tvStableLevel = (TextView) view.findViewById(R.id.tv_stable_level);
+        TextView tvImperilLevel = (TextView) view.findViewById(R.id.tv_imperil_level);
+        TextView tvDealIdea = (TextView) view.findViewById(R.id.tv_deal_idea);
+        TextView tvDefenseLevel = (TextView) view.findViewById(R.id.tv_defense_level);
+        TextView tvAreaId = (TextView) view.findViewById(R.id.tv_area_id);
+        TextView tvQcqfryId = (TextView) view.findViewById(R.id.tv_qcqfry_id);
+        TextView tvWarnMobile = (TextView) view.findViewById(R.id.tv_warn_mobile);
+        TextView tvHasMobile = (TextView) view.findViewById(R.id.tv_has_mobile);
+        TextView tvBz = (TextView) view.findViewById(R.id.tv_bz);
+        TextView tvDisRadius = (TextView) view.findViewById(R.id.tv_dis_radius);
+        TextView tvScale = (TextView) view.findViewById(R.id.tv_scale);
+        TextView tvStateTime = (TextView) view.findViewById(R.id.tv_state_time);
+        TextView tvComeTime = (TextView) view.findViewById(R.id.tv_come_time);
+        TextView tvOperation = (TextView) view.findViewById(R.id.tv_Operation);
+        TextView tvStatusNo = (TextView) view.findViewById(R.id.tv_status_no);
+        TextView tvDisSfss = (TextView) view.findViewById(R.id.tv_dis_sfss);
+        tvDisName.setText(pointInfo.getDis_name() + "");
+        tvDisType.setText(pointInfo.getDis_type() + "");
+        tvDisState.setText(pointInfo.getDis_state() + "");
+        tvDisLocation.setText(pointInfo.getDis_location() + "");
+        tvDisLon.setText(pointInfo.getDis_lon() + "");
+        tvDisLat.setText(pointInfo.getDis_lat() + "");
+        tvDisCause.setText(pointInfo.getDis_cause() + "");
+        tvDisSlope.setText(pointInfo.getDis_slope() + "");
+        tvDisArea.setText(pointInfo.getDis_area() + "");
+        tvDisVolume.setText(pointInfo.getDis_volume() + "");
+        tvDisBefore.setText(pointInfo.getDis_before() + "");
+        tvDisAfter.setText(pointInfo.getDis_after() + "");
+        tvImperilFamilies.setText(pointInfo.getImperil_families() + "");
+        tvImperilMan.setText(pointInfo.getImperil_man() + "");
+        tvImperilHouse.setText(pointInfo.getImperil_house() + "");
+        tvImperilArea.setText(pointInfo.getImperil_area() + "");
+        tvMainObject.setText(pointInfo.getMain_object() + "");
+        tvImperilMoney.setText(pointInfo.getImperil_money() + "");
+        tvStableLevel.setText(pointInfo.getStable_level() + "");
+        tvImperilLevel.setText(pointInfo.getImperil_level() + "");
+        tvDealIdea.setText(pointInfo.getDeal_idea() + "");
+        tvDefenseLevel.setText(pointInfo.getDefense_level() + "");
+        tvAreaId.setText(pointInfo.getArea_id() + "");
+        tvQcqfryId.setText(pointInfo.getQcqfry_id() + "");
+        tvWarnMobile.setText(pointInfo.getWarn_mobile() + "");
+        tvHasMobile.setText(pointInfo.getHas_mobile() + "");
+        tvBz.setText(pointInfo.getBz() + "");
+        tvDisRadius.setText(pointInfo.getDis_radius() + "");
+        tvScale.setText(pointInfo.getScale() + "");
+        tvStateTime.setText(pointInfo.getState_time() + "");
+        tvComeTime.setText(pointInfo.getCome_time() + "");
+        tvOperation.setText(pointInfo.getOperation() + "");
+        tvStatusNo.setText(pointInfo.getStatus_no() + "");
+        tvDisSfss.setText(pointInfo.getDis_sfss() + "");
+
+        new AlertDialog.Builder(MainActivity.this)
+                .setView(view)
+                .show();
     }
 
 
@@ -798,22 +923,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.rb_qcqf_person:
-                if (b){
+                if (b) {
                     updatePersonGraphic(qcGraphics);
                 }
                 break;
             case R.id.rb_zs_person:
-                if (b){
+                if (b) {
                     updateLocalGraphic(zsGraphics);
                 }
                 break;
             case R.id.rb_pq_person:
-                if (b){
+                if (b) {
                     updateLocalGraphic(pqGraphics);
                 }
                 break;
             case R.id.rb_dhz_person:
-                if (b){
+                if (b) {
                     updateLocalGraphic(dhzGraphics);
                 }
                 break;

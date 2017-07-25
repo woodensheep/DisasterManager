@@ -5,4 +5,6 @@
     <dimen name="margin_neirong">4dp</dimen>
     <dimen name="margin_neirong_2">2dp</dimen>
     <dimen name="rbtn_drawable_padding">6dp</dimen>
+    <dimen name="relic_text">16dp</dimen>
+    <dimen name="relic_text_edit">16dp</dimen>
 </resources>

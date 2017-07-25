@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name1">DisasterManager</string>
-    <string name="ceshi">0</string>
+    <string name="ceshi"></string>
     <string name="image_layer_13_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng13/MapServer</string>
     <string name="image_layer_13_19_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng13_19/MapServer</string>
     <string name="get_disaster_point">http://www.cqdzjc.com:8090/meteor/findWanShengData.do</string>
