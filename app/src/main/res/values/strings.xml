@@ -5,9 +5,9 @@
     <string name="image_layer_13_19_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng13_19/MapServer</string>
     <string name="get_disaster_point">http://www.cqdzjc.com:8090/meteor/findWanShengData.do</string>
     <string name="get_disaster_info">http://www.cqdzjc.com:8090/meteor/findWanShengByIdData.do</string>
-    <string name="get_person_location">http://192.168.3.122:8080/cq_app/wansheng/getAllPersons.do</string>
-    <string name="get_person_info">http://192.168.3.122:8080/cq_app/wansheng/getOnePerson.do</string>
-    <string name="get_local_person_info">http://192.168.3.122:8080/cq_app/wansheng/getThreePerson.do</string>
+    <string name="get_person_location">http://183.230.108.112:9077/cqapp/wansheng/getAllPersons.do</string>
+    <string name="get_person_info">http://183.230.108.112:9077/cqapp/wansheng/getOnePerson.do</string>
+    <string name="get_local_person_info">http://183.230.108.112:9077/cqapp/wansheng/getThreePerson.do</string>
     <string name="elevation_url">http://183.230.182.149:6080/arcgis/rest/services/cq_dem/ImageServer</string>
     <string name="qinnxiesheying_url">http://183.230.182.149:6081/arcgis/rest/services/Hosted/waimian/SceneServer/layers/0</string>
     <string name="shiliangtu_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng_xz/MapServer</string>
@@ -15,5 +15,5 @@
     <string name="yuliang_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng_dzx/MapServer</string>
     <string name="ssyl_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng_yl2/MapServer/0</string>
     <string name="elevation_image_service">http://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer</string>
-    <string name="statistics_url">http://192.168.3.122:8080/cq_app/wansheng/getSomething.do</string>
+    <string name="statistics_url">http://183.230.108.112:9077/cqapp/wansheng/getSomething.do</string>
 </resources>
