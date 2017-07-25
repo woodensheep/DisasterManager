@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArcGISMapImageLayer vectorLayer;
     ArcGISMapImageLayer dengZXLayer;
     ArcGISMapImageLayer dianziLayer;
-    FeatureLayer ssYLLayer;
+    ArcGISMapImageLayer ssYLLayer;
     private ArcGISScene scene;
     private ArcGISTiledElevationSource elevationSource;
     private LayerList layers;
@@ -195,8 +195,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         highImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_19_url));
         vectorLayer = new ArcGISMapImageLayer(getResources().getString(R.string.shiliangtu_url));
         dengZXLayer = new ArcGISMapImageLayer(getResources().getString(R.string.yuliang_url));
-        ServiceFeatureTable serviceFeatureTable = new ServiceFeatureTable(getResources().getString(R.string.ssyl_url));
-        ssYLLayer = new FeatureLayer(serviceFeatureTable);
+        ssYLLayer=new ArcGISMapImageLayer(getResources().getString(R.string.ssyl_url));
         elevationSource = new ArcGISTiledElevationSource(
                 getResources().getString(R.string.elevation_image_service));
         scene = new ArcGISScene();
@@ -327,7 +326,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         try {
                             IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = identifyGraphic.get();
                             if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
-
                                 int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
                                 showInfo(zIndex);
                             }

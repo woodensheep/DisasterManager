@@ -13,7 +13,7 @@
     <string name="shiliangtu_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng_xz/MapServer</string>
     <string name="dianziditu_url">http://183.230.182.149:6080/arcgis/rest/services/wanshengmap/MapServer</string>
     <string name="yuliang_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng_dzx/MapServer</string>
-    <string name="ssyl_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng_yl2/MapServer/0</string>
+    <string name="ssyl_url">http://183.230.182.149:6080/arcgis/rest/services/wangsheng_yl1/MapServer</string>
     <string name="elevation_image_service">http://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer</string>
     <string name="statistics_url">http://183.230.108.112:9077/cqapp/wansheng/getSomething.do</string>
 </resources>
