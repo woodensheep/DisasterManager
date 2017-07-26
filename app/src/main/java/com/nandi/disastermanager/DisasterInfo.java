@@ -5,42 +5,44 @@ package com.nandi.disastermanager;
  */
 
 public class DisasterInfo {
+
+
     /**
-     * id : 62684
-     * dis_no : 5001101020010101
-     * dis_name : 关山沟滑坡
+     * id : 73019
+     * dis_no : 5001100000814401
+     * dis_name : 山角箐滑坡
      * dis_type : 1
      * dis_state : 1
-     * dis_location : 毛里村关山沟社
-     * dis_lon : 106.8088
-     * dis_lat : 28.8683
-     * dis_cause : 暴雨
-     * dis_slope : null
-     * dis_area : 0.42
-     * dis_volume : 1.26
-     * dis_before : 570
-     * dis_after : 595
-     * imperil_families : 2
-     * imperil_man : 9
-     * imperil_house : 7
-     * imperil_area : 200
-     * main_object : 居民、村路
-     * imperil_money : 8
-     * stable_level : 14
-     * imperil_level : 19
-     * deal_idea : null
-     * defense_level : 42
-     * area_id : 1188
-     * qcqfry_id : 59248
-     * warn_mobile : 15702327885
+     * dis_location : 万盛区石林镇农林村龙洞坪社
+     * dis_lon : 106.9203
+     * dis_lat : 28.8892
+     * dis_cause : 77
+     * dis_slope : 2017-04-18
+     * dis_area : 17
+     * dis_volume : 191
+     * dis_before : 428
+     * dis_after : 640
+     * imperil_families : 33
+     * imperil_man : 121
+     * imperil_house : 40
+     * imperil_area : 8000
+     * main_object : 居民
+     * imperil_money : 1600
+     * stable_level : 15
+     * imperil_level : 16
+     * deal_idea : 监测 巡查 及时上报
+     * defense_level : 37
+     * area_id : 1189
+     * qcqfry_id : 69383
+     * warn_mobile : 15823351299
      * has_mobile : 1
      * bz :
      * dis_radius : 1
-     * scale : 19
-     * state_time : null
-     * come_time : 2015-12-21
-     * Operation : 1
-     * status_no : 0
+     * scale : 16
+     * state_time : 2017-04-18
+     * come_time : 2017-04-18
+     * Operation : 2017-04-18
+     * status_no : 2
      * dis_sfss : 1
      * ts_sfyl : 2
      */
@@ -54,7 +56,7 @@ public class DisasterInfo {
     private String dis_lon;
     private String dis_lat;
     private String dis_cause;
-    private Object dis_slope;
+    private String dis_slope;
     private String dis_area;
     private String dis_volume;
     private String dis_before;
@@ -76,9 +78,9 @@ public class DisasterInfo {
     private String bz;
     private int dis_radius;
     private int scale;
-    private Object state_time;
+    private String state_time;
     private String come_time;
-    private int Operation;
+    private String Operation;
     private int status_no;
     private int dis_sfss;
     private int ts_sfyl;
@@ -155,11 +157,11 @@ public class DisasterInfo {
         this.dis_cause = dis_cause;
     }
 
-    public Object getDis_slope() {
+    public String getDis_slope() {
         return dis_slope;
     }
 
-    public void setDis_slope(Object dis_slope) {
+    public void setDis_slope(String dis_slope) {
         this.dis_slope = dis_slope;
     }
 
@@ -331,11 +333,11 @@ public class DisasterInfo {
         this.scale = scale;
     }
 
-    public Object getState_time() {
+    public String getState_time() {
         return state_time;
     }
 
-    public void setState_time(Object state_time) {
+    public void setState_time(String state_time) {
         this.state_time = state_time;
     }
 
@@ -347,11 +349,11 @@ public class DisasterInfo {
         this.come_time = come_time;
     }
 
-    public int getOperation() {
+    public String getOperation() {
         return Operation;
     }
 
-    public void setOperation(int Operation) {
+    public void setOperation(String Operation) {
         this.Operation = Operation;
     }
 

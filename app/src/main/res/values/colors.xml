@@ -9,6 +9,7 @@
     <color name="colorblack">#000000</color>
     <color name="colorwhite">#ffffff</color>
 
+
     <color name="color_circular_1">#FF3030</color>
     <color name="color_circular_2">#FF7F00</color>
     <color name="color_circular_3">#FFFF00</color>
@@ -24,4 +25,6 @@
     <color name="white">#ffffff</color>
     <color name="relic_text_color">#2caeaa</color>
     <color name="relic_text_edit_color">#2caeaa</color>
+    <color name="color_red">#FF3030</color>
+    <color name="color_green">#9AFF9A</color>
 </resources>

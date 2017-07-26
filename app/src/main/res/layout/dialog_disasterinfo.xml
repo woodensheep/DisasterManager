@@ -51,771 +51,767 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        android:orientation="vertical">
-
-
         <LinearLayout
-            android:id="@+id/ll_base_info"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/white"
-            android:orientation="vertical"
-            android:paddingBottom="15dp"
-            android:paddingLeft="15dp"
-            android:paddingTop="15dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="灾害点名称："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text_edit" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="灾害类型："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_type"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="是否销号："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_state"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="灾害点所在位置："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_location"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="经度："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_lon"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="纬度："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_lat"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="主要诱因："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_cause"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="坡度："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_slope"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="面积："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_area"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="体积："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_volume"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="前缘高程："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_before"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="后缘高程："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_after"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="受威胁户数："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_imperil_families"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="受威胁人数："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_imperil_man"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="受威胁房屋："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_imperil_house"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="受威胁面积："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_imperil_area"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="影响对象："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_main_object"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="威胁财产："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_imperil_money"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="稳定性："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_stable_level"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="灾害等级："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_imperil_level"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="处置意见："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_deal_idea"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
+            android:orientation="vertical">
 
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="防治级别："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_defense_level"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="乡镇id："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_area_id"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="检测人id："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_qcqfry_id"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="告警号码："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_warn_mobile"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="是否配置终端："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_has_mobile"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="备注："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_bz"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="库区内外："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_radius"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="规模："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_scale"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="销号时间："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_state_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="入库时间："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_come_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="操作："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_Operation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="灾害点类型："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_status_no"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="是否涉水："
-                    android:textColor="@color/relic_text_color"
-                    android:textSize="@dimen/relic_text" />
-
-                <TextView
-                    android:id="@+id/tv_dis_sfss"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/relic_text_edit_color"
-                    android:textSize="@dimen/relic_text" />
-            </LinearLayout>
-
-
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:visibility="gone"
-            android:id="@+id/ll_image_info"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/white"
-            android:orientation="vertical"
-            android:paddingBottom="15dp"
-            android:paddingLeft="15dp"
-            android:paddingTop="15dp">
-
-            <TextView
+                android:id="@+id/ll_base_info"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="@string/shiliangtu_url"
-                />
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:paddingBottom="15dp"
+                android:paddingLeft="15dp"
+                android:paddingTop="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="灾害点名称："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text_edit" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="灾害类型："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="是否销号："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_state"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="灾害点所在位置："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="经度："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_lon"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="纬度："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_lat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="主要诱因："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_cause"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="坡度："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_slope"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="面积："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_area"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="体积："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_volume"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="前缘高程："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_before"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="后缘高程："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_after"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="受威胁户数："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_imperil_families"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="受威胁人数："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_imperil_man"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="受威胁房屋："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_imperil_house"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="受威胁面积："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_imperil_area"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="影响对象："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_main_object"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="威胁财产："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_imperil_money"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="稳定性："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_stable_level"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="灾害等级："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_imperil_level"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="处置意见："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_deal_idea"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="防治级别："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_defense_level"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="乡镇id："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_area_id"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="检测人id："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_qcqfry_id"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="告警号码："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_warn_mobile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="是否配置终端："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_has_mobile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="备注："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_bz"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="库区内外："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_radius"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="规模："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_scale"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="销号时间："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_state_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="入库时间："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_come_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="操作："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_Operation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="灾害点类型："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_status_no"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="是否涉水："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:id="@+id/tv_dis_sfss"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
 
             </LinearLayout>
 
-    </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_image_info"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="5dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:paddingTop="5dp"
+                android:visibility="gone">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rc_disaster_photo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </ScrollView>
 

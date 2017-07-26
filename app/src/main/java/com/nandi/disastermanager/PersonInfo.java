@@ -49,6 +49,11 @@ public class PersonInfo {
     private int is_monitor;
     private String culture;
     private String mobile;
+    /**
+     * online : 0
+     */
+
+    private int online;
 
     public String getWork() {
         return work;
@@ -234,5 +239,13 @@ public class PersonInfo {
                 ", culture='" + culture + '\'' +
                 ", mobile='" + mobile + '\'' +
                 '}';
+    }
+
+    public int getOnline() {
+        return online;
+    }
+
+    public void setOnline(int online) {
+        this.online = online;
     }
 }

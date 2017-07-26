@@ -27,7 +27,7 @@
             <TextView
                 android:id="@+id/tv_3_person_name"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_weight="1"
                 android:gravity="left|center"
@@ -38,7 +38,7 @@
             <TextView
                 android:id="@+id/tv_3_person_gender"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_weight="1"
                 android:gravity="left|center"
@@ -50,7 +50,7 @@
             <TextView
                 android:id="@+id/tv_3_person_age"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_weight="1"
                 android:gravity="left|center"
@@ -61,12 +61,23 @@
             <TextView
                 android:id="@+id/tv_3_person_mobile"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_weight="1"
                 android:gravity="left|center"
                 android:text="电话："
                 android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tv_3_person_is"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1"
+                android:gravity="left|center"
+                android:text="是否在线："
+                android:textColor="@color/color_red"
                 android:textSize="18sp" />
         </LinearLayout>
 
