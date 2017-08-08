@@ -16,4 +16,8 @@
     <string name="ssyl_url">http://183.230.182.149:6080/arcgis/rest/services/wangsheng_yl1/MapServer</string>
     <string name="elevation_image_service">http://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer</string>
     <string name="statistics_url">http://183.230.108.112:9077/cqapp/wansheng/getSomething.do</string>
+    <string name="jinqiao_qxsy_url">http://183.230.182.149:6081/arcgis/rest/services/Hosted/jingqiao_spk1/SceneServer/layers/0</string>
+    <string name="shilin_qxsy_url">http://183.230.182.149:6081/arcgis/rest/services/Hosted/wanshengshilin_spk1/SceneServer/layers/0</string>
+    <string name="shilin_elevation_url">http://183.230.182.149:6080/arcgis/rest/services/ws_shilindsm/ImageServer</string>
+    <string name="jinqiao_elevation_url">http://183.230.182.149:6080/arcgis/rest/services/ws_jingqiaodem2/ImageServer</string>
 </resources>
