@@ -148,6 +148,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RadioGroup rgQxsy;
     @BindView(R.id.ll_qxsy)
     LinearLayout llQxsy;
+    @BindView(R.id.rb_equipment_jiance)
+    RadioButton rbEquipmentJiance;
+    @BindView(R.id.rb_equipment_laba)
+    RadioButton rbEquipmentLaba;
+    @BindView(R.id.rb_equipment_yingji)
+    RadioButton rbEquipmentYingji;
+    @BindView(R.id.rb_equipment_fengsu)
+    RadioButton rbEquipmentFengsu;
     private boolean llAreaState = false;
     private boolean llDataState = false;
     private int llMoreState = -1;
@@ -174,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GraphicsOverlay graphicsOverlay;
     private GraphicsOverlay personGraphicsOverlay;
     private GraphicsOverlay localGraphicsOverlay;
+    private GraphicsOverlay equipmentGraphicOverlay;
     private ListenableList<GraphicsOverlay> graphicsOverlays;
     private List<Graphic> allGraphics = new ArrayList<>();//所有的灾害点图标
     private List<Graphic> consumedGraphics = new ArrayList<>();//已消耗灾害点图标
@@ -205,9 +214,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<Graphic> zsGraphics = new ArrayList<>();
     private List<Graphic> pqGraphics = new ArrayList<>();
     private List<Graphic> dhzGraphics = new ArrayList<>();
+    private List<Graphic> jianceGraphics = new ArrayList<>();
     private ListenableList<Graphic> graphics;
     private ListenableList<Graphic> personGraphics;
     private ListenableList<Graphic> localGraphics;
+    private ListenableList<Graphic> equipmentGraphics;
     private RadioGroup rg;
     private Dialog waitingDialog;
     private DisasterDetailInfo disasterDetailInfo;
@@ -234,9 +245,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         graphicsOverlay = new GraphicsOverlay();
         personGraphicsOverlay = new GraphicsOverlay();
         localGraphicsOverlay = new GraphicsOverlay();
+        equipmentGraphicOverlay=new GraphicsOverlay();
         graphics = graphicsOverlay.getGraphics();
         personGraphics = personGraphicsOverlay.getGraphics();
         localGraphics = localGraphicsOverlay.getGraphics();
+        equipmentGraphics=equipmentGraphicOverlay.getGraphics();
         graphicsOverlays = sceneView.getGraphicsOverlays();
         elevationSources = scene.getBaseSurface().getElevationSources();
         scene.setBasemap(Basemap.createImagery());
@@ -348,6 +361,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rbPqPerson.setOnCheckedChangeListener(this);
         rbJinqiao.setOnCheckedChangeListener(this);
         rbShilin.setOnCheckedChangeListener(this);
+        rbEquipmentFengsu.setOnCheckedChangeListener(this);
+        rbEquipmentJiance.setOnCheckedChangeListener(this);
+        rbEquipmentLaba.setOnCheckedChangeListener(this);
+        rbEquipmentYingji.setOnCheckedChangeListener(this);
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -357,6 +374,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = sceneView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 10.0, false, 2);
                 final ListenableFuture<IdentifyGraphicsOverlayResult> personIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(personGraphicsOverlay, screenPoint, 10.0, false, 2);
                 final ListenableFuture<IdentifyGraphicsOverlayResult> localIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(localGraphicsOverlay, screenPoint, 10.0, false, 2);
+                final ListenableFuture<IdentifyGraphicsOverlayResult> equipmentIdentifyGraphic  = sceneView.identifyGraphicsOverlayAsync(equipmentGraphicOverlay, screenPoint, 10.0, false, 2);
                 identifyGraphic.addDoneListener(new Runnable() {
                     @Override
                     public void run() {
@@ -399,11 +417,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 });
+                equipmentIdentifyGraphic.addDoneListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = equipmentIdentifyGraphic.get();
+                            if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
+                                int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+                                showEquipmentInfo(zIndex);
+                            }
+                        } catch (InterruptedException | ExecutionException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
 
                 return super.onSingleTapConfirmed(e);
             }
         });
 
+    }
+
+    private void showEquipmentInfo(int zIndex) {
+        //TODO 根据Id显示设备信息
     }
 
     private void showLocalPersonInfo(int zIndex) {
@@ -628,7 +664,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setDialogViewDatas(final DisasterInfo pointInfo) {
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_disasterinfo, null);
         final LinearLayout llBaseInfo = (LinearLayout) view.findViewById(R.id.ll_base_info);
-        rg= (RadioGroup) view.findViewById(R.id.rg_disaster_info);
+        rg = (RadioGroup) view.findViewById(R.id.rg_disaster_info);
         final List<String> mList = new ArrayList<>();
         mList.add(R.mipmap.t5001101000840101_1 + "");
         mList.add(R.mipmap.t5001101000840101_2 + "");
@@ -642,7 +678,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         break;
                     case R.id.rbtn_check_detail:
                         llBaseInfo.setVisibility(View.VISIBLE);
-                        setOkhttpDetails(pointInfo.getId()+"");
+                        setOkhttpDetails(pointInfo.getId() + "");
                         break;
                 }
             }
@@ -1037,6 +1073,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (view != null) {
                     rlMain.removeView(view);
                 }
+                addEquipment();
+                if (llMoreStateBefore != 4) {
+                    layers.clear();
+                    elevationSources.clear();
+                    graphicsOverlays.clear();
+                    layers.add(lowImageLayer);
+                    layers.add(highImageLayer);
+                    elevationSources.add(elevationSource);
+                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+                    sceneView.setViewpointCamera(camera);
+                }
                 break;
             case R.id.ll_qxsy:
                 llMoreStateBefore = llMoreState;
@@ -1279,6 +1326,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     updateLocalGraphic(dhzGraphics);
                 }
                 break;
+            case R.id.rb_equipment_jiance:
+                if (b) {
+                    updateEquipmentGraphic(jianceGraphics);
+                }
+                break;
             case R.id.rb_jinqiao:
                 if (b) {
                     ElevationSource elevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.jinqiao_elevation_url));
@@ -1306,6 +1358,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+
+    private void addEquipment() {
+        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.equipment);
+        final PictureMarkerSymbol symbol = new PictureMarkerSymbol(drawable);
+        symbol.setWidth(50);
+        symbol.setHeight(50);
+        symbol.setOffsetY(11);
+        symbol.loadAsync();
+        symbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                Point point = new Point(106.91015726332898, 28.87312428984992, SpatialReferences.getWgs84());
+                Graphic graphic = new Graphic(point, symbol);
+                graphic.setZIndex(100000);
+                jianceGraphics.add(graphic);
+            }
+
+        });
+    }
+
     private void updateLocalGraphic(List<Graphic> g) {
         localGraphics.clear();
         localGraphics.addAll(g);
@@ -1319,7 +1392,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         graphicsOverlays.clear();
         graphicsOverlays.add(personGraphicsOverlay);
     }
-
+    private void updateEquipmentGraphic(List<Graphic> graphics) {
+        equipmentGraphics.clear();
+        equipmentGraphics.addAll(graphics);
+        graphicsOverlays.clear();
+        graphicsOverlays.add(equipmentGraphicOverlay);
+    }
     /**
      * 更新地图上的图标
      *
