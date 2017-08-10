@@ -599,7 +599,7 @@ public class DisasterDetailInfo {
         /**
          * human_name : 魏佐明
          * zhushouid : 394
-         * p_telephone : 13896028589
+         *   : 13896028589
          * qcqfid : 895
          * dispicture : upload/jiancetixi/4103e9f7e4e14fb5b09b5e8d9d20cdb6.png
          * human_mobile : 15702310784

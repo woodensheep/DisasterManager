@@ -21,12 +21,12 @@
             android:drawablePadding="@dimen/rbtn_drawable_padding"
             android:gravity="left|center"
             android:paddingLeft="40dp"
-            android:text="地质隐患点"
+            android:text="地质灾害点"
             android:textColor="@color/color_neirong"
             android:textSize="@dimen/data_text_size_2" />
 
         <RadioButton
-            android:id="@+id/rb_canceled_point"
+            android:id="@+id/rb_state_point_0"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="@dimen/margin_neirong_2"
@@ -36,12 +36,12 @@
             android:drawablePadding="@dimen/rbtn_drawable_padding"
             android:gravity="left|center"
             android:paddingLeft="40dp"
-            android:text="已销号隐患点"
+            android:text="已销号灾害点"
             android:textColor="@color/color_neirong"
             android:textSize="@dimen/data_text_size_2" />
 
         <RadioButton
-            android:id="@+id/rb_handled_point"
+            android:id="@+id/rb_state_point_2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="@dimen/margin_neirong_2"
@@ -51,7 +51,38 @@
             android:drawablePadding="@dimen/rbtn_drawable_padding"
             android:gravity="left|center"
             android:paddingLeft="40dp"
-            android:text="未销号隐患点"
+            android:text="已治理灾害点"
+            android:textColor="@color/color_neirong"
+            android:textSize="@dimen/data_text_size_2" />
+
+        <RadioButton
+            android:id="@+id/rb_state_point_3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="@dimen/margin_neirong_2"
+            android:layout_marginTop="@dimen/margin_neirong_2"
+            android:button="@null"
+            android:drawableLeft="@drawable/rbtn_selector"
+            android:drawablePadding="@dimen/rbtn_drawable_padding"
+            android:gravity="left|center"
+            android:paddingLeft="40dp"
+            android:text="已搬迁灾害点"
+            android:textColor="@color/color_neirong"
+            android:textSize="@dimen/data_text_size_2" />
+
+
+        <RadioButton
+            android:id="@+id/rb_state_point_1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="@dimen/margin_neirong_2"
+            android:layout_marginTop="@dimen/margin_neirong_2"
+            android:button="@null"
+            android:drawableLeft="@drawable/rbtn_selector"
+            android:drawablePadding="@dimen/rbtn_drawable_padding"
+            android:gravity="left|center"
+            android:paddingLeft="40dp"
+            android:text="库岸调查"
             android:textColor="@color/color_neirong"
             android:textSize="@dimen/data_text_size_2" />
 

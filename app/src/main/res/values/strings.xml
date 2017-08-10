@@ -22,5 +22,27 @@
     <string name="shilin_qxsy_url">http://183.230.182.149:6081/arcgis/rest/services/Hosted/wanshengshilin_spk1/SceneServer/layers/0</string>
     <string name="shilin_elevation_url">http://183.230.182.149:6080/arcgis/rest/services/ws_shilindsm/ImageServer</string>
     <string name="jinqiao_elevation_url">http://183.230.182.149:6080/arcgis/rest/services/ws_jingqiaodem2/ImageServer</string>
+
+
+    <string name="base_http">http://183.230.182.149:18081/springmvc/</string>
+    <string name="login">http://183.230.182.149:18081/springmvc/login/login/cq_guotu/ycmcwin2000qwe</string>
+
+    <string name="disaster_url">tabDisastersInfo/disastersByAreaCode/</string>
+    <string name="disaster_url_state">tabDisastersInfo/findDisasterByState/</string>
+    <string name="four_person_info">disasters/fourPersonInfoById/</string>
+    <!--基本信息-->
+    <string name="selectByDisNo">tabDisastersInfo/selectByDisNo/</string>
+    <!--360全景图-->
+    <string name="selectVAImgByDisNo">tabDisastersInfo/selectVAImgByDisNo/</string>
+    <!--加载图片-->
+    <string name="selectFeaPicById">tabDisastersInfo/selectFeaPicById/</string>
+    <!--防灾明白卡-->
+    <string name="selectDisCardByDisNo">tabDisastersInfo/selectDisCardByDisNo/</string>
+    <!--避险明白卡-->
+    <string name="selectHeCardByDisNo">tabDisastersInfo/selectHeCardByDisNo/</string>
+    <!--防灾预案-->
+    <string name="selectPnInfoByDisNo">tabDisastersInfo/selectPnInfoByDisNo/</string>
+
+
     <string name="xingzheng_image_url">http://183.230.182.149:6082/arcgis/rest/services/ws_xzq/MapServer</string>
 </resources>

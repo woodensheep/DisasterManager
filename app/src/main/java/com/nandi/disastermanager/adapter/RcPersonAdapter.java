@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nandi.disastermanager.R;
+import com.nandi.disastermanager.entity.DisasterDetailInfo;
 
 import java.util.List;
 
@@ -18,11 +19,11 @@ import java.util.List;
 
 public class RcPersonAdapter extends RecyclerView.Adapter<RcPersonAdapter.ViewHolderA>{
     private Context mContext;
-    private List<String> mList;
+    private List<DisasterDetailInfo.PersonsMessageBean> mPersonsMessageBean;
 
-    public RcPersonAdapter(Context context, List<String> list) {
+    public RcPersonAdapter(Context context, List<DisasterDetailInfo.PersonsMessageBean> personsMessageBean) {
         mContext = context;
-        mList = list;
+        mPersonsMessageBean =  personsMessageBean;
     }
 
     @Override
@@ -42,13 +43,16 @@ public class RcPersonAdapter extends RecyclerView.Adapter<RcPersonAdapter.ViewHo
 //                .thumbnail(0.1f)
 //                .error(R.mipmap.download_pass)
 //                .into(holder.iv_2);
-        holder.tv_1.setText(mList.get(position));
+            holder.tv_1.setText(mPersonsMessageBean.get(position).getDisname());
+            //holder.iv_2.setText(mPersonsMessageBean.get(position)+"");
+            holder.tv_3.setText(mPersonsMessageBean.get(position) + "");
+            holder.tv_4.setText(mPersonsMessageBean.get(position) + "");
     }
 
     @Override
     public int getItemCount() {
         //生成的item的数量
-        return mList.size();
+        return mPersonsMessageBean.size();
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定

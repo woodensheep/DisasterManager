@@ -2,6 +2,7 @@ package com.nandi.disastermanager;
 
 import android.animation.ObjectAnimator;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -10,8 +11,6 @@ import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -54,15 +53,22 @@ import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.util.ListenableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.nandi.disastermanager.adapter.RcPersonAdapter;
+import com.nandi.disastermanager.entity.DetailBaseInfo;
+import com.nandi.disastermanager.entity.DetailDisCard;
+import com.nandi.disastermanager.entity.DetailHeCard;
+import com.nandi.disastermanager.entity.DetailPersonInfo;
+import com.nandi.disastermanager.entity.DetailPhoto;
+import com.nandi.disastermanager.entity.DetailPnInfo;
+import com.nandi.disastermanager.entity.DisasterByStateInfo;
 import com.nandi.disastermanager.entity.DisasterDetailInfo;
-import com.nandi.disastermanager.entity.DisasterInfo;
 import com.nandi.disastermanager.entity.DisasterPoint;
 import com.nandi.disastermanager.entity.PersonInfo;
 import com.nandi.disastermanager.entity.PersonLocation;
+import com.nandi.disastermanager.entity.TabDisasterInfo;
 import com.nandi.disastermanager.ui.MyRadioGroup;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.Callback;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.json.JSONArray;
@@ -71,13 +77,19 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
+import okhttp3.Response;
+
+import static com.nandi.disastermanager.R.string.four_person_info;
+import static com.nandi.disastermanager.R.string.selectByDisNo;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
@@ -124,10 +136,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RadioButton rbYldzx;
     @BindView(R.id.rb_disaster_point)
     RadioButton rbDisasterPoint;
-    @BindView(R.id.rb_canceled_point)
-    RadioButton rbCanceledPoint;//已消耗
-    @BindView(R.id.rb_handled_point)
-    RadioButton rbHandledPoint;//未消耗
     @BindView(R.id.tv_disaster_number)
     TextView tvDisasterNumber;
     @BindView(R.id.tv_person_number)
@@ -156,6 +164,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RadioGroup rgQxsy;
     @BindView(R.id.ll_qxsy)
     LinearLayout llQxsy;
+    @BindView(R.id.rb_state_point_0)
+    RadioButton rbStatePoint0;
+    @BindView(R.id.rb_state_point_2)
+    RadioButton rbStatePoint2;
+    @BindView(R.id.rb_state_point_3)
+    RadioButton rbStatePoint3;
+    @BindView(R.id.rb_state_point_1)
+    RadioButton rbStatePoint1;
     @BindView(R.id.rb_equipment_jiance)
     RadioButton rbEquipmentJiance;
     @BindView(R.id.rb_equipment_laba)
@@ -168,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayout llXzqht;
     @BindView(R.id.iv_luopan)
     ImageView ivLuopan;
+
     private boolean llAreaState = false;
     private boolean llDataState = false;
     private int llMoreState = -1;
@@ -198,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GraphicsOverlay equipmentGraphicOverlay;
     private ListenableList<GraphicsOverlay> graphicsOverlays;
     private List<Graphic> allGraphics = new ArrayList<>();//所有的灾害点图标
-    private List<Graphic> consumedGraphics = new ArrayList<>();//已消耗灾害点图标
+    private List<Graphic> otherGraphics = new ArrayList<>();//已消耗灾害点图标
     private List<Graphic> notConsumeGraphics = new ArrayList<>();//未消耗灾害点图标
     private List<Graphic> allHuaPOGraphics = new ArrayList<>();
     private List<Graphic> allNiSHILiuGraphics = new ArrayList<>();
@@ -207,6 +224,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<Graphic> allTanTaGraphics = new ArrayList<>();
     private List<Graphic> allLieFengGraphics = new ArrayList<>();
     private List<Graphic> allTaAnGraphics = new ArrayList<>();
+
+    private List<Graphic> otherHuaPOGraphics = new ArrayList<>();
+    private List<Graphic> otherNiSHILiuGraphics = new ArrayList<>();
+    private List<Graphic> otherWeiYanGraphics = new ArrayList<>();
+    private List<Graphic> otherXiePoGraphics = new ArrayList<>();
+    private List<Graphic> otherTanTaGraphics = new ArrayList<>();
+    private List<Graphic> otherLieFengGraphics = new ArrayList<>();
+    private List<Graphic> otherTaAnGraphics = new ArrayList<>();
 
     private List<Graphic> notHuaPOGraphics = new ArrayList<>();
     private List<Graphic> notNiSHILiuGraphics = new ArrayList<>();
@@ -237,10 +262,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DisasterDetailInfo disasterDetailInfo;
     private ServiceFeatureTable table;
 
+    private TabDisasterInfo mTabDisasterInfo;
+    private String areaCode;//万盛id
+    private DisasterByStateInfo mDisasterByStateInfo;
+    private DisasterByStateInfo mDisasterByStateInfo0;
+    private DisasterByStateInfo mDisasterByStateInfo1;
+    private DisasterByStateInfo mDisasterByStateInfo2;
+    private DisasterByStateInfo mDisasterByStateInfo3;
+    private Context context;
+    private String mDisasterType="-1";
+    private DetailPersonInfo mDetailPersonInfo;
+    private DetailBaseInfo mDetailBaseInfo;
+    private DetailPhoto mDetailPhoto;
+    private DetailDisCard mDetailDisCard;
+    private DetailHeCard mDetailHeCard;
+    private DetailPnInfo mDetailPnInfo;
+    private String mDisNo;
+    private Map<String,String> maps=new HashMap<>();
+    private LinearLayout llSwitchInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context = this;
+        areaCode = "500110";
         ButterKnife.bind(this);
         initStaData();
         initLocalData();
@@ -271,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         scene.setBasemap(Basemap.createImagery());
         sceneView.setScene(scene);
         setListeners();
+        setlogin("","");
     }
 
     private void initLocalData() {
@@ -370,8 +417,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rbSsyl.setOnCheckedChangeListener(this);
         rbYldzx.setOnCheckedChangeListener(this);
         rbDisasterPoint.setOnCheckedChangeListener(this);
-        rbCanceledPoint.setOnCheckedChangeListener(this);
-        rbHandledPoint.setOnCheckedChangeListener(this);
+        rbStatePoint0.setOnCheckedChangeListener(this);
+        rbStatePoint2.setOnCheckedChangeListener(this);
+        rbStatePoint3.setOnCheckedChangeListener(this);
+        rbStatePoint1.setOnCheckedChangeListener(this);
         rbQcqfPerson.setOnCheckedChangeListener(this);
         rbDhzPerson.setOnCheckedChangeListener(this);
         rbZsPerson.setOnCheckedChangeListener(this);
@@ -682,32 +731,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showInfo(int zIndex) {
-        waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.get_disaster_info))
-                .addParams("id", zIndex + "")
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        Toast.makeText(getApplicationContext(), "网络连接失败！", Toast.LENGTH_SHORT).show();
-                    }
+        setDialogViewDatas(mDisasterType,zIndex);
 
-                    @Override
-                    public void onResponse(String response, int id) {
-                        Gson gson = new Gson();
-                        Type type = new TypeToken<List<DisasterInfo>>() {
-                        }.getType();
-                        List<DisasterInfo> disasterInfos = gson.fromJson(response, type);
-                        DisasterInfo disasterInfo = disasterInfos.get(0);
-
-                        setDialogViewDatas(disasterInfo);
-                        WaitingDialog.closeDialog(waitingDialog);
-                    }
-                });
     }
 
-
-    private void setDialogViewDatas(final DisasterInfo pointInfo) {
+    /**
+     * type:-1灾害点
+     * 0已销号
+     * 2已治理灾害点
+     * 3已搬迁灾害点
+     * 1库岸调查
+     * @param type
+     */
+    private void setDialogViewDatas(String type, final int id) {
+        Log.d("limeng","type="+type+"zIndex="+id+"size="+mTabDisasterInfo.getData().size());
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_disasterinfo, null);
         final LinearLayout llBaseInfo = (LinearLayout) view.findViewById(R.id.ll_base_info);
         rg = (RadioGroup) view.findViewById(R.id.rg_disaster_info);
@@ -724,14 +761,76 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         break;
                     case R.id.rbtn_check_detail:
                         llBaseInfo.setVisibility(View.VISIBLE);
-                        setOkhttpDetails(pointInfo.getId() + "");
+                        showDialogDetails(id+"");
+                        //setOkhttpDetails(id+"",getResources().getString(R.string.four_person_info),1);
                         break;
                 }
             }
 
         });
 
+        String mDisName="";
+        String mDisType="";
+        String mDisNo="";
+        String mAreaId="";
+        String mDisLocation="";
+        String mDisCause="";
+        String mImperilMan="";
+        String mImperilFamilies="";
+        String mMainObject="";
+        if("-1".equals(type)){
+            for(int i=0;i<mTabDisasterInfo.getData().size();i++){
+                if(mTabDisasterInfo.getData().get(i).getId()==id){
+                    mDisName=mTabDisasterInfo.getData().get(i).getDisName();
+                    mDisType=mTabDisasterInfo.getData().get(i).getDisType()+"";
+                    mDisNo=mTabDisasterInfo.getData().get(i).getDisNo();
+                    mAreaId=mTabDisasterInfo.getData().get(i).getAreaId()+"";
+                    mDisLocation=mTabDisasterInfo.getData().get(i).getDisLocation();
+                    mDisCause=mTabDisasterInfo.getData().get(i).getDisCause();
+                    mImperilMan=mTabDisasterInfo.getData().get(i).getImperilMan()+"";
+                    mImperilFamilies=mTabDisasterInfo.getData().get(i).getImperilFamilies()+"";
+                    mMainObject=mTabDisasterInfo.getData().get(i).getMainObject()+"";
+                }
+            }
+        }else {
 
+            for(int i=0;i<mDisasterByStateInfo.getData().size();i++){
+                if(mDisasterByStateInfo.getData().get(i).getId()==id){
+                    mDisName=mDisasterByStateInfo.getData().get(i).getDis_name();
+                    mDisType=mDisasterByStateInfo.getData().get(i).getDis_type()+"";
+                    mDisNo=mDisasterByStateInfo.getData().get(i).getDis_no();
+                    mAreaId=mDisasterByStateInfo.getData().get(i).getArea_id()+"";
+                    mDisLocation=mDisasterByStateInfo.getData().get(i).getDis_location();
+                    mDisCause=mDisasterByStateInfo.getData().get(i).getDis_cause();
+                    mImperilMan=mDisasterByStateInfo.getData().get(i).getImperil_man()+"";
+                    mImperilFamilies=mDisasterByStateInfo.getData().get(i).getImperil_families()+"";
+                    mMainObject=mDisasterByStateInfo.getData().get(i).getMain_object()+"";
+                }
+            }
+        }
+        switch (mDisType){
+            case "1":
+                mDisType="滑坡";
+                break;
+            case "2":
+                mDisType="泥石流";
+                break;
+            case "3":
+                mDisType="危岩";
+                break;
+            case "4":
+                mDisType="不稳定斜坡";
+                break;
+            case "5":
+                mDisType="地面坍塌";
+                break;
+            case "6":
+                mDisType="地裂缝";
+                break;
+            case "7":
+                mDisType="库岸";
+                break;
+        }
         TextView tvDisName = (TextView) view.findViewById(R.id.tv_dis_name);
         TextView tvDisType = (TextView) view.findViewById(R.id.tv_dis_type);
         TextView tvDisNo = (TextView) view.findViewById(R.id.tv_dis_no);
@@ -742,33 +841,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView tvImperilFamilies = (TextView) view.findViewById(R.id.tv_imperil_families);
         TextView tvMainObject = (TextView) view.findViewById(R.id.tv_main_object);
 
-        tvDisName.setText(pointInfo.getDis_name() == null ? "" : pointInfo.getDis_name());
-        tvDisType.setText(pointInfo.getDis_type() + "");
-        tvDisNo.setText(pointInfo.getDis_no() == null ? "" : pointInfo.getDis_no());
-        tvAreaId.setText(pointInfo.getDis_location() == null ? "" : pointInfo.getDis_location() + "");
-        tvDisLocation.setText(pointInfo.getDis_location() == null ? "" : pointInfo.getDis_location() + "");
-        tvDisCause.setText(pointInfo.getDis_cause() == null ? "" : pointInfo.getDis_cause() + "");
-        tvImperilMan.setText(pointInfo.getImperil_man() + "");
-        tvImperilFamilies.setText(pointInfo.getImperil_families() + "");
-        tvMainObject.setText(pointInfo.getMain_object() == null ? "" : pointInfo.getMain_object() + "");
-        tvDisName.setText(pointInfo.getDis_name() == null ? "" : pointInfo.getDis_name());
-        tvDisType.setText(pointInfo.getDis_type() + "");
-        tvDisLocation.setText(pointInfo.getDis_location() == null ? "" : pointInfo.getDis_location() + "");
-        tvDisCause.setText(pointInfo.getDis_cause() == null ? "" : pointInfo.getDis_cause() + "");
-        tvImperilFamilies.setText(pointInfo.getImperil_families() + "");
-        tvImperilMan.setText(pointInfo.getImperil_man() + "");
-        tvMainObject.setText(pointInfo.getMain_object() == null ? "" : pointInfo.getMain_object() + "");
-        tvAreaId.setText(pointInfo.getArea_id() + "");
+        tvDisName.setText(mDisName == null ? "" : mDisName);
+        tvDisType.setText(mDisType + "");
+        tvDisNo.setText(mDisNo == null ? "" :mDisNo);
+        tvAreaId.setText(mDisLocation == null ? "" : mDisLocation);
+        tvDisLocation.setText(mDisLocation == null ? "" : mDisLocation);
+        tvDisCause.setText(mDisCause == null ? "" : mDisCause);
+        tvImperilMan.setText(mImperilMan + "");
+        tvImperilFamilies.setText(mImperilFamilies + "");
+        tvMainObject.setText(mMainObject == null ? "" : mMainObject);
 
         AlertDialog dialog1 = new AlertDialog.Builder(MainActivity.this)
                 .setView(view)
                 .show();
     }
 
-    private void setOkhttpDetails(String id) {
+    /**
+     * 伪登录
+     * @param str1
+     * @param str2
+     */
+    private void setlogin(String str1,String str2) {
+        Log.d("limeng","请求中...");
+        OkHttpUtils.get().url(getResources().getString(R.string.login))
+                .build()
+                .execute(new Callback() {
+                    @Override
+                    public Object parseNetworkResponse(Response response, int id) throws Exception {
+                        Log.d("limeng","response.headers()_"+response.headers());
+                        return null;
+                    }
+
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Object response, int id) {
+
+                    }
+                });
+    }
+
+    /**
+     * type不同的详细信息
+     * @param id
+     * @param http
+     * @param type
+     */
+    private void setOkhttpDetails(String id, String http, final int type) {
         waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.disaster_details))
-                .addParams("id", id + "")
+        OkHttpUtils.get().url(getResources().getString(R.string.base_http)+http+"/"+id)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -778,12 +902,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onResponse(String response, int id) {
-                        Gson gson = new Gson();
-                        Type type = new TypeToken<DisasterDetailInfo>() {
-                        }.getType();
-                        disasterDetailInfo = gson.fromJson(response, type);
-                        showDialogDetails(disasterDetailInfo);
                         WaitingDialog.closeDialog(waitingDialog);
+                        Gson gson = new Gson();
+                        switch (type){
+                            case 1:
+                                mDetailPersonInfo= gson.fromJson(response, DetailPersonInfo.class);
+                                llSwitchInfo.addView(addPersonView(disasterDetailInfo.getPersonsMessage()));
+                                break;
+                            case 2:
+                                Log.d("limeng","response="+response);
+                                mDetailBaseInfo= gson.fromJson(response, DetailBaseInfo.class);
+                                String info2 = "隐患点名称：" + (mDetailBaseInfo.getData().getDisName() == null ? "" :mDetailBaseInfo.getData().getDisName()) + "\n"
+                                        + "灾害点类型：" + (mDetailBaseInfo.getData().getDisType() + "") + "\n"
+                                        + "灾害点编号：" + (mDetailBaseInfo.getData().getDisNo() == null ? "" : mDetailBaseInfo.getData().getDisNo()) + "\n"
+                                        + "乡镇：" + (mDetailBaseInfo.getData().getDisLocation() == null ? "" : mDetailBaseInfo.getData().getDisLocation()) + "\n"
+                                        + "详细地址：" + (mDetailBaseInfo.getData().getDisLocation() == null ? "" : mDetailBaseInfo.getData().getDisLocation()) + "\n"
+                                        + "主要诱因：" + (mDetailBaseInfo.getData().getDisCause() == null ? "" : mDetailBaseInfo.getData().getDisCause()) + "\n"
+                                        + "受威胁人数：" + (mDetailBaseInfo.getData().getImperilMan()) + "\n"
+                                        + "受威胁户数：" + (mDetailBaseInfo.getData().getImperilFamilies()) + "\n"
+                                        + "影响对象：" + (mDetailBaseInfo.getData().getMainObject() == null ? "" : mDetailBaseInfo.getData().getMainObject()) + "\n"
+                                        + "威胁财产(万元)：" + (mDetailBaseInfo.getData().getImperilMoney() == null ? "" : mDetailBaseInfo.getData().getImperilMoney()) + "\n"
+                                        + "危害等级：" + (mDetailBaseInfo.getData().getImperilLevel()) + "\n"
+                                        + "处置意见：" + (mDetailBaseInfo.getData().getDealIdea() == null ? "" : mDetailBaseInfo.getData().getDealIdea()) + "\n"
+                                        + "防治级别：" + (mDetailBaseInfo.getData().getDefenseLevel()) + "\n"
+                                        + "稳定性：" + (mDetailBaseInfo.getData().getStableLevel()) + "\n"
+                                        + "坡度：" + (mDetailBaseInfo.getData().getDisSlope() == null ? "" : mDetailBaseInfo.getData().getDisSlope() ) + "\n"
+                                        + "面积(km2)：" + (mDetailBaseInfo.getData().getDisArea() == null ? "" :mDetailBaseInfo.getData().getDisArea()) + "\n"
+                                        + "体积(m3)：" + (mDetailBaseInfo.getData().getDisVolume() == null ? "" : mDetailBaseInfo.getData().getDisVolume()) + "\n"
+                                        + "前缘高程(m)：" + (mDetailBaseInfo.getData().getDisBefore() == null ? "" :mDetailBaseInfo.getData().getDisBefore()) + "\n"
+                                        + "后缘高程(m)：" + (mDetailBaseInfo.getData().getDisAfter() == null ? "" : mDetailBaseInfo.getData().getDisAfter() ) + "\n"
+                                        + "经纬度：" + mDetailBaseInfo.getData().getDisLon()+ "," + mDetailBaseInfo.getData().getDisLat()  + "\n"
+                                        + "入库时间：" + (mDetailBaseInfo.getData().getComeTime() == null ? "" : mDetailBaseInfo.getData().getComeTime());
+                                Log.d("limeng", "info2：" + info2);
+                                llSwitchInfo.addView(addTextView(info2));
+                                break;
+                            case 3:
+                                mDetailPhoto= gson.fromJson(response, DetailPhoto.class);
+                                break;
+                            case 5:
+                                mDetailDisCard= gson.fromJson(response, DetailDisCard.class);
+                                break;
+                            case 6:
+                                mDetailHeCard= gson.fromJson(response, DetailHeCard.class);
+                                break;
+                            case 7:
+                                mDetailPnInfo= gson.fromJson(response, DetailPnInfo.class);
+                                break;
+                        }
                     }
                 });
     }
@@ -792,46 +957,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 灾害点详细信息
      */
-    private void showDialogDetails(final DisasterDetailInfo disasterDetailInfo) {
-        DisasterDetailInfo.DisBasicInfoBean pointInfo = disasterDetailInfo.getDisBasicInfo().get(0);
-        Log.d("limeng", "response:1111111111");
+    private void showDialogDetails(final String id) {
+
         final View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_disaster_detail_info, null);
         final AlertDialog ss = new AlertDialog.Builder(MainActivity.this).setView(view).create();
-        final LinearLayout llSwitchInfo = (LinearLayout) view.findViewById(R.id.ll_switch_info);
+        llSwitchInfo = (LinearLayout) view.findViewById(R.id.ll_switch_info);
         MyRadioGroup myrg = (MyRadioGroup) view.findViewById(R.id.myrg);
-        String info1;
-        final String info2 = "隐患点名称：" + (pointInfo.getDis_name() == null ? "" : pointInfo.getDis_name()) + "\n"
-                + "灾害点类型：" + (pointInfo.getDis_type() + "") + "\n"
-                + "灾害点编号：" + (pointInfo.getDis_no() == null ? "" : pointInfo.getDis_no()) + "\n"
-                + "乡镇：" + (pointInfo.getDis_location() == null ? "" : pointInfo.getDis_location()) + "\n"
-                + "详细地址：" + (pointInfo.getDis_location() == null ? "" : pointInfo.getDis_location()) + "\n"
-                + "主要诱因：" + (pointInfo.getDis_cause() == null ? "" : pointInfo.getDis_cause()) + "\n"
-                + "受威胁人数：" + (pointInfo.getImperil_man()) + "\n"
-                + "受威胁户数：" + (pointInfo.getImperil_families()) + "\n"
-                + "影响对象：" + (pointInfo.getMain_object() == null ? "" : pointInfo.getMain_object()) + "\n"
-                + "威胁财产(万元)：" + (pointInfo.getImperil_money() == null ? "" : pointInfo.getImperil_money()) + "\n"
-                + "危害等级：" + (pointInfo.getImperil_level()) + "\n"
-                + "处置意见：" + (pointInfo.getDeal_idea() == null ? "" : pointInfo.getDeal_idea()) + "\n"
-                + "防治级别：" + (pointInfo.getDefense_level()) + "\n"
-                + "稳定性：" + (pointInfo.getStable_level()) + "\n"
-                + "坡度：" + (pointInfo.getDis_slope() == null ? "" : pointInfo.getDis_slope()) + "\n"
-                + "面积(km²)：" + (pointInfo.getDis_area() == null ? "" : pointInfo.getDis_area()) + "\n"
-                + "体积(m³)：" + (pointInfo.getDis_volume() == null ? "" : pointInfo.getDis_volume()) + "\n"
-                + "前缘高程(m)：" + (pointInfo.getDis_before() == null ? "" : pointInfo.getDis_before()) + "\n"
-                + "后缘高程(m)：" + (pointInfo.getDis_after() == null ? "" : pointInfo.getDis_after()) + "\n"
-                + "经纬度：" + (pointInfo.getDis_lon() == null ? "" : pointInfo.getDis_lon()) + "," + (pointInfo.getDis_lat() == null ? "" : pointInfo.getDis_lat()) + "\n"
-                + "入库时间：" + (pointInfo.getCome_time() == null ? "" : pointInfo.getCome_time());
-        Log.d("limeng", "info2：" + info2);
         myrg.setOnCheckedChangeListener(new MyRadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(MyRadioGroup group, int checkedId) {
                 llSwitchInfo.removeAllViews();
                 switch (checkedId) {
                     case R.id.rb_detail_1_1:
-                        llSwitchInfo.addView(addPersonView(disasterDetailInfo.getPersonsMessage()));
+                        setOkhttpDetails(maps.get(id),getResources().getString(four_person_info),1);
                         break;
                     case R.id.rb_detail_1_2:
-                        llSwitchInfo.addView(addTextView(info2));
+                        setOkhttpDetails(maps.get(id),getResources().getString(selectByDisNo),2);
                         break;
                     case R.id.rb_detail_1_3:
                         llSwitchInfo.addView(addTextView("暂无图片"));
@@ -884,23 +1025,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LayoutInflater inflater3 = LayoutInflater.from(this);
         View view = inflater3.inflate(R.layout.activity_recycleview, null);
         view.setLayoutParams(lp);
-        RecyclerView rc = (RecyclerView) view.findViewById(R.id.rc_disaster_photo);
-        //传入所有列数的最小公倍数，1和4的最小公倍数为4，即意味着每一列将被分为4格
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
-        //设置表格，根据position计算在该position处1列占几格数据
-        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int position) {
-
-                return 1;
-            }
-        });
-        List<String> mList = new ArrayList<>();
-        mList.add("1");
-        mList.add("2");
-        mList.add("3");
-        rc.setLayoutManager(gridLayoutManager);
-        rc.setAdapter(new RcPersonAdapter(this, mList));
+//        RecyclerView rc = (RecyclerView) view.findViewById(R.id.rc_disaster_photo);
+//        //传入所有列数的最小公倍数，1和4的最小公倍数为4，即意味着每一列将被分为4格
+//        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+//        //设置表格，根据position计算在该position处1列占几格数据
+//        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+//            @Override
+//            public int getSpanSize(int position) {
+//
+//                return 1;
+//            }
+//        });
+//        List<String> mList = new ArrayList<>();
+//        mList.add("1");
+//        mList.add("2");
+//        mList.add("3");
+//        rc.setLayoutManager(gridLayoutManager);
+//        rc.setAdapter(new RcPersonAdapter(this, mList));
         return view;
     }
 
@@ -1090,7 +1231,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     layers.clear();
                     elevationSources.clear();
                     graphicsOverlays.clear();
-                    initData();
                     layers.add(lowImageLayer);
                     layers.add(highImageLayer);
                     elevationSources.add(elevationSource);
@@ -1247,10 +1387,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onClick(View v) {
                     if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allHuaPOGraphics);
-                    } else if (rbHandledPoint.isChecked()) {
-                        updateGraphic(notHuaPOGraphics);
-                    } else if (rbCanceledPoint.isChecked()) {
-                        updateGraphic(conHuaPOGraphics);
+                    } else {
+                        updateGraphic(otherHuaPOGraphics);
                     }
                 }
             });
@@ -1259,10 +1397,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onClick(View v) {
                     if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allNiSHILiuGraphics);
-                    } else if (rbHandledPoint.isChecked()) {
-                        updateGraphic(notNiSHILiuGraphics);
-                    } else if (rbCanceledPoint.isChecked()) {
-                        updateGraphic(conNiSHILiuGraphics);
+                    } else {
+                        updateGraphic(otherNiSHILiuGraphics);
                     }
                 }
             });
@@ -1271,10 +1407,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onClick(View v) {
                     if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allWeiYanGraphics);
-                    } else if (rbHandledPoint.isChecked()) {
-                        updateGraphic(notWeiYanGraphics);
-                    } else if (rbCanceledPoint.isChecked()) {
-                        updateGraphic(conWeiYanGraphics);
+                    } else {
+                        updateGraphic(otherWeiYanGraphics);
                     }
                 }
             });
@@ -1283,10 +1417,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onClick(View v) {
                     if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allXiePoGraphics);
-                    } else if (rbHandledPoint.isChecked()) {
-                        updateGraphic(notXiePoGraphics);
-                    } else if (rbCanceledPoint.isChecked()) {
-                        updateGraphic(conXiePoGraphics);
+                    } else {
+                        updateGraphic(otherXiePoGraphics);
                     }
                 }
             });
@@ -1295,10 +1427,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onClick(View v) {
                     if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allTanTaGraphics);
-                    } else if (rbHandledPoint.isChecked()) {
-                        updateGraphic(notTanTaGraphics);
-                    } else if (rbCanceledPoint.isChecked()) {
-                        updateGraphic(conTaAnGraphics);
+                    } else {
+                        updateGraphic(otherTanTaGraphics);
                     }
                 }
             });
@@ -1307,10 +1437,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onClick(View v) {
                     if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allLieFengGraphics);
-                    } else if (rbHandledPoint.isChecked()) {
-                        updateGraphic(notLieFengGraphics);
-                    } else if (rbCanceledPoint.isChecked()) {
-                        updateGraphic(conLieFengGraphics);
+                    } else {
+                        updateGraphic(otherLieFengGraphics);
                     }
                 }
             });
@@ -1319,10 +1447,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onClick(View v) {
                     if (rbDisasterPoint.isChecked()) {
                         updateGraphic(allTaAnGraphics);
-                    } else if (rbHandledPoint.isChecked()) {
-                        updateGraphic(notTaAnGraphics);
-                    } else if (rbCanceledPoint.isChecked()) {
-                        updateGraphic(conTaAnGraphics);
+                    } else {
+                        updateGraphic(otherTaAnGraphics);
                     }
                 }
             });
@@ -1351,21 +1477,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.rb_disaster_point:
-                Log.d(TAG, "所有的灾害点集合大小：" + allGraphics.size() + "\n"
-                        + "已消耗灾害点集合大小：" + consumedGraphics.size() + "\n"
-                        + "未消耗灾害点集合大小：" + notConsumeGraphics.size());
                 if (b) {
-                    updateGraphic(allGraphics);
+                    mDisasterType="-1";
+                    Log.d("limeng","mDisasterType="+mDisasterType);
+                    initDisasterData(areaCode);
+
                 }
                 break;
-            case R.id.rb_canceled_point://已消耗
+            case R.id.rb_state_point_0://已销号
                 if (b) {
-                    updateGraphic(consumedGraphics);
+                    mDisasterType="0";
+                    Log.d("limeng","mDisasterType="+mDisasterType);
+                    initDisasterDataByState(areaCode, 0 + "");
                 }
                 break;
-            case R.id.rb_handled_point:
+            case R.id.rb_state_point_2://已治理灾害点
                 if (b) {
-                    updateGraphic(notConsumeGraphics);
+                    mDisasterType="2";
+                    Log.d("limeng","mDisasterType="+mDisasterType);
+                    initDisasterDataByState(areaCode, 2 + "");
+                }
+                break;
+            case R.id.rb_state_point_3://已搬迁灾害点
+                if (b) {
+                    mDisasterType="3";
+                    Log.d("limeng","mDisasterType="+mDisasterType);
+                    initDisasterDataByState(areaCode, 3 + "");
+                }
+                break;
+            case R.id.rb_state_point_1://库岸调查
+                if (b) {
+                    mDisasterType="1";
+                    Log.d("limeng","mDisasterType="+mDisasterType);
+                    initDisasterDataByState(areaCode, 1 + "");
                 }
                 break;
             case R.id.rb_qcqf_person:
@@ -1479,9 +1623,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         graphicsOverlays.add(graphicsOverlay);
     }
 
-    private void initData() {
+    private void initDisasterData(String areaCode) {
         waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.get_disaster_point))
+        OkHttpUtils.get().url(getResources().getString(R.string.base_http) + getResources().getString(R.string.disaster_url) + areaCode)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -1493,17 +1637,94 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onResponse(String response, int id) {
                         WaitingDialog.closeDialog(waitingDialog);
-                        Gson gson = new Gson();
-                        Type type = new TypeToken<List<DisasterPoint>>() {
-                        }.getType();
-                        disasterPoints = gson.fromJson(response, type);
-                        Log.d("WSD", "集合大小：" + disasterPoints.size() + "\n数据:" + disasterPoints);
-                        setOverlay();
+                        Log.d("limeng","onResponse"+response);
+                        //{"meta":{"success":true,"message":"ok"},"data":"用户无访问权限"}
+                        //String str="{\"meta\":{\"success\":true,\"message\":\"ok\"},\"data\":[]}";
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            if ("用户无访问权限".equals(jsonObject.getString("data"))) {
+                                Toast.makeText(context, "用户无访问权限", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Gson gson = new Gson();
+                                Type type = new TypeToken<TabDisasterInfo>() {
+                                }.getType();
+                                mTabDisasterInfo = gson.fromJson(response,type);
+                                Log.d("limeng","mTabDisasterInfo"+mTabDisasterInfo.getData().get(0).getDisName());
+                                setOverlay();
+                            }
+
+                        } catch (JSONException e) {
+                            Log.d("limeng", "e:" + e.toString());
+                            e.printStackTrace();
+                        }
+
                     }
                 });
     }
 
+    /**
+     * 灾害分类
+     *
+     * @param areaCode
+     * @param mState
+     */
+    private void initDisasterDataByState(String areaCode, final String mState) {
+        waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
+        OkHttpUtils.get().url(getResources().getString(R.string.base_http) + getResources().getString(R.string.disaster_url_state) +mState+"/"+ areaCode)
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        Toast.makeText(getApplicationContext(), "网络连接失败！", Toast.LENGTH_SHORT).show();
+                        WaitingDialog.closeDialog(waitingDialog);
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        WaitingDialog.closeDialog(waitingDialog);
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            if ("用户无访问权限".equals(jsonObject.getString("data"))) {
+                                Toast.makeText(context, "用户无访问权限", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Gson gson = new Gson();
+                                Type type = new TypeToken<DisasterByStateInfo>() {
+                                }.getType();
+                                mDisasterByStateInfo = gson.fromJson(response, type);
+                                switch (mState) {
+                                    case "0":
+                                        mDisasterByStateInfo0 = gson.fromJson(response, type);
+                                        setOverlayState(mDisasterByStateInfo0);
+                                        break;
+                                    case "2":
+                                        mDisasterByStateInfo2 = gson.fromJson(response, type);
+                                        setOverlayState(mDisasterByStateInfo2);
+                                        break;
+                                    case "3":
+                                        mDisasterByStateInfo3 = gson.fromJson(response, type);
+                                        setOverlayState(mDisasterByStateInfo3);
+                                        break;
+                                    case "1":
+                                        mDisasterByStateInfo1 = gson.fromJson(response, type);
+                                        setOverlayState(mDisasterByStateInfo1);
+                                        break;
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            Log.d("limeng", "e:" + e.toString());
+                            e.printStackTrace();
+                        }
+//
+                    }
+                });
+    }
+
+    /**
+     * 灾害点图标
+     */
     private void setOverlay() {
+        maps.clear();
         BitmapDrawable huapo = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_1);
         BitmapDrawable nishiliu = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_2);
         BitmapDrawable weiyan = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_3);
@@ -1534,11 +1755,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
                 @Override
                 public void run() {
-                    for (DisasterPoint disasterPoint : disasterPoints) {
-                        if (disasterPoint.getDis_type() == finalI) {
-                            Point point = new Point(Double.valueOf(disasterPoint.getDis_lon()), Double.valueOf(disasterPoint.getDis_lat()), SpatialReferences.getWgs84());
+                    for (TabDisasterInfo.DataBean mDataBean : mTabDisasterInfo.getData()) {
+                        if (mDataBean.getDisType() == finalI) {
+                            Point point = new Point(mDataBean.getDisLon(), mDataBean.getDisLat(), SpatialReferences.getWgs84());
                             Graphic graphic = new Graphic(point, pinStarBlueSymbol);
-                            graphic.setZIndex(disasterPoint.getId());
+                            graphic.setZIndex(mDataBean.getId());
+                            maps.put(mDataBean.getId()+"",mDataBean.getDisNo());
                             allGraphics.add(graphic);
                             switch (finalI) {
                                 case 1:
@@ -1563,63 +1785,88 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     allTaAnGraphics.add(graphic);
                                     break;
                             }
-                            if (disasterPoint.getDis_state() == 1) {
-                                notConsumeGraphics.add(graphic);
-                                switch (finalI) {
-                                    case 1:
-                                        notHuaPOGraphics.add(graphic);
-                                        break;
-                                    case 2:
-                                        notNiSHILiuGraphics.add(graphic);
-                                        break;
-                                    case 3:
-                                        notWeiYanGraphics.add(graphic);
-                                        break;
-                                    case 4:
-                                        notXiePoGraphics.add(graphic);
-                                        break;
-                                    case 5:
-                                        notTanTaGraphics.add(graphic);
-                                        break;
-                                    case 6:
-                                        notLieFengGraphics.add(graphic);
-                                        break;
-                                    case 7:
-                                        notTaAnGraphics.add(graphic);
-                                        break;
-                                }
-                            } else {
-                                consumedGraphics.add(graphic);
-                                switch (finalI) {
-                                    case 1:
-                                        conHuaPOGraphics.add(graphic);
-                                        break;
-                                    case 2:
-                                        conNiSHILiuGraphics.add(graphic);
-                                        break;
-                                    case 3:
-                                        conWeiYanGraphics.add(graphic);
-                                        break;
-                                    case 4:
-                                        conXiePoGraphics.add(graphic);
-                                        break;
-                                    case 5:
-                                        conTanTaGraphics.add(graphic);
-                                        break;
-                                    case 6:
-                                        conLieFengGraphics.add(graphic);
-                                        break;
-                                    case 7:
-                                        conTaAnGraphics.add(graphic);
-                                        break;
-                                }
+                        }
+                    }
+                    updateGraphic(allGraphics);
+                }
+            });
+
+        }
+
+    }
+
+    /**
+     * 灾害点分类图标
+     */
+    private void setOverlayState(final DisasterByStateInfo disasterByStateInfo) {
+        maps.clear();
+        BitmapDrawable huapo = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_1);
+        BitmapDrawable nishiliu = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_2);
+        BitmapDrawable weiyan = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_3);
+        BitmapDrawable xiepo = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_4);
+        BitmapDrawable tanta = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_5);
+        BitmapDrawable liefeng = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_6);
+        BitmapDrawable taan = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_7);
+        List<BitmapDrawable> drawables = new ArrayList<>();
+        drawables.add(huapo);
+        drawables.add(nishiliu);
+        drawables.add(weiyan);
+        drawables.add(xiepo);
+        drawables.add(tanta);
+        drawables.add(liefeng);
+        drawables.add(taan);
+        for (int i = 1; i <= 7; i++) {
+            final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawables.get(i - 1));
+            //Optionally set the size, if not set the image will be auto sized based on its size in pixels,
+            //its appearance would then differ across devices with different resolutions.
+            pinStarBlueSymbol.setHeight(40);
+            pinStarBlueSymbol.setWidth(40);
+            //Optionally set the offset, to align the base of the symbol aligns with the point geometry
+            pinStarBlueSymbol.setOffsetY(
+                    11); //The image used for the symbol has a transparent buffer around it, so the offset is not simply height/2
+            pinStarBlueSymbol.loadAsync();
+            //[DocRef: END]
+            final int finalI = i;
+            pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
+                @Override
+                public void run() {
+                    for (DisasterByStateInfo.DataBean mDataBean : disasterByStateInfo.getData()) {
+                        if (mDataBean.getDis_type() == finalI) {
+                            Point point = new Point(mDataBean.getDis_lon(), mDataBean.getDis_lat(), SpatialReferences.getWgs84());
+                            Graphic graphic = new Graphic(point, pinStarBlueSymbol);
+                            graphic.setZIndex(mDataBean.getId());
+                            maps.put(mDataBean.getId()+"",mDisNo=mDataBean.getDis_no());
+                            otherGraphics.add(graphic);
+                            switch (finalI) {
+                                case 1:
+                                    otherHuaPOGraphics.add(graphic);
+                                    break;
+                                case 2:
+                                    otherNiSHILiuGraphics.add(graphic);
+                                    break;
+                                case 3:
+                                    otherWeiYanGraphics.add(graphic);
+                                    break;
+                                case 4:
+                                    otherXiePoGraphics.add(graphic);
+                                    break;
+                                case 5:
+                                    otherTanTaGraphics.add(graphic);
+                                    break;
+                                case 6:
+                                    otherLieFengGraphics.add(graphic);
+                                    break;
+                                case 7:
+                                    otherTaAnGraphics.add(graphic);
+                                    break;
                             }
                         }
                     }
+                    updateGraphic(otherGraphics);
                 }
+
             });
         }
-
     }
 
     private void setRainfallMore() {
