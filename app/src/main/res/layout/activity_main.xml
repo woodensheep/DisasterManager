@@ -24,9 +24,16 @@
     <LinearLayout
         android:layout_below="@+id/ll_area"
         android:id="@+id/ll_data"
+        android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
     <include layout="@layout/activity_data_manage"/>
     </LinearLayout>
-
+    <ImageView
+        android:id="@+id/iv_luopan"
+        android:src="@drawable/compass"
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"/>
 </RelativeLayout>

@@ -27,10 +27,17 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
+import com.esri.arcgisruntime.data.Feature;
+import com.esri.arcgisruntime.data.FeatureQueryResult;
+import com.esri.arcgisruntime.data.QueryParameters;
+import com.esri.arcgisruntime.data.ServiceFeatureTable;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.ArcGISMapImageLayer;
 import com.esri.arcgisruntime.layers.ArcGISSceneLayer;
+import com.esri.arcgisruntime.layers.FeatureLayer;
+import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent;
+import com.esri.arcgisruntime.loadable.LoadStatusChangedListener;
 import com.esri.arcgisruntime.mapping.ArcGISScene;
 import com.esri.arcgisruntime.mapping.ArcGISTiledElevationSource;
 import com.esri.arcgisruntime.mapping.Basemap;
@@ -64,6 +71,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -156,6 +164,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RadioButton rbEquipmentYingji;
     @BindView(R.id.rb_equipment_fengsu)
     RadioButton rbEquipmentFengsu;
+    @BindView(R.id.ll_xzqht)
+    LinearLayout llXzqht;
+    @BindView(R.id.iv_luopan)
+    ImageView ivLuopan;
     private boolean llAreaState = false;
     private boolean llDataState = false;
     private int llMoreState = -1;
@@ -170,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArcGISMapImageLayer ssYLLayer;
     ArcGISSceneLayer jinQiaoLayer;
     ArcGISSceneLayer shiLinLayer;
+    ArcGISMapImageLayer xingZhengLayer;
     private ArcGISScene scene;
     private ArcGISTiledElevationSource elevationSource;
     private LayerList layers;
@@ -222,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RadioGroup rg;
     private Dialog waitingDialog;
     private DisasterDetailInfo disasterDetailInfo;
+    private ServiceFeatureTable table;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -240,16 +254,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         shiLinLayer = new ArcGISSceneLayer(getResources().getString(R.string.shilin_qxsy_url));
         elevationSource = new ArcGISTiledElevationSource(
                 getResources().getString(R.string.elevation_image_service));
+        table = new ServiceFeatureTable(getResources().getString(R.string.xingzheng_image_url) + "/0");
+        xingZhengLayer = new ArcGISMapImageLayer(getResources().getString(R.string.xingzheng_image_url));
         scene = new ArcGISScene();
         layers = scene.getOperationalLayers();
         graphicsOverlay = new GraphicsOverlay();
         personGraphicsOverlay = new GraphicsOverlay();
         localGraphicsOverlay = new GraphicsOverlay();
-        equipmentGraphicOverlay=new GraphicsOverlay();
+        equipmentGraphicOverlay = new GraphicsOverlay();
         graphics = graphicsOverlay.getGraphics();
         personGraphics = personGraphicsOverlay.getGraphics();
         localGraphics = localGraphicsOverlay.getGraphics();
-        equipmentGraphics=equipmentGraphicOverlay.getGraphics();
+        equipmentGraphics = equipmentGraphicOverlay.getGraphics();
         graphicsOverlays = sceneView.getGraphicsOverlays();
         elevationSources = scene.getBaseSurface().getElevationSources();
         scene.setBasemap(Basemap.createImagery());
@@ -343,6 +359,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setListeners() {
+        ivLuopan.setOnClickListener(this);
         ivAreaBack.setOnClickListener(this);
         ivDataBack.setOnClickListener(this);
         llRainfall.setOnClickListener(this);
@@ -370,11 +387,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 // get the screen point where user tapped
                 android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
+                ListenableFuture<Point> pointListenableFuture = sceneView.screenToLocationAsync(screenPoint);
+                if (layers.contains(xingZhengLayer)) {
+                    try {
+                        Point point = pointListenableFuture.get();
+                        QueryParameters query = new QueryParameters();
+                        query.setGeometry(point);
+                        ListenableFuture<FeatureQueryResult> future = table.queryFeaturesAsync(query);
+                        FeatureQueryResult result = future.get();
+                        Iterator<Feature> iterator = result.iterator();
+                        while (iterator.hasNext()) {
+                            Feature feature = iterator.next();
+                            Log.e(TAG, "----------" + feature.getAttributes().get("name"));
+                            String name = (String) feature.getAttributes().get("name");
+                            //// TODO: 2017/8/10 显示乡镇统计信息
+                        }
+                    } catch (InterruptedException | ExecutionException e1) {
+                        e1.printStackTrace();
+                    }
+                }
                 // identify graphics on the graphics overlay
                 final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = sceneView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 10.0, false, 2);
                 final ListenableFuture<IdentifyGraphicsOverlayResult> personIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(personGraphicsOverlay, screenPoint, 10.0, false, 2);
                 final ListenableFuture<IdentifyGraphicsOverlayResult> localIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(localGraphicsOverlay, screenPoint, 10.0, false, 2);
-                final ListenableFuture<IdentifyGraphicsOverlayResult> equipmentIdentifyGraphic  = sceneView.identifyGraphicsOverlayAsync(equipmentGraphicOverlay, screenPoint, 10.0, false, 2);
+                final ListenableFuture<IdentifyGraphicsOverlayResult> equipmentIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(equipmentGraphicOverlay, screenPoint, 10.0, false, 2);
                 identifyGraphic.addDoneListener(new Runnable() {
                     @Override
                     public void run() {
@@ -435,7 +471,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return super.onSingleTapConfirmed(e);
             }
         });
-
+        scene.addLoadStatusChangedListener(new LoadStatusChangedListener() {
+            @Override
+            public void loadStatusChanged(LoadStatusChangedEvent loadStatusChangedEvent) {
+                String name = loadStatusChangedEvent.getNewLoadStatus().name();
+                if ("LOADED".equals(name)) {
+                    layers.add(xingZhengLayer);
+                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+                    sceneView.setViewpointCamera(camera);
+                }
+            }
+        });
     }
 
     private void showEquipmentInfo(int zIndex) {
@@ -1010,6 +1056,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.iv_luopan:
+                resetPosition();
+                break;
             case R.id.iv_area_back:
                 setAreaBack();
                 break;
@@ -1094,6 +1143,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
 
+        }
+    }
+
+    private void resetPosition() {
+        if (layers.contains(shiLinLayer)) {
+            Camera camera = new Camera(28.87312428984992, 106.91015726332898, 2000, 0, 0, 0.0);
+            sceneView.setViewpointCamera(camera);
+        } else if (layers.contains(jinQiaoLayer)) {
+            Camera camera = new Camera(29.07337764118905, 106.8774290607224, 2000, 0, 0, 0.0);
+            sceneView.setViewpointCamera(camera);
+        } else {
+            Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+            sceneView.setViewpointCamera(camera);
         }
     }
 
@@ -1333,6 +1395,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.rb_jinqiao:
                 if (b) {
+                    layers.clear();
+                    elevationSources.clear();
+                    graphicsOverlays.clear();
                     ElevationSource elevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.jinqiao_elevation_url));
                     layers.add(jinQiaoLayer);
                     elevationSources.add(elevationSource);
@@ -1345,6 +1410,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.rb_shilin:
                 if (b) {
+                    layers.clear();
+                    elevationSources.clear();
+                    graphicsOverlays.clear();
                     ElevationSource elevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.shilin_elevation_url));
                     layers.add(shiLinLayer);
                     elevationSources.add(elevationSource);
@@ -1357,7 +1425,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-
 
 
     private void addEquipment() {
@@ -1392,12 +1459,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         graphicsOverlays.clear();
         graphicsOverlays.add(personGraphicsOverlay);
     }
+
     private void updateEquipmentGraphic(List<Graphic> graphics) {
         equipmentGraphics.clear();
         equipmentGraphics.addAll(graphics);
         graphicsOverlays.clear();
         graphicsOverlays.add(equipmentGraphicOverlay);
     }
+
     /**
      * 更新地图上的图标
      *
