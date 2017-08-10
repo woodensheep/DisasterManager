@@ -11,7 +11,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,8 +31,6 @@ import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.ArcGISMapImageLayer;
 import com.esri.arcgisruntime.layers.ArcGISSceneLayer;
-import com.esri.arcgisruntime.layers.Layer;
-import com.esri.arcgisruntime.loadable.LoadStatus;
 import com.esri.arcgisruntime.mapping.ArcGISScene;
 import com.esri.arcgisruntime.mapping.ArcGISTiledElevationSource;
 import com.esri.arcgisruntime.mapping.Basemap;
@@ -47,12 +44,9 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
 import com.esri.arcgisruntime.mapping.view.SceneView;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
-import com.esri.arcgisruntime.util.ListChangedEvent;
-import com.esri.arcgisruntime.util.ListChangedListener;
 import com.esri.arcgisruntime.util.ListenableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.nandi.disastermanager.adapter.RCDisasterPhotoAdapter;
 import com.nandi.disastermanager.adapter.RcPersonAdapter;
 import com.nandi.disastermanager.entity.DisasterDetailInfo;
 import com.nandi.disastermanager.entity.DisasterInfo;
@@ -144,6 +138,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RadioButton rbPqPerson;
     @BindView(R.id.rb_dhz_person)
     RadioButton rbDhzPerson;
+    @BindView(R.id.iv_qxsy)
+    ImageView ivQxsy;
+    @BindView(R.id.rb_jinqiao)
+    RadioButton rbJinqiao;
+    @BindView(R.id.rb_shilin)
+    RadioButton rbShilin;
+    @BindView(R.id.rg_qxsy)
+    RadioGroup rgQxsy;
+    @BindView(R.id.ll_qxsy)
+    LinearLayout llQxsy;
     private boolean llAreaState = false;
     private boolean llDataState = false;
     private int llMoreState = -1;
@@ -207,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RadioGroup rg;
     private Dialog waitingDialog;
     private DisasterDetailInfo disasterDetailInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -422,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onResponse(String response, int id) {
                         WaitingDialog.closeDialog(waitingDialog);
-                        Log.d("limeng","response:"+response);
+                        Log.d("limeng", "response:" + response);
                         Log.d("limeng", "response:" + response);
                         String online = null;
                         String dispicture = null;
@@ -566,30 +571,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 polics = "民建会员";
                                 break;
                         }
-                        ((TextView)view.findViewById(R.id.tv_0_person_polics)).append(polics);
-                        ((TextView)view.findViewById(R.id.tv_0_person_nation)).append(personInfo.getNation()==null?"":personInfo.getNation());
-                        ((TextView)view.findViewById(R.id.tv_0_person_address)).append(personInfo.getAddress()==null?"":personInfo.getAddress());
-                        TextView tvOnline=((TextView)view.findViewById(R.id.tv_0_person_is));
-                        if(personInfo.getOnline()==0){
+                        ((TextView) view.findViewById(R.id.tv_0_person_polics)).append(polics);
+                        ((TextView) view.findViewById(R.id.tv_0_person_nation)).append(personInfo.getNation() == null ? "" : personInfo.getNation());
+                        ((TextView) view.findViewById(R.id.tv_0_person_address)).append(personInfo.getAddress() == null ? "" : personInfo.getAddress());
+                        TextView tvOnline = ((TextView) view.findViewById(R.id.tv_0_person_is));
+                        if (personInfo.getOnline() == 0) {
                             tvOnline.append("不在线");
                             tvOnline.setTextColor(Color.RED);
-                        }else{
+                        } else {
                             tvOnline.append("在线");
                             tvOnline.setTextColor(Color.GREEN);
                         }
-                        ((TextView)view.findViewById(R.id.tv_0_person_ismonitor)).append(personInfo.getIs_monitor()==1?"监测负责人":"监测人");
-                        ((TextView)view.findViewById(R.id.tv_0_person_brithday)).append(personInfo.getBrithday()==null?"":personInfo.getBrithday());
-                        ((TextView)view.findViewById(R.id.tv_0_person_realmobile)).append(personInfo.getReal_mobile()==null?"":personInfo.getReal_mobile());
-                        ((TextView)view.findViewById(R.id.tv_0_person_mobile)).append(personInfo.getMobile()==null?"":personInfo.getMobile());
+                        ((TextView) view.findViewById(R.id.tv_0_person_ismonitor)).append(personInfo.getIs_monitor() == 1 ? "监测负责人" : "监测人");
+                        ((TextView) view.findViewById(R.id.tv_0_person_brithday)).append(personInfo.getBrithday() == null ? "" : personInfo.getBrithday());
+                        ((TextView) view.findViewById(R.id.tv_0_person_realmobile)).append(personInfo.getReal_mobile() == null ? "" : personInfo.getReal_mobile());
+                        ((TextView) view.findViewById(R.id.tv_0_person_mobile)).append(personInfo.getMobile() == null ? "" : personInfo.getMobile());
                         new AlertDialog.Builder(MainActivity.this)
                                 .setView(view)
                                 .show();
                         Glide.with(MainActivity.this)
-                                .load("http://183.230.108.112:9077/cqapp/"+personInfo.getHead_url())
+                                .load("http://183.230.108.112:9077/cqapp/" + personInfo.getHead_url())
                                 .placeholder(R.mipmap.downloading)
                                 .thumbnail(0.1f)
                                 .error(R.mipmap.download_pass)
-                                .into((ImageView)view.findViewById(R.id.dialog_image));
+                                .into((ImageView) view.findViewById(R.id.dialog_image));
                     }
                 });
     }
@@ -620,24 +625,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private void setDialogViewDatas(DisasterInfo pointInfo) {
+    private void setDialogViewDatas(final DisasterInfo pointInfo) {
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_disasterinfo, null);
         final LinearLayout llBaseInfo = (LinearLayout) view.findViewById(R.id.ll_base_info);
-        final LinearLayout llCheckDetail = (LinearLayout) view.findViewById(R.id.ll_check_detail);
-         RecyclerView rcDisasterPhoto = (RecyclerView) view.findViewById(R.id.rc_disaster_photo);
-        final List<String> mList=new ArrayList<>();
-        mList.add(R.mipmap.t5001101000840101_1+"");
-        mList.add(R.mipmap.t5001101000840101_2+"");
-        final LinearLayout llImageInfo = (LinearLayout) view.findViewById(R.id.ll_image_info);
-        RecyclerView rcDisasterPhoto = (RecyclerView) view.findViewById(R.id.rc_disaster_photo);
+        rg= (RadioGroup) view.findViewById(R.id.rg_disaster_info);
         final List<String> mList = new ArrayList<>();
         mList.add(R.mipmap.t5001101000840101_1 + "");
         mList.add(R.mipmap.t5001101000840101_2 + "");
-        //设置布局管理器，必须
-        rcDisasterPhoto.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-        RCDisasterPhotoAdapter rcDisasterPhotoAdapter = new RCDisasterPhotoAdapter(MainActivity.this, mList);
-        //设置RecycleView的Adapter，必须
-        rcDisasterPhoto.setAdapter(rcDisasterPhotoAdapter);
         RadioGroup rg = (RadioGroup) view.findViewById(R.id.rg_disaster_info);
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -645,11 +639,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 switch (checkedId) {
                     case R.id.rbtn_base_info:
                         llBaseInfo.setVisibility(View.VISIBLE);
-                        llImageInfo.setVisibility(View.GONE);
                         break;
-                    case R.id.rbtn_image_info:
-                        llBaseInfo.setVisibility(View.GONE);
-                        llImageInfo.setVisibility(View.VISIBLE);
+                    case R.id.rbtn_check_detail:
+                        llBaseInfo.setVisibility(View.VISIBLE);
+                        setOkhttpDetails(pointInfo.getId()+"");
                         break;
                 }
             }
@@ -667,73 +660,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView tvImperilFamilies = (TextView) view.findViewById(R.id.tv_imperil_families);
         TextView tvMainObject = (TextView) view.findViewById(R.id.tv_main_object);
 
-        tvDisName.setText(pointInfo.getDis_name()==null?"":pointInfo.getDis_name());
-        tvDisType.setText(pointInfo.getDis_type()+"");
-        tvDisNo.setText(pointInfo.getDis_no()==null?"":pointInfo.getDis_no());
-        tvAreaId.setText(pointInfo.getDis_location()==null?"":pointInfo.getDis_location() + "");
-        tvDisLocation.setText(pointInfo.getDis_location()==null?"":pointInfo.getDis_location() + "");
-        tvDisCause.setText(pointInfo.getDis_cause()==null?"":pointInfo.getDis_cause() + "");
-        tvImperilMan.setText(pointInfo.getImperil_man()+ "");
-        tvImperilFamilies.setText(pointInfo.getImperil_families() +"");
-        tvMainObject.setText(pointInfo.getMain_object()==null?"":pointInfo.getMain_object() + "");
-        TextView tvImperilMoney = (TextView) view.findViewById(R.id.tv_imperil_money);
-        TextView tvStableLevel = (TextView) view.findViewById(R.id.tv_stable_level);
-        TextView tvImperilLevel = (TextView) view.findViewById(R.id.tv_imperil_level);
-        TextView tvDealIdea = (TextView) view.findViewById(R.id.tv_deal_idea);
-        TextView tvDefenseLevel = (TextView) view.findViewById(R.id.tv_defense_level);
-        TextView tvAreaId = (TextView) view.findViewById(R.id.tv_area_id);
-        TextView tvQcqfryId = (TextView) view.findViewById(R.id.tv_qcqfry_id);
-        TextView tvWarnMobile = (TextView) view.findViewById(R.id.tv_warn_mobile);
-        TextView tvHasMobile = (TextView) view.findViewById(R.id.tv_has_mobile);
-        TextView tvBz = (TextView) view.findViewById(R.id.tv_bz);
-        TextView tvDisRadius = (TextView) view.findViewById(R.id.tv_dis_radius);
-        TextView tvScale = (TextView) view.findViewById(R.id.tv_scale);
-        TextView tvStateTime = (TextView) view.findViewById(R.id.tv_state_time);
-        TextView tvComeTime = (TextView) view.findViewById(R.id.tv_come_time);
-        TextView tvOperation = (TextView) view.findViewById(R.id.tv_Operation);
-        TextView tvStatusNo = (TextView) view.findViewById(R.id.tv_status_no);
-        TextView tvDisSfss = (TextView) view.findViewById(R.id.tv_dis_sfss);
         tvDisName.setText(pointInfo.getDis_name() == null ? "" : pointInfo.getDis_name());
         tvDisType.setText(pointInfo.getDis_type() + "");
-        tvDisState.setText(pointInfo.getDis_state() + "");
+        tvDisNo.setText(pointInfo.getDis_no() == null ? "" : pointInfo.getDis_no());
+        tvAreaId.setText(pointInfo.getDis_location() == null ? "" : pointInfo.getDis_location() + "");
         tvDisLocation.setText(pointInfo.getDis_location() == null ? "" : pointInfo.getDis_location() + "");
-        tvDisLon.setText(pointInfo.getDis_lon() == null ? "" : pointInfo.getDis_lon() + "");
-        tvDisLat.setText(pointInfo.getDis_lat() == null ? "" : pointInfo.getDis_lat() + "");
         tvDisCause.setText(pointInfo.getDis_cause() == null ? "" : pointInfo.getDis_cause() + "");
-        tvDisSlope.setText(pointInfo.getDis_slope() == null ? "" : pointInfo.getDis_slope() + "");
-        tvDisArea.setText(pointInfo.getDis_area() == null ? "" : pointInfo.getDis_area() + "");
-        tvDisVolume.setText(pointInfo.getDis_volume() == null ? "" : pointInfo.getDis_volume() + "");
-        tvDisBefore.setText(pointInfo.getDis_before() == null ? "" : pointInfo.getDis_before() + "");
-        tvDisAfter.setText(pointInfo.getDis_after() == null ? "" : pointInfo.getDis_after() + "");
+        tvImperilMan.setText(pointInfo.getImperil_man() + "");
+        tvImperilFamilies.setText(pointInfo.getImperil_families() + "");
+        tvMainObject.setText(pointInfo.getMain_object() == null ? "" : pointInfo.getMain_object() + "");
+        tvDisName.setText(pointInfo.getDis_name() == null ? "" : pointInfo.getDis_name());
+        tvDisType.setText(pointInfo.getDis_type() + "");
+        tvDisLocation.setText(pointInfo.getDis_location() == null ? "" : pointInfo.getDis_location() + "");
+        tvDisCause.setText(pointInfo.getDis_cause() == null ? "" : pointInfo.getDis_cause() + "");
         tvImperilFamilies.setText(pointInfo.getImperil_families() + "");
         tvImperilMan.setText(pointInfo.getImperil_man() + "");
-        tvImperilHouse.setText(pointInfo.getImperil_house() + "");
-        tvImperilArea.setText(pointInfo.getImperil_area() == null ? "" : pointInfo.getImperil_area() + "");
         tvMainObject.setText(pointInfo.getMain_object() == null ? "" : pointInfo.getMain_object() + "");
-        tvImperilMoney.setText(pointInfo.getImperil_money() == null ? "" : pointInfo.getImperil_money() + "");
-        tvStableLevel.setText(pointInfo.getStable_level() + "");
-        tvImperilLevel.setText(pointInfo.getImperil_level() + "");
-        tvDealIdea.setText(pointInfo.getDeal_idea() == null ? "" : pointInfo.getDeal_idea() + "");
-        tvDefenseLevel.setText(pointInfo.getDefense_level() + "");
         tvAreaId.setText(pointInfo.getArea_id() + "");
-        tvQcqfryId.setText(pointInfo.getQcqfry_id() + "");
-        tvWarnMobile.setText(pointInfo.getWarn_mobile() == null ? "" : pointInfo.getWarn_mobile() + "");
-        tvHasMobile.setText(pointInfo.getHas_mobile() + "");
-        tvBz.setText(pointInfo.getBz() == null ? "" : pointInfo.getBz() + "");
-        tvDisRadius.setText(pointInfo.getDis_radius() + "");
-        tvScale.setText(pointInfo.getScale() + "");
-        tvStateTime.setText(pointInfo.getState_time() == null ? "" : pointInfo.getState_time() + "");
-        tvComeTime.setText(pointInfo.getCome_time() == null ? "" : pointInfo.getCome_time() + "");
-        tvOperation.setText(pointInfo.getOperation() == null ? "" : pointInfo.getOperation() + "");
-        tvStatusNo.setText(pointInfo.getStatus_no() + "");
-        tvDisSfss.setText(pointInfo.getDis_sfss() + "");
 
         AlertDialog dialog1 = new AlertDialog.Builder(MainActivity.this)
                 .setView(view)
                 .show();
     }
 
-    private void setOkhttpDetails(String id, final DisasterInfo pointInfo) {
+    private void setOkhttpDetails(String id) {
         waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
         OkHttpUtils.get().url(getResources().getString(R.string.disaster_details))
                 .addParams("id", id + "")
@@ -749,7 +699,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Gson gson = new Gson();
                         Type type = new TypeToken<DisasterDetailInfo>() {
                         }.getType();
-                        disasterDetailInfo= gson.fromJson(response, type);
+                        disasterDetailInfo = gson.fromJson(response, type);
                         showDialogDetails(disasterDetailInfo);
                         WaitingDialog.closeDialog(waitingDialog);
                     }
@@ -760,36 +710,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 灾害点详细信息
      */
-    private void showDialogDetails(final DisasterDetailInfo disasterDetailInfo){
+    private void showDialogDetails(final DisasterDetailInfo disasterDetailInfo) {
         DisasterDetailInfo.DisBasicInfoBean pointInfo = disasterDetailInfo.getDisBasicInfo().get(0);
-        Log.d("limeng","response:1111111111");
+        Log.d("limeng", "response:1111111111");
         final View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_disaster_detail_info, null);
         final AlertDialog ss = new AlertDialog.Builder(MainActivity.this).setView(view).create();
-         final LinearLayout llSwitchInfo = (LinearLayout) view.findViewById(R.id.ll_switch_info);
+        final LinearLayout llSwitchInfo = (LinearLayout) view.findViewById(R.id.ll_switch_info);
         MyRadioGroup myrg = (MyRadioGroup) view.findViewById(R.id.myrg);
         String info1;
-        final String info2 = "隐患点名称：" + (pointInfo.getDis_name()==null?"":pointInfo.getDis_name()) + "\n"
-                + "灾害点类型：" +( pointInfo.getDis_type()+"") + "\n"
-                + "灾害点编号：" +( pointInfo.getDis_no()==null?"":pointInfo.getDis_no() )+ "\n"
-                + "乡镇：" + (pointInfo.getDis_location()==null?"":pointInfo.getDis_location() )+ "\n"
-                + "详细地址：" +( pointInfo.getDis_location()==null?"":pointInfo.getDis_location()) + "\n"
-                + "主要诱因：" +( pointInfo.getDis_cause()==null?"":pointInfo.getDis_cause() ) + "\n"
-                + "受威胁人数：" +( pointInfo.getImperil_man() )+ "\n"
-                + "受威胁户数：" +( pointInfo.getImperil_families() ) + "\n"
-                + "影响对象：" + (pointInfo.getMain_object()==null?"":pointInfo.getMain_object() )+ "\n"
-                + "威胁财产(万元)：" + (pointInfo.getImperil_money()==null?"":pointInfo.getImperil_money() )+ "\n"
-                + "危害等级：" + (pointInfo.getImperil_level() )+ "\n"
-                + "处置意见：" + (pointInfo.getDeal_idea()==null?"":pointInfo.getDeal_idea() )+ "\n"
+        final String info2 = "隐患点名称：" + (pointInfo.getDis_name() == null ? "" : pointInfo.getDis_name()) + "\n"
+                + "灾害点类型：" + (pointInfo.getDis_type() + "") + "\n"
+                + "灾害点编号：" + (pointInfo.getDis_no() == null ? "" : pointInfo.getDis_no()) + "\n"
+                + "乡镇：" + (pointInfo.getDis_location() == null ? "" : pointInfo.getDis_location()) + "\n"
+                + "详细地址：" + (pointInfo.getDis_location() == null ? "" : pointInfo.getDis_location()) + "\n"
+                + "主要诱因：" + (pointInfo.getDis_cause() == null ? "" : pointInfo.getDis_cause()) + "\n"
+                + "受威胁人数：" + (pointInfo.getImperil_man()) + "\n"
+                + "受威胁户数：" + (pointInfo.getImperil_families()) + "\n"
+                + "影响对象：" + (pointInfo.getMain_object() == null ? "" : pointInfo.getMain_object()) + "\n"
+                + "威胁财产(万元)：" + (pointInfo.getImperil_money() == null ? "" : pointInfo.getImperil_money()) + "\n"
+                + "危害等级：" + (pointInfo.getImperil_level()) + "\n"
+                + "处置意见：" + (pointInfo.getDeal_idea() == null ? "" : pointInfo.getDeal_idea()) + "\n"
                 + "防治级别：" + (pointInfo.getDefense_level()) + "\n"
-                + "稳定性：" + (pointInfo.getStable_level() )+ "\n"
-                + "坡度：" + (pointInfo.getDis_slope()==null?"":pointInfo.getDis_slope() ) + "\n"
-                + "面积(km²)：" +( pointInfo.getDis_area()==null?"":pointInfo.getDis_area() ) + "\n"
-                + "体积(m³)：" + (pointInfo.getDis_volume()==null?"":pointInfo.getDis_volume()) + "\n"
-                + "前缘高程(m)：" +( pointInfo.getDis_before()==null?"":pointInfo.getDis_before() )+ "\n"
-                + "后缘高程(m)：" + (pointInfo.getDis_after()==null?"":pointInfo.getDis_after() )+ "\n"
-                + "经纬度：" + (pointInfo.getDis_lon()==null?"":pointInfo.getDis_lon())+","+(pointInfo.getDis_lat()==null?"":pointInfo.getDis_lat()) + "\n"
-                + "入库时间：" + (pointInfo.getCome_time()==null?"":pointInfo.getCome_time());
-        Log.d("limeng","info2："+info2);
+                + "稳定性：" + (pointInfo.getStable_level()) + "\n"
+                + "坡度：" + (pointInfo.getDis_slope() == null ? "" : pointInfo.getDis_slope()) + "\n"
+                + "面积(km²)：" + (pointInfo.getDis_area() == null ? "" : pointInfo.getDis_area()) + "\n"
+                + "体积(m³)：" + (pointInfo.getDis_volume() == null ? "" : pointInfo.getDis_volume()) + "\n"
+                + "前缘高程(m)：" + (pointInfo.getDis_before() == null ? "" : pointInfo.getDis_before()) + "\n"
+                + "后缘高程(m)：" + (pointInfo.getDis_after() == null ? "" : pointInfo.getDis_after()) + "\n"
+                + "经纬度：" + (pointInfo.getDis_lon() == null ? "" : pointInfo.getDis_lon()) + "," + (pointInfo.getDis_lat() == null ? "" : pointInfo.getDis_lat()) + "\n"
+                + "入库时间：" + (pointInfo.getCome_time() == null ? "" : pointInfo.getCome_time());
+        Log.d("limeng", "info2：" + info2);
         myrg.setOnCheckedChangeListener(new MyRadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(MyRadioGroup group, int checkedId) {
@@ -841,6 +791,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * 添加TextView
+     *
      * @return
      */
     private View addPersonView(List<DisasterDetailInfo.PersonsMessageBean> personsMessageBean) {
@@ -851,28 +802,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LayoutInflater inflater3 = LayoutInflater.from(this);
         View view = inflater3.inflate(R.layout.activity_recycleview, null);
         view.setLayoutParams(lp);
-        RecyclerView rc= (RecyclerView) view.findViewById(R.id.rc_disaster_photo);
+        RecyclerView rc = (RecyclerView) view.findViewById(R.id.rc_disaster_photo);
         //传入所有列数的最小公倍数，1和4的最小公倍数为4，即意味着每一列将被分为4格
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         //设置表格，根据position计算在该position处1列占几格数据
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override public int getSpanSize(int position) {
+            @Override
+            public int getSpanSize(int position) {
 
                 return 1;
             }
         });
-        List<String> mList=new ArrayList<>();
+        List<String> mList = new ArrayList<>();
         mList.add("1");
         mList.add("2");
         mList.add("3");
         rc.setLayoutManager(gridLayoutManager);
-        rc.setAdapter(new RcPersonAdapter(this,mList));
+        rc.setAdapter(new RcPersonAdapter(this, mList));
         return view;
     }
 
 
     /**
      * 添加TextView
+     *
      * @return
      */
     private View addTextView(String info) {
@@ -883,13 +836,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LayoutInflater inflater3 = LayoutInflater.from(this);
         View view = inflater3.inflate(R.layout.activity_tv_text, null);
         view.setLayoutParams(lp);
-        TextView tv= (TextView) view.findViewById(R.id.tv_switch_text);
+        TextView tv = (TextView) view.findViewById(R.id.tv_switch_text);
         tv.setText(info);
         return view;
     }
 
     /**
      * 添加table1:防灾明白卡
+     *
      * @return
      */
     private View addTableView1(DisasterDetailInfo disasterDetailInfo) {
@@ -900,30 +854,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LayoutInflater inflater3 = LayoutInflater.from(this);
         View view = inflater3.inflate(R.layout.activity_table_1, null);
         view.setLayoutParams(lp);
-        ((TextView)view.findViewById(R.id.tv_tavle1_1)).setText(mFCard.getD_position()==null?"":mFCard.getD_position());
-        ((TextView)view.findViewById(R.id.tv_tavle1_2)).setText(mFCard.getD_type()==null?"":mFCard.getD_type());
-        ((TextView)view.findViewById(R.id.tv_tavle1_3)).setText(mFCard.getD_induce_factor()==null?"":mFCard.getD_induce_factor());
-        ((TextView)view.findViewById(R.id.tv_tavle1_4)).setText(mFCard.getD_threat()==null?"":mFCard.getD_threat());
-        ((TextView)view.findViewById(R.id.tv_tavle1_5)).setText(mFCard.getD_monitor_man()==null?"":mFCard.getD_monitor_man());
-        ((TextView)view.findViewById(R.id.tv_tavle1_6)).setText(mFCard.getD_monitor_phone()==null?"":mFCard.getD_monitor_phone());
-        ((TextView)view.findViewById(R.id.tv_tavle1_7)).setText(mFCard.getD_monitor_sign()==null?"":mFCard.getD_monitor_sign());
-        ((TextView)view.findViewById(R.id.tv_tavle1_8)).setText(mFCard.getD_alarm_type()==null?"":mFCard.getD_alarm_type());
-        ((TextView)view.findViewById(R.id.tv_tavle1_9)).setText(mFCard.getD_monitor_judge()==null?"":mFCard.getD_monitor_judge());
-        ((TextView)view.findViewById(R.id.tv_tavle1_10)).setText(mFCard.getD_e_place()==null?"":mFCard.getD_e_place());
-        ((TextView)view.findViewById(R.id.tv_tavle1_11)).setText(mFCard.getD_e_signal()==null?"":mFCard.getD_e_signal());
-        ((TextView)view.findViewById(R.id.tv_tavle1_12)).setText(mFCard.getD_e_line()==null?"":mFCard.getD_e_line());
-        ((TextView)view.findViewById(R.id.tv_tavle1_13)).setText(mFCard.getD_exclude_man()==null?"":mFCard.getD_exclude_man());
-        ((TextView)view.findViewById(R.id.tv_tavle1_14)).setText(mFCard.getD_exclude_phone()==null?"":mFCard.getD_exclude_phone());
-        ((TextView)view.findViewById(R.id.tv_tavle1_15)).setText(mFCard.getD_security_man()==null?"":mFCard.getD_security_man());
-        ((TextView)view.findViewById(R.id.tv_tavle1_16)).setText(mFCard.getD_security_phone()==null?"":mFCard.getD_security_phone());
-        ((TextView)view.findViewById(R.id.tv_tavle1_17)).setText(mFCard.getD_doc_man()==null?"":mFCard.getD_doc_man());
-        ((TextView)view.findViewById(R.id.tv_tavle1_18)).setText(mFCard.getD_doc_phone()==null?"":mFCard.getD_doc_phone());
-        ((TextView)view.findViewById(R.id.tv_tavle1_19)).setText(mFCard.getD_grant_unit()==null?"":mFCard.getD_grant_unit());
-        ((TextView)view.findViewById(R.id.tv_tavle1_20)).setText(mFCard.getD_hold_unit()==null?"":mFCard.getD_hold_unit());
-        ((TextView)view.findViewById(R.id.tv_tavle1_21)).setText(mFCard.getD_grant_phone()==null?"":mFCard.getD_grant_phone());
-        ((TextView)view.findViewById(R.id.tv_tavle1_22)).setText(mFCard.getD_hold_phone()==null?"":mFCard.getD_hold_phone());
-        ((TextView)view.findViewById(R.id.tv_tavle1_23)).setText(mFCard.getD_grant_date()==null?"":mFCard.getD_grant_date());
-        ((TextView)view.findViewById(R.id.tv_tavle1_24)).setText(mFCard.getD_hold_date()==null?"":mFCard.getD_hold_date());
+        ((TextView) view.findViewById(R.id.tv_tavle1_1)).setText(mFCard.getD_position() == null ? "" : mFCard.getD_position());
+        ((TextView) view.findViewById(R.id.tv_tavle1_2)).setText(mFCard.getD_type() == null ? "" : mFCard.getD_type());
+        ((TextView) view.findViewById(R.id.tv_tavle1_3)).setText(mFCard.getD_induce_factor() == null ? "" : mFCard.getD_induce_factor());
+        ((TextView) view.findViewById(R.id.tv_tavle1_4)).setText(mFCard.getD_threat() == null ? "" : mFCard.getD_threat());
+        ((TextView) view.findViewById(R.id.tv_tavle1_5)).setText(mFCard.getD_monitor_man() == null ? "" : mFCard.getD_monitor_man());
+        ((TextView) view.findViewById(R.id.tv_tavle1_6)).setText(mFCard.getD_monitor_phone() == null ? "" : mFCard.getD_monitor_phone());
+        ((TextView) view.findViewById(R.id.tv_tavle1_7)).setText(mFCard.getD_monitor_sign() == null ? "" : mFCard.getD_monitor_sign());
+        ((TextView) view.findViewById(R.id.tv_tavle1_8)).setText(mFCard.getD_alarm_type() == null ? "" : mFCard.getD_alarm_type());
+        ((TextView) view.findViewById(R.id.tv_tavle1_9)).setText(mFCard.getD_monitor_judge() == null ? "" : mFCard.getD_monitor_judge());
+        ((TextView) view.findViewById(R.id.tv_tavle1_10)).setText(mFCard.getD_e_place() == null ? "" : mFCard.getD_e_place());
+        ((TextView) view.findViewById(R.id.tv_tavle1_11)).setText(mFCard.getD_e_signal() == null ? "" : mFCard.getD_e_signal());
+        ((TextView) view.findViewById(R.id.tv_tavle1_12)).setText(mFCard.getD_e_line() == null ? "" : mFCard.getD_e_line());
+        ((TextView) view.findViewById(R.id.tv_tavle1_13)).setText(mFCard.getD_exclude_man() == null ? "" : mFCard.getD_exclude_man());
+        ((TextView) view.findViewById(R.id.tv_tavle1_14)).setText(mFCard.getD_exclude_phone() == null ? "" : mFCard.getD_exclude_phone());
+        ((TextView) view.findViewById(R.id.tv_tavle1_15)).setText(mFCard.getD_security_man() == null ? "" : mFCard.getD_security_man());
+        ((TextView) view.findViewById(R.id.tv_tavle1_16)).setText(mFCard.getD_security_phone() == null ? "" : mFCard.getD_security_phone());
+        ((TextView) view.findViewById(R.id.tv_tavle1_17)).setText(mFCard.getD_doc_man() == null ? "" : mFCard.getD_doc_man());
+        ((TextView) view.findViewById(R.id.tv_tavle1_18)).setText(mFCard.getD_doc_phone() == null ? "" : mFCard.getD_doc_phone());
+        ((TextView) view.findViewById(R.id.tv_tavle1_19)).setText(mFCard.getD_grant_unit() == null ? "" : mFCard.getD_grant_unit());
+        ((TextView) view.findViewById(R.id.tv_tavle1_20)).setText(mFCard.getD_hold_unit() == null ? "" : mFCard.getD_hold_unit());
+        ((TextView) view.findViewById(R.id.tv_tavle1_21)).setText(mFCard.getD_grant_phone() == null ? "" : mFCard.getD_grant_phone());
+        ((TextView) view.findViewById(R.id.tv_tavle1_22)).setText(mFCard.getD_hold_phone() == null ? "" : mFCard.getD_hold_phone());
+        ((TextView) view.findViewById(R.id.tv_tavle1_23)).setText(mFCard.getD_grant_date() == null ? "" : mFCard.getD_grant_date());
+        ((TextView) view.findViewById(R.id.tv_tavle1_24)).setText(mFCard.getD_hold_date() == null ? "" : mFCard.getD_hold_date());
 
 
         return view;
@@ -931,68 +885,69 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * 添加table2:
+     *
      * @return
      */
     private View addTableView2(DisasterDetailInfo disasterDetailInfo) {
         DisasterDetailInfo.HedgeCardBean mHedgeCard = disasterDetailInfo.getHedgeCard().get(0);
-        List<DisasterDetailInfo.Family0Bean> family0Beans=disasterDetailInfo.getFamily0();
+        List<DisasterDetailInfo.Family0Bean> family0Beans = disasterDetailInfo.getFamily0();
         // TODO 动态添加布局(xml方式)
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);       //LayoutInflater inflater1=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LayoutInflater inflater3 = LayoutInflater.from(this);
         View view = inflater3.inflate(R.layout.activity_table_2, null);
         view.setLayoutParams(lp);
-        ((TextView)view.findViewById(R.id.tv_table2_1)).setText(mHedgeCard.getH_family_name()==null?"":mHedgeCard.getH_family_name());
-        ((TextView)view.findViewById(R.id.tv_table2_2)).setText(mHedgeCard.getH_family_num()==null?"":mHedgeCard.getH_family_num());
-        ((TextView)view.findViewById(R.id.tv_table2_3)).setText(mHedgeCard.getH_house_type()==null?"":mHedgeCard.getH_house_type());
-        ((TextView)view.findViewById(R.id.tv_table2_4)).setText(mHedgeCard.getH_address()==null?"":mHedgeCard.getH_address());
-        for(int i=0;i<family0Beans.size();i++){
+        ((TextView) view.findViewById(R.id.tv_table2_1)).setText(mHedgeCard.getH_family_name() == null ? "" : mHedgeCard.getH_family_name());
+        ((TextView) view.findViewById(R.id.tv_table2_2)).setText(mHedgeCard.getH_family_num() == null ? "" : mHedgeCard.getH_family_num());
+        ((TextView) view.findViewById(R.id.tv_table2_3)).setText(mHedgeCard.getH_house_type() == null ? "" : mHedgeCard.getH_house_type());
+        ((TextView) view.findViewById(R.id.tv_table2_4)).setText(mHedgeCard.getH_address() == null ? "" : mHedgeCard.getH_address());
+        for (int i = 0; i < family0Beans.size(); i++) {
             switch (i) {
-               case 0:
-                     ((TextView) view.findViewById(R.id.tv_table2_5)).setText(family0Beans.get(i).getM_name_one() == null ? "" : family0Beans.get(i).getM_name_one());
-                     ((TextView) view.findViewById(R.id.tv_table2_6)).setText(family0Beans.get(i).getM_sex_one() == null ? "" : family0Beans.get(i).getM_sex_one());
-                     ((TextView) view.findViewById(R.id.tv_table2_7)).setText(family0Beans.get(i).getM_age_one() == null ? "" :  family0Beans.get(i).getM_age_one());
-                   break;
-               case 1:
-                     ((TextView) view.findViewById(R.id.tv_table2_8)).setText(family0Beans.get(i).getM_name_one() == null ? "" : family0Beans.get(i).getM_name_one());
-                     ((TextView) view.findViewById(R.id.tv_table2_9)).setText(family0Beans.get(i).getM_sex_one() == null ? "" : family0Beans.get(i).getM_sex_one());
-                     ((TextView) view.findViewById(R.id.tv_table2_10)).setText(family0Beans.get(i).getM_age_one() == null ? "" :  family0Beans.get(i).getM_age_one());
-                   break;
-               case 2:
-                     ((TextView) view.findViewById(R.id.tv_table2_11)).setText(family0Beans.get(i).getM_name_one() == null ? "" : family0Beans.get(i).getM_name_one());
-                     ((TextView) view.findViewById(R.id.tv_table2_12)).setText(family0Beans.get(i).getM_sex_one() == null ? "" : family0Beans.get(i).getM_sex_one());
-                     ((TextView) view.findViewById(R.id.tv_table2_13)).setText(family0Beans.get(i).getM_age_one() == null ? "" :  family0Beans.get(i).getM_age_one());
-                   break;
-               case 3:
-                     ((TextView) view.findViewById(R.id.tv_table2_14)).setText(family0Beans.get(i).getM_name_one() == null ? "" : family0Beans.get(i).getM_name_one());
-                     ((TextView) view.findViewById(R.id.tv_table2_15)).setText(family0Beans.get(i).getM_sex_one() == null ? "" : family0Beans.get(i).getM_sex_one());
-                     ((TextView) view.findViewById(R.id.tv_table2_16)).setText(family0Beans.get(i).getM_age_one() == null ? "" :  family0Beans.get(i).getM_age_one());
-                   break;
+                case 0:
+                    ((TextView) view.findViewById(R.id.tv_table2_5)).setText(family0Beans.get(i).getM_name_one() == null ? "" : family0Beans.get(i).getM_name_one());
+                    ((TextView) view.findViewById(R.id.tv_table2_6)).setText(family0Beans.get(i).getM_sex_one() == null ? "" : family0Beans.get(i).getM_sex_one());
+                    ((TextView) view.findViewById(R.id.tv_table2_7)).setText(family0Beans.get(i).getM_age_one() == null ? "" : family0Beans.get(i).getM_age_one());
+                    break;
+                case 1:
+                    ((TextView) view.findViewById(R.id.tv_table2_8)).setText(family0Beans.get(i).getM_name_one() == null ? "" : family0Beans.get(i).getM_name_one());
+                    ((TextView) view.findViewById(R.id.tv_table2_9)).setText(family0Beans.get(i).getM_sex_one() == null ? "" : family0Beans.get(i).getM_sex_one());
+                    ((TextView) view.findViewById(R.id.tv_table2_10)).setText(family0Beans.get(i).getM_age_one() == null ? "" : family0Beans.get(i).getM_age_one());
+                    break;
+                case 2:
+                    ((TextView) view.findViewById(R.id.tv_table2_11)).setText(family0Beans.get(i).getM_name_one() == null ? "" : family0Beans.get(i).getM_name_one());
+                    ((TextView) view.findViewById(R.id.tv_table2_12)).setText(family0Beans.get(i).getM_sex_one() == null ? "" : family0Beans.get(i).getM_sex_one());
+                    ((TextView) view.findViewById(R.id.tv_table2_13)).setText(family0Beans.get(i).getM_age_one() == null ? "" : family0Beans.get(i).getM_age_one());
+                    break;
+                case 3:
+                    ((TextView) view.findViewById(R.id.tv_table2_14)).setText(family0Beans.get(i).getM_name_one() == null ? "" : family0Beans.get(i).getM_name_one());
+                    ((TextView) view.findViewById(R.id.tv_table2_15)).setText(family0Beans.get(i).getM_sex_one() == null ? "" : family0Beans.get(i).getM_sex_one());
+                    ((TextView) view.findViewById(R.id.tv_table2_16)).setText(family0Beans.get(i).getM_age_one() == null ? "" : family0Beans.get(i).getM_age_one());
+                    break;
             }
         }
-        ((TextView)view.findViewById(R.id.tv_table2_17)).setText(mHedgeCard.getH_dis_type()==null?"":mHedgeCard.getH_dis_type());
-        ((TextView)view.findViewById(R.id.tv_table2_18)).setText(mHedgeCard.getH_dis_scale()==null?"":mHedgeCard.getH_dis_scale());
-        ((TextView)view.findViewById(R.id.tv_table2_19)).setText(mHedgeCard.getH_dis_relationship()==null?"":mHedgeCard.getH_dis_relationship());
-        ((TextView)view.findViewById(R.id.tv_table2_20)).setText(mHedgeCard.getH_dis_factor()==null?"":mHedgeCard.getH_dis_factor());
-        ((TextView)view.findViewById(R.id.tv_table2_21)).setText(mHedgeCard.getH_dis_matters()==null?"":mHedgeCard.getH_dis_matters());
-        ((TextView)view.findViewById(R.id.tv_table2_22)).setText(mHedgeCard.getH_pre_man()==null?"":mHedgeCard.getH_pre_man());
-        ((TextView)view.findViewById(R.id.tv_table2_23)).setText(mHedgeCard.getH_pre_phone()==null?"":mHedgeCard.getH_pre_phone());
-        ((TextView)view.findViewById(R.id.tv_table2_24)).setText(mHedgeCard.getH_pre_signal()==null?"":mHedgeCard.getH_pre_signal());
-        ((TextView)view.findViewById(R.id.tv_table2_25)).setText(mHedgeCard.getH_signal_man()==null?"":mHedgeCard.getH_signal_man());
-        ((TextView)view.findViewById(R.id.tv_table2_26)).setText(mHedgeCard.getH_signal_phone()==null?"":mHedgeCard.getH_signal_phone());
-        ((TextView)view.findViewById(R.id.tv_table2_27)).setText(mHedgeCard.getH_eva_line()==null?"":mHedgeCard.getH_eva_line());
-        ((TextView)view.findViewById(R.id.tv_table2_28)).setText(mHedgeCard.getH_eva_placement()==null?"":mHedgeCard.getH_eva_placement());
-        ((TextView)view.findViewById(R.id.tv_table2_29)).setText(mHedgeCard.getH_placement_man()==null?"":mHedgeCard.getH_placement_man());
-        ((TextView)view.findViewById(R.id.tv_table2_30)).setText(mHedgeCard.getH_placement_phone()==null?"":mHedgeCard.getH_placement_phone());
-        ((TextView)view.findViewById(R.id.tv_table2_31)).setText(mHedgeCard.getH_ambulance_unit()==null?"":mHedgeCard.getH_ambulance_unit());
-        ((TextView)view.findViewById(R.id.tv_table2_32)).setText(mHedgeCard.getH_ambulance_man()==null?"":mHedgeCard.getH_ambulance_man());
-        ((TextView)view.findViewById(R.id.tv_table2_33)).setText(mHedgeCard.getH_ambulance_phone()==null?"":mHedgeCard.getH_ambulance_phone());
-        ((TextView)view.findViewById(R.id.tv_table2_34)).setText(mHedgeCard.getH_grant_unit()==null?"":mHedgeCard.getH_grant_unit());
-        ((TextView)view.findViewById(R.id.tv_table2_35)).setText(mHedgeCard.getH_holder()==null?"":mHedgeCard.getH_holder());
-        ((TextView)view.findViewById(R.id.tv_table2_36)).setText(mHedgeCard.getH_grant_phone()==null?"":mHedgeCard.getH_grant_phone());
-        ((TextView)view.findViewById(R.id.tv_table2_37)).setText(mHedgeCard.getH_holder_phone()==null?"":mHedgeCard.getH_holder_phone());
-        ((TextView)view.findViewById(R.id.tv_table2_38)).setText(mHedgeCard.getH_grant_date()==null?"":mHedgeCard.getH_grant_date());
-        ((TextView)view.findViewById(R.id.tv_table2_39)).setText(mHedgeCard.getH_holder_date()==null?"":mHedgeCard.getH_holder_date());
+        ((TextView) view.findViewById(R.id.tv_table2_17)).setText(mHedgeCard.getH_dis_type() == null ? "" : mHedgeCard.getH_dis_type());
+        ((TextView) view.findViewById(R.id.tv_table2_18)).setText(mHedgeCard.getH_dis_scale() == null ? "" : mHedgeCard.getH_dis_scale());
+        ((TextView) view.findViewById(R.id.tv_table2_19)).setText(mHedgeCard.getH_dis_relationship() == null ? "" : mHedgeCard.getH_dis_relationship());
+        ((TextView) view.findViewById(R.id.tv_table2_20)).setText(mHedgeCard.getH_dis_factor() == null ? "" : mHedgeCard.getH_dis_factor());
+        ((TextView) view.findViewById(R.id.tv_table2_21)).setText(mHedgeCard.getH_dis_matters() == null ? "" : mHedgeCard.getH_dis_matters());
+        ((TextView) view.findViewById(R.id.tv_table2_22)).setText(mHedgeCard.getH_pre_man() == null ? "" : mHedgeCard.getH_pre_man());
+        ((TextView) view.findViewById(R.id.tv_table2_23)).setText(mHedgeCard.getH_pre_phone() == null ? "" : mHedgeCard.getH_pre_phone());
+        ((TextView) view.findViewById(R.id.tv_table2_24)).setText(mHedgeCard.getH_pre_signal() == null ? "" : mHedgeCard.getH_pre_signal());
+        ((TextView) view.findViewById(R.id.tv_table2_25)).setText(mHedgeCard.getH_signal_man() == null ? "" : mHedgeCard.getH_signal_man());
+        ((TextView) view.findViewById(R.id.tv_table2_26)).setText(mHedgeCard.getH_signal_phone() == null ? "" : mHedgeCard.getH_signal_phone());
+        ((TextView) view.findViewById(R.id.tv_table2_27)).setText(mHedgeCard.getH_eva_line() == null ? "" : mHedgeCard.getH_eva_line());
+        ((TextView) view.findViewById(R.id.tv_table2_28)).setText(mHedgeCard.getH_eva_placement() == null ? "" : mHedgeCard.getH_eva_placement());
+        ((TextView) view.findViewById(R.id.tv_table2_29)).setText(mHedgeCard.getH_placement_man() == null ? "" : mHedgeCard.getH_placement_man());
+        ((TextView) view.findViewById(R.id.tv_table2_30)).setText(mHedgeCard.getH_placement_phone() == null ? "" : mHedgeCard.getH_placement_phone());
+        ((TextView) view.findViewById(R.id.tv_table2_31)).setText(mHedgeCard.getH_ambulance_unit() == null ? "" : mHedgeCard.getH_ambulance_unit());
+        ((TextView) view.findViewById(R.id.tv_table2_32)).setText(mHedgeCard.getH_ambulance_man() == null ? "" : mHedgeCard.getH_ambulance_man());
+        ((TextView) view.findViewById(R.id.tv_table2_33)).setText(mHedgeCard.getH_ambulance_phone() == null ? "" : mHedgeCard.getH_ambulance_phone());
+        ((TextView) view.findViewById(R.id.tv_table2_34)).setText(mHedgeCard.getH_grant_unit() == null ? "" : mHedgeCard.getH_grant_unit());
+        ((TextView) view.findViewById(R.id.tv_table2_35)).setText(mHedgeCard.getH_holder() == null ? "" : mHedgeCard.getH_holder());
+        ((TextView) view.findViewById(R.id.tv_table2_36)).setText(mHedgeCard.getH_grant_phone() == null ? "" : mHedgeCard.getH_grant_phone());
+        ((TextView) view.findViewById(R.id.tv_table2_37)).setText(mHedgeCard.getH_holder_phone() == null ? "" : mHedgeCard.getH_holder_phone());
+        ((TextView) view.findViewById(R.id.tv_table2_38)).setText(mHedgeCard.getH_grant_date() == null ? "" : mHedgeCard.getH_grant_date());
+        ((TextView) view.findViewById(R.id.tv_table2_39)).setText(mHedgeCard.getH_holder_date() == null ? "" : mHedgeCard.getH_holder_date());
 
         return view;
     }
@@ -1000,6 +955,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * 添加table2:
+     *
      * @return
      */
     private View addTableView3(DisasterDetailInfo disasterDetailInfo) {
@@ -1045,7 +1001,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setRainfallMore();
                 setDisasterLegend(R.layout.activity_disaster_legend, 2);
                 if (llMoreStateBefore != 2) {
-                   // waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
+                    // waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
                     layers.clear();
                     elevationSources.clear();
                     graphicsOverlays.clear();
@@ -1082,12 +1038,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     rlMain.removeView(view);
                 }
                 break;
+            case R.id.ll_qxsy:
+                llMoreStateBefore = llMoreState;
+                llMoreState = 5;
+                setRainfallMore();
+                if (view != null) {
+                    rlMain.removeView(view);
+                }
+                break;
 
         }
     }
 
     private void initPersonData() {
-        waitingDialog=WaitingDialog.createLoadingDialog(this,"正在请求中...");
+        waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
         OkHttpUtils.get().url(getResources().getString(R.string.get_person_location))
                 .build()
                 .execute(new StringCallback() {
@@ -1369,7 +1333,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initData() {
-        waitingDialog=WaitingDialog.createLoadingDialog(this,"正在请求中...");
+        waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
         OkHttpUtils.get().url(getResources().getString(R.string.get_disaster_point))
                 .build()
                 .execute(new StringCallback() {

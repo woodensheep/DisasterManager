@@ -3,17 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginLeft="10dp"
-    android:layout_marginTop="20dp">
+    android:layout_marginTop="20dp"
+    android:layout_marginBottom="20dp"
+    >
 
     <LinearLayout
         android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content"
         android:alpha="0.8"
         android:background="@drawable/shape_ll_background"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -65,9 +67,10 @@
                         android:orientation="horizontal">
 
                         <ImageView
+                            android:layout_gravity="center"
                             android:id="@+id/iv_rainfall_more"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
                             android:layout_marginLeft="5dp"
                             android:padding="2dp"
                             android:src="@mipmap/more" />
@@ -103,9 +106,10 @@
                         android:orientation="horizontal">
 
                         <ImageView
+                            android:layout_gravity="center"
                             android:id="@+id/iv_dangerpoint_more"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
                             android:layout_marginLeft="5dp"
                             android:padding="2dp"
                             android:src="@mipmap/more" />
@@ -139,9 +143,10 @@
                         android:orientation="horizontal">
 
                         <ImageView
+                            android:layout_gravity="center"
                             android:id="@+id/iv_staff_more"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
                             android:layout_marginLeft="5dp"
                             android:padding="2dp"
                             android:src="@mipmap/more" />
@@ -175,9 +180,10 @@
                         android:orientation="horizontal">
 
                         <ImageView
+                            android:layout_gravity="center"
                             android:id="@+id/iv_equipment_more"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
                             android:layout_marginLeft="5dp"
                             android:padding="2dp"
                             android:src="@mipmap/more" />
@@ -210,9 +216,10 @@
                         android:orientation="horizontal">
 
                         <ImageView
+                            android:layout_gravity="center"
                             android:id="@+id/iv_qxsy"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
                             android:layout_marginLeft="5dp"
                             android:padding="2dp"
                             android:src="@mipmap/more" />
