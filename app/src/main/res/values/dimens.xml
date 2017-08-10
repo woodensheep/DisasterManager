@@ -7,4 +7,6 @@
     <dimen name="rbtn_drawable_padding">6dp</dimen>
     <dimen name="relic_text">16dp</dimen>
     <dimen name="relic_text_edit">16dp</dimen>
+    <dimen name="table_textsize">12dp</dimen>
+    <dimen name="table_padding">10dp</dimen>
 </resources>

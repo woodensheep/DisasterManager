@@ -1,4 +1,4 @@
-package com.nandi.disastermanager;
+package com.nandi.disastermanager.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.nandi.disastermanager.R;
 
 import java.util.List;
 

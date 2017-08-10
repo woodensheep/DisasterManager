@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <LinearLayout
+            android:padding="3dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TableRow>
+
+
+                        <TextView
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="灾害点名称"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_1"
+                            android:layout_width="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+
+                        <TextView
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="灾害点统一编号"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_2"
+                            android:layout_width="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+
+                    </TableRow>
+
+                    <TableRow>
+
+                        <TextView
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="家庭住址"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_3"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+                    </TableRow>
+
+                </TableLayout>
+            </LinearLayout>
+
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/table_tv"
+                    android:ems="2"
+                    android:gravity="center"
+                    android:padding="3dp"
+                    android:text="监测"
+                    android:textSize="@dimen/table_textsize" />
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TableRow>
+
+
+                        <TextView
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="监测方式"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_4"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+
+                    </TableRow>
+
+                    <TableRow>
+
+
+                        <TextView
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="监测周期"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_5"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+
+                    </TableRow>
+
+                    <TableRow>
+
+
+                        <TextView
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="监测手段"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_6"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+
+                    </TableRow>
+
+                    <TableRow>
+
+
+                        <TextView
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="监测部位"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_7"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+
+                    </TableRow>
+
+
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+
+                    <TableRow>
+
+                        <TextView
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="预警方式"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_8"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+                    </TableRow>
+
+                </TableLayout>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/table_tv"
+                    android:ems="2"
+                    android:gravity="center"
+                    android:padding="3dp"
+                    android:text="紧急处理"
+                    android:textSize="@dimen/table_textsize" />
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TableRow>
+
+
+                        <TextView
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="应急处理措施"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_9"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+
+                    </TableRow>
+
+
+                    <TableRow>
+
+
+                        <TextView
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="撤离路线"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_10"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+
+                    </TableRow>
+
+                    <TableRow>
+
+
+                        <TextView
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="撤离顺序"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_11"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+
+                    </TableRow>
+
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TableRow>
+
+
+                        <TextView
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="监测人员"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_12"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="联系电话"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_13"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+                    </TableRow>
+                    <TableRow>
+
+
+                        <TextView
+                            android:id="@+id/textView2"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="村长"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_14"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="联系电话"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_15"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+                    </TableRow>
+                    <TableRow>
+
+
+                        <TextView
+                            android:id="@+id/textView3"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="组长"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_16"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="联系电话"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_17"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+                    </TableRow>
+                    <TableRow>
+
+
+                        <TextView
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="报警电话"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_18"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+
+                    </TableRow>
+
+
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TableRow>
+
+                        <TextView
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="危险区范围及撤离路线图"
+                            android:textSize="@dimen/table_textsize" />
+
+
+
+                    </TableRow>
+                    <TableRow>
+
+                        <ImageView
+                            android:id="@+id/iv_table3_19"
+                            android:layout_width="match_parent"
+                            android:layout_height="400dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="20dp"
+                            android:src="@mipmap/download_pass"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+                    </TableRow>
+
+                    <TableRow>
+
+
+                        <TextView
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="预案编制单位"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_20"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+                    </TableRow>
+
+                    <TableRow>
+
+
+                        <TextView
+                            android:id="@+id/textView4"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="预案批准单位"
+                            android:textSize="@dimen/table_textsize" />
+
+                        <TextView
+                            android:id="@+id/tv_table3_22"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_tv"
+                            android:gravity="center"
+                            android:padding="@dimen/table_padding"
+                            android:text="@string/ceshi1"
+                            android:textSize="@dimen/table_textsize" />
+
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>

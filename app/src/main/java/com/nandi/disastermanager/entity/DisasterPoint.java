@@ -1,4 +1,4 @@
-package com.nandi.disastermanager;
+package com.nandi.disastermanager.entity;
 
 /**
  * Created by ChenPeng on 2017/7/11.
