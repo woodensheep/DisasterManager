@@ -29,6 +29,8 @@ import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.ArcGISMapImageLayer;
 import com.esri.arcgisruntime.layers.ArcGISSceneLayer;
+import com.esri.arcgisruntime.layers.Layer;
+import com.esri.arcgisruntime.loadable.LoadStatus;
 import com.esri.arcgisruntime.mapping.ArcGISScene;
 import com.esri.arcgisruntime.mapping.ArcGISTiledElevationSource;
 import com.esri.arcgisruntime.mapping.Basemap;
@@ -42,6 +44,8 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
 import com.esri.arcgisruntime.mapping.view.SceneView;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
+import com.esri.arcgisruntime.util.ListChangedEvent;
+import com.esri.arcgisruntime.util.ListChangedListener;
 import com.esri.arcgisruntime.util.ListenableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -403,7 +407,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onError(Call call, Exception e, int id) {
                         Toast.makeText(getApplicationContext(), "网络连接失败！", Toast.LENGTH_SHORT).show();
-
                     }
 
                     @Override
@@ -510,7 +513,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onError(Call call, Exception e, int id) {
                         Toast.makeText(getApplicationContext(), "网络连接失败！", Toast.LENGTH_SHORT).show();
-
                     }
 
                     @Override
@@ -593,7 +595,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }.getType();
                         List<DisasterInfo> disasterInfos = gson.fromJson(response, type);
                         DisasterInfo disasterInfo = disasterInfos.get(0);
-
+//                        dialog.dismiss();
                         setDialogViewDatas(disasterInfo);
                     }
                 });
@@ -1014,25 +1016,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.rb_jinqiao:
-                if (b){
-                    ElevationSource elevationSource=new ArcGISTiledElevationSource(getResources().getString(R.string.jinqiao_elevation_url));
+                if (b) {
+                    ElevationSource elevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.jinqiao_elevation_url));
                     layers.add(jinQiaoLayer);
                     elevationSources.add(elevationSource);
                     Camera camera = new Camera(29.07337764118905, 106.8774290607224, 2000, 0, 0, 0.0);
                     sceneView.setViewpointCamera(camera);
-                }else {
+                } else {
                     layers.remove(jinQiaoLayer);
                     elevationSources.remove(elevationSource);
                 }
                 break;
             case R.id.rb_shilin:
-                if (b){
-                    ElevationSource elevationSource=new ArcGISTiledElevationSource(getResources().getString(R.string.shilin_elevation_url));
+                if (b) {
+                    ElevationSource elevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.shilin_elevation_url));
                     layers.add(shiLinLayer);
                     elevationSources.add(elevationSource);
                     Camera camera = new Camera(28.87312428984992, 106.91015726332898, 2000, 0, 0, 0.0);
                     sceneView.setViewpointCamera(camera);
-                }else {
+                } else {
                     layers.remove(shiLinLayer);
                     elevationSources.remove(elevationSource);
                 }
