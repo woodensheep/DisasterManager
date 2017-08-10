@@ -31,9 +31,13 @@ import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.ArcGISMapImageLayer;
+import com.esri.arcgisruntime.layers.ArcGISSceneLayer;
+import com.esri.arcgisruntime.layers.Layer;
+import com.esri.arcgisruntime.loadable.LoadStatus;
 import com.esri.arcgisruntime.mapping.ArcGISScene;
 import com.esri.arcgisruntime.mapping.ArcGISTiledElevationSource;
 import com.esri.arcgisruntime.mapping.Basemap;
+import com.esri.arcgisruntime.mapping.ElevationSource;
 import com.esri.arcgisruntime.mapping.LayerList;
 import com.esri.arcgisruntime.mapping.Surface;
 import com.esri.arcgisruntime.mapping.view.Camera;
@@ -43,6 +47,8 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
 import com.esri.arcgisruntime.mapping.view.SceneView;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
+import com.esri.arcgisruntime.util.ListChangedEvent;
+import com.esri.arcgisruntime.util.ListChangedListener;
 import com.esri.arcgisruntime.util.ListenableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -150,6 +156,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArcGISMapImageLayer dengZXLayer;
     ArcGISMapImageLayer dianziLayer;
     ArcGISMapImageLayer ssYLLayer;
+    ArcGISSceneLayer jinQiaoLayer;
+    ArcGISSceneLayer shiLinLayer;
     private ArcGISScene scene;
     private ArcGISTiledElevationSource elevationSource;
     private LayerList layers;
@@ -211,7 +219,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         highImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_19_url));
         vectorLayer = new ArcGISMapImageLayer(getResources().getString(R.string.shiliangtu_url));
         dengZXLayer = new ArcGISMapImageLayer(getResources().getString(R.string.yuliang_url));
-        ssYLLayer=new ArcGISMapImageLayer(getResources().getString(R.string.ssyl_url));
+        ssYLLayer = new ArcGISMapImageLayer(getResources().getString(R.string.ssyl_url));
+        jinQiaoLayer = new ArcGISSceneLayer(getResources().getString(R.string.jinqiao_qxsy_url));
+        shiLinLayer = new ArcGISSceneLayer(getResources().getString(R.string.shilin_qxsy_url));
         elevationSource = new ArcGISTiledElevationSource(
                 getResources().getString(R.string.elevation_image_service));
         scene = new ArcGISScene();
@@ -321,6 +331,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         llDangerpoint.setOnClickListener(this);
         llStaff.setOnClickListener(this);
         llEquipment.setOnClickListener(this);
+        llQxsy.setOnClickListener(this);
         rbSsyl.setOnCheckedChangeListener(this);
         rbYldzx.setOnCheckedChangeListener(this);
         rbDisasterPoint.setOnCheckedChangeListener(this);
@@ -330,6 +341,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rbDhzPerson.setOnCheckedChangeListener(this);
         rbZsPerson.setOnCheckedChangeListener(this);
         rbPqPerson.setOnCheckedChangeListener(this);
+        rbJinqiao.setOnCheckedChangeListener(this);
+        rbShilin.setOnCheckedChangeListener(this);
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -404,13 +417,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onError(Call call, Exception e, int id) {
                         WaitingDialog.closeDialog(waitingDialog);
                         Toast.makeText(getApplicationContext(), "网络连接失败！", Toast.LENGTH_SHORT).show();
-
                     }
 
                     @Override
                     public void onResponse(String response, int id) {
                         WaitingDialog.closeDialog(waitingDialog);
                         Log.d("limeng","response:"+response);
+                        Log.d("limeng", "response:" + response);
                         String online = null;
                         String dispicture = null;
                         TextView tvOnline = null;
@@ -427,11 +440,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 info = "姓名：" + name + "\n"
                                         + "乡镇：" + address + "\n"
                                         + "电话：" + mobile;
-                                view= LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info1, null);
-                                ((TextView)view.findViewById(R.id.tv_1_person_name)).append(name==null?"":name);
-                                ((TextView)view.findViewById(R.id.tv_1_person_address)).append(address==null?"":address);
-                                ((TextView)view.findViewById(R.id.tv_1_person_mobile)).append(mobile==null?"":mobile);
-                                tvOnline=((TextView)view.findViewById(R.id.tv_1_person_is));
+                                view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info1, null);
+                                ((TextView) view.findViewById(R.id.tv_1_person_name)).append(name == null ? "" : name);
+                                ((TextView) view.findViewById(R.id.tv_1_person_address)).append(address == null ? "" : address);
+                                ((TextView) view.findViewById(R.id.tv_1_person_mobile)).append(mobile == null ? "" : mobile);
+                                tvOnline = ((TextView) view.findViewById(R.id.tv_1_person_is));
                             } else if ("3".equals(type)) {
                                 String name = object.getString("name");
                                 String address = object.getString("location");
@@ -445,13 +458,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         + "值班电话：" + tel + "\n"
                                         + "职位：" + job + "\n"
                                         + "手机：" + mobile;
-                                view= LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info2, null);
-                                ((TextView)view.findViewById(R.id.tv_2_person_name)).append(name==null?"":name);
-                                ((TextView)view.findViewById(R.id.tv_2_person_address)).append(address==null?"":address);
-                                ((TextView)view.findViewById(R.id.tv_2_person_mobile)).append(mobile==null?"":mobile);
-                                ((TextView)view.findViewById(R.id.tv_2_person_tel)).append(tel==null?"":tel);
-                                ((TextView)view.findViewById(R.id.tv_2_person_job)).append(job==null?"":job);
-                                tvOnline=((TextView)view.findViewById(R.id.tv_2_person_is));
+                                view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info2, null);
+                                ((TextView) view.findViewById(R.id.tv_2_person_name)).append(name == null ? "" : name);
+                                ((TextView) view.findViewById(R.id.tv_2_person_address)).append(address == null ? "" : address);
+                                ((TextView) view.findViewById(R.id.tv_2_person_mobile)).append(mobile == null ? "" : mobile);
+                                ((TextView) view.findViewById(R.id.tv_2_person_tel)).append(tel == null ? "" : tel);
+                                ((TextView) view.findViewById(R.id.tv_2_person_job)).append(job == null ? "" : job);
+                                tvOnline = ((TextView) view.findViewById(R.id.tv_2_person_is));
                             } else if ("2".equals(type)) {
                                 String name = object.getString("disname");
                                 String gender = object.getString("gender");
@@ -470,33 +483,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         + "地址：" + address + "\n"
                                         + "单位：" + danwei + "\n"
                                         + "管理区域：" + manage_area + "\n";
-                                view= LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info3, null);
-                                ((TextView)view.findViewById(R.id.tv_3_person_name)).append(name==null?"":name);
-                                ((TextView)view.findViewById(R.id.tv_3_person_gender)).append(gender==null?"":gender);
-                                ((TextView)view.findViewById(R.id.tv_3_person_age)).append(age==null?"":age);
-                                ((TextView)view.findViewById(R.id.tv_3_person_mobile)).append(mobile==null?"":mobile);
-                                ((TextView)view.findViewById(R.id.tv_3_person_address)).append(address==null?"":address);
-                                ((TextView)view.findViewById(R.id.tv_3_person_danwei)).append(danwei==null?"":danwei);
-                                ((TextView)view.findViewById(R.id.tv_3_person_manage_area)).append(manage_area==null?"":manage_area);
-                                tvOnline=((TextView)view.findViewById(R.id.tv_3_person_is));
+                                view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info3, null);
+                                ((TextView) view.findViewById(R.id.tv_3_person_name)).append(name == null ? "" : name);
+                                ((TextView) view.findViewById(R.id.tv_3_person_gender)).append(gender == null ? "" : gender);
+                                ((TextView) view.findViewById(R.id.tv_3_person_age)).append(age == null ? "" : age);
+                                ((TextView) view.findViewById(R.id.tv_3_person_mobile)).append(mobile == null ? "" : mobile);
+                                ((TextView) view.findViewById(R.id.tv_3_person_address)).append(address == null ? "" : address);
+                                ((TextView) view.findViewById(R.id.tv_3_person_danwei)).append(danwei == null ? "" : danwei);
+                                ((TextView) view.findViewById(R.id.tv_3_person_manage_area)).append(manage_area == null ? "" : manage_area);
+                                tvOnline = ((TextView) view.findViewById(R.id.tv_3_person_is));
                             }
-                            if("0".equals(online)){
+                            if ("0".equals(online)) {
                                 tvOnline.append("不在线");
                                 tvOnline.setTextColor(Color.RED);
-                            }else{
+                            } else {
                                 tvOnline.append("在线");
                                 tvOnline.setTextColor(Color.GREEN);
                             }
                             new AlertDialog.Builder(MainActivity.this)
                                     .setView(view)
                                     .show();
-                            Log.d("limeng","dispicture="+dispicture);
+                            Log.d("limeng", "dispicture=" + dispicture);
                             Glide.with(MainActivity.this)
-                                    .load("http://183.230.108.112:9077/cqapp/"+dispicture)
+                                    .load("http://183.230.108.112:9077/cqapp/" + dispicture)
                                     .placeholder(R.mipmap.downloading)
                                     .thumbnail(0.1f)
                                     .error(R.mipmap.download_pass)
-                                    .into((ImageView)view.findViewById(R.id.dialog_image));
+                                    .into((ImageView) view.findViewById(R.id.dialog_image));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -527,17 +540,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         PersonInfo personInfo = personInfos.get(0);
                         Log.d(TAG, "人员信息：" + personInfo);
                         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info, null);
-                        ((TextView)view.findViewById(R.id.tv_0_person_name)).append(personInfo.getName()==null?"":personInfo.getName());
-                        ((TextView)view.findViewById(R.id.tv_0_person_work)).append(personInfo.getWork()==null?"":personInfo.getWork());
-                        String polics="";
-                        switch (personInfo.getPolics()==null?-1:Integer.parseInt(personInfo.getPolics())){
-                            case 1: polics="中共党员" ;break;
-                            case 2: polics="中共预备党员" ;break;
-                            case 3: polics="共青团员" ;break;
-                            case 4: polics="群众" ;break;
-                            case 5: polics="民革党员" ;break;
-                            case 6: polics="民盟盟员" ;break;
-                            case 7: polics="民建会员" ;break;
+                        ((TextView) view.findViewById(R.id.tv_0_person_name)).append(personInfo.getName() == null ? "" : personInfo.getName());
+                        ((TextView) view.findViewById(R.id.tv_0_person_work)).append(personInfo.getWork() == null ? "" : personInfo.getWork());
+                        String polics = "";
+                        switch (personInfo.getPolics() == null ? -1 : Integer.parseInt(personInfo.getPolics())) {
+                            case 1:
+                                polics = "中共党员";
+                                break;
+                            case 2:
+                                polics = "中共预备党员";
+                                break;
+                            case 3:
+                                polics = "共青团员";
+                                break;
+                            case 4:
+                                polics = "群众";
+                                break;
+                            case 5:
+                                polics = "民革党员";
+                                break;
+                            case 6:
+                                polics = "民盟盟员";
+                                break;
+                            case 7:
+                                polics = "民建会员";
+                                break;
                         }
                         ((TextView)view.findViewById(R.id.tv_0_person_polics)).append(polics);
                         ((TextView)view.findViewById(R.id.tv_0_person_nation)).append(personInfo.getNation()==null?"":personInfo.getNation());
@@ -593,7 +620,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private void setDialogViewDatas(final DisasterInfo pointInfo) {
+    private void setDialogViewDatas(DisasterInfo pointInfo) {
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_disasterinfo, null);
         final LinearLayout llBaseInfo = (LinearLayout) view.findViewById(R.id.ll_base_info);
         final LinearLayout llCheckDetail = (LinearLayout) view.findViewById(R.id.ll_check_detail);
@@ -601,27 +628,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final List<String> mList=new ArrayList<>();
         mList.add(R.mipmap.t5001101000840101_1+"");
         mList.add(R.mipmap.t5001101000840101_2+"");
+        final LinearLayout llImageInfo = (LinearLayout) view.findViewById(R.id.ll_image_info);
+        RecyclerView rcDisasterPhoto = (RecyclerView) view.findViewById(R.id.rc_disaster_photo);
+        final List<String> mList = new ArrayList<>();
+        mList.add(R.mipmap.t5001101000840101_1 + "");
+        mList.add(R.mipmap.t5001101000840101_2 + "");
         //设置布局管理器，必须
         rcDisasterPhoto.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-        RCDisasterPhotoAdapter rcDisasterPhotoAdapter=new RCDisasterPhotoAdapter(MainActivity.this,mList);
+        RCDisasterPhotoAdapter rcDisasterPhotoAdapter = new RCDisasterPhotoAdapter(MainActivity.this, mList);
         //设置RecycleView的Adapter，必须
         rcDisasterPhoto.setAdapter(rcDisasterPhotoAdapter);
-        rg = (RadioGroup) view.findViewById(R.id.rg_disaster_info);
-        final RadioButton rb2 = (RadioButton) view.findViewById(R.id.rbtn_check_detail);
+        RadioGroup rg = (RadioGroup) view.findViewById(R.id.rg_disaster_info);
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
                     case R.id.rbtn_base_info:
                         llBaseInfo.setVisibility(View.VISIBLE);
-                        Log.d("limeng","response:22222");
-                        llCheckDetail.setVisibility(View.GONE);
+                        llImageInfo.setVisibility(View.GONE);
                         break;
-                    case R.id.rbtn_check_detail:
-                        if(rb2.isChecked()) {
-                            llCheckDetail.setVisibility(View.GONE);
-                            setOkhttpDetails(pointInfo.getId()+"",pointInfo);
-                        }
+                    case R.id.rbtn_image_info:
+                        llBaseInfo.setVisibility(View.GONE);
+                        llImageInfo.setVisibility(View.VISIBLE);
                         break;
                 }
             }
@@ -648,6 +676,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvImperilMan.setText(pointInfo.getImperil_man()+ "");
         tvImperilFamilies.setText(pointInfo.getImperil_families() +"");
         tvMainObject.setText(pointInfo.getMain_object()==null?"":pointInfo.getMain_object() + "");
+        TextView tvImperilMoney = (TextView) view.findViewById(R.id.tv_imperil_money);
+        TextView tvStableLevel = (TextView) view.findViewById(R.id.tv_stable_level);
+        TextView tvImperilLevel = (TextView) view.findViewById(R.id.tv_imperil_level);
+        TextView tvDealIdea = (TextView) view.findViewById(R.id.tv_deal_idea);
+        TextView tvDefenseLevel = (TextView) view.findViewById(R.id.tv_defense_level);
+        TextView tvAreaId = (TextView) view.findViewById(R.id.tv_area_id);
+        TextView tvQcqfryId = (TextView) view.findViewById(R.id.tv_qcqfry_id);
+        TextView tvWarnMobile = (TextView) view.findViewById(R.id.tv_warn_mobile);
+        TextView tvHasMobile = (TextView) view.findViewById(R.id.tv_has_mobile);
+        TextView tvBz = (TextView) view.findViewById(R.id.tv_bz);
+        TextView tvDisRadius = (TextView) view.findViewById(R.id.tv_dis_radius);
+        TextView tvScale = (TextView) view.findViewById(R.id.tv_scale);
+        TextView tvStateTime = (TextView) view.findViewById(R.id.tv_state_time);
+        TextView tvComeTime = (TextView) view.findViewById(R.id.tv_come_time);
+        TextView tvOperation = (TextView) view.findViewById(R.id.tv_Operation);
+        TextView tvStatusNo = (TextView) view.findViewById(R.id.tv_status_no);
+        TextView tvDisSfss = (TextView) view.findViewById(R.id.tv_dis_sfss);
+        tvDisName.setText(pointInfo.getDis_name() == null ? "" : pointInfo.getDis_name());
+        tvDisType.setText(pointInfo.getDis_type() + "");
+        tvDisState.setText(pointInfo.getDis_state() + "");
+        tvDisLocation.setText(pointInfo.getDis_location() == null ? "" : pointInfo.getDis_location() + "");
+        tvDisLon.setText(pointInfo.getDis_lon() == null ? "" : pointInfo.getDis_lon() + "");
+        tvDisLat.setText(pointInfo.getDis_lat() == null ? "" : pointInfo.getDis_lat() + "");
+        tvDisCause.setText(pointInfo.getDis_cause() == null ? "" : pointInfo.getDis_cause() + "");
+        tvDisSlope.setText(pointInfo.getDis_slope() == null ? "" : pointInfo.getDis_slope() + "");
+        tvDisArea.setText(pointInfo.getDis_area() == null ? "" : pointInfo.getDis_area() + "");
+        tvDisVolume.setText(pointInfo.getDis_volume() == null ? "" : pointInfo.getDis_volume() + "");
+        tvDisBefore.setText(pointInfo.getDis_before() == null ? "" : pointInfo.getDis_before() + "");
+        tvDisAfter.setText(pointInfo.getDis_after() == null ? "" : pointInfo.getDis_after() + "");
+        tvImperilFamilies.setText(pointInfo.getImperil_families() + "");
+        tvImperilMan.setText(pointInfo.getImperil_man() + "");
+        tvImperilHouse.setText(pointInfo.getImperil_house() + "");
+        tvImperilArea.setText(pointInfo.getImperil_area() == null ? "" : pointInfo.getImperil_area() + "");
+        tvMainObject.setText(pointInfo.getMain_object() == null ? "" : pointInfo.getMain_object() + "");
+        tvImperilMoney.setText(pointInfo.getImperil_money() == null ? "" : pointInfo.getImperil_money() + "");
+        tvStableLevel.setText(pointInfo.getStable_level() + "");
+        tvImperilLevel.setText(pointInfo.getImperil_level() + "");
+        tvDealIdea.setText(pointInfo.getDeal_idea() == null ? "" : pointInfo.getDeal_idea() + "");
+        tvDefenseLevel.setText(pointInfo.getDefense_level() + "");
+        tvAreaId.setText(pointInfo.getArea_id() + "");
+        tvQcqfryId.setText(pointInfo.getQcqfry_id() + "");
+        tvWarnMobile.setText(pointInfo.getWarn_mobile() == null ? "" : pointInfo.getWarn_mobile() + "");
+        tvHasMobile.setText(pointInfo.getHas_mobile() + "");
+        tvBz.setText(pointInfo.getBz() == null ? "" : pointInfo.getBz() + "");
+        tvDisRadius.setText(pointInfo.getDis_radius() + "");
+        tvScale.setText(pointInfo.getScale() + "");
+        tvStateTime.setText(pointInfo.getState_time() == null ? "" : pointInfo.getState_time() + "");
+        tvComeTime.setText(pointInfo.getCome_time() == null ? "" : pointInfo.getCome_time() + "");
+        tvOperation.setText(pointInfo.getOperation() == null ? "" : pointInfo.getOperation() + "");
+        tvStatusNo.setText(pointInfo.getStatus_no() + "");
+        tvDisSfss.setText(pointInfo.getDis_sfss() + "");
 
         AlertDialog dialog1 = new AlertDialog.Builder(MainActivity.this)
                 .setView(view)
@@ -1236,6 +1315,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     updateLocalGraphic(dhzGraphics);
                 }
                 break;
+            case R.id.rb_jinqiao:
+                if (b) {
+                    ElevationSource elevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.jinqiao_elevation_url));
+                    layers.add(jinQiaoLayer);
+                    elevationSources.add(elevationSource);
+                    Camera camera = new Camera(29.07337764118905, 106.8774290607224, 2000, 0, 0, 0.0);
+                    sceneView.setViewpointCamera(camera);
+                } else {
+                    layers.remove(jinQiaoLayer);
+                    elevationSources.remove(elevationSource);
+                }
+                break;
+            case R.id.rb_shilin:
+                if (b) {
+                    ElevationSource elevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.shilin_elevation_url));
+                    layers.add(shiLinLayer);
+                    elevationSources.add(elevationSource);
+                    Camera camera = new Camera(28.87312428984992, 106.91015726332898, 2000, 0, 0, 0.0);
+                    sceneView.setViewpointCamera(camera);
+                } else {
+                    layers.remove(shiLinLayer);
+                    elevationSources.remove(elevationSource);
+                }
+                break;
         }
     }
 
@@ -1306,17 +1409,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         drawables.add(liefeng);
         drawables.add(taan);
         for (int i = 1; i <= 7; i++) {
-                final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawables.get(i - 1));
-                //Optionally set the size, if not set the image will be auto sized based on its size in pixels,
-                //its appearance would then differ across devices with different resolutions.
-                pinStarBlueSymbol.setHeight(40);
-                pinStarBlueSymbol.setWidth(40);
-                //Optionally set the offset, to align the base of the symbol aligns with the point geometry
-                pinStarBlueSymbol.setOffsetY(
-                        11); //The image used for the symbol has a transparent buffer around it, so the offset is not simply height/2
-                pinStarBlueSymbol.loadAsync();
-                //[DocRef: END]
-                final int finalI = i;
+            final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawables.get(i - 1));
+            //Optionally set the size, if not set the image will be auto sized based on its size in pixels,
+            //its appearance would then differ across devices with different resolutions.
+            pinStarBlueSymbol.setHeight(40);
+            pinStarBlueSymbol.setWidth(40);
+            //Optionally set the offset, to align the base of the symbol aligns with the point geometry
+            pinStarBlueSymbol.setOffsetY(
+                    11); //The image used for the symbol has a transparent buffer around it, so the offset is not simply height/2
+            pinStarBlueSymbol.loadAsync();
+            //[DocRef: END]
+            final int finalI = i;
             pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
                 @Override
                 public void run() {
@@ -1415,25 +1518,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 rgDangerpoint.setVisibility(View.GONE);
                 rgStaff.setVisibility(View.GONE);
                 rgEquipment.setVisibility(View.GONE);
+                rgQxsy.setVisibility(View.GONE);
                 break;
             case 2:
                 rgRainfall.setVisibility(View.GONE);
                 rgDangerpoint.setVisibility(View.VISIBLE);
                 rgStaff.setVisibility(View.GONE);
                 rgEquipment.setVisibility(View.GONE);
+                rgQxsy.setVisibility(View.GONE);
                 break;
             case 3:
                 rgRainfall.setVisibility(View.GONE);
                 rgDangerpoint.setVisibility(View.GONE);
                 rgStaff.setVisibility(View.VISIBLE);
                 rgEquipment.setVisibility(View.GONE);
+                rgQxsy.setVisibility(View.GONE);
                 break;
             case 4:
                 rgRainfall.setVisibility(View.GONE);
                 rgDangerpoint.setVisibility(View.GONE);
                 rgStaff.setVisibility(View.GONE);
                 rgEquipment.setVisibility(View.VISIBLE);
+                rgQxsy.setVisibility(View.GONE);
                 break;
+            case 5:
+                rgRainfall.setVisibility(View.GONE);
+                rgDangerpoint.setVisibility(View.GONE);
+                rgStaff.setVisibility(View.GONE);
+                rgEquipment.setVisibility(View.GONE);
+                rgQxsy.setVisibility(View.VISIBLE);
+                break;
+
         }
 
 
@@ -1442,6 +1557,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             rgDangerpoint.clearCheck();
             rgStaff.clearCheck();
             rgEquipment.clearCheck();
+            rgQxsy.clearCheck();
             Log.d("limeng", "llMoreState:" + llMoreState + "\n" + "llMoreStateBefore:" + llMoreStateBefore);
             ObjectAnimator animator3 = null;
             ObjectAnimator animator4 = null;
@@ -1457,6 +1573,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case 4:
                     animator3 = ObjectAnimator.ofFloat(ivEquipmentMore, "rotation", 0, 90);
+                    break;
+                case 5:
+                    animator3 = ObjectAnimator.ofFloat(ivQxsy, "rotation", 0, 90);
                     break;
             }
             if (animator3 != null) {
@@ -1476,6 +1595,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case 4:
                     animator4 = ObjectAnimator.ofFloat(ivEquipmentMore, "rotation", 90, 0);
                     break;
+                case 5:
+                    animator4 = ObjectAnimator.ofFloat(ivQxsy, "rotation", 90, 0);
             }
             if (animator4 != null) {
                 animator4.setDuration(100);
