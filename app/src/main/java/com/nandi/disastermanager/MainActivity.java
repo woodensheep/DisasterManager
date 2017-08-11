@@ -38,6 +38,7 @@ import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.ArcGISMapImageLayer;
 import com.esri.arcgisruntime.layers.ArcGISSceneLayer;
+import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent;
 import com.esri.arcgisruntime.loadable.LoadStatusChangedListener;
 import com.esri.arcgisruntime.mapping.ArcGISScene;
@@ -53,6 +54,9 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
 import com.esri.arcgisruntime.mapping.view.SceneView;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
+import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
+import com.esri.arcgisruntime.symbology.UniqueValueRenderer;
 import com.esri.arcgisruntime.util.ListenableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -185,10 +189,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RadioButton rbEquipmentYingji;
     @BindView(R.id.rb_equipment_fengsu)
     RadioButton rbEquipmentFengsu;
-    @BindView(R.id.ll_xzqht)
-    LinearLayout llXzqht;
     @BindView(R.id.iv_luopan)
     ImageView ivLuopan;
+    @BindView(R.id.iv_xz_more)
+    ImageView ivXzMore;
+    @BindView(R.id.ll_xingzheng)
+    LinearLayout llXingzheng;
+    @BindView(R.id.rb_qxyj)
+    RadioButton rbQxyj;
+    @BindView(R.id.rb_qxyb)
+    RadioButton rbQxyb;
+    @BindView(R.id.rg_xingzheng)
+    RadioGroup rgXingzheng;
 
     private boolean llAreaState = false;
     private boolean llDataState = false;
@@ -202,9 +214,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArcGISMapImageLayer dengZXLayer;
     ArcGISMapImageLayer dianziLayer;
     ArcGISMapImageLayer ssYLLayer;
-    ArcGISSceneLayer jinQiaoLayer;
-    ArcGISSceneLayer shiLinLayer;
     ArcGISMapImageLayer xingZhengLayer;
+    FeatureLayer xzFeatureLayer;
+    List<ArcGISSceneLayer> jinQiaoLayers = new ArrayList<>();
+    List<ArcGISSceneLayer> shiLinLayers = new ArrayList<>();
     private ArcGISScene scene;
     private ArcGISTiledElevationSource elevationSource;
     private LayerList layers;
@@ -218,6 +231,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GraphicsOverlay personGraphicsOverlay;
     private GraphicsOverlay localGraphicsOverlay;
     private GraphicsOverlay equipmentGraphicOverlay;
+    private GraphicsOverlay weatherGraphicOverlay;
     private ListenableList<GraphicsOverlay> graphicsOverlays;
     private List<Graphic> allGraphics = new ArrayList<>();//所有的灾害点图标
     private List<Graphic> otherGraphics = new ArrayList<>();//已消耗灾害点图标
@@ -258,10 +272,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<Graphic> pqGraphics = new ArrayList<>();
     private List<Graphic> dhzGraphics = new ArrayList<>();
     private List<Graphic> jianceGraphics = new ArrayList<>();
+    private List<Graphic> weatherGraphics = new ArrayList<>();
     private ListenableList<Graphic> graphics;
     private ListenableList<Graphic> personGraphics;
     private ListenableList<Graphic> localGraphics;
     private ListenableList<Graphic> equipmentGraphics;
+    private ListenableList<Graphic> weathersGraphics;
     private RadioGroup rg;
     private Dialog waitingDialog;
     private DisasterDetailInfo disasterDetailInfo;
@@ -275,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DisasterByStateInfo mDisasterByStateInfo2;
     private DisasterByStateInfo mDisasterByStateInfo3;
     private Context context;
-    private String mDisasterType = "-1";
+    private String mDisasterType="-1";
     private DetailPersonInfo mDetailPersonInfo;
     private DetailBaseInfo mDetailBaseInfo;
     private DetailPhoto mDetailPhoto;
@@ -283,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DetailHeCard mDetailHeCard;
     private DetailPnInfo mDetailPnInfo;
     private String mDisNo;
-    private Map<String, String> maps = new HashMap<>();
+    private Map<String,String> maps=new HashMap<>();
     private LinearLayout llSwitchInfo;
 
     @Override
@@ -291,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
-        areaCode = "500110";//万盛id
+        areaCode = "500110";
         ButterKnife.bind(this);
         initStaData();
         initLocalData();
@@ -301,28 +317,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         vectorLayer = new ArcGISMapImageLayer(getResources().getString(R.string.shiliangtu_url));
         dengZXLayer = new ArcGISMapImageLayer(getResources().getString(R.string.yuliang_url));
         ssYLLayer = new ArcGISMapImageLayer(getResources().getString(R.string.ssyl_url));
-        jinQiaoLayer = new ArcGISSceneLayer(getResources().getString(R.string.jinqiao_qxsy_url));
-        shiLinLayer = new ArcGISSceneLayer(getResources().getString(R.string.shilin_qxsy_url));
         elevationSource = new ArcGISTiledElevationSource(
                 getResources().getString(R.string.elevation_image_service));
         table = new ServiceFeatureTable(getResources().getString(R.string.xingzheng_image_url) + "/0");
+        xzFeatureLayer = new FeatureLayer(table);
         xingZhengLayer = new ArcGISMapImageLayer(getResources().getString(R.string.xingzheng_image_url));
+        for (int i = 1; i <= 8; i++) {
+            ArcGISSceneLayer sceneLayer = new ArcGISSceneLayer("http://183.230.182.149:6081/arcgis/rest/services/Hosted/jingqiao_spk" + i + "/SceneServer/layers/0");
+            jinQiaoLayers.add(sceneLayer);
+        }
+        for (int i = 1; i <= 6; i++) {
+            ArcGISSceneLayer sceneLayer = new ArcGISSceneLayer("http://183.230.182.149:6081/arcgis/rest/services/Hosted/shilin_spk" + i + "/SceneServer/layers/0/");
+            shiLinLayers.add(sceneLayer);
+        }
         scene = new ArcGISScene();
         layers = scene.getOperationalLayers();
         graphicsOverlay = new GraphicsOverlay();
         personGraphicsOverlay = new GraphicsOverlay();
         localGraphicsOverlay = new GraphicsOverlay();
         equipmentGraphicOverlay = new GraphicsOverlay();
+        weatherGraphicOverlay=new GraphicsOverlay();
         graphics = graphicsOverlay.getGraphics();
         personGraphics = personGraphicsOverlay.getGraphics();
         localGraphics = localGraphicsOverlay.getGraphics();
         equipmentGraphics = equipmentGraphicOverlay.getGraphics();
+        weathersGraphics=weatherGraphicOverlay.getGraphics();
         graphicsOverlays = sceneView.getGraphicsOverlays();
         elevationSources = scene.getBaseSurface().getElevationSources();
         scene.setBasemap(Basemap.createImagery());
         sceneView.setScene(scene);
         setListeners();
-        setlogin("", "");
+        setlogin("","");
     }
 
     private void initLocalData() {
@@ -411,6 +436,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setListeners() {
+        llXingzheng.setOnClickListener(this);
         ivLuopan.setOnClickListener(this);
         ivAreaBack.setOnClickListener(this);
         ivDataBack.setOnClickListener(this);
@@ -436,6 +462,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rbEquipmentJiance.setOnCheckedChangeListener(this);
         rbEquipmentLaba.setOnCheckedChangeListener(this);
         rbEquipmentYingji.setOnCheckedChangeListener(this);
+        rbQxyj.setOnCheckedChangeListener(this);
+        rbQxyb.setOnCheckedChangeListener(this);
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -758,7 +786,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showInfo(int zIndex) {
-        setDialogViewDatas(mDisasterType, zIndex);
+        setDialogViewDatas(mDisasterType,zIndex);
 
     }
 
@@ -770,7 +798,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 2已治理灾害点
      * 3已搬迁灾害点
      * 1库岸调查
-     *
      * @param type
      */
     private void setDialogViewDatas(String type, final int id) {
@@ -838,27 +865,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         }
-        switch (mDisType) {
+        switch (mDisType){
             case "1":
-                mDisType = "滑坡";
+                mDisType="滑坡";
                 break;
             case "2":
-                mDisType = "泥石流";
+                mDisType="泥石流";
                 break;
             case "3":
-                mDisType = "危岩";
+                mDisType="危岩";
                 break;
             case "4":
-                mDisType = "不稳定斜坡";
+                mDisType="不稳定斜坡";
                 break;
             case "5":
-                mDisType = "地面坍塌";
+                mDisType="地面坍塌";
                 break;
             case "6":
-                mDisType = "地裂缝";
+                mDisType="地裂缝";
                 break;
             case "7":
-                mDisType = "库岸";
+                mDisType="库岸";
                 break;
         }
         TextView tvDisName = (TextView) view.findViewById(R.id.tv_dis_name);
@@ -873,7 +900,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         tvDisName.setText(mDisName == null ? "" : mDisName);
         tvDisType.setText(mDisType + "");
-        tvDisNo.setText(mDisNo == null ? "" : mDisNo);
+        tvDisNo.setText(mDisNo == null ? "" :mDisNo);
         tvAreaId.setText(mDisLocation == null ? "" : mDisLocation);
         tvDisLocation.setText(mDisLocation == null ? "" : mDisLocation);
         tvDisCause.setText(mDisCause == null ? "" : mDisCause);
@@ -888,18 +915,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * 伪登录
-     *
      * @param str1
      * @param str2
      */
-    private void setlogin(String str1, String str2) {
-        Log.d("limeng", "请求中...");
+    private void setlogin(String str1,String str2) {
+        Log.d("limeng","请求中...");
         OkHttpUtils.get().url(getResources().getString(R.string.login))
                 .build()
                 .execute(new Callback() {
                     @Override
                     public Object parseNetworkResponse(Response response, int id) throws Exception {
-                        Log.d("limeng", "response.headers()_" + response.headers());
+                        Log.d("limeng","response.headers()_"+response.headers());
                         return null;
                     }
 
@@ -917,14 +943,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * type不同的详细信息
-     *
      * @param id
      * @param http
      * @param type
      */
     private void setOkhttpDetails(String id, String http, final int type) {
         waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.base_http) + http + "/" + id)
+        OkHttpUtils.get().url(getResources().getString(R.string.base_http)+http+"/"+id)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -937,7 +962,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         WaitingDialog.closeDialog(waitingDialog);
                         Log.d("limeng", "response=" + response);
                         Gson gson = new Gson();
-                        switch (type) {
+                        switch (type){
                             case 1:
                                 mDetailPersonInfo = gson.fromJson(response, DetailPersonInfo.class);
                                 llSwitchInfo.addView(addPersonView());
@@ -1433,15 +1458,104 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     rlMain.removeView(view);
                 }
                 break;
+            case R.id.ll_xingzheng:
+                llMoreStateBefore = llMoreState;
+                llMoreState = 6;
+                setRainfallMore();
+                addWeather();
+                if (view != null) {
+                    rlMain.removeView(view);
+                }
+                if (llMoreStateBefore != 6 && !layers.contains(xingZhengLayer)) {
+                    layers.clear();
+                    elevationSources.clear();
+                    graphicsOverlays.clear();
+                    layers.add(xingZhengLayer);
+                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+                    sceneView.setViewpointCamera(camera);
+                }
+                break;
+        }
+    }
 
+    private void addWeather() {
+        final List<DisasterPoint> disasterPoints=new ArrayList<>();
+        DisasterPoint wandong=new DisasterPoint();
+        wandong.setDis_lon("106.91979545");
+        wandong.setDis_lat("28.95290346");
+        wandong.setDis_name("万东镇");
+        DisasterPoint shilin=new DisasterPoint();
+        shilin.setDis_lon("106.93410938");
+        shilin.setDis_lat("28.84384145");
+        shilin.setDis_name("石林镇");
+        DisasterPoint qingnian=new DisasterPoint();
+        qingnian.setDis_lon("106.850094");
+        qingnian.setDis_lat("28.85293135");
+        qingnian.setDis_name("青年镇");
+        DisasterPoint nantong=new DisasterPoint();
+        nantong.setDis_lon("106.86845176");
+        nantong.setDis_lat("28.93441762");
+        nantong.setDis_name("南桐镇");
+        DisasterPoint jinqiao=new DisasterPoint();
+        jinqiao.setDis_lon("106.89649099");
+        jinqiao.setDis_lat("29.03657006");
+        jinqiao.setDis_name("金桥镇");
+        DisasterPoint heishan=new DisasterPoint();
+        heishan.setDis_lon("106.99274618");
+        heishan.setDis_lat("28.91461293");
+        heishan.setDis_name("黑山镇");
+        DisasterPoint guanba=new DisasterPoint();
+        guanba.setDis_lon("106.82294387");
+        guanba.setDis_lat("28.80028586");
+        guanba.setDis_name("关坝镇");
+        DisasterPoint conglin=new DisasterPoint();
+        conglin.setDis_lon("106.96608428");
+        conglin.setDis_lat("29.01085608");
+        conglin.setDis_name("丛林镇");
+        disasterPoints.add(wandong);
+        disasterPoints.add(shilin);
+        disasterPoints.add(qingnian);
+        disasterPoints.add(nantong);
+        disasterPoints.add(jinqiao);
+        disasterPoints.add(heishan);
+        disasterPoints.add(guanba);
+        disasterPoints.add(conglin);
+        BitmapDrawable sun = (BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.sun);
+        BitmapDrawable shade = (BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.shade);
+        BitmapDrawable rain = (BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.rain);
+        List<BitmapDrawable> drawables = new ArrayList<>();
+        drawables.add(sun);
+        drawables.add(shade);
+        drawables.add(rain);
+        drawables.add(sun);
+        drawables.add(shade);
+        drawables.add(rain);
+        drawables.add(sun);
+        drawables.add(shade);
+        for (int i = 0; i < 8; i++) {
+            final PictureMarkerSymbol symbol = new PictureMarkerSymbol(drawables.get(i));
+            symbol.setWidth(50);
+            symbol.setHeight(50);
+            symbol.setOffsetY(11);
+            symbol.loadAsync();
+            final int finalI = i;
+            symbol.addDoneLoadingListener(new Runnable() {
+                @Override
+                public void run() {
+                    Point point = new Point(Double.valueOf(disasterPoints.get(finalI).getDis_lon()), Double.valueOf(disasterPoints.get(finalI).getDis_lat()), SpatialReferences.getWgs84());
+                    Graphic graphic = new Graphic(point, symbol);
+                    weatherGraphics.add(graphic);
+                }
+
+            });
         }
     }
 
     private void resetPosition() {
-        if (layers.contains(shiLinLayer)) {
+        if (layers.contains(shiLinLayers.get(0))) {
             Camera camera = new Camera(28.87312428984992, 106.91015726332898, 2000, 0, 0, 0.0);
             sceneView.setViewpointCamera(camera);
-        } else if (layers.contains(jinQiaoLayer)) {
+        } else if (layers.contains(jinQiaoLayers.get(0))) {
             Camera camera = new Camera(29.07337764118905, 106.8774290607224, 2000, 0, 0, 0.0);
             sceneView.setViewpointCamera(camera);
         } else {
@@ -1694,12 +1808,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     elevationSources.clear();
                     graphicsOverlays.clear();
                     ElevationSource elevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.jinqiao_elevation_url));
-                    layers.add(jinQiaoLayer);
+                    layers.addAll(jinQiaoLayers);
                     elevationSources.add(elevationSource);
                     Camera camera = new Camera(29.07337764118905, 106.8774290607224, 2000, 0, 0, 0.0);
                     sceneView.setViewpointCamera(camera);
                 } else {
-                    layers.remove(jinQiaoLayer);
+                    layers.removeAll(jinQiaoLayers);
                     elevationSources.remove(elevationSource);
                 }
                 break;
@@ -1709,16 +1823,85 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     elevationSources.clear();
                     graphicsOverlays.clear();
                     ElevationSource elevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.shilin_elevation_url));
-                    layers.add(shiLinLayer);
+                    layers.addAll(shiLinLayers);
                     elevationSources.add(elevationSource);
                     Camera camera = new Camera(28.87312428984992, 106.91015726332898, 2000, 0, 0, 0.0);
                     sceneView.setViewpointCamera(camera);
                 } else {
-                    layers.remove(shiLinLayer);
+                    layers.removeAll(shiLinLayers);
                     elevationSources.remove(elevationSource);
                 }
                 break;
+            case R.id.rb_qxyj:
+                if (b) {
+                    setRender();
+                    layers.add(xzFeatureLayer);
+                } else {
+                    layers.remove(xzFeatureLayer);
+                }
+                break;
+            case R.id.rb_qxyb:
+                if (b) {
+                    updateWeather(weatherGraphics);
+                }else {
+                    graphicsOverlays.clear();
+                }
+                break;
         }
+    }
+
+    private void updateWeather(List<Graphic> g) {
+        weathersGraphics.clear();
+        weathersGraphics.addAll(g);
+        graphicsOverlays.clear();
+        graphicsOverlays.add(weatherGraphicOverlay);
+    }
+
+    private void setRender() {
+        UniqueValueRenderer uniqueValueRenderer = new UniqueValueRenderer();
+        uniqueValueRenderer.getFieldNames().add("name");
+
+        SimpleFillSymbol defaultFillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.NULL, Color.BLACK, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 2));
+        SimpleFillSymbol symbol1 = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.RED, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 3));
+        SimpleFillSymbol symbol2 = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.parseColor("#FF6100"), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 3));
+        SimpleFillSymbol symbol3 = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.YELLOW, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 3));
+
+        uniqueValueRenderer.setDefaultSymbol(defaultFillSymbol);
+        uniqueValueRenderer.setDefaultLabel("Other");
+
+        List<Object> wanDongValue = new ArrayList<>();
+        wanDongValue.add("万东镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("万东镇", "State of California", symbol2, wanDongValue));
+
+        List<Object> congLinValue = new ArrayList<>();
+        congLinValue.add("丛林镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("丛林镇", "State of Arizona", symbol2, congLinValue));
+
+        List<Object> guanBaValue = new ArrayList<>();
+        guanBaValue.add("关坝镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("关坝镇", "State of Nevada", symbol3, guanBaValue));
+
+        List<Object> nanTongValue = new ArrayList<>();
+        nanTongValue.add("南桐镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("南桐镇", "State of Nevada", symbol3, nanTongValue));
+
+        List<Object> shiLinValue = new ArrayList<>();
+        shiLinValue.add("石林镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("石林镇", "State of Nevada", symbol1, shiLinValue));
+
+        List<Object> jinQiaoValue = new ArrayList<>();
+        jinQiaoValue.add("金桥镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("金桥镇", "State of Nevada", symbol1, jinQiaoValue));
+
+        List<Object> qingNianVlue = new ArrayList<>();
+        qingNianVlue.add("青年镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("青年镇", "State of Nevada", symbol2, qingNianVlue));
+
+        List<Object> heiShanValue = new ArrayList<>();
+        heiShanValue.add("黑山镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("黑山镇", "State of Nevada", symbol3, heiShanValue));
+
+        xzFeatureLayer.setRenderer(uniqueValueRenderer);
     }
 
 
@@ -2028,6 +2211,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 rgStaff.setVisibility(View.GONE);
                 rgEquipment.setVisibility(View.GONE);
                 rgQxsy.setVisibility(View.GONE);
+                rgXingzheng.setVisibility(View.GONE);
                 break;
             case 2:
                 rgRainfall.setVisibility(View.GONE);
@@ -2035,6 +2219,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 rgStaff.setVisibility(View.GONE);
                 rgEquipment.setVisibility(View.GONE);
                 rgQxsy.setVisibility(View.GONE);
+                rgXingzheng.setVisibility(View.GONE);
                 break;
             case 3:
                 rgRainfall.setVisibility(View.GONE);
@@ -2042,6 +2227,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 rgStaff.setVisibility(View.VISIBLE);
                 rgEquipment.setVisibility(View.GONE);
                 rgQxsy.setVisibility(View.GONE);
+                rgXingzheng.setVisibility(View.GONE);
                 break;
             case 4:
                 rgRainfall.setVisibility(View.GONE);
@@ -2049,6 +2235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 rgStaff.setVisibility(View.GONE);
                 rgEquipment.setVisibility(View.VISIBLE);
                 rgQxsy.setVisibility(View.GONE);
+                rgXingzheng.setVisibility(View.GONE);
                 break;
             case 5:
                 rgRainfall.setVisibility(View.GONE);
@@ -2056,8 +2243,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 rgStaff.setVisibility(View.GONE);
                 rgEquipment.setVisibility(View.GONE);
                 rgQxsy.setVisibility(View.VISIBLE);
+                rgXingzheng.setVisibility(View.GONE);
                 break;
-
+            case 6:
+                rgRainfall.setVisibility(View.GONE);
+                rgDangerpoint.setVisibility(View.GONE);
+                rgStaff.setVisibility(View.GONE);
+                rgEquipment.setVisibility(View.GONE);
+                rgQxsy.setVisibility(View.GONE);
+                rgXingzheng.setVisibility(View.VISIBLE);
+                break;
         }
 
 
@@ -2067,6 +2262,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             rgStaff.clearCheck();
             rgEquipment.clearCheck();
             rgQxsy.clearCheck();
+            rgXingzheng.clearCheck();
             Log.d("limeng", "llMoreState:" + llMoreState + "\n" + "llMoreStateBefore:" + llMoreStateBefore);
             ObjectAnimator animator3 = null;
             ObjectAnimator animator4 = null;
@@ -2086,6 +2282,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case 5:
                     animator3 = ObjectAnimator.ofFloat(ivQxsy, "rotation", 0, 90);
                     break;
+                case 6:
+                    animator3 = ObjectAnimator.ofFloat(ivXzMore, "rotation", 0, 90);
             }
             if (animator3 != null) {
                 animator3.setDuration(100);
@@ -2106,6 +2304,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case 5:
                     animator4 = ObjectAnimator.ofFloat(ivQxsy, "rotation", 90, 0);
+                    break;
+                case 6:
+                    animator4 = ObjectAnimator.ofFloat(ivXzMore, "rotation", 90, 0);
+                    break;
             }
             if (animator4 != null) {
                 animator4.setDuration(100);
