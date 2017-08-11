@@ -61,6 +61,10 @@ public class DetailPhoto {
 
     public static class DataBean {
         /**
+         * http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=10&path=5001101060500101-q.jpg
+         * http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=10&path=5001101060500101-t.gif
+         * http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=10&path=5001101060500101-p.jpg
+         * http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=10&path=5001101060500101-m.jpg
          * id : 35320
          * dis_no : 5001101020010101
          * dis_id : 35320

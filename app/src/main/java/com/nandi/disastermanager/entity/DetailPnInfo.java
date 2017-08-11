@@ -89,7 +89,7 @@ public class DetailPnInfo {
          */
 
         private int id;
-        private Object pDisNo;
+        private String pDisNo;
         private String pMonitorMan;
         private String pMonitorPhone;
         private String pVillageHead;
@@ -124,11 +124,11 @@ public class DetailPnInfo {
             this.id = id;
         }
 
-        public Object getPDisNo() {
+        public String getPDisNo() {
             return pDisNo;
         }
 
-        public void setPDisNo(Object pDisNo) {
+        public void setPDisNo(String pDisNo) {
             this.pDisNo = pDisNo;
         }
 

@@ -97,8 +97,10 @@ public class DetailPersonInfo {
             this.human = human;
         }
 
+
         public static class AreaAdminBean {
             /**
+             * 片区负责人
              * lon : 106.849522
              * admin_id : 399
              * admin_pic : wansheng/zhanghuaxian.jpg
@@ -165,6 +167,7 @@ public class DetailPersonInfo {
 
         public static class AreaProfessorBean {
             /**
+             * 地质驻守人员
              * professor_phone : 15702331022
              * professor_id : 186
              * lng : 106.9700751
@@ -231,6 +234,7 @@ public class DetailPersonInfo {
 
         public static class DihuanzhanBean {
             /**
+             * 地环站人员
              * dhz_phone : 15213062108
              * area_code : 500110
              * name : 牟联清
@@ -297,6 +301,7 @@ public class DetailPersonInfo {
 
         public static class HumanBean {
             /**
+             * 群测群防人员
              * head_url : wansheng/qingnianzhen/zhushaobi.jpg
              * human_phone :
              * dis_lon : 106.8088

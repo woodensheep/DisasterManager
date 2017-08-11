@@ -7,5 +7,7 @@
     <ImageView
         android:id="@+id/iv_disaster_photo"
         android:layout_width="match_parent"
-        android:layout_height="300dp" />
+        android:scaleType="fitXY"
+        android:layout_height="250dp" />
+
 </LinearLayout>

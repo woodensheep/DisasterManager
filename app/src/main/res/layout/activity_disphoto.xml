@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="全景图"
+        android:textSize="23sp"
+        />
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rc_photo_neirong_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:text="特征图"
+        android:id="@+id/tv_photo_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="23sp"
+        />
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rc_photo_neirong_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:text="平面图"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="23sp"
+        />
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rc_photo_neirong_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:text="剖面图"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="23sp"
+        />
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rc_photo_neirong_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
