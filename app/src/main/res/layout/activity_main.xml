@@ -5,35 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.nandi.disastermanager.MainActivity">
-    <LinearLayout
-        android:id="@+id/ll_sceneView"
+
+
+    <com.esri.arcgisruntime.mapping.view.SceneView
+        android:id="@+id/sceneView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-        <com.esri.arcgisruntime.mapping.view.SceneView
-            android:id="@+id/sceneView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
+        android:layout_height="match_parent">
 
-        </com.esri.arcgisruntime.mapping.view.SceneView>
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/ll_measureSceneView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        android:orientation="horizontal">
-        <com.esri.arcgisruntime.mapping.view.SceneView
-            android:id="@+id/measureSceneView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
-
-        </com.esri.arcgisruntime.mapping.view.SceneView>
-    </LinearLayout>
-
-
+    </com.esri.arcgisruntime.mapping.view.SceneView>
 
 
     <LinearLayout
@@ -75,31 +54,30 @@
     <Button
         android:id="@+id/btn_util"
         android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
         android:layout_below="@+id/iv_search_main"
         android:layout_margin="10dp"
+        android:text="打开工具" />
+
+    <LinearLayout
+        android:id="@+id/ll_util"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:text="打开工具"
-        android:layout_height="wrap_content"/>
+        android:layout_below="@+id/btn_util"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+        android:visibility="invisible">
 
-
-        <LinearLayout
-            android:id="@+id/ll_util"
-            android:layout_width="40dp"
+        <ImageButton
+            android:id="@+id/pointButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="10dp"
-            android:visibility="invisible"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/btn_util"
-            >
-            <ImageButton
-                android:id="@+id/pointButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/button_bar_background"
-                android:contentDescription="@string/pointButtonDescription"
-                android:onClick="pointClick"
-                android:src="@drawable/ic_action_point" />
+            android:background="@drawable/button_bar_background"
+            android:contentDescription="@string/pointButtonDescription"
+            android:onClick="pointClick"
+            android:src="@drawable/ic_action_point" />
 
             <ImageButton
                 android:id="@+id/polylineButton"
@@ -155,7 +133,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginBottom="60dp"
         android:layout_marginRight="30dp"
-        android:textColor="@color/colorblue"
+        android:textColor="#0000ff"
         android:textSize="20sp" />
 
 

@@ -16,13 +16,18 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -39,7 +44,17 @@ import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureQueryResult;
 import com.esri.arcgisruntime.data.QueryParameters;
 import com.esri.arcgisruntime.data.ServiceFeatureTable;
+import com.esri.arcgisruntime.geometry.AreaUnit;
+import com.esri.arcgisruntime.geometry.AreaUnitId;
+import com.esri.arcgisruntime.geometry.GeodeticCurveType;
+import com.esri.arcgisruntime.geometry.Geometry;
+import com.esri.arcgisruntime.geometry.GeometryEngine;
+import com.esri.arcgisruntime.geometry.LinearUnit;
+import com.esri.arcgisruntime.geometry.LinearUnitId;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.PointCollection;
+import com.esri.arcgisruntime.geometry.Polygon;
+import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.ArcGISMapImageLayer;
 import com.esri.arcgisruntime.layers.ArcGISSceneLayer;
@@ -57,10 +72,12 @@ import com.esri.arcgisruntime.mapping.view.DefaultSceneViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
+import com.esri.arcgisruntime.mapping.view.LocationToScreenResult;
 import com.esri.arcgisruntime.mapping.view.SceneView;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.esri.arcgisruntime.symbology.UniqueValueRenderer;
 import com.esri.arcgisruntime.util.ListenableList;
 import com.google.gson.Gson;
@@ -88,6 +105,7 @@ import com.nandi.disastermanager.ui.CircleBar;
 import com.nandi.disastermanager.ui.MyRadioGroup;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.LocalJson;
+import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.Callback;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -104,6 +122,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
@@ -223,9 +242,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @BindView(R.id.iv_search_main)
     ImageView ivSearchMain;
 
+    @BindView(R.id.pointButton)
+    ImageButton mPointButton;
+    @BindView(R.id.polylineButton)
+    ImageButton mPolylineButton;
+    @BindView(R.id.polygonButton)
+    ImageButton mPolygonButton;
+    @BindView(R.id.undoButton)
+    ImageButton mUndoButton;
+    @BindView(R.id.redoButton)
+    ImageButton mRedoButton;
+    @BindView(R.id.clearButton)
+    ImageButton mClearButton;
+    @BindView(R.id.tv_measure_result)
+    TextView tvMeasureResult;
+    @BindView(R.id.ll_util)
+    LinearLayout llUtil;
+    @BindView(R.id.btn_util)
+    Button btnUtil;
 
     private boolean llAreaState = false;
     private boolean llDataState = false;
+    private boolean llUtilState = false;
     private int llMoreState = -1;
     private int llMoreStateBefore = -1;
     private View view;
@@ -249,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<PersonLocation> zsPersons = new ArrayList<>();
     private List<PersonLocation> pqPersons = new ArrayList<>();
     private List<PersonLocation> dhzPersons = new ArrayList<>();
-    private GraphicsOverlay graphicsOverlay;
+    private GraphicsOverlay graphicsOverlay;//灾害点图标
     private GraphicsOverlay personGraphicsOverlay;
     private GraphicsOverlay localGraphicsOverlay;
     private GraphicsOverlay equipmentGraphicOverlay;
@@ -257,7 +295,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ListenableList<GraphicsOverlay> graphicsOverlays;
     private List<Graphic> allGraphics = new ArrayList<>();//所有的灾害点图标
     private List<Graphic> otherGraphics = new ArrayList<>();//已消耗灾害点图标
-    private List<Graphic> notConsumeGraphics = new ArrayList<>();//未消耗灾害点图标
     private List<Graphic> allHuaPOGraphics = new ArrayList<>();
     private List<Graphic> allNiSHILiuGraphics = new ArrayList<>();
     private List<Graphic> allWeiYanGraphics = new ArrayList<>();
@@ -274,28 +311,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<Graphic> otherLieFengGraphics = new ArrayList<>();
     private List<Graphic> otherTaAnGraphics = new ArrayList<>();
 
-    private List<Graphic> notHuaPOGraphics = new ArrayList<>();
-    private List<Graphic> notNiSHILiuGraphics = new ArrayList<>();
-    private List<Graphic> notWeiYanGraphics = new ArrayList<>();
-    private List<Graphic> notXiePoGraphics = new ArrayList<>();
-    private List<Graphic> notTanTaGraphics = new ArrayList<>();
-    private List<Graphic> notLieFengGraphics = new ArrayList<>();
-    private List<Graphic> notTaAnGraphics = new ArrayList<>();
-
-    private List<Graphic> conHuaPOGraphics = new ArrayList<>();
-    private List<Graphic> conNiSHILiuGraphics = new ArrayList<>();
-    private List<Graphic> conWeiYanGraphics = new ArrayList<>();
-    private List<Graphic> conXiePoGraphics = new ArrayList<>();
-    private List<Graphic> conTanTaGraphics = new ArrayList<>();
-    private List<Graphic> conLieFengGraphics = new ArrayList<>();
-    private List<Graphic> conTaAnGraphics = new ArrayList<>();
     private List<Graphic> qcGraphics = new ArrayList<>();
     private List<Graphic> zsGraphics = new ArrayList<>();
     private List<Graphic> pqGraphics = new ArrayList<>();
     private List<Graphic> dhzGraphics = new ArrayList<>();
     private List<Graphic> jianceGraphics = new ArrayList<>();
     private List<Graphic> weatherGraphics = new ArrayList<>();
-    private ListenableList<Graphic> graphics;
+    private ListenableList<Graphic> disasterGraphics;//所有灾害点图标集合
     private ListenableList<Graphic> personGraphics;
     private ListenableList<Graphic> localGraphics;
     private ListenableList<Graphic> equipmentGraphics;
@@ -323,16 +345,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String mDisNo;
     private Map<String, String> maps = new HashMap<>();
     private LinearLayout llSwitchInfo;
+    private GraphicsOverlay mGraphicsOverlay;
+    private List<Graphic> mGraphics;
+    private SimpleMarkerSymbol mPointPlacementSymbol;
+    private SimpleMarkerSymbol mPointPlacedSymbol;
+    private SimpleMarkerSymbol mPolylineVertexSymbol;
+    private SimpleLineSymbol mPolylinePlacementSymbol;
+    private SimpleLineSymbol mPolylinePlacedSymbol;
+    private SimpleMarkerSymbol mPolylineMidpointSymbol;
+    private SimpleFillSymbol mPolygonFillSymbol;
+    private SketchGraphicsOverlayEventListener mListener;
+    private Graphic mCurrentPoint;
+    private Graphic mCurrentLine;
+    private Graphic mCurrentPolygon;
+    private PointCollection mCurrentPointCollection;
+    private DrawingMode mDrawingMode = DrawingMode.NONE;
+    private boolean mIsPolylineStarted = false;
+    private boolean mIsMidpointSelected = false;
+    private Stack<UndoRedoItem> mUndoElementStack = new Stack<>();
+    private Stack<UndoRedoItem> mRedoElementStack = new Stack<>();
+    private boolean mVertexDragStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         context = this;
         areaCode = "500110";
-        ButterKnife.bind(this);
         initStaData();
         initLocalData();
+        initUtilData();
         dianziLayer = new ArcGISMapImageLayer(getResources().getString(R.string.dianziditu_url));
         lowImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_url));
         highImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_19_url));
@@ -359,15 +402,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         localGraphicsOverlay = new GraphicsOverlay();
         equipmentGraphicOverlay = new GraphicsOverlay();
         weatherGraphicOverlay = new GraphicsOverlay();
-        graphics = graphicsOverlay.getGraphics();
+        mGraphicsOverlay = new GraphicsOverlay();
+        disasterGraphics = graphicsOverlay.getGraphics();
+        mGraphics = mGraphicsOverlay.getGraphics();
         personGraphics = personGraphicsOverlay.getGraphics();
         localGraphics = localGraphicsOverlay.getGraphics();
         equipmentGraphics = equipmentGraphicOverlay.getGraphics();
         weathersGraphics = weatherGraphicOverlay.getGraphics();
         graphicsOverlays = sceneView.getGraphicsOverlays();
+        graphicsOverlays.add(mGraphicsOverlay);
+        graphicsOverlays.add(graphicsOverlay);
+        graphicsOverlays.add(personGraphicsOverlay);
+        graphicsOverlays.add(localGraphicsOverlay);
+        graphicsOverlays.add(equipmentGraphicOverlay);
+        graphicsOverlays.add(weatherGraphicOverlay);
         elevationSources = scene.getBaseSurface().getElevationSources();
         scene.setBasemap(Basemap.createImagery());
         sceneView.setScene(scene);
+        mUndoButton.setClickable(false);
+        mUndoButton.setEnabled(false);
+        mRedoButton.setClickable(false);
+        mRedoButton.setEnabled(false);
+        mClearButton.setClickable(false);
+        mClearButton.setEnabled(false);
         setListeners();
         setlogin("", "");
     }
@@ -378,6 +435,113 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pieChart.setText(text);
         pieChart.setDesText(desText);
         pieChart.setSweepAngle(Integer.parseInt(text) * 180 / 100);
+    }
+
+    private void initUtilData() {
+        mListener = new MySketchGraphicsOverlayEventListener();
+        SimpleLineSymbol blackOutline =
+                new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.rgb(0, 0, 0), 1);
+        SimpleLineSymbol whiteOutline =
+                new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.rgb(255, 255, 255), 1);
+
+        mPointPlacementSymbol =
+                new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 7);
+        mPointPlacementSymbol.setOutline(blackOutline);
+        mPointPlacedSymbol =
+                new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.BLUE, 7);
+        mPointPlacedSymbol.setOutline(blackOutline);
+        mPolylineVertexSymbol =
+                new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.SQUARE, Color.BLUE, 5);
+        mPolylineVertexSymbol.setOutline(blackOutline);
+        mPolylinePlacementSymbol =
+                new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 5);
+        mPolylinePlacedSymbol =
+                new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 5);
+        mPolylineMidpointSymbol =
+                new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.YELLOW, 5);
+        mPolylineMidpointSymbol.setOutline(blackOutline);
+        mPolygonFillSymbol =
+                new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.GREEN, null);
+    }
+
+    public void pointClick(View v) {
+        if (!v.isSelected()) {
+            v.setSelected(true);
+            setDrawingMode(DrawingMode.POINT);
+            mPolylineButton.setEnabled(false);
+            mPolygonButton.setEnabled(false);
+        } else {
+            setDrawingMode(DrawingMode.NONE);
+        }
+    }
+
+    public void polylineClick(View v) {
+        if (!v.isSelected()) {
+            v.setSelected(true);
+            setDrawingMode(DrawingMode.POLYLINE);
+            mPointButton.setEnabled(false);
+            mPolygonButton.setEnabled(false);
+        } else {
+            setDrawingMode(DrawingMode.NONE);
+        }
+    }
+
+    public void polygonClick(View v) {
+        if (!v.isSelected()) {
+            v.setSelected(true);
+            setDrawingMode(DrawingMode.POLYGON);
+            mPointButton.setEnabled(false);
+            mPolylineButton.setEnabled(false);
+        } else {
+            setDrawingMode(DrawingMode.NONE);
+        }
+    }
+
+    public void undoClick(View v) {
+        undo();
+    }
+
+    public void redoClick(View v) {
+        redo();
+    }
+
+    public void clearClick(View v) {
+        clear();
+    }
+
+    private class MySketchGraphicsOverlayEventListener implements SketchGraphicsOverlayEventListener {
+
+        @Override
+        public void onUndoStateChanged(boolean undoEnabled) {
+            // Set the undo button's enabled/disabled state based on the event boolean
+            mUndoButton.setEnabled(undoEnabled);
+            mUndoButton.setClickable(undoEnabled);
+        }
+
+        @Override
+        public void onRedoStateChanged(boolean redoEnabled) {
+            // Set the redo button's enabled/disabled state based on the event boolean
+            mRedoButton.setEnabled(redoEnabled);
+            mRedoButton.setClickable(redoEnabled);
+        }
+
+        @Override
+        public void onClearStateChanged(boolean clearEnabled) {
+            // Set the clear button's enabled/disabled state based on the event boolean
+            mClearButton.setEnabled(clearEnabled);
+            mClearButton.setClickable(clearEnabled);
+        }
+
+        @Override
+        public void onDrawingFinished() {
+            // Reset the selected state of the drawing buttons when a drawing is finished
+            mPointButton.setSelected(false);
+            mPolylineButton.setSelected(false);
+            mPolygonButton.setSelected(false);
+            mPolygonButton.setEnabled(true);
+            mPolylineButton.setEnabled(true);
+            mPointButton.setEnabled(true);
+        }
     }
 
     private void initLocalData() {
@@ -467,6 +631,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setListeners() {
         ivSearchMain.setOnClickListener(this);
+        btnUtil.setOnClickListener(this);
         llXingzheng.setOnClickListener(this);
         ivLuopan.setOnClickListener(this);
         ivAreaBack.setOnClickListener(this);
@@ -498,8 +663,110 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                // get the screen point where user tapped
-                android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
+                final android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
+                final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = sceneView.identifyGraphicsOverlayAsync(mGraphicsOverlay, screenPoint, 10.0, false);
+                identifyGraphic.addDoneListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            IdentifyGraphicsOverlayResult identifyResult = identifyGraphic.get();
+                            List<Graphic> graphic = identifyResult.getGraphics();
+                            if (!graphic.isEmpty() && mDrawingMode == DrawingMode.NONE) {
+                                Geometry geometry = graphic.get(0).getGeometry();
+                                if (geometry instanceof Polyline) {
+                                    double length = GeometryEngine.lengthGeodetic(geometry, new LinearUnit(LinearUnitId.KILOMETERS), GeodeticCurveType.GREAT_ELLIPTIC);
+                                    tvMeasureResult.setText("长度为:" + length + "千米");
+                                } else if (geometry instanceof Polygon) {
+                                    double area = Math.abs(GeometryEngine.areaGeodetic(geometry, new AreaUnit(AreaUnitId.SQUARE_KILOMETERS), GeodeticCurveType.GREAT_ELLIPTIC));
+                                    tvMeasureResult.setText("面积为:" + area + "平方千米");
+                                    View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_township_statistics, null);
+                                    TextView tvTownshipName = (TextView) view.findViewById(R.id.tv_township_name);
+                                    tvTownshipName.setText("统计信息");
+                                    AlertDialog mDialogCharts = new AlertDialog.Builder(MainActivity.this)
+                                            .setView(view)
+                                            .show();
+                                }
+                            }
+                            if (!graphic.isEmpty() && !(graphic.get(0).getGeometry() instanceof Polygon)) {
+                                if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
+                                    Graphic g = graphic.get(0);
+                                    if (mCurrentPoint != null && !mCurrentPoint.equals(g)) {
+                                        if (mIsMidpointSelected && !mVertexDragStarted) {
+                                            mCurrentPoint.setSymbol(mPolylineMidpointSymbol);
+                                        } else {
+                                            mCurrentPoint.setSymbol(mPolylineVertexSymbol);
+                                        }
+                                        mIsMidpointSelected = (g.getSymbol().equals(mPolylineMidpointSymbol));
+                                        mVertexDragStarted = false;
+                                        mCurrentPoint = g;
+                                        mCurrentPoint.setSymbol(mPointPlacementSymbol);
+                                    }
+                                }
+                            } else {
+                                boolean graphicsWasEmpty = mGraphics.isEmpty();
+                                Point point = sceneView.screenToLocationAsync(screenPoint).get();
+                                if (mDrawingMode == DrawingMode.POINT) {
+                                    if (mCurrentPoint == null) {
+                                        mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
+                                        mGraphics.add(mCurrentPoint);
+                                        List<Graphic> graphics = new ArrayList<>();
+                                        graphics.add(mCurrentPoint);
+                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
+                                    } else {
+                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.MOVE_POINT, mCurrentPoint.getGeometry()));
+                                        mCurrentPoint.setGeometry(point);
+                                    }
+                                } else if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
+                                    mIsMidpointSelected = false;
+                                    if (!mIsPolylineStarted) {
+                                        mCurrentPointCollection.add(point);
+                                        if (mDrawingMode == DrawingMode.POLYGON) {
+                                            mCurrentPointCollection.add(point);
+                                        }
+                                    } else {
+                                        if (mDrawingMode == DrawingMode.POLYGON) {
+                                            if (mCurrentPointCollection.size() > 2) {
+                                                mGraphics.remove(mGraphics.size() - 1);
+                                            }
+                                            mCurrentPointCollection.add(mCurrentPointCollection.size() - 1, point);
+                                        } else {
+                                            mCurrentPointCollection.add(point);
+                                        }
+                                    }
+                                    if (!mIsPolylineStarted) {
+                                        mCurrentLine = new Graphic(new Polyline(mCurrentPointCollection), mPolylinePlacementSymbol);
+                                        mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
+                                        List<Graphic> graphics = new ArrayList<>();
+                                        if (mDrawingMode == DrawingMode.POLYGON) {
+                                            mCurrentPolygon = new Graphic(new Polygon(mCurrentPointCollection), mPolygonFillSymbol);
+                                            mGraphics.add(mCurrentPolygon);
+                                            graphics.add(mCurrentPolygon);
+                                        }
+                                        mGraphics.add(mCurrentLine);
+                                        mGraphics.add(mCurrentPoint);
+                                        graphics.add(mCurrentLine);
+                                        graphics.add(mCurrentPoint);
+                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
+                                        mIsPolylineStarted = true;
+                                    } else {
+                                        addPolylinePoint(point);
+                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POLYLINE_POINT, null));
+                                    }
+                                }
+                                boolean graphicsIsEmpty = mGraphics.isEmpty();
+                                if (graphicsWasEmpty && !graphicsIsEmpty) {
+                                    mListener.onClearStateChanged(true);
+                                } else if (!graphicsWasEmpty && graphicsIsEmpty) {
+                                    mListener.onClearStateChanged(false);
+                                }
+                                clearStack(mRedoElementStack);
+                            }
+                        } catch (InterruptedException | ExecutionException ie) {
+                            ie.printStackTrace();
+                        }
+                    }
+                });
+
                 ListenableFuture<Point> pointListenableFuture = sceneView.screenToLocationAsync(screenPoint);
                 if (layers.contains(xingZhengLayer)) {
                     try {
@@ -513,11 +780,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Feature feature = iterator.next();
                             Log.e(TAG, "----------" + feature.getAttributes().get("name"));
                             String name = (String) feature.getAttributes().get("name");
-                            //// TODO: 2017/8/10 显示乡镇统计信息
                             View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_township_statistics, null);
                             TextView tvTownshipName = (TextView) view.findViewById(R.id.tv_township_name);
                             tvTownshipName.setText(name);
-                            AlertDialog mDialogCharts = new AlertDialog.Builder(MainActivity.this)
+                            new AlertDialog.Builder(MainActivity.this)
                                     .setView(view)
                                     .show();
                         }
@@ -525,16 +791,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         e1.printStackTrace();
                     }
                 }
-                // identify graphics on the graphics overlay
-                final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = sceneView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 10.0, false, 2);
+                final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic1 = sceneView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 10.0, false, 2);
                 final ListenableFuture<IdentifyGraphicsOverlayResult> personIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(personGraphicsOverlay, screenPoint, 10.0, false, 2);
                 final ListenableFuture<IdentifyGraphicsOverlayResult> localIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(localGraphicsOverlay, screenPoint, 10.0, false, 2);
                 final ListenableFuture<IdentifyGraphicsOverlayResult> equipmentIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(equipmentGraphicOverlay, screenPoint, 10.0, false, 2);
-                identifyGraphic.addDoneListener(new Runnable() {
+                identifyGraphic1.addDoneListener(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = identifyGraphic.get();
+                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = identifyGraphic1.get();
                             if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
                                 int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
                                 showInfo(zIndex);
@@ -589,6 +854,98 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 return super.onSingleTapConfirmed(e);
             }
+
+            @Override
+            public void onLongPress(MotionEvent event) {
+                // Long press finishes a drawing
+                if (llUtil.getVisibility() == View.VISIBLE) {
+
+                    finishDrawing();
+                }
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent from, MotionEvent to, float distanceX, float distanceY) {
+                if (llUtil.getVisibility() == View.VISIBLE) {
+
+
+                    boolean callSuper = true;
+                    if (mCurrentPoint != null) {
+                        LocationToScreenResult locationToScreenResult = sceneView.locationToScreen((Point) mCurrentPoint.getGeometry());
+                        android.graphics.Point currentPoint = locationToScreenResult.getScreenPoint();
+                        android.graphics.Point fromPoint = new android.graphics.Point((int) from.getX(), (int) from.getY());
+                        int dx = currentPoint.x - fromPoint.x;
+                        int dy = currentPoint.y - fromPoint.y;
+                        int distance = (int) Math.sqrt((dx * dx) + (dy * dy));
+                        if (distance < 20) {
+                            callSuper = false;
+                            android.graphics.Point toPoint = new android.graphics.Point((int) to.getX(), (int) to.getY());
+                            Point oldGeometry = (Point) mCurrentPoint.getGeometry();
+                            Point oldPointCopy = new Point(oldGeometry.getX(), oldGeometry.getY(), sceneView.getSpatialReference());
+                            Point newGeometry = null;
+                            try {
+                                newGeometry = sceneView.screenToLocationAsync(toPoint).get();
+                            } catch (InterruptedException | ExecutionException e) {
+                                e.printStackTrace();
+                            }
+                            if (!mVertexDragStarted) {
+                                if (mDrawingMode == DrawingMode.POINT) {
+                                    queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.MOVE_POINT, oldPointCopy));
+                                } else {
+                                    queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.MOVE_POLYLINE_POINT,
+                                            new UndoRedoItem.MovePolylinePointElement(mCurrentPoint, oldPointCopy, mIsMidpointSelected)));
+                                }
+                            }
+                            if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
+                                int graphicIndex = mGraphics.indexOf(mCurrentPoint);
+                                int pointIndex;
+                                if (mIsMidpointSelected && !mVertexDragStarted) {
+                                    splitMidpoint(newGeometry);
+                                } else {
+                                    pointIndex = mCurrentPointCollection.indexOf(mCurrentPoint.getGeometry());
+                                    mCurrentPointCollection.set(pointIndex, newGeometry);
+                                    Graphic preMidpoint = (pointIndex == 0) ? null : mGraphics.get(graphicIndex - 1);
+                                    if (preMidpoint != null) {
+                                        Point preMidpointGeometry = getMidpoint(mCurrentPointCollection.get(pointIndex - 1), newGeometry);
+                                        preMidpoint.setGeometry(preMidpointGeometry);
+                                    }
+                                    Graphic postMidpoint = (pointIndex == mCurrentPointCollection.size() - 1) ? null : mGraphics.get(graphicIndex + 1);
+                                    if (postMidpoint != null) {
+                                        Point postMidpointGeometry = getMidpoint(newGeometry, mCurrentPointCollection.get(pointIndex + 1));
+                                        postMidpoint.setGeometry(postMidpointGeometry);
+                                    }
+                                    if (mDrawingMode == DrawingMode.POLYGON) {
+                                        if (pointIndex == 0 || pointIndex == mCurrentPointCollection.size() - 2) {
+                                            if (pointIndex == 0) {
+                                                mCurrentPointCollection.set(mCurrentPointCollection.size() - 1, newGeometry);
+                                            }
+                                            updatePolygonMidpoint();
+                                        }
+                                        mCurrentPolygon.setGeometry(new Polygon(mCurrentPointCollection));
+                                    }
+                                    mCurrentLine.setGeometry(new Polyline(mCurrentPointCollection));
+                                }
+                            }
+                            mVertexDragStarted = true;
+                            mCurrentPoint.setGeometry(newGeometry);
+                            clearStack(mRedoElementStack);
+                        }
+                    }
+                    if (callSuper) {
+                        super.onScroll(from, to, distanceX, distanceY);
+                    }
+                }
+                return super.onScroll(from, to, distanceX, distanceY);
+            }
+
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent motionEvent) {
+                if (llUtil.getVisibility() == View.VISIBLE) {
+                    mVertexDragStarted = false;
+                }
+                return true;
+            }
         });
         scene.addLoadStatusChangedListener(new LoadStatusChangedListener() {
             @Override
@@ -604,10 +961,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private  void showDialogPic(){
+    private void showDialogPic() {
         final View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_pic, null);
-        final AlertDialog ss = new AlertDialog.Builder(MainActivity.this).setView(view).create();
+        final AlertDialog ss = new AlertDialog.Builder(MainActivity.this).create();
         ss.show();
+        WindowManager windowManager = getWindowManager();
+        Display display = windowManager.getDefaultDisplay();
+        WindowManager.LayoutParams lp = ss.getWindow().getAttributes();
+        lp.width = (int)(display.getWidth()); //设置宽度
+        ss.getWindow().setAttributes(lp);
+        ss.getWindow().setContentView(view);
     }
 
     /**
@@ -621,14 +984,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final LinearLayout llSheBeiInfo1 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_1);
         final LinearLayout llSheBeiInfo2 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_2);
         final LinearLayout llSheBeiInfo3 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_3);
-         ImageView ivPic = (ImageView) view.findViewById(R.id.iv_pic);
+        ImageView ivPic = (ImageView) view.findViewById(R.id.iv_pic);
         ivPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showDialogPic();
             }
         });
-
 
 
         TextView tvCheckToDetail = (TextView) view.findViewById(R.id.tv_check_to_detail);
@@ -700,9 +1062,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 data.setLines(lines);
                 mChartView.setLineChartData(data);//给图表设置数据
 
-                AlertDialog mDialogCharts = new AlertDialog.Builder(MainActivity.this)
-                        .setView(view)
+                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
                         .show();
+                WindowManager windowManager = getWindowManager();
+                Display display = windowManager.getDefaultDisplay();
+                WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
+                lp.width = (int)(display.getWidth()); //设置宽度
+                dialog.getWindow().setAttributes(lp);
+                dialog.getWindow().setContentView(view);
             }
         });
         AlertDialog dialog1 = new AlertDialog.Builder(MainActivity.this)
@@ -919,7 +1286,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param type
      */
     private void setDialogViewDatas(String type, final int id) {
-        Log.d("limeng", "type=" + type + "zIndex=" + id + "size=" + mTabDisasterInfo.getData().size());
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_disasterinfo, null);
         final LinearLayout llBaseInfo = (LinearLayout) view.findViewById(R.id.ll_base_info);
         rg = (RadioGroup) view.findViewById(R.id.rg_disaster_info);
@@ -1521,7 +1887,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
                     layers.clear();
                     elevationSources.clear();
-                    graphicsOverlays.clear();
                     layers.add(vectorLayer);
                     Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
                     sceneView.setViewpointCamera(camera);
@@ -1536,7 +1901,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     // waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
                     layers.clear();
                     elevationSources.clear();
-                    graphicsOverlays.clear();
                     layers.add(lowImageLayer);
                     layers.add(highImageLayer);
                     elevationSources.add(elevationSource);
@@ -1554,7 +1918,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (llMoreStateBefore != 3) {
                     layers.clear();
                     elevationSources.clear();
-                    graphicsOverlays.clear();
                     initPersonData();
                     layers.add(dianziLayer);
                     Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
@@ -1572,7 +1935,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (llMoreStateBefore != 4) {
                     layers.clear();
                     elevationSources.clear();
-                    graphicsOverlays.clear();
                     layers.add(lowImageLayer);
                     layers.add(highImageLayer);
                     elevationSources.add(elevationSource);
@@ -1599,12 +1961,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (llMoreStateBefore != 6 && !layers.contains(xingZhengLayer)) {
                     layers.clear();
                     elevationSources.clear();
-                    graphicsOverlays.clear();
                     layers.add(xingZhengLayer);
                     Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
                     sceneView.setViewpointCamera(camera);
                 }
                 break;
+            case R.id.btn_util:
+                setUtilBack();
+                break;
+        }
+    }
+
+    private void setUtilBack() {
+        if (llUtilState == false) {
+            btnUtil.setText("关闭工具");
+            llUtil.setVisibility(View.VISIBLE);
+            disasterGraphics.clear();
+            personGraphics.clear();
+            localGraphics.clear();
+            equipmentGraphics.clear();
+            weathersGraphics.clear();
+            if (!layers.contains(highImageLayer)) {
+                layers.clear();
+                elevationSources.clear();
+                layers.add(lowImageLayer);
+                layers.add(highImageLayer);
+                Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+                sceneView.setViewpointCamera(camera);
+            }
+            llArea.setVisibility(View.INVISIBLE);
+            llData.setVisibility(View.INVISIBLE);
+            llUtilState = true;
+        } else {
+            btnUtil.setText("打开工具");
+            clear();
+            llUtil.setVisibility(View.INVISIBLE);
+            llArea.setVisibility(View.VISIBLE);
+            llData.setVisibility(View.VISIBLE);
+            llUtilState = false;
         }
     }
 
@@ -1618,11 +2012,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void ToSearch() {
 
         final View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_search, null);
-        final Spinner spinner1= (Spinner) view.findViewById(R.id.spinner1);
-        final Spinner spinner2= (Spinner) view.findViewById(R.id.spinner2);
-        final EditText etSearch= (EditText) view.findViewById(R.id.etSearch);
-        Button btnSearch= (Button) view.findViewById(R.id.btnSearch);
-        final RecyclerView rc=(RecyclerView) view.findViewById(R.id.date_show);
+        final Spinner spinner1 = (Spinner) view.findViewById(R.id.spinner1);
+        final Spinner spinner2 = (Spinner) view.findViewById(R.id.spinner2);
+        final EditText etSearch = (EditText) view.findViewById(R.id.etSearch);
+        Button btnSearch = (Button) view.findViewById(R.id.btnSearch);
+        final RecyclerView rc = (RecyclerView) view.findViewById(R.id.date_show);
         rc.setLayoutManager(new LinearLayoutManager(context));
         // 建立数据源
         String[] mItems1 = getResources().getStringArray(R.array.search_type_1);
@@ -1630,11 +2024,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final String[] mItems21 = getResources().getStringArray(R.array.search_type_2_1);
         final String[] mItems22 = getResources().getStringArray(R.array.search_type_2_2);
         final String[] mItems23 = getResources().getStringArray(R.array.search_type_2_3);
-        final String[] mItems24= getResources().getStringArray(R.array.search_type_2_4);
-        final String[] mItems25= getResources().getStringArray(R.array.search_type_2_5);
+        final String[] mItems24 = getResources().getStringArray(R.array.search_type_2_4);
+        final String[] mItems25 = getResources().getStringArray(R.array.search_type_2_5);
         // 建立Adapter并且绑定数据源
-        ArrayAdapter<String> adapter1=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, mItems1);
-        ArrayAdapter<String> adapter2=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, mItems2);
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems1);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems2);
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //绑定 Adapter到控件
@@ -1644,30 +2038,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int pos, long id) {
-                searchType1=pos;
-                switch (pos){
+                searchType1 = pos;
+                switch (pos) {
                     case 0:
-                        mItems2=mItems21;
+                        mItems2 = mItems21;
                         break;
                     case 1:
-                        mItems2=mItems22;
+                        mItems2 = mItems22;
                         etSearch.setText("滑坡");
                         break;
                     case 2:
-                        mItems2=mItems23;
+                        mItems2 = mItems23;
                         etSearch.setText("张");
                         break;
                     case 3:
-                        mItems2=mItems24;
+                        mItems2 = mItems24;
                         break;
                     case 4:
-                        mItems2=mItems25;
+                        mItems2 = mItems25;
                         break;
                 }
-                ArrayAdapter<String> adapter2=new ArrayAdapter<String>(context,android.R.layout.simple_spinner_item, mItems2);
+                ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, mItems2);
                 adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinner2.setAdapter(adapter2);
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 // Another interface callback
@@ -1678,8 +2073,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int pos, long id) {
-                searchType2=pos;
+                searchType2 = pos;
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 // Another interface callback
@@ -1690,24 +2086,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String info=etSearch.getText().toString();
-                Log.d("limeng",searchType1+"----"+searchType2+mItems2.length);
-                int type1=0,type2=0;
-                switch (searchType1){
+                String info = etSearch.getText().toString();
+                Log.d("limeng", searchType1 + "----" + searchType2 + mItems2.length);
+                int type1 = 0, type2 = 0;
+                switch (searchType1) {
                     case 1:
-                        type1=8;
-                        type2=27;
+                        type1 = 8;
+                        type2 = 27;
                         break;
                     case 2:
-                        type1=26;
-                        type2=32+searchType2-1;
+                        type1 = 26;
+                        type2 = 32 + searchType2 - 1;
                         break;
                     default:
                         Toast.makeText(getApplicationContext(), "暂无数据！", Toast.LENGTH_SHORT).show();
                         return;
                 }
                 waitingDialog = WaitingDialog.createLoadingDialog(context, "正在请求中...");
-                OkHttpUtils.get().url("http://183.230.182.149:18081/springmvc/seek/search/500110/"+info+"/"+type1+"/"+type2)
+                OkHttpUtils.get().url("http://183.230.182.149:18081/springmvc/seek/search/500110/" + info + "/" + type1 + "/" + type2)
                         .build()
                         .execute(new StringCallback() {
                             @Override
@@ -1724,11 +2120,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 switch (searchType1) {
                                     case 1:
                                         SearchPlace mSearchPlace = gson.fromJson(response, SearchPlace.class);
-                                        rc.setAdapter(new RcSearchPlaceAdapter(context,mSearchPlace));
+                                        rc.setAdapter(new RcSearchPlaceAdapter(context, mSearchPlace));
                                         break;
                                     case 2:
                                         SearchPerson mSearchPerson = gson.fromJson(response, SearchPerson.class);
-                                        rc.setAdapter(new RcSearchPersonAdapter(context,mSearchPerson));
+                                        rc.setAdapter(new RcSearchPersonAdapter(context, mSearchPerson));
                                         break;
                                 }
                             }
@@ -2013,7 +2409,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mDisasterType = "-1";
                     Log.d("limeng", "mDisasterType=" + mDisasterType);
                     initDisasterData(areaCode);
-
+                } else {
+                    disasterGraphics.clear();
                 }
                 break;
             case R.id.rb_state_point_0://已销号
@@ -2021,6 +2418,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mDisasterType = "0";
                     Log.d("limeng", "mDisasterType=" + mDisasterType);
                     initDisasterDataByState(areaCode, 0 + "");
+                } else {
+                    disasterGraphics.clear();
                 }
                 break;
             case R.id.rb_state_point_2://已治理灾害点
@@ -2028,6 +2427,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mDisasterType = "2";
                     Log.d("limeng", "mDisasterType=" + mDisasterType);
                     initDisasterDataByState(areaCode, 2 + "");
+                } else {
+                    disasterGraphics.clear();
                 }
                 break;
             case R.id.rb_state_point_3://已搬迁灾害点
@@ -2035,6 +2436,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mDisasterType = "3";
                     Log.d("limeng", "mDisasterType=" + mDisasterType);
                     initDisasterDataByState(areaCode, 3 + "");
+                } else {
+                    disasterGraphics.clear();
                 }
                 break;
             case R.id.rb_state_point_1://库岸调查
@@ -2042,43 +2445,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mDisasterType = "1";
                     Log.d("limeng", "mDisasterType=" + mDisasterType);
                     initDisasterDataByState(areaCode, 1 + "");
+                } else {
+                    disasterGraphics.clear();
                 }
                 break;
             case R.id.rb_qcqf_person:
                 if (b) {
                     updatePersonGraphic(qcGraphics);
                     setPieChartData("71", "在线率");
+                } else {
+                    personGraphics.clear();
+
                 }
                 break;
             case R.id.rb_zs_person:
                 if (b) {
                     updateLocalGraphic(zsGraphics);
                     setPieChartData("64", "在线率");
+                } else {
+                    localGraphics.removeAll(zsGraphics);
                 }
                 break;
             case R.id.rb_pq_person:
                 if (b) {
                     updateLocalGraphic(pqGraphics);
                     setPieChartData("90", "在线率");
+                } else {
+                    localGraphics.removeAll(pqGraphics);
                 }
                 break;
             case R.id.rb_dhz_person:
                 if (b) {
                     updateLocalGraphic(dhzGraphics);
                     setPieChartData("35", "在线率");
+                } else {
+                    localGraphics.removeAll(dhzGraphics);
                 }
                 break;
             case R.id.rb_equipment_jiance:
                 if (b) {
                     updateEquipmentGraphic(jianceGraphics);
                     setPieChartData("88", "在线率");
+                } else {
+                    equipmentGraphics.clear();
                 }
                 break;
             case R.id.rb_jinqiao:
                 if (b) {
                     layers.clear();
                     elevationSources.clear();
-                    graphicsOverlays.clear();
                     ElevationSource elevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.jinqiao_elevation_url));
                     layers.addAll(jinQiaoLayers);
                     elevationSources.add(elevationSource);
@@ -2093,7 +2508,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (b) {
                     layers.clear();
                     elevationSources.clear();
-                    graphicsOverlays.clear();
                     ElevationSource elevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.shilin_elevation_url));
                     layers.addAll(shiLinLayers);
                     elevationSources.add(elevationSource);
@@ -2116,17 +2530,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (b) {
                     updateWeather(weatherGraphics);
                 } else {
-                    graphicsOverlays.clear();
+                    weathersGraphics.clear();
                 }
                 break;
         }
     }
 
     private void updateWeather(List<Graphic> g) {
-        weathersGraphics.clear();
         weathersGraphics.addAll(g);
-        graphicsOverlays.clear();
-        graphicsOverlays.add(weatherGraphicOverlay);
     }
 
     private void setRender() {
@@ -2197,24 +2608,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updateLocalGraphic(List<Graphic> g) {
-        localGraphics.clear();
         localGraphics.addAll(g);
-        graphicsOverlays.clear();
-        graphicsOverlays.add(localGraphicsOverlay);
     }
 
     private void updatePersonGraphic(List<Graphic> q) {
-        personGraphics.clear();
         personGraphics.addAll(q);
-        graphicsOverlays.clear();
-        graphicsOverlays.add(personGraphicsOverlay);
     }
 
     private void updateEquipmentGraphic(List<Graphic> graphics) {
-        equipmentGraphics.clear();
         equipmentGraphics.addAll(graphics);
-        graphicsOverlays.clear();
-        graphicsOverlays.add(equipmentGraphicOverlay);
     }
 
     /**
@@ -2223,10 +2625,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param g 图标集合
      */
     private void updateGraphic(List<Graphic> g) {
-        graphics.clear();
-        graphics.addAll(g);
-        graphicsOverlays.clear();
-        graphicsOverlays.add(graphicsOverlay);
+        disasterGraphics.clear();
+        disasterGraphics.addAll(g);
     }
 
     private void initDisasterData(String areaCode) {
@@ -2406,6 +2806,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void setOverlayState(final DisasterByStateInfo disasterByStateInfo) {
         maps.clear();
+        otherGraphics.clear();
+        otherHuaPOGraphics.clear();
+        otherLieFengGraphics.clear();
+        otherNiSHILiuGraphics.clear();
+        otherTaAnGraphics.clear();
+        otherTanTaGraphics.clear();
+        otherWeiYanGraphics.clear();
+        otherXiePoGraphics.clear();
         BitmapDrawable huapo = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_1);
         BitmapDrawable nishiliu = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_2);
         BitmapDrawable weiyan = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_3);
@@ -2641,6 +3049,616 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             animator1.setDuration(100);
             animator1.start();
             llDataState = false;
+        }
+    }
+
+    public void setDrawingMode(DrawingMode drawingMode) {
+        // If we try to start a new drawing before finishing our last, finish the current one
+        if (mDrawingMode != DrawingMode.NONE) {
+            finishDrawing();
+        }
+        mDrawingMode = drawingMode;
+        // If the drawing mode is polyline or polygon, set the current point collection to an empty collection
+        if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
+            mCurrentPointCollection = new PointCollection(sceneView.getSpatialReference());
+        }
+    }
+
+    /**
+     * Convenience method for queueing an undo or a redo event. In addition to queueing the
+     * event, it will also notify the listener to enable the undo or redo button if the stack
+     * was previously empty.
+     *
+     * @param stack the stack to which the event should be added
+     * @param item  the UndoRedoItem to queue
+     */
+    private void queueUndoRedoItem(Stack<UndoRedoItem> stack, UndoRedoItem item) {
+        // If the stack is currently empty, we should notify the listener to enable to button
+        if (stack.isEmpty()) {
+            // If it's the undo stack, fire the undo state changed listener
+            if (stack == mUndoElementStack) {
+                mListener.onUndoStateChanged(true);
+                // Otherwise fire the redo state changed listener
+            } else {
+                mListener.onRedoStateChanged(true);
+            }
+        }
+        // Finally, push the item to the stack
+        stack.push(item);
+    }
+
+    /**
+     * Undo the last event that took place.
+     */
+    public void undo() {
+        // Handle an undo event, popping an event from the undo stack and pushing a new event to the redo stack
+        handleUndoRedoEvent(mUndoElementStack, mRedoElementStack);
+    }
+
+    /**
+     * Redo the action previously undone with a call to undo().
+     */
+    public void redo() {
+        // Handle an redo event, popping an event from the redo stack and pushing a new event to the undo stack
+        handleUndoRedoEvent(mRedoElementStack, mUndoElementStack);
+    }
+
+    /**
+     * Convenience method for clearing the undo or redo event stack. Additionally notifies
+     * the listener to disable the corresponding button.
+     *
+     * @param stack the stack to clear
+     */
+    private void clearStack(Stack<UndoRedoItem> stack) {
+        stack.clear();
+        // Notify the listener based on which stack was cleared
+        if (stack == mUndoElementStack) {
+            mListener.onUndoStateChanged(false);
+        } else {
+            mListener.onRedoStateChanged(false);
+        }
+    }
+
+    /**
+     * This method handles performing an undo or redo event. An event will be popped from the specified
+     * stack and an opposite event type (to undo/redo that) will be pushed into the other stack.
+     *
+     * @param from the stack from which to pop an event
+     * @param to   the stack in which to push the opposing event
+     */
+    @SuppressWarnings("unchecked")
+    private void handleUndoRedoEvent(Stack<UndoRedoItem> from, Stack<UndoRedoItem> to) {
+        // index is used in a couple places so define it here
+        int index, pointIndex;
+        List<Graphic> graphics;
+        if (!from.isEmpty()) {
+            UndoRedoItem item = from.pop();
+            // If this was the last event in the stock, notify the listener to disable the corresponding button
+            if (from.isEmpty()) {
+                if (from == mUndoElementStack) {
+                    // disable to selected drawing mode
+                    mListener.onDrawingFinished();
+                    mListener.onUndoStateChanged(false);
+                } else {
+                    mListener.onRedoStateChanged(false);
+                }
+            }
+            // Check whether the graphics list was empty before we process the event
+            boolean graphicsWasEmpty = mGraphics.isEmpty();
+            switch (item.getEvent()) {
+                // If the event was adding a graphic, then the action taken here is to remove the graphic
+                case ADD_POINT:
+                    // Get the graphic[s] previously added and remove them from the graphics list
+                    graphics = (List<Graphic>) item.getElement();
+                    mGraphics.removeAll(graphics);
+                    // Queue a new event indicating that we've removed the graphic[s]
+                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.REMOVE_POINT, graphics));
+                    mIsMidpointSelected = false;
+                    mIsPolylineStarted = false;
+                    mCurrentPoint = null;
+                    mCurrentPointCollection = new PointCollection(sceneView.getSpatialReference());
+                    break;
+                // If the event was removing a graphic, then the action taken here is to add it back
+                case REMOVE_POINT:
+                    // Readd the graphic[s] previously removed.
+                    graphics = (List<Graphic>) item.getElement();
+                    mGraphics.addAll(graphics);
+                    // Queue a new event indicating that we've added the graphic[s]
+                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
+                    break;
+                // If the event was adding a polyline point, the action taken here is to remove the last point added
+                case ADD_POLYLINE_POINT:
+                    // Get the index of the current point (which will be the one most recently added)
+                    pointIndex = (mDrawingMode == DrawingMode.POLYGON) ?
+                            mCurrentPointCollection.size() - 2 : mCurrentPointCollection.size() - 1;
+                    // Remove it from the point collection and update the current line (and polygon if applicable)
+                    Point p = mCurrentPointCollection.remove(pointIndex);
+                    mCurrentLine.setGeometry(new Polyline(mCurrentPointCollection));
+                    if (mDrawingMode == DrawingMode.POLYGON) {
+                        mCurrentPolygon.setGeometry(new Polygon(mCurrentPointCollection));
+                    }
+                    // Undoing an add point always removes the final point
+                    index = mGraphics.size() - 1;
+                    // Remove the point, and remove the midpoint before it
+                    mGraphics.remove(index--);
+                    mGraphics.remove(index--);
+                    // If we're drawing a polygon, we also need to update the final midpoint position
+                    if (mDrawingMode == DrawingMode.POLYGON) {
+                        updatePolygonMidpoint();
+                        // If we are down to only 1 point (size will be 2 because 1st and final point are duplicates)
+                        // Then we want to remove the final midpoint
+                        if (mCurrentPointCollection.size() == 2) {
+                            mGraphics.remove(index--);
+                            mCurrentPoint = mGraphics.get(index);
+                        } else {
+                            // Otherwise just set the point before the final midpoint as current point
+                            mCurrentPoint = mGraphics.get(index - 1);
+                        }
+                    } else {
+                        // If we're drawing a polyline then the current point will be the final point (which is where
+                        // index will now be pointing)
+                        mCurrentPoint = mGraphics.get(index);
+                    }
+                    // Change the symbol to the placement symbol
+                    mCurrentPoint.setSymbol(mPointPlacementSymbol);
+                    // Queue a new event indicating that we've removed a polyline point
+                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.REMOVE_POLYLINE_POINT, p));
+                    break;
+                // If the event was moving a polyline point, the action taken here is to move it back
+                case MOVE_POLYLINE_POINT:
+                    // Get the corresponding MovePolylinePointElement
+                    UndoRedoItem.MovePolylinePointElement element = (UndoRedoItem.MovePolylinePointElement) item.getElement();
+                    // Queue a new event indicating a polyline point move with the necessary information
+                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.MOVE_POLYLINE_POINT,
+                            new UndoRedoItem.MovePolylinePointElement(mCurrentPoint, (Point) mCurrentPoint.getGeometry(), element.isMidpoint())));
+                    // Get the old Graphic of the point that was moved
+                    Graphic oldGraphic = element.getGraphic();
+                    // Get the previous point position
+                    Point oldPoint = element.getPoint();
+                    // Find the index of the moved point. Since we have complete control over how we're adding the undo elements,
+                    // we can safely assume here that oldGraphic.getGeometry() is a Point. However, proper practice (here and other
+                    // places) would be to check that the geometry is an instanceof Point before casting.
+                    pointIndex = mCurrentPointCollection.indexOf(oldGraphic.getGeometry());
+                    // Find the index of the moved graphic
+                    index = mGraphics.indexOf(oldGraphic);
+                    // Set the current working point's symbol to a placed vertex symbol before switching
+                    mCurrentPoint.setSymbol(mPolylineVertexSymbol);
+                    // Change our current working point to the old moved graphic
+                    mCurrentPoint = mGraphics.get(index);
+                    // Set it's symbol to the placement symbol
+                    mCurrentPoint.setSymbol(mPointPlacementSymbol);
+                    // If the element is/was a midpoint, we need to handle adding/removing surrounding midpoints
+                    if (element.isMidpoint()) {
+                        Point newGeometry = oldPoint;
+                        // If this is an undo
+                        if (from == mUndoElementStack) {
+                            // Go back to having a midpoint selected
+                            mIsMidpointSelected = true;
+                            // Remove the current point from the point collection (since it's going back to being a midpoint)
+                            mCurrentPointCollection.remove(pointIndex);
+                            // Remove the midpoint before this point. Since this shifts the index, the index will now be
+                            // for the midpoint after our point
+                            mGraphics.remove(index - 1);
+                            // So remove that index and then decrement to get the index back at our graphic
+                            mGraphics.remove(index--);
+                            // Our point will now be a midpoint so get the midpoint between the points before and after it and set it
+                            Point endPoint = (mDrawingMode == DrawingMode.POLYGON && index == mGraphics.size() - 1) ?
+                                    mCurrentPointCollection.get(mCurrentPointCollection.size() - 1) : (Point) mGraphics.get(index + 1).getGeometry();
+                            newGeometry = getMidpoint((Point) mGraphics.get(index - 1).getGeometry(), endPoint);
+                        } else {
+                            // If it's a redo, then we need to make a new vertex point and add new midpoints before and after it
+                            splitMidpoint(newGeometry);
+                        }
+                        // Finally set the current point's position
+                        mCurrentPoint.setGeometry(newGeometry);
+                    } else {
+                        // If it wasn't a midpoint, then change the point's position within the point collection and update the
+                        // graphic's geometry
+                        mCurrentPointCollection.set(pointIndex, oldPoint);
+                        mCurrentPoint.setGeometry(oldPoint);
+                        // If this isn't the first point, adjust the midpoint's position before it
+                        if (pointIndex != 0) {
+                            Point preMidpoint = getMidpoint(mCurrentPointCollection.get(pointIndex - 1), oldPoint);
+                            mGraphics.get(index - 1).setGeometry(preMidpoint);
+                        }
+                        // If this isn't the last point, adjust the midpoints position after it
+                        if (pointIndex != mCurrentPointCollection.size() - 1) {
+                            Point postMidpoint = getMidpoint(oldPoint, mCurrentPointCollection.get(pointIndex + 1));
+                            mGraphics.get(index + 1).setGeometry(postMidpoint);
+                        }
+                    }
+                    if (mDrawingMode == DrawingMode.POLYGON) {
+                        // If we're moving the first point of a polygon, we need to replicate that change
+                        // in the final point as well and update the final midpoint
+                        if (pointIndex == 0) {
+                            mCurrentPointCollection.set(mCurrentPointCollection.size() - 1, oldPoint);
+                            updatePolygonMidpoint();
+                        }
+                        // In either case, update the polygon's geometry
+                        mCurrentPolygon.setGeometry(new Polygon(mCurrentPointCollection));
+                    }
+                    // Update the line's geometry
+                    mCurrentLine.setGeometry(new Polyline(mCurrentPointCollection));
+                    break;
+                // If the event was removing a polyline point, the action taken here is to add it back
+                case REMOVE_POLYLINE_POINT:
+                    // Get the point that was removed, and add it back to the point collection
+                    Point point = (Point) item.getElement();
+                    if (mDrawingMode == DrawingMode.POLYGON) {
+                        // If adding back to a polygon, remove the final midpoint so it can be readded
+                        if (mCurrentPointCollection.size() > 2) {
+                            mGraphics.remove(mGraphics.size() - 1);
+                        }
+                        // Add it at the second to last position
+                        mCurrentPointCollection.add(mCurrentPointCollection.size() - 1, point);
+                    } else {
+                        // If just a line, add it in the final position
+                        mCurrentPointCollection.add(point);
+                    }
+                    addPolylinePoint(point);
+                    // Queue a new event indicating that we've added a polyline point
+                    to.add(new UndoRedoItem(UndoRedoItem.Event.ADD_POLYLINE_POINT, null));
+                    break;
+                // If the event was finishing a polyline, the action taken here is to remove the whole polyline
+                case ADD_POLYLINE:
+                    // Create a new graphics list and add to it all the pieces of the polyline, so we can add it back with a redo
+                    graphics = new ArrayList<>();
+                    index = mGraphics.size() - 1;
+                    // Add all of the points of the polyline
+                    while (index > 0 && !(mGraphics.get(index).getGeometry() instanceof Polyline)) {
+                        graphics.add(0, mGraphics.remove(index--));
+                    }
+                    // Add the polyline itself
+                    graphics.add(0, mGraphics.remove(index--));
+                    // If removing a polygon, also add the polygon
+                    if (index > -1 && mGraphics.get(index).getGeometry() instanceof Polygon) {
+                        graphics.add(0, mGraphics.remove(index));
+                    }
+                    // Queue a new event indicating that we've removed a polyline
+                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.REMOVE_POLYLINE, graphics));
+                    break;
+                // If the event was removing a polyline, the action taken here is to add it back
+                case REMOVE_POLYLINE:
+                    // Get the graphics that were previously removed
+                    graphics = (List<Graphic>) item.getElement();
+                    // Add them all to the list of graphics
+                    mGraphics.addAll(graphics);
+                    // Queue a new event indicating that we've added a polyline
+                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.ADD_POLYLINE, null));
+                    break;
+                // If the event was moving a point, the action taken here is to move it back
+                case MOVE_POINT:
+                    if (mCurrentPoint != null) {
+                        // Queue a new event indicating that we moved the point, with its current geometry before we change it
+                        queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.MOVE_POINT, mCurrentPoint.getGeometry()));
+                        // Set the geometry back
+                        mCurrentPoint.setGeometry((Geometry) item.getElement());
+                    }
+                    break;
+                // If the event was erasing all graphics, the action taken here is to put them all back
+                case ERASE_GRAPHICS:
+                    // Add all the graphics back
+                    mGraphics.addAll((List<Graphic>) item.getElement());
+                    // Queue a new event indicating that we've replaced all the graphics
+                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.REPLACE_GRAPHICS, null));
+                    break;
+                // If the event was replacing all the graphics, the action taken here is to clear them all
+                case REPLACE_GRAPHICS:
+                    // Queue a new event indicating that we've erased the graphics
+                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.ERASE_GRAPHICS, copyGraphics()));
+                    // Erase all graphics
+                    mGraphics.clear();
+                    break;
+            }
+            boolean graphicsIsEmpty = mGraphics.isEmpty();
+            // If the graphic list was previously empty and now it's not, notify the listener to enable
+            // the clear button
+            if (graphicsWasEmpty && !graphicsIsEmpty) {
+                mListener.onClearStateChanged(true);
+                // If previously non empty and now it is, notify the listener to disable the clear button
+            } else if (!graphicsWasEmpty && graphicsIsEmpty) {
+                mListener.onDrawingFinished();
+                mListener.onClearStateChanged(false);
+            }
+        }
+    }
+
+    /**
+     * Clear all of the graphics on the SketchGraphicsOverlay and reset the current drawing state.
+     */
+    public void clear() {
+        // Before clearing, finish any drawing that may currently be in progress
+        finishDrawing();
+        if (!mGraphics.isEmpty()) {
+            queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ERASE_GRAPHICS, copyGraphics()));
+            mGraphics.clear();
+        }
+        mDrawingMode = DrawingMode.NONE;
+        mIsPolylineStarted = false;
+        mCurrentPoint = null;
+        mCurrentLine = null;
+        mCurrentPolygon = null;
+        mCurrentPointCollection = null;
+        mListener.onClearStateChanged(false);
+    }
+
+    /**
+     * Creates a copy of the current graphics in the SketchGraphicsOverlay. This is used to replace graphics
+     * after they have been cleared.
+     *
+     * @return a copy of the current graphics list
+     */
+    private List<Graphic> copyGraphics() {
+        List<Graphic> graphicsCopy = new ArrayList<>();
+        for (int i = 0; i < mGraphics.size(); ++i) {
+            graphicsCopy.add(mGraphics.get(i));
+        }
+        return graphicsCopy;
+    }
+
+    /**
+     * Helper method to get the midpoint of two points
+     *
+     * @param a the first point
+     * @param b the second point
+     * @return the midpoint of the two points
+     */
+    private Point getMidpoint(Point a, Point b) {
+        double midX = (a.getX() + b.getX()) / 2.0;
+        double midY = (a.getY() + b.getY()) / 2.0;
+        return new Point(midX, midY, sceneView.getSpatialReference());
+    }
+
+    /**
+     * Splits a line segment on the midpoint, adding a new vertex where the midpoint
+     * had been and adding new midpoints before and after the new vertex.
+     *
+     * @param newGeometry the position of the new vertex
+     */
+    private void splitMidpoint(Point newGeometry) {
+        // get the index of the current working graphic
+        int graphicIndex = mGraphics.indexOf(mCurrentPoint);
+        int pointIndex;
+        // If we're drawing a polygon and splitting the final midpoint then the index in which
+        // to insert the new point will be second to last
+        if (mDrawingMode == DrawingMode.POLYGON && graphicIndex == mGraphics.size() - 1) {
+            pointIndex = mCurrentPointCollection.size() - 1;
+        } else {
+            // If it's not a polygon or not the final midpoint, get the index in the point collection of
+            // the point following the midpoint so the new vertex can be added before it
+            Point pointAfterMidpoint = (Point) mGraphics.get(graphicIndex + 1).getGeometry();
+            // Since the midpoints aren't in the point collection, get the index of the point after it
+            pointIndex = mCurrentPointCollection.indexOf(pointAfterMidpoint);
+        }
+        // Add a new point at this index with the midpoint's new geometry
+        mCurrentPointCollection.add(pointIndex, newGeometry);
+        // Find the locations of the new midpoints (before and after the just added vertex point)
+        Point newPreMidpoint = getMidpoint(mCurrentPointCollection.get(pointIndex - 1), newGeometry);
+        Point newPostMidpoint = getMidpoint(newGeometry, mCurrentPointCollection.get(pointIndex + 1));
+        // The graphic index is current pointing at the old midpoint, so add the pre-midpoint here
+        // which will shift the index. Increment the counter so it points at the old midpoint again
+        mGraphics.add(graphicIndex++, new Graphic(newPreMidpoint, mPolylineMidpointSymbol));
+        // Add the post-midpoint at the index after the old midpoint
+        mGraphics.add(graphicIndex + 1, new Graphic(newPostMidpoint, mPolylineMidpointSymbol));
+        // Now that we've split and added a new vertex, the selected point is no longer a midpoint
+        mIsMidpointSelected = false;
+    }
+
+    /**
+     * Helper method to add a point to the polyline/polygon. Handles the work of
+     * changing the working points symbol and updating the polyline/polygon geometry.
+     *
+     * @param point the point to add
+     */
+    private void addPolylinePoint(Point point) {
+        Point midPoint = getMidpoint((Point) mCurrentPoint.getGeometry(), point);
+        mCurrentPoint.setSymbol(mPolylineVertexSymbol);
+        mCurrentLine.setGeometry(new Polyline(mCurrentPointCollection));
+        mGraphics.add(new Graphic(midPoint, mPolylineMidpointSymbol));
+        mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
+        mGraphics.add(mCurrentPoint);
+        if (mDrawingMode == DrawingMode.POLYGON) {
+            mCurrentPolygon.setGeometry(new Polygon(mCurrentPointCollection));
+            Point polygonMidpoint = getMidpoint((Point) mCurrentPoint.getGeometry(), mCurrentPointCollection.get(0));
+            mGraphics.add(new Graphic(polygonMidpoint, mPolylineMidpointSymbol));
+        }
+    }
+
+    /**
+     * Helper method to update the final midpoint of a polygon.
+     */
+    private void updatePolygonMidpoint() {
+        // There will only be a final midpoint if there are at least 3 points
+        if (mCurrentPointCollection.size() > 2) {
+            // Get the final midpoint graphic and update its geometry with the midpoint of the final and first points
+            Graphic postMidpoint = mGraphics.get(mGraphics.size() - 1);
+            Point postMidpointGeometry = getMidpoint(mCurrentPointCollection.get(mCurrentPointCollection.size() - 2), mCurrentPointCollection.get(0));
+            postMidpoint.setGeometry(postMidpointGeometry);
+        }
+    }
+
+    /**
+     * Finishes the current drawing by finalizing the working graphic[s], resetting the drawing state, and notifying
+     * the listener that the drawing has finished.
+     */
+    private void finishDrawing() {
+        // If current point is null then there is no drawing to finish
+        if (mCurrentPoint != null) {
+            switch (mDrawingMode) {
+                case POINT:
+                    // If we're drawing a point, set the symbol to the placed symbol and reset the current point
+                    mCurrentPoint.setSymbol(mPointPlacedSymbol);
+                    mCurrentPoint = null;
+                    if (!mUndoElementStack.isEmpty()) {
+                        // Remove any of the move graphic undo events. Once placed, undo should just remove the point
+                        while (mUndoElementStack.peek().getEvent() == UndoRedoItem.Event.MOVE_POINT) {
+                            mUndoElementStack.pop();
+                        }
+                    }
+                    break;
+                case POLYGON:
+                    // If we're drawing a polygon, logic is similar to finishing a polyline, but additionally need
+                    // to remove the final midpoint
+                    if (mGraphics.size() > 0) {
+                        mGraphics.remove(mGraphics.size() - 1);
+                    }
+                case POLYLINE:
+                    // Set the current point to the placed vertex symbol and set the line to the placed line symbol
+                    mCurrentPoint.setSymbol(mPolylineVertexSymbol);
+                    mCurrentLine.setSymbol(mPolylinePlacedSymbol);
+                    // The second to last graphic is the final midpoint, and we need to remove all midpoints
+                    int index = 0;
+                    if (mGraphics.size() > 1) {
+                        index = mGraphics.size() - 2;
+                    }
+                    // Pop events until all the add/move polyline point events are gone (once placed, we only want to remove
+                    // a polyline on undo). The final popped event will be an ADD_GRAPHIC event, which will be replaced
+                    // further down by an ADD_POLYLINE event
+                    if (!(mUndoElementStack.isEmpty())) {
+                        UndoRedoItem.Event event;
+                        do {
+                            event = mUndoElementStack.pop().getEvent();
+                        }
+                        while (event == UndoRedoItem.Event.ADD_POLYLINE_POINT || event == UndoRedoItem.Event.MOVE_POLYLINE_POINT);
+
+                        while (index > 0 && mGraphics.get(index).getSymbol().equals(mPolylineMidpointSymbol)) {
+                            // For each add event, remove the midpoint and decrement the index
+                            mGraphics.remove(index);
+                            index -= 2;
+                        }
+                        // Push a new event indicating that we've finished a POLYLINE
+                        mUndoElementStack.add(new UndoRedoItem(UndoRedoItem.Event.ADD_POLYLINE, null));
+                    }
+                    // Reset the boolean and working graphics
+                    mIsPolylineStarted = false;
+                    mCurrentPoint = null;
+                    mCurrentLine = null;
+                    mCurrentPolygon = null;
+                    mCurrentPointCollection = null;
+                    mIsMidpointSelected = false;
+                    break;
+            }
+        }
+        // Reset drawing mode and empty the redo stack
+        mDrawingMode = DrawingMode.NONE;
+        clearStack(mRedoElementStack);
+        mListener.onDrawingFinished();
+    }
+
+    /**
+     * Represents the different possible drawing modes the SketchGraphicsOverlay can be in
+     */
+    public enum DrawingMode {
+        POINT,
+        POLYLINE,
+        POLYGON,
+        NONE
+    }
+
+    /**
+     * Represents a single action that can be undone/redone in the sketching stack
+     */
+    public static class UndoRedoItem {
+
+        // Each item has an event type and optionally an object to use in undoing/redoing the action
+        private UndoRedoItem.Event mEvent;
+        private Object mElement;
+
+        /**
+         * Creates a new UndoRedoItem with the specified event type and optional object.
+         *
+         * @param event   the type of event that occured
+         * @param element optionally an object to help undo/redo the action
+         */
+        public UndoRedoItem(UndoRedoItem.Event event, Object element) {
+            mEvent = event;
+            mElement = element;
+        }
+
+        /**
+         * Gets the type of the event.
+         *
+         * @return the type of the event
+         */
+        public UndoRedoItem.Event getEvent() {
+            return mEvent;
+        }
+
+        /**
+         * Gets the object with which to undo/redo the action (depending on the event type,
+         * may be null).
+         *
+         * @return the object with which to undo/redo the action, or null if there is none
+         */
+        public Object getElement() {
+            return mElement;
+        }
+
+        /**
+         * Indicates different types of events that can occur.
+         */
+        public enum Event {
+            ADD_POINT,
+            MOVE_POINT,
+            REMOVE_POINT,
+            ADD_POLYLINE_POINT,
+            MOVE_POLYLINE_POINT,
+            REMOVE_POLYLINE_POINT,
+            ADD_POLYLINE,
+            REMOVE_POLYLINE,
+            ERASE_GRAPHICS,
+            REPLACE_GRAPHICS
+        }
+
+        /**
+         * Represents the specific action of moving a polyline point, which additionally needs
+         * to indicate if the point moved was a midpoint.
+         */
+        public static class MovePolylinePointElement {
+            Graphic mGraphic;
+            Point mPoint;
+            boolean mIsMidpoint;
+
+            /**
+             * Instantiates a new MovePolylinePointElement.
+             *
+             * @param graphic    the graphic of the moved point
+             * @param point      the position of the moved point
+             * @param isMidpoint true if the moved point was a midpoint
+             */
+            public MovePolylinePointElement(Graphic graphic, Point point, boolean isMidpoint) {
+                mGraphic = graphic;
+                mPoint = point;
+                mIsMidpoint = isMidpoint;
+            }
+
+            /**
+             * Gets the graphic of the moved point.
+             *
+             * @return the graphic of the moved point
+             */
+            public Graphic getGraphic() {
+                return mGraphic;
+            }
+
+            /**
+             * Gets the position of the moved point (note this is required because the Point
+             * returned by graphic.getGeometry() will have changed by reference).
+             *
+             * @return the position of the moved point
+             */
+            public Point getPoint() {
+                return mPoint;
+            }
+
+            /**
+             * Checks if the moved point was a midpoint.
+             *
+             * @return true if the moved point was a midpoint
+             */
+            public boolean isMidpoint() {
+                return mIsMidpoint;
+            }
         }
     }
 
