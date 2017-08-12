@@ -604,6 +604,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    private  void showDialogPic(){
+        final View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_pic, null);
+        final AlertDialog ss = new AlertDialog.Builder(MainActivity.this).setView(view).create();
+        ss.show();
+    }
+
     /**
      * 测试设备信息
      *
@@ -615,6 +621,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final LinearLayout llSheBeiInfo1 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_1);
         final LinearLayout llSheBeiInfo2 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_2);
         final LinearLayout llSheBeiInfo3 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_3);
+         ImageView ivPic = (ImageView) view.findViewById(R.id.iv_pic);
+        ivPic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialogPic();
+            }
+        });
+
+
+
         TextView tvCheckToDetail = (TextView) view.findViewById(R.id.tv_check_to_detail);
         RadioGroup rg = (RadioGroup) view.findViewById(R.id.rg_disaster_info);
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
