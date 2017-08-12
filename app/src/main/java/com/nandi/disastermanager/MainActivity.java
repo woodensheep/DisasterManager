@@ -19,12 +19,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,6 +67,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.nandi.disastermanager.adapter.RcPersonAdapter;
 import com.nandi.disastermanager.adapter.RcPhotoAdapter;
+import com.nandi.disastermanager.adapter.RcSearchPersonAdapter;
+import com.nandi.disastermanager.adapter.RcSearchPlaceAdapter;
+import com.nandi.disastermanager.entity.ChartsInfo;
 import com.nandi.disastermanager.entity.DetailBaseInfo;
 import com.nandi.disastermanager.entity.DetailDisCard;
 import com.nandi.disastermanager.entity.DetailHeCard;
@@ -73,9 +81,13 @@ import com.nandi.disastermanager.entity.DisasterDetailInfo;
 import com.nandi.disastermanager.entity.DisasterPoint;
 import com.nandi.disastermanager.entity.PersonInfo;
 import com.nandi.disastermanager.entity.PersonLocation;
+import com.nandi.disastermanager.entity.SearchPerson;
+import com.nandi.disastermanager.entity.SearchPlace;
 import com.nandi.disastermanager.entity.TabDisasterInfo;
+import com.nandi.disastermanager.ui.CircleBar;
 import com.nandi.disastermanager.ui.MyRadioGroup;
 import com.nandi.disastermanager.ui.WaitingDialog;
+import com.nandi.disastermanager.utils.LocalJson;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.Callback;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -85,6 +97,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -95,10 +108,14 @@ import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import lecho.lib.hellocharts.gesture.ZoomType;
+import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.view.LineChartView;
 import okhttp3.Call;
 import okhttp3.Response;
-
-import static android.R.attr.id;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
@@ -201,6 +218,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RadioButton rbQxyb;
     @BindView(R.id.rg_xingzheng)
     RadioGroup rgXingzheng;
+    @BindView(R.id.pie_chart)
+    CircleBar pieChart;
+    @BindView(R.id.iv_search_main)
+    ImageView ivSearchMain;
+
 
     private boolean llAreaState = false;
     private boolean llDataState = false;
@@ -291,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DisasterByStateInfo mDisasterByStateInfo2;
     private DisasterByStateInfo mDisasterByStateInfo3;
     private Context context;
-    private String mDisasterType="-1";
+    private String mDisasterType = "-1";
     private DetailPersonInfo mDetailPersonInfo;
     private DetailBaseInfo mDetailBaseInfo;
     private DetailPhoto mDetailPhoto;
@@ -299,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DetailHeCard mDetailHeCard;
     private DetailPnInfo mDetailPnInfo;
     private String mDisNo;
-    private Map<String,String> maps=new HashMap<>();
+    private Map<String, String> maps = new HashMap<>();
     private LinearLayout llSwitchInfo;
 
     @Override
@@ -336,18 +358,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         personGraphicsOverlay = new GraphicsOverlay();
         localGraphicsOverlay = new GraphicsOverlay();
         equipmentGraphicOverlay = new GraphicsOverlay();
-        weatherGraphicOverlay=new GraphicsOverlay();
+        weatherGraphicOverlay = new GraphicsOverlay();
         graphics = graphicsOverlay.getGraphics();
         personGraphics = personGraphicsOverlay.getGraphics();
         localGraphics = localGraphicsOverlay.getGraphics();
         equipmentGraphics = equipmentGraphicOverlay.getGraphics();
-        weathersGraphics=weatherGraphicOverlay.getGraphics();
+        weathersGraphics = weatherGraphicOverlay.getGraphics();
         graphicsOverlays = sceneView.getGraphicsOverlays();
         elevationSources = scene.getBaseSurface().getElevationSources();
         scene.setBasemap(Basemap.createImagery());
         sceneView.setScene(scene);
         setListeners();
-        setlogin("","");
+        setlogin("", "");
+    }
+
+
+    private void setPieChartData(String text, String desText) {
+        pieChart.setVisibility(View.VISIBLE);
+        pieChart.setText(text);
+        pieChart.setDesText(desText);
+        pieChart.setSweepAngle(Integer.parseInt(text) * 180 / 100);
     }
 
     private void initLocalData() {
@@ -436,6 +466,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setListeners() {
+        ivSearchMain.setOnClickListener(this);
         llXingzheng.setOnClickListener(this);
         ivLuopan.setOnClickListener(this);
         ivAreaBack.setOnClickListener(this);
@@ -483,6 +514,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Log.e(TAG, "----------" + feature.getAttributes().get("name"));
                             String name = (String) feature.getAttributes().get("name");
                             //// TODO: 2017/8/10 显示乡镇统计信息
+                            View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_township_statistics, null);
+                            TextView tvTownshipName = (TextView) view.findViewById(R.id.tv_township_name);
+                            tvTownshipName.setText(name);
+                            AlertDialog mDialogCharts = new AlertDialog.Builder(MainActivity.this)
+                                    .setView(view)
+                                    .show();
                         }
                     } catch (InterruptedException | ExecutionException e1) {
                         e1.printStackTrace();
@@ -566,26 +603,91 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+
+    /**
+     * 测试设备信息
+     *
+     * @param zIndex
+     */
     private void showEquipmentInfo(int zIndex) {
         //TODO 根据Id显示设备信息
-        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_disasterinfo, null);
-        final LinearLayout llBaseInfo = (LinearLayout) view.findViewById(R.id.ll_base_info);
+        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_shebi, null);
+        final LinearLayout llSheBeiInfo1 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_1);
+        final LinearLayout llSheBeiInfo2 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_2);
+        final LinearLayout llSheBeiInfo3 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_3);
+        TextView tvCheckToDetail = (TextView) view.findViewById(R.id.tv_check_to_detail);
         RadioGroup rg = (RadioGroup) view.findViewById(R.id.rg_disaster_info);
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
-                    case R.id.rbtn_base_info:
-                        llBaseInfo.setVisibility(View.VISIBLE);
+                    case R.id.rbtn_check_1:
+                        llSheBeiInfo1.setVisibility(View.VISIBLE);
+                        llSheBeiInfo2.setVisibility(View.GONE);
+                        llSheBeiInfo3.setVisibility(View.GONE);
                         break;
-                    case R.id.rbtn_check_detail:
-                        llBaseInfo.setVisibility(View.VISIBLE);
-                        showDialogDetails(id + "");
-                        //setOkhttpDetails(id+"",getResources().getString(R.string.four_person_info),1);
+                    case R.id.rbtn_check_2:
+                        llSheBeiInfo1.setVisibility(View.GONE);
+                        llSheBeiInfo2.setVisibility(View.VISIBLE);
+                        llSheBeiInfo3.setVisibility(View.GONE);
+                        break;
+                    case R.id.rbtn_check_3:
+                        llSheBeiInfo1.setVisibility(View.GONE);
+                        llSheBeiInfo2.setVisibility(View.GONE);
+                        llSheBeiInfo3.setVisibility(View.VISIBLE);
                         break;
                 }
             }
 
+        });
+
+
+        tvCheckToDetail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_charts, null);
+                LineChartView mChartView = (LineChartView) view.findViewById(R.id.chart);
+                ChartsInfo chartsInfo = LocalJson.parseJson(context, "gpsData.json");
+                Log.d("limeng", "chartsInfo.getData().getX1().size()=" + chartsInfo.getData().getX1().size());
+                Log.d("limeng", "chartsInfo.getData().getX1().get(0).size()=" + chartsInfo.getData().getX1().get(0).size());
+                ArrayList<PointValue> values = new ArrayList<PointValue>();//折线上的点
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+
+                for (int i = 0; i < chartsInfo.getData().getX1().size(); i++) {
+                    List<Float> x = chartsInfo.getData().getX1().get(i);
+                    values.add(new PointValue(x.get(0), x.get(1) / 1000));
+                }
+
+                Line line = new Line(values).setColor(Color.GREEN);//声明线并设置颜色
+                line.setCubic(false);//设置是平滑的还是直的
+                line.setStrokeWidth(1);
+                line.setHasPoints(false);
+                List<Line> lines = new ArrayList<Line>();
+                lines.add(line);
+                mChartView.setInteractive(false);//设置图表是可以交互的（拖拽，缩放等效果的前提）
+                mChartView.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);//设置缩放方向
+                LineChartData data = new LineChartData();
+                Axis axisX = new Axis();//x轴
+                Axis axisY = new Axis();//y轴
+                axisX.setHasSeparationLine(true);
+                axisX.setTextColor(Color.BLACK);
+                axisX.setLineColor(Color.BLACK);
+                axisX.setInside(false);
+                axisX.setMaxLabelChars(8);
+                axisX.setName("日期");
+                axisY.setName("实时位移(m)");
+                axisY.setLineColor(Color.BLACK);
+                axisY.setTextColor(Color.BLACK);
+                axisY.setTextSize(16);
+                data.setAxisXBottom(axisX);
+                data.setAxisYLeft(axisY);
+                data.setLines(lines);
+                mChartView.setLineChartData(data);//给图表设置数据
+
+                AlertDialog mDialogCharts = new AlertDialog.Builder(MainActivity.this)
+                        .setView(view)
+                        .show();
+            }
         });
         AlertDialog dialog1 = new AlertDialog.Builder(MainActivity.this)
                 .setView(view)
@@ -786,10 +888,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showInfo(int zIndex) {
-        setDialogViewDatas(mDisasterType,zIndex);
+        setDialogViewDatas(mDisasterType, zIndex);
 
     }
-
 
 
     /**
@@ -798,6 +899,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 2已治理灾害点
      * 3已搬迁灾害点
      * 1库岸调查
+     *
      * @param type
      */
     private void setDialogViewDatas(String type, final int id) {
@@ -865,27 +967,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         }
-        switch (mDisType){
+        switch (mDisType) {
             case "1":
-                mDisType="滑坡";
+                mDisType = "滑坡";
                 break;
             case "2":
-                mDisType="泥石流";
+                mDisType = "泥石流";
                 break;
             case "3":
-                mDisType="危岩";
+                mDisType = "危岩";
                 break;
             case "4":
-                mDisType="不稳定斜坡";
+                mDisType = "不稳定斜坡";
                 break;
             case "5":
-                mDisType="地面坍塌";
+                mDisType = "地面坍塌";
                 break;
             case "6":
-                mDisType="地裂缝";
+                mDisType = "地裂缝";
                 break;
             case "7":
-                mDisType="库岸";
+                mDisType = "库岸";
                 break;
         }
         TextView tvDisName = (TextView) view.findViewById(R.id.tv_dis_name);
@@ -900,7 +1002,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         tvDisName.setText(mDisName == null ? "" : mDisName);
         tvDisType.setText(mDisType + "");
-        tvDisNo.setText(mDisNo == null ? "" :mDisNo);
+        tvDisNo.setText(mDisNo == null ? "" : mDisNo);
         tvAreaId.setText(mDisLocation == null ? "" : mDisLocation);
         tvDisLocation.setText(mDisLocation == null ? "" : mDisLocation);
         tvDisCause.setText(mDisCause == null ? "" : mDisCause);
@@ -915,17 +1017,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * 伪登录
+     *
      * @param str1
      * @param str2
      */
-    private void setlogin(String str1,String str2) {
-        Log.d("limeng","请求中...");
+    private void setlogin(String str1, String str2) {
+        Log.d("limeng", "请求中...");
         OkHttpUtils.get().url(getResources().getString(R.string.login))
                 .build()
                 .execute(new Callback() {
                     @Override
                     public Object parseNetworkResponse(Response response, int id) throws Exception {
-                        Log.d("limeng","response.headers()_"+response.headers());
+                        Log.d("limeng", "response.headers()_" + response.headers());
                         return null;
                     }
 
@@ -943,13 +1046,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * type不同的详细信息
+     *
      * @param id
      * @param http
      * @param type
      */
     private void setOkhttpDetails(String id, String http, final int type) {
         waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.base_http)+http+"/"+id)
+        OkHttpUtils.get().url(getResources().getString(R.string.base_http) + http + "/" + id)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -959,19 +1063,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onResponse(String response, int id) {
-                        WaitingDialog.closeDialog(waitingDialog);
+                        new Handler().postDelayed(new Runnable() {
+
+                            public void run() {
+                                WaitingDialog.closeDialog(waitingDialog);
+                            }
+
+                        }, 300);
                         Log.d("limeng", "response=" + response);
                         Gson gson = new Gson();
-                        switch (type){
+                        switch (type) {
                             case 1:
                                 mDetailPersonInfo = gson.fromJson(response, DetailPersonInfo.class);
                                 llSwitchInfo.addView(addPersonView());
                                 break;
                             case 2:
                                 mDetailBaseInfo = gson.fromJson(response, DetailBaseInfo.class);
-                                String info2="暂无数据可显示";
-                                if(mDetailBaseInfo.getData()!=null) {
-                                     info2 = "隐患点名称：" + (mDetailBaseInfo.getData().getDisName() == null ? "" : mDetailBaseInfo.getData().getDisName()) + "\n"
+                                String info2 = "暂无数据可显示";
+                                if (mDetailBaseInfo.getData() != null) {
+                                    info2 = "隐患点名称：" + (mDetailBaseInfo.getData().getDisName() == null ? "" : mDetailBaseInfo.getData().getDisName()) + "\n"
                                             //+ "灾害点类型：" + (mDetailBaseInfo.getData().getDisType() + "") + "\n"
                                             + "灾害点编号：" + (mDetailBaseInfo.getData().getDisNo() == null ? "" : mDetailBaseInfo.getData().getDisNo()) + "\n"
                                             + "乡镇：" + (mDetailBaseInfo.getData().getDisLocation() == null ? "" : mDetailBaseInfo.getData().getDisLocation()) + "\n"
@@ -1055,11 +1165,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         setOkhttpDetails(maps.get(id), getResources().getString(R.string.selectPnInfoByDisNo), 7);
                         break;
                     case R.id.rb_detail_2_4:
-                        String info1 = "告警时间：2015-04-07\n"  + "\n"
-                                +"告警缘由：隐患点有异常\n"  + "\n"
-                                +"处置时间：2015-04-08\n"  + "\n"
-                                +"是否处置：是\n"  + "\n"
-                                +"处置结果：已提醒并疏散应还的周围群众并做异常报告上报\n"  + "\n";
+                        String info1 = "告警时间：2015-04-07\n" + "\n"
+                                + "告警缘由：隐患点有异常\n" + "\n"
+                                + "处置时间：2015-04-08\n" + "\n"
+                                + "是否处置：是\n" + "\n"
+                                + "处置结果：已提醒并疏散应还的周围群众并做异常报告上报\n" + "\n";
                         llSwitchInfo.addView(addTextView(info1));
                         break;
                     case R.id.rb_detail_3_1:
@@ -1067,20 +1177,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         llSwitchInfo.addView(addTextView("暂无全景图片资源"));
                         break;
                     case R.id.rb_detail_3_2:
-                        String info2 = "告警时间:2015-04-07\n"  + "\n"
-                                +"本次预警方式：呼喊，电话\n"  + "\n"
-                                +"本次灾害等级:小型\n"  + "\n"
-                                +"预定疏散路线:垂直主滑坡方向，沿滑坡两侧撤离\n"  + "\n"
-                                +"处置意见：加强巡查工作，做好监测记录及时向上级反映\n"  + "\n"
-                                +"是否处置：是\n"  + "\n";
+                        String info2 = "告警时间:2015-04-07\n" + "\n"
+                                + "本次预警方式：呼喊，电话\n" + "\n"
+                                + "本次灾害等级:小型\n" + "\n"
+                                + "预定疏散路线:垂直主滑坡方向，沿滑坡两侧撤离\n" + "\n"
+                                + "处置意见：加强巡查工作，做好监测记录及时向上级反映\n" + "\n"
+                                + "是否处置：是\n" + "\n";
                         llSwitchInfo.addView(addTextView(info2));
                         break;
                     case R.id.rb_detail_3_3:
-                        String info3 = "危岩评估记录\n"  + "\n"
-                                +"    2014年5月4日危岩发生垮塌，垮塌方量约8m3，造成道路堵塞和民房破坏。 该危岩带直接威胁下方居民约13户55人生命财产安全，在校师生约165人， 和乡镇唯一进出道路的畅通，路过此地的车流量及人员较多，每天数千人（次）车辆。 该危岩带极大制约了村（乡）的建设发展规划，影响着附近居民的正常生产、生活。 为了彻底消除该地段危岩带的安全隐患，国土资源和房屋管理局拟将该处危岩带申报区级财政地质灾害防治资金， 特于2015年3月委托重庆市地质灾害防治工程勘查设计院对该危岩带进行应急抢险勘查。\n"  + "\n"
-                                +"    经重庆市地质灾害防治工程勘查设计院对该危岩进行勘察，根据危岩的稳定性分析和危害性预测结果， 对该危岩进行及时合理的治理是必要的，会带来较好的经济效益和社会效益。可避免和减轻其对环境与生态的不良危害， 美化旅游环境，人们得以一个安全、优美、舒适的学习、生活场所；勘查区危岩的治理，能最大限度的开发利用土地资源， 对地方经济发展无疑起到促进作用。\n"  + "\n"
-                                +"    (1)隐患点地理位置较重要，是进出的重要通道、地质灾害活动频繁，危害性较大，应尽快开展治理工程， 并加强监测工作。隐患点的存在直接威胁下方居民约13户55人生命财产安全，在校师生约165人。\n"  + "\n"
-                                ;
+                        String info3 = "危岩评估记录\n" + "\n"
+                                + "    2014年5月4日危岩发生垮塌，垮塌方量约8m3，造成道路堵塞和民房破坏。 该危岩带直接威胁下方居民约13户55人生命财产安全，在校师生约165人， 和乡镇唯一进出道路的畅通，路过此地的车流量及人员较多，每天数千人（次）车辆。 该危岩带极大制约了村（乡）的建设发展规划，影响着附近居民的正常生产、生活。 为了彻底消除该地段危岩带的安全隐患，国土资源和房屋管理局拟将该处危岩带申报区级财政地质灾害防治资金， 特于2015年3月委托重庆市地质灾害防治工程勘查设计院对该危岩带进行应急抢险勘查。\n" + "\n"
+                                + "    经重庆市地质灾害防治工程勘查设计院对该危岩进行勘察，根据危岩的稳定性分析和危害性预测结果， 对该危岩进行及时合理的治理是必要的，会带来较好的经济效益和社会效益。可避免和减轻其对环境与生态的不良危害， 美化旅游环境，人们得以一个安全、优美、舒适的学习、生活场所；勘查区危岩的治理，能最大限度的开发利用土地资源， 对地方经济发展无疑起到促进作用。\n" + "\n"
+                                + "    (1)隐患点地理位置较重要，是进出的重要通道、地质灾害活动频繁，危害性较大，应尽快开展治理工程， 并加强监测工作。隐患点的存在直接威胁下方居民约13户55人生命财产安全，在校师生约165人。\n" + "\n";
                         llSwitchInfo.addView(addTextView(info3));
                         break;
                 }
@@ -1093,23 +1202,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 rg.check(R.id.rbtn_base_info);
             }
         });
+
         ss.show();
 
     }
 
     /**
      * 延时显示WaitingDialog
+     *
      * @param time
      */
     private void YanShi(int time) {
-        waitingDialog=WaitingDialog.createLoadingDialog(this,"正在请求中...");
-        new Handler().postDelayed(new Runnable(){
+        waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
+        new Handler().postDelayed(new Runnable() {
 
             public void run() {
                 WaitingDialog.closeDialog(waitingDialog);
             }
 
-        },time);
+        }, time);
     }
 
 
@@ -1230,7 +1341,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LayoutInflater inflater3 = LayoutInflater.from(this);
         View view = inflater3.inflate(R.layout.activity_table_1, null);
         view.setLayoutParams(lp);
-        if(mFCard!=null) {
+        if (mFCard != null) {
             ((TextView) view.findViewById(R.id.tv_tavle1_1)).setText(mFCard.getDPosition() == null ? "" : mFCard.getDPosition());
             ((TextView) view.findViewById(R.id.tv_tavle1_2)).setText(mFCard.getDType() == null ? "" : mFCard.getDType());
             ((TextView) view.findViewById(R.id.tv_tavle1_3)).setText(mFCard.getDInduceFactor() == null ? "" : mFCard.getDInduceFactor());
@@ -1273,7 +1384,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LayoutInflater inflater3 = LayoutInflater.from(this);
         View view = inflater3.inflate(R.layout.activity_table_2, null);
         view.setLayoutParams(lp);
-        if(mHedgeCard!=null) {
+        if (mHedgeCard != null) {
             ((TextView) view.findViewById(R.id.tv_table2_1)).setText(mHedgeCard.getHFamilyName() == null ? "" : mHedgeCard.getHFamilyName());
             ((TextView) view.findViewById(R.id.tv_table2_2)).setText(mHedgeCard.getHFamilyNum() == null ? "" : mHedgeCard.getHFamilyNum());
             ((TextView) view.findViewById(R.id.tv_table2_3)).setText(mHedgeCard.getHHouseType() == null ? "" : mHedgeCard.getHHouseType());
@@ -1281,19 +1392,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             ((TextView) view.findViewById(R.id.tv_table2_5)).setText(mHedgeCard.getName1() == null ? "" : mHedgeCard.getName1());
             ((TextView) view.findViewById(R.id.tv_table2_6)).setText(mHedgeCard.getSex1() == null ? "" : mHedgeCard.getSex1());
-            ((TextView) view.findViewById(R.id.tv_table2_7)).setText(mHedgeCard.getAge1()+"");
+            ((TextView) view.findViewById(R.id.tv_table2_7)).setText(mHedgeCard.getAge1() + "");
 
             ((TextView) view.findViewById(R.id.tv_table2_8)).setText(mHedgeCard.getName2() == null ? "" : mHedgeCard.getName2());
             ((TextView) view.findViewById(R.id.tv_table2_9)).setText(mHedgeCard.getSex2() == null ? "" : mHedgeCard.getSex2());
-            ((TextView) view.findViewById(R.id.tv_table2_10)).setText(mHedgeCard.getAge2()+"");
+            ((TextView) view.findViewById(R.id.tv_table2_10)).setText(mHedgeCard.getAge2() + "");
 
             ((TextView) view.findViewById(R.id.tv_table2_11)).setText(mHedgeCard.getName3() == null ? "" : mHedgeCard.getName3());
             ((TextView) view.findViewById(R.id.tv_table2_12)).setText(mHedgeCard.getSex3() == null ? "" : mHedgeCard.getSex3());
-            ((TextView) view.findViewById(R.id.tv_table2_13)).setText(mHedgeCard.getAge3()+"");
+            ((TextView) view.findViewById(R.id.tv_table2_13)).setText(mHedgeCard.getAge3() + "");
 
             ((TextView) view.findViewById(R.id.tv_table2_14)).setText(mHedgeCard.getName4() == null ? "" : mHedgeCard.getName4());
             ((TextView) view.findViewById(R.id.tv_table2_15)).setText(mHedgeCard.getSex4() == null ? "" : mHedgeCard.getSex4());
-            ((TextView) view.findViewById(R.id.tv_table2_16)).setText(mHedgeCard.getAge4()+"");
+            ((TextView) view.findViewById(R.id.tv_table2_16)).setText(mHedgeCard.getAge4() + "");
 
 
             ((TextView) view.findViewById(R.id.tv_table2_17)).setText(mHedgeCard.getHDisType() == null ? "" : mHedgeCard.getHDisType());
@@ -1330,7 +1441,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @return
      */
     private View addTableView3() {
-        DetailPnInfo.DataBean mDetailPn=mDetailPnInfo.getData();
+        DetailPnInfo.DataBean mDetailPn = mDetailPnInfo.getData();
         // TODO 动态添加布局(xml方式)
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);       //LayoutInflater inflater1=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1338,7 +1449,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LayoutInflater inflater3 = LayoutInflater.from(this);
         View view = inflater3.inflate(R.layout.activity_table_3, null);
         view.setLayoutParams(lp);
-        if(mDetailPn!=null) {
+        if (mDetailPn != null) {
             ((TextView) view.findViewById(R.id.tv_table3_1)).setText(mDetailPn.getPDisName() == null ? "" : mDetailPn.getPDisName());
             ((TextView) view.findViewById(R.id.tv_table3_2)).setText(mDetailPn.getPNo() == null ? "" : mDetailPn.getPNo());
             ((TextView) view.findViewById(R.id.tv_table3_3)).setText("***");
@@ -1373,6 +1484,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.iv_search_main:
+                ToSearch();
+                break;
             case R.id.iv_luopan:
                 resetPosition();
                 break;
@@ -1478,37 +1592,174 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private int searchType1;
+    private int searchType2;
+    private String[] mItems2;
+
+    /**
+     * 搜索
+     */
+    private void ToSearch() {
+
+        final View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_search, null);
+        final Spinner spinner1= (Spinner) view.findViewById(R.id.spinner1);
+        final Spinner spinner2= (Spinner) view.findViewById(R.id.spinner2);
+        final EditText etSearch= (EditText) view.findViewById(R.id.etSearch);
+        Button btnSearch= (Button) view.findViewById(R.id.btnSearch);
+        final RecyclerView rc=(RecyclerView) view.findViewById(R.id.date_show);
+        rc.setLayoutManager(new LinearLayoutManager(context));
+        // 建立数据源
+        String[] mItems1 = getResources().getStringArray(R.array.search_type_1);
+        mItems2 = getResources().getStringArray(R.array.search_type_2_1);
+        final String[] mItems21 = getResources().getStringArray(R.array.search_type_2_1);
+        final String[] mItems22 = getResources().getStringArray(R.array.search_type_2_2);
+        final String[] mItems23 = getResources().getStringArray(R.array.search_type_2_3);
+        final String[] mItems24= getResources().getStringArray(R.array.search_type_2_4);
+        final String[] mItems25= getResources().getStringArray(R.array.search_type_2_5);
+        // 建立Adapter并且绑定数据源
+        ArrayAdapter<String> adapter1=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, mItems1);
+        ArrayAdapter<String> adapter2=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, mItems2);
+        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //绑定 Adapter到控件
+        spinner1.setAdapter(adapter1);
+        spinner2.setAdapter(adapter2);
+        spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int pos, long id) {
+                searchType1=pos;
+                switch (pos){
+                    case 0:
+                        mItems2=mItems21;
+                        break;
+                    case 1:
+                        mItems2=mItems22;
+                        etSearch.setText("滑坡");
+                        break;
+                    case 2:
+                        mItems2=mItems23;
+                        etSearch.setText("张");
+                        break;
+                    case 3:
+                        mItems2=mItems24;
+                        break;
+                    case 4:
+                        mItems2=mItems25;
+                        break;
+                }
+                ArrayAdapter<String> adapter2=new ArrayAdapter<String>(context,android.R.layout.simple_spinner_item, mItems2);
+                adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner2.setAdapter(adapter2);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Another interface callback
+            }
+        });
+
+        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int pos, long id) {
+                searchType2=pos;
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Another interface callback
+            }
+        });
+
+
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String info=etSearch.getText().toString();
+                Log.d("limeng",searchType1+"----"+searchType2+mItems2.length);
+                int type1=0,type2=0;
+                switch (searchType1){
+                    case 1:
+                        type1=8;
+                        type2=27;
+                        break;
+                    case 2:
+                        type1=26;
+                        type2=32+searchType2-1;
+                        break;
+                    default:
+                        Toast.makeText(getApplicationContext(), "暂无数据！", Toast.LENGTH_SHORT).show();
+                        return;
+                }
+                waitingDialog = WaitingDialog.createLoadingDialog(context, "正在请求中...");
+                OkHttpUtils.get().url("http://183.230.182.149:18081/springmvc/seek/search/500110/"+info+"/"+type1+"/"+type2)
+                        .build()
+                        .execute(new StringCallback() {
+                            @Override
+                            public void onError(Call call, Exception e, int id) {
+                                Toast.makeText(getApplicationContext(), "请检查网络！", Toast.LENGTH_SHORT).show();
+                                WaitingDialog.closeDialog(waitingDialog);
+                            }
+
+                            @Override
+                            public void onResponse(String response, int id) {
+                                WaitingDialog.closeDialog(waitingDialog);
+                                Log.d("limeng", "response=" + response);
+                                Gson gson = new Gson();
+                                switch (searchType1) {
+                                    case 1:
+                                        SearchPlace mSearchPlace = gson.fromJson(response, SearchPlace.class);
+                                        rc.setAdapter(new RcSearchPlaceAdapter(context,mSearchPlace));
+                                        break;
+                                    case 2:
+                                        SearchPerson mSearchPerson = gson.fromJson(response, SearchPerson.class);
+                                        rc.setAdapter(new RcSearchPersonAdapter(context,mSearchPerson));
+                                        break;
+                                }
+                            }
+                        });
+            }
+        });
+
+        final AlertDialog ss = new AlertDialog.Builder(MainActivity.this).setView(view).create();
+        ss.show();
+
+        //http://183.230.182.149:18081/springmvc/seek/search/"+areaCode+"/"+searchValue+"/"+searchType1+"/"+searchType2
+        //http://183.230.182.149:18081/springmvc/seek/search/500110/s/8/27
+        //http://183.230.182.149:18081/springmvc/seek/search/500110,/%E5%BC%A0/26/32
+        //http://183.230.182.149:18081/springmvc/seek/search/500110,/%E7%8E%8B/26/33
+    }
+
     private void addWeather() {
-        final List<DisasterPoint> disasterPoints=new ArrayList<>();
-        DisasterPoint wandong=new DisasterPoint();
+        final List<DisasterPoint> disasterPoints = new ArrayList<>();
+        DisasterPoint wandong = new DisasterPoint();
         wandong.setDis_lon("106.91979545");
         wandong.setDis_lat("28.95290346");
         wandong.setDis_name("万东镇");
-        DisasterPoint shilin=new DisasterPoint();
+        DisasterPoint shilin = new DisasterPoint();
         shilin.setDis_lon("106.93410938");
         shilin.setDis_lat("28.84384145");
         shilin.setDis_name("石林镇");
-        DisasterPoint qingnian=new DisasterPoint();
+        DisasterPoint qingnian = new DisasterPoint();
         qingnian.setDis_lon("106.850094");
         qingnian.setDis_lat("28.85293135");
         qingnian.setDis_name("青年镇");
-        DisasterPoint nantong=new DisasterPoint();
+        DisasterPoint nantong = new DisasterPoint();
         nantong.setDis_lon("106.86845176");
         nantong.setDis_lat("28.93441762");
         nantong.setDis_name("南桐镇");
-        DisasterPoint jinqiao=new DisasterPoint();
+        DisasterPoint jinqiao = new DisasterPoint();
         jinqiao.setDis_lon("106.89649099");
         jinqiao.setDis_lat("29.03657006");
         jinqiao.setDis_name("金桥镇");
-        DisasterPoint heishan=new DisasterPoint();
+        DisasterPoint heishan = new DisasterPoint();
         heishan.setDis_lon("106.99274618");
         heishan.setDis_lat("28.91461293");
         heishan.setDis_name("黑山镇");
-        DisasterPoint guanba=new DisasterPoint();
+        DisasterPoint guanba = new DisasterPoint();
         guanba.setDis_lon("106.82294387");
         guanba.setDis_lat("28.80028586");
         guanba.setDis_name("关坝镇");
-        DisasterPoint conglin=new DisasterPoint();
+        DisasterPoint conglin = new DisasterPoint();
         conglin.setDis_lon("106.96608428");
         conglin.setDis_lat("29.01085608");
         conglin.setDis_name("丛林镇");
@@ -1780,26 +2031,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.rb_qcqf_person:
                 if (b) {
                     updatePersonGraphic(qcGraphics);
+                    setPieChartData("71", "在线率");
                 }
                 break;
             case R.id.rb_zs_person:
                 if (b) {
                     updateLocalGraphic(zsGraphics);
+                    setPieChartData("64", "在线率");
                 }
                 break;
             case R.id.rb_pq_person:
                 if (b) {
                     updateLocalGraphic(pqGraphics);
+                    setPieChartData("90", "在线率");
                 }
                 break;
             case R.id.rb_dhz_person:
                 if (b) {
                     updateLocalGraphic(dhzGraphics);
+                    setPieChartData("35", "在线率");
                 }
                 break;
             case R.id.rb_equipment_jiance:
                 if (b) {
                     updateEquipmentGraphic(jianceGraphics);
+                    setPieChartData("88", "在线率");
                 }
                 break;
             case R.id.rb_jinqiao:
@@ -1843,7 +2099,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.rb_qxyb:
                 if (b) {
                     updateWeather(weatherGraphics);
-                }else {
+                } else {
                     graphicsOverlays.clear();
                 }
                 break;
@@ -1906,7 +2162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void addEquipment() {
-        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.equipment);
+        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.sign);
         final PictureMarkerSymbol symbol = new PictureMarkerSymbol(drawable);
         symbol.setWidth(50);
         symbol.setHeight(50);
@@ -2263,6 +2519,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             rgEquipment.clearCheck();
             rgQxsy.clearCheck();
             rgXingzheng.clearCheck();
+            pieChart.setVisibility(View.GONE);
             Log.d("limeng", "llMoreState:" + llMoreState + "\n" + "llMoreStateBefore:" + llMoreStateBefore);
             ObjectAnimator animator3 = null;
             ObjectAnimator animator4 = null;

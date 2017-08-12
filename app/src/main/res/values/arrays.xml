@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="search_type_1">
+        <item>请选择类型</item>
+        <item>地灾点</item>
+        <item>四重网格化人员</item>
+        <item>设备</item>
+        <item>倾斜摄影</item>
+    </string-array>
+
+    <string-array name="search_type_2_1">
+        <item>请选择类型</item>
+    </string-array>
+
+    <string-array name="search_type_2_2">
+        <item>请选择类型</item>
+        <item>地质灾害点</item>
+    </string-array>
+
+    <string-array name="search_type_2_3">
+        <item>请选择类型</item>
+        <item>群测群防人员</item>
+        <item>片区负责人</item>
+        <item>驻守地质人员</item>
+        <item>地环站人员</item>
+    </string-array>
+
+    <string-array name="search_type_2_4">
+        <item>请选择类型</item>
+        <item>常规监测设备</item>
+        <item>重要物质监管</item>
+        <item>雨量大喇叭预警</item>
+        <item>应急救灾设备</item>
+        <item>风速风向仪</item>
+    </string-array>
+
+    <string-array name="search_type_2_5">
+        <item>请选择类型</item>
+        <item>万盛</item>
+    </string-array>
+
+
+</resources>

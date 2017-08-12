@@ -62,14 +62,26 @@
         android:layout_margin="10dp"
         android:src="@drawable/compass" />
 
+
+    <ImageView
+        android:id="@+id/iv_search_main"
+        android:layout_width="40dp"
+        android:layout_below="@+id/iv_luopan"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dp"
+        android:src="@mipmap/ic_search" />
+
     <Button
         android:id="@+id/btn_util"
         android:layout_width="40dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/iv_luopan"
+        android:layout_below="@+id/iv_search_main"
         android:layout_margin="10dp"
         android:layout_alignParentRight="true"
-        android:text="打开工具" />
+        android:text="打开工具"
+        android:layout_height="wrap_content"/>
+
+
         <LinearLayout
             android:id="@+id/ll_util"
             android:layout_width="40dp"
@@ -145,4 +157,14 @@
         android:layout_marginRight="30dp"
         android:textColor="@color/colorblue"
         android:textSize="20sp" />
+
+
+    <com.nandi.disastermanager.ui.CircleBar
+        android:visibility="gone"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="-60dp"
+        android:id="@+id/pie_chart"
+        android:layout_width="200dp"
+        android:layout_height="200dp"/>
 </RelativeLayout>

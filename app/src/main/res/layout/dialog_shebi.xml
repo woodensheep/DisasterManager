@@ -18,24 +18,37 @@
 
             <RadioButton
                 android:checked="true"
-                android:id="@+id/rbtn_base_info"
+                android:id="@+id/rbtn_check_1"
                 android:textColor="@color/white"
                 android:gravity="center"
                 android:layout_margin="10dp"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
-                android:text="基本信息"
+                android:text="监测点信息"
                 android:textSize="15sp"
                 android:background="@drawable/radiobtn_selector"
                 android:button="@null" />
 
             <RadioButton
-                android:id="@+id/rbtn_check_detail"
+                android:id="@+id/rbtn_check_2"
                 android:textSize="15sp"
                 android:textColor="@color/white"
                 android:gravity="center"
-                android:text="查看详情"
+                android:text="项目信息"
+                android:layout_margin="10dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:background="@drawable/radiobtn_selector"
+                android:button="@null" />
+
+            <RadioButton
+                android:id="@+id/rbtn_check_3"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:text="现场图片"
                 android:layout_margin="10dp"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -60,7 +73,7 @@
 
 
             <LinearLayout
-                android:id="@+id/ll_base_info"
+                android:id="@+id/ll_shebei_info_1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/white"
@@ -82,7 +95,6 @@
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
-                        android:id="@+id/tv_dis_cause"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="YY2208"
@@ -103,7 +115,6 @@
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
-                        android:id="@+id/tv_imperil_man"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="地表位移(GPS)"
@@ -125,7 +136,6 @@
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
-                        android:id="@+id/tv_dis_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="7721"
@@ -146,7 +156,6 @@
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
-                        android:id="@+id/tv_dis_type"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="暂无数据"
@@ -169,7 +178,6 @@
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
-                        android:id="@+id/tv_dis_no"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="暂无数据"
@@ -190,7 +198,6 @@
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
-                        android:id="@+id/tv_area_id"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="暂无数据"
@@ -211,11 +218,9 @@
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
-                        android:id="@+id/tv_dis_location"
                         android:layout_width="wrap_content"
                         android:padding="3dp"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/shape_ll_background"
                         android:text="正常工作"
                         android:textColor="@color/relic_text_edit_color"
                         android:textSize="@dimen/relic_text" />
@@ -236,19 +241,200 @@
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
-                        android:id="@+id/tv_imperil_families"
-                        android:layout_width="match_parent"
+                        android:id="@+id/tv_check_to_detail"
+                        android:background="@drawable/shape_ll_background"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="查看详情"
-                        android:textColor="@color/relic_text_edit_color"
+                        android:textColor="#FF7F00"
                         android:textSize="@dimen/relic_text" />
                 </LinearLayout>
 
 
             </LinearLayout>
 
+            <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/ll_shebei_info_2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:paddingBottom="15dp"
+                android:paddingLeft="15dp"
+                android:paddingTop="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="项目名称："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="暂无数据"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="项目开始时间："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi1"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
 
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="项目地点："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ceshi1"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text_edit" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="经度："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="暂无数据"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="纬度："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="暂无数据"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="项目负责人："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="暂无数据"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="联系方式："
+                        android:textColor="@color/relic_text_color"
+                        android:textSize="@dimen/relic_text" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:padding="3dp"
+                        android:layout_height="wrap_content"
+                        android:text="暂无数据"
+                        android:textColor="@color/relic_text_edit_color"
+                        android:textSize="@dimen/relic_text" />
+                </LinearLayout>
+
+
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/ll_shebei_info_3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:paddingBottom="15dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:paddingTop="15dp">
+
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/disaster_image"
+                    />
+            </LinearLayout>
 
         </LinearLayout>
 

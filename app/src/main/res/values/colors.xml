@@ -16,6 +16,7 @@
     <color name="color_circular_4">#1E90FF</color>
     <color name="color_circular_5">#9AFF9A</color>
 
+    <color name="color_touming">#77ffffff</color>
 
     <color name="color_solid1">#616161</color>
     <color name="color_solid">#99D6D6D6</color>
@@ -27,6 +28,8 @@
     <color name="relic_text_edit_color">#2caeaa</color>
     <color name="color_red">#FF3030</color>
     <color name="color_green">#9AFF9A</color>
+    <color name="color_green_pie">#2bc208</color>
+    <color name="color_red_pie">#ec063d</color>
     <color name="colorPrimaryLight">#BBDEFB</color>
 
     <color name="primary_text">#212121</color>
