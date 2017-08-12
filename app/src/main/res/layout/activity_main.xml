@@ -5,35 +5,144 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.nandi.disastermanager.MainActivity">
-
-    <com.esri.arcgisruntime.mapping.view.SceneView
-        android:id="@+id/sceneView"
+    <LinearLayout
+        android:id="@+id/ll_sceneView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+        <com.esri.arcgisruntime.mapping.view.SceneView
+            android:id="@+id/sceneView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
 
-    </com.esri.arcgisruntime.mapping.view.SceneView>
+        </com.esri.arcgisruntime.mapping.view.SceneView>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_measureSceneView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:orientation="horizontal">
+        <com.esri.arcgisruntime.mapping.view.SceneView
+            android:id="@+id/measureSceneView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+
+        </com.esri.arcgisruntime.mapping.view.SceneView>
+    </LinearLayout>
+
+
+
 
     <LinearLayout
         android:id="@+id/ll_area"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-    <include layout="@layout/activity_area_statistics"/>
+        <include layout="@layout/activity_area_statistics" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_below="@+id/ll_area"
         android:id="@+id/ll_data"
-        android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    <include layout="@layout/activity_data_manage"/>
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_area"
+        android:layout_marginTop="10dp">
+
+        <include layout="@layout/activity_data_manage" />
     </LinearLayout>
+
     <ImageView
         android:id="@+id/iv_luopan"
-        android:src="@drawable/compass"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_alignParentRight="true"
         android:layout_margin="10dp"
+        android:src="@drawable/compass" />
+
+    <Button
+        android:id="@+id/btn_util"
         android:layout_width="40dp"
-        android:layout_height="40dp"/>
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/iv_luopan"
+        android:layout_margin="10dp"
+        android:layout_alignParentRight="true"
+        android:text="打开工具" />
+        <LinearLayout
+            android:id="@+id/ll_util"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_margin="10dp"
+            android:visibility="invisible"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/btn_util"
+            >
+            <ImageButton
+                android:id="@+id/pointButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_bar_background"
+                android:contentDescription="@string/pointButtonDescription"
+                android:onClick="pointClick"
+                android:src="@drawable/ic_action_point" />
+
+            <ImageButton
+                android:id="@+id/polylineButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_bar_background"
+                android:contentDescription="@string/polylineButtonDescription"
+                android:onClick="polylineClick"
+                android:src="@drawable/ic_action_polyline" />
+
+            <ImageButton
+                android:id="@+id/polygonButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_bar_background"
+                android:contentDescription="@string/polygonButtonDescription"
+                android:onClick="polygonClick"
+                android:src="@drawable/ic_action_polygon" />
+
+            <ImageButton
+                android:id="@+id/undoButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_bar_background"
+                android:contentDescription="@string/undoButtonDescription"
+                android:onClick="undoClick"
+                android:src="@drawable/ic_action_undo" />
+
+            <ImageButton
+                android:id="@+id/redoButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_bar_background"
+                android:contentDescription="@string/redoButtonDescription"
+                android:onClick="redoClick"
+                android:src="@drawable/ic_action_redo" />
+
+            <ImageButton
+                android:id="@+id/clearButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_bar_background"
+                android:contentDescription="@string/clearButtonDescription"
+                android:onClick="clearClick"
+                android:src="@drawable/ic_action_clear" />
+        </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_measure_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="60dp"
+        android:layout_marginRight="30dp"
+        android:textColor="@color/colorblue"
+        android:textSize="20sp" />
 </RelativeLayout>

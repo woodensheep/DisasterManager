@@ -1,6 +1,19 @@
 <resources>
     <string name="app_name1">万盛指挥系统</string>
     <string name="ceshi"></string>
+    <string name="action_draw">Draw</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_redo">Redo</string>
+    <string name="action_erase">Erase</string>
+    <string name="point">Point</string>
+    <string name="polyline">Polyline</string>
+    <string name="polygon">Polygon</string>
+    <string name="pointButtonDescription">Draw new point button</string>
+    <string name="polylineButtonDescription">Draw new polyline button</string>
+    <string name="polygonButtonDescription">Draw new polygon button</string>
+    <string name="undoButtonDescription">Undo last drawing event button</string>
+    <string name="redoButtonDescription">Redo last undone drawing event button</string>
+    <string name="clearButtonDescription">Clear current drawings button</string>
     <string name="image_layer_13_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng13/MapServer</string>
     <string name="image_layer_13_19_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng13_19/MapServer</string>
     <string name="get_disaster_point">http://www.cqdzjc.com:8090/meteor/findWanShengData.do</string>
