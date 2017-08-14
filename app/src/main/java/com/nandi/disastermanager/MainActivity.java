@@ -282,7 +282,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArcGISTiledElevationSource elevationSource;
     private LayerList layers;
     private Surface.ElevationSourceList elevationSources;
-    private List<DisasterPoint> disasterPoints;
     private List<PersonLocation> qcPersons = new ArrayList<>();
     private List<PersonLocation> zsPersons = new ArrayList<>();
     private List<PersonLocation> pqPersons = new ArrayList<>();
@@ -324,7 +323,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ListenableList<Graphic> weathersGraphics;
     private RadioGroup rg;
     private Dialog waitingDialog;
-    private DisasterDetailInfo disasterDetailInfo;
     private ServiceFeatureTable table;
 
     private TabDisasterInfo mTabDisasterInfo;
@@ -664,193 +662,196 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 final android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
-                final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = sceneView.identifyGraphicsOverlayAsync(mGraphicsOverlay, screenPoint, 10.0, false);
-                identifyGraphic.addDoneListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            IdentifyGraphicsOverlayResult identifyResult = identifyGraphic.get();
-                            List<Graphic> graphic = identifyResult.getGraphics();
-                            if (!graphic.isEmpty() && mDrawingMode == DrawingMode.NONE) {
-                                Geometry geometry = graphic.get(0).getGeometry();
-                                if (geometry instanceof Polyline) {
-                                    double length = GeometryEngine.lengthGeodetic(geometry, new LinearUnit(LinearUnitId.KILOMETERS), GeodeticCurveType.GREAT_ELLIPTIC);
-                                    tvMeasureResult.setText("长度为:" + length + "千米");
-                                } else if (geometry instanceof Polygon) {
-                                    double area = Math.abs(GeometryEngine.areaGeodetic(geometry, new AreaUnit(AreaUnitId.SQUARE_KILOMETERS), GeodeticCurveType.GREAT_ELLIPTIC));
-                                    tvMeasureResult.setText("面积为:" + area + "平方千米");
-                                    View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_township_statistics, null);
-                                    TextView tvTownshipName = (TextView) view.findViewById(R.id.tv_township_name);
-                                    tvTownshipName.setText("统计信息");
-                                    AlertDialog mDialogCharts = new AlertDialog.Builder(MainActivity.this)
-                                            .setView(view)
-                                            .show();
-                                }
-                            }
-                            if (!graphic.isEmpty() && !(graphic.get(0).getGeometry() instanceof Polygon)) {
-                                if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
-                                    Graphic g = graphic.get(0);
-                                    if (mCurrentPoint != null && !mCurrentPoint.equals(g)) {
-                                        if (mIsMidpointSelected && !mVertexDragStarted) {
-                                            mCurrentPoint.setSymbol(mPolylineMidpointSymbol);
-                                        } else {
-                                            mCurrentPoint.setSymbol(mPolylineVertexSymbol);
-                                        }
-                                        mIsMidpointSelected = (g.getSymbol().equals(mPolylineMidpointSymbol));
-                                        mVertexDragStarted = false;
-                                        mCurrentPoint = g;
-                                        mCurrentPoint.setSymbol(mPointPlacementSymbol);
+                if (llUtil.getVisibility() == View.VISIBLE) {
+                    final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = sceneView.identifyGraphicsOverlayAsync(mGraphicsOverlay, screenPoint, 10.0, false);
+                    identifyGraphic.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                IdentifyGraphicsOverlayResult identifyResult = identifyGraphic.get();
+                                List<Graphic> graphic = identifyResult.getGraphics();
+                                if (!graphic.isEmpty() && mDrawingMode == DrawingMode.NONE) {
+                                    Geometry geometry = graphic.get(0).getGeometry();
+                                    if (geometry instanceof Polyline) {
+                                        double length = GeometryEngine.lengthGeodetic(geometry, new LinearUnit(LinearUnitId.KILOMETERS), GeodeticCurveType.GREAT_ELLIPTIC);
+                                        tvMeasureResult.setText("长度为:" + length + "千米");
+                                    } else if (geometry instanceof Polygon) {
+                                        double area = Math.abs(GeometryEngine.areaGeodetic(geometry, new AreaUnit(AreaUnitId.SQUARE_KILOMETERS), GeodeticCurveType.GREAT_ELLIPTIC));
+                                        tvMeasureResult.setText("面积为:" + area + "平方千米");
+                                        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_township_statistics, null);
+                                        TextView tvTownshipName = (TextView) view.findViewById(R.id.tv_township_name);
+                                        tvTownshipName.setText("统计信息");
+                                        AlertDialog mDialogCharts = new AlertDialog.Builder(MainActivity.this)
+                                                .setView(view)
+                                                .show();
                                     }
                                 }
-                            } else {
-                                boolean graphicsWasEmpty = mGraphics.isEmpty();
-                                Point point = sceneView.screenToLocationAsync(screenPoint).get();
-                                if (mDrawingMode == DrawingMode.POINT) {
-                                    if (mCurrentPoint == null) {
-                                        mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
-                                        mGraphics.add(mCurrentPoint);
-                                        List<Graphic> graphics = new ArrayList<>();
-                                        graphics.add(mCurrentPoint);
-                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
-                                    } else {
-                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.MOVE_POINT, mCurrentPoint.getGeometry()));
-                                        mCurrentPoint.setGeometry(point);
-                                    }
-                                } else if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
-                                    mIsMidpointSelected = false;
-                                    if (!mIsPolylineStarted) {
-                                        mCurrentPointCollection.add(point);
-                                        if (mDrawingMode == DrawingMode.POLYGON) {
-                                            mCurrentPointCollection.add(point);
-                                        }
-                                    } else {
-                                        if (mDrawingMode == DrawingMode.POLYGON) {
-                                            if (mCurrentPointCollection.size() > 2) {
-                                                mGraphics.remove(mGraphics.size() - 1);
+                                if (!graphic.isEmpty() && !(graphic.get(0).getGeometry() instanceof Polygon)) {
+                                    if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
+                                        Graphic g = graphic.get(0);
+                                        if (mCurrentPoint != null && !mCurrentPoint.equals(g)) {
+                                            if (mIsMidpointSelected && !mVertexDragStarted) {
+                                                mCurrentPoint.setSymbol(mPolylineMidpointSymbol);
+                                            } else {
+                                                mCurrentPoint.setSymbol(mPolylineVertexSymbol);
                                             }
-                                            mCurrentPointCollection.add(mCurrentPointCollection.size() - 1, point);
+                                            mIsMidpointSelected = (g.getSymbol().equals(mPolylineMidpointSymbol));
+                                            mVertexDragStarted = false;
+                                            mCurrentPoint = g;
+                                            mCurrentPoint.setSymbol(mPointPlacementSymbol);
+                                        }
+                                    }
+                                } else {
+                                    boolean graphicsWasEmpty = mGraphics.isEmpty();
+                                    Point point = sceneView.screenToLocationAsync(screenPoint).get();
+                                    if (mDrawingMode == DrawingMode.POINT) {
+                                        if (mCurrentPoint == null) {
+                                            mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
+                                            mGraphics.add(mCurrentPoint);
+                                            List<Graphic> graphics = new ArrayList<>();
+                                            graphics.add(mCurrentPoint);
+                                            queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
                                         } else {
+                                            queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.MOVE_POINT, mCurrentPoint.getGeometry()));
+                                            mCurrentPoint.setGeometry(point);
+                                        }
+                                    } else if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
+                                        mIsMidpointSelected = false;
+                                        if (!mIsPolylineStarted) {
                                             mCurrentPointCollection.add(point);
+                                            if (mDrawingMode == DrawingMode.POLYGON) {
+                                                mCurrentPointCollection.add(point);
+                                            }
+                                        } else {
+                                            if (mDrawingMode == DrawingMode.POLYGON) {
+                                                if (mCurrentPointCollection.size() > 2) {
+                                                    mGraphics.remove(mGraphics.size() - 1);
+                                                }
+                                                mCurrentPointCollection.add(mCurrentPointCollection.size() - 1, point);
+                                            } else {
+                                                mCurrentPointCollection.add(point);
+                                            }
+                                        }
+                                        if (!mIsPolylineStarted) {
+                                            mCurrentLine = new Graphic(new Polyline(mCurrentPointCollection), mPolylinePlacementSymbol);
+                                            mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
+                                            List<Graphic> graphics = new ArrayList<>();
+                                            if (mDrawingMode == DrawingMode.POLYGON) {
+                                                mCurrentPolygon = new Graphic(new Polygon(mCurrentPointCollection), mPolygonFillSymbol);
+                                                mGraphics.add(mCurrentPolygon);
+                                                graphics.add(mCurrentPolygon);
+                                            }
+                                            mGraphics.add(mCurrentLine);
+                                            mGraphics.add(mCurrentPoint);
+                                            graphics.add(mCurrentLine);
+                                            graphics.add(mCurrentPoint);
+                                            queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
+                                            mIsPolylineStarted = true;
+                                        } else {
+                                            addPolylinePoint(point);
+                                            queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POLYLINE_POINT, null));
                                         }
                                     }
-                                    if (!mIsPolylineStarted) {
-                                        mCurrentLine = new Graphic(new Polyline(mCurrentPointCollection), mPolylinePlacementSymbol);
-                                        mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
-                                        List<Graphic> graphics = new ArrayList<>();
-                                        if (mDrawingMode == DrawingMode.POLYGON) {
-                                            mCurrentPolygon = new Graphic(new Polygon(mCurrentPointCollection), mPolygonFillSymbol);
-                                            mGraphics.add(mCurrentPolygon);
-                                            graphics.add(mCurrentPolygon);
-                                        }
-                                        mGraphics.add(mCurrentLine);
-                                        mGraphics.add(mCurrentPoint);
-                                        graphics.add(mCurrentLine);
-                                        graphics.add(mCurrentPoint);
-                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
-                                        mIsPolylineStarted = true;
-                                    } else {
-                                        addPolylinePoint(point);
-                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POLYLINE_POINT, null));
+                                    boolean graphicsIsEmpty = mGraphics.isEmpty();
+                                    if (graphicsWasEmpty && !graphicsIsEmpty) {
+                                        mListener.onClearStateChanged(true);
+                                    } else if (!graphicsWasEmpty && graphicsIsEmpty) {
+                                        mListener.onClearStateChanged(false);
                                     }
+                                    clearStack(mRedoElementStack);
                                 }
-                                boolean graphicsIsEmpty = mGraphics.isEmpty();
-                                if (graphicsWasEmpty && !graphicsIsEmpty) {
-                                    mListener.onClearStateChanged(true);
-                                } else if (!graphicsWasEmpty && graphicsIsEmpty) {
-                                    mListener.onClearStateChanged(false);
-                                }
-                                clearStack(mRedoElementStack);
+                            } catch (InterruptedException | ExecutionException ie) {
+                                ie.printStackTrace();
                             }
-                        } catch (InterruptedException | ExecutionException ie) {
-                            ie.printStackTrace();
+                        }
+                    });
+                }else {
+                    ListenableFuture<Point> pointListenableFuture = sceneView.screenToLocationAsync(screenPoint);
+                    if (layers.contains(xingZhengLayer)) {
+                        try {
+                            Point point = pointListenableFuture.get();
+                            QueryParameters query = new QueryParameters();
+                            query.setGeometry(point);
+                            ListenableFuture<FeatureQueryResult> future = table.queryFeaturesAsync(query);
+                            FeatureQueryResult result = future.get();
+                            Iterator<Feature> iterator = result.iterator();
+                            while (iterator.hasNext()) {
+                                Feature feature = iterator.next();
+                                Log.e(TAG, "----------" + feature.getAttributes().get("name"));
+                                String name = (String) feature.getAttributes().get("name");
+                                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_township_statistics, null);
+                                TextView tvTownshipName = (TextView) view.findViewById(R.id.tv_township_name);
+                                tvTownshipName.setText(name);
+                                new AlertDialog.Builder(MainActivity.this)
+                                        .setView(view)
+                                        .show();
+                            }
+                        } catch (InterruptedException | ExecutionException e1) {
+                            e1.printStackTrace();
                         }
                     }
-                });
-
-                ListenableFuture<Point> pointListenableFuture = sceneView.screenToLocationAsync(screenPoint);
-                if (layers.contains(xingZhengLayer)) {
-                    try {
-                        Point point = pointListenableFuture.get();
-                        QueryParameters query = new QueryParameters();
-                        query.setGeometry(point);
-                        ListenableFuture<FeatureQueryResult> future = table.queryFeaturesAsync(query);
-                        FeatureQueryResult result = future.get();
-                        Iterator<Feature> iterator = result.iterator();
-                        while (iterator.hasNext()) {
-                            Feature feature = iterator.next();
-                            Log.e(TAG, "----------" + feature.getAttributes().get("name"));
-                            String name = (String) feature.getAttributes().get("name");
-                            View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_township_statistics, null);
-                            TextView tvTownshipName = (TextView) view.findViewById(R.id.tv_township_name);
-                            tvTownshipName.setText(name);
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setView(view)
-                                    .show();
+                    final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic1 = sceneView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 10.0, false, 2);
+                    final ListenableFuture<IdentifyGraphicsOverlayResult> personIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(personGraphicsOverlay, screenPoint, 10.0, false, 2);
+                    final ListenableFuture<IdentifyGraphicsOverlayResult> localIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(localGraphicsOverlay, screenPoint, 10.0, false, 2);
+                    final ListenableFuture<IdentifyGraphicsOverlayResult> equipmentIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(equipmentGraphicOverlay, screenPoint, 10.0, false, 2);
+                    identifyGraphic1.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = identifyGraphic1.get();
+                                if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
+                                    int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+                                    showInfo(zIndex);
+                                }
+                            } catch (InterruptedException | ExecutionException e1) {
+                                e1.printStackTrace();
+                            }
                         }
-                    } catch (InterruptedException | ExecutionException e1) {
-                        e1.printStackTrace();
-                    }
+                    });
+                    personIdentifyGraphic.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = personIdentifyGraphic.get();
+                                if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
+                                    int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+                                    showPersonInfo(zIndex);
+                                }
+                            } catch (InterruptedException | ExecutionException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
+                    localIdentifyGraphic.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = localIdentifyGraphic.get();
+                                if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
+                                    int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+                                    showLocalPersonInfo(zIndex);
+                                }
+                            } catch (InterruptedException | ExecutionException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
+                    equipmentIdentifyGraphic.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = equipmentIdentifyGraphic.get();
+                                if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
+                                    int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+                                    showEquipmentInfo(zIndex);
+                                }
+                            } catch (InterruptedException | ExecutionException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
                 }
-                final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic1 = sceneView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 10.0, false, 2);
-                final ListenableFuture<IdentifyGraphicsOverlayResult> personIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(personGraphicsOverlay, screenPoint, 10.0, false, 2);
-                final ListenableFuture<IdentifyGraphicsOverlayResult> localIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(localGraphicsOverlay, screenPoint, 10.0, false, 2);
-                final ListenableFuture<IdentifyGraphicsOverlayResult> equipmentIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(equipmentGraphicOverlay, screenPoint, 10.0, false, 2);
-                identifyGraphic1.addDoneListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = identifyGraphic1.get();
-                            if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
-                                int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                showInfo(zIndex);
-                            }
-                        } catch (InterruptedException | ExecutionException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                });
-                personIdentifyGraphic.addDoneListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = personIdentifyGraphic.get();
-                            if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
-                                int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                showPersonInfo(zIndex);
-                            }
-                        } catch (InterruptedException | ExecutionException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                });
-                localIdentifyGraphic.addDoneListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = localIdentifyGraphic.get();
-                            if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
-                                int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                showLocalPersonInfo(zIndex);
-                            }
-                        } catch (InterruptedException | ExecutionException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                });
-                equipmentIdentifyGraphic.addDoneListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = equipmentIdentifyGraphic.get();
-                            if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
-                                int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                showEquipmentInfo(zIndex);
-                            }
-                        } catch (InterruptedException | ExecutionException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                });
+
 
                 return super.onSingleTapConfirmed(e);
             }
@@ -867,8 +868,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public boolean onScroll(MotionEvent from, MotionEvent to, float distanceX, float distanceY) {
                 if (llUtil.getVisibility() == View.VISIBLE) {
-
-
                     boolean callSuper = true;
                     if (mCurrentPoint != null) {
                         LocationToScreenResult locationToScreenResult = sceneView.locationToScreen((Point) mCurrentPoint.getGeometry());
@@ -968,7 +967,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         WindowManager windowManager = getWindowManager();
         Display display = windowManager.getDefaultDisplay();
         WindowManager.LayoutParams lp = ss.getWindow().getAttributes();
-        lp.width = (int)(display.getWidth()); //设置宽度
+        lp.width = (int) (display.getWidth()); //设置宽度
         ss.getWindow().setAttributes(lp);
         ss.getWindow().setContentView(view);
     }
@@ -979,7 +978,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param zIndex
      */
     private void showEquipmentInfo(int zIndex) {
-        //TODO 根据Id显示设备信息
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_shebi, null);
         final LinearLayout llSheBeiInfo1 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_1);
         final LinearLayout llSheBeiInfo2 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_2);
@@ -1067,7 +1065,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 WindowManager windowManager = getWindowManager();
                 Display display = windowManager.getDefaultDisplay();
                 WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-                lp.width = (int)(display.getWidth()); //设置宽度
+                lp.width = (int) (display.getWidth()); //设置宽度
                 dialog.getWindow().setAttributes(lp);
                 dialog.getWindow().setContentView(view);
             }
@@ -1976,25 +1974,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (llUtilState == false) {
             btnUtil.setText("关闭工具");
             llUtil.setVisibility(View.VISIBLE);
-            disasterGraphics.clear();
-            personGraphics.clear();
-            localGraphics.clear();
-            equipmentGraphics.clear();
-            weathersGraphics.clear();
-            if (!layers.contains(highImageLayer)) {
-                layers.clear();
-                elevationSources.clear();
-                layers.add(lowImageLayer);
-                layers.add(highImageLayer);
-                Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
-                sceneView.setViewpointCamera(camera);
-            }
             llArea.setVisibility(View.INVISIBLE);
             llData.setVisibility(View.INVISIBLE);
             llUtilState = true;
         } else {
             btnUtil.setText("打开工具");
             clear();
+            tvMeasureResult.setText("");
             llUtil.setVisibility(View.INVISIBLE);
             llArea.setVisibility(View.VISIBLE);
             llData.setVisibility(View.VISIBLE);
