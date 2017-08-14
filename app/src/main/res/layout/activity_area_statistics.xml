@@ -77,7 +77,122 @@
 
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
+            <LinearLayout
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_marginBottom="@dimen/margin_neirong"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp">
 
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.5"
+                    android:gravity="left|center"
+                    android:paddingLeft="20dp"
+                    android:text="驻守人员总数:"
+                    android:textColor="@color/color_neirong"
+                    android:textSize="@dimen/leirong_text_size" />
+
+                <TextView
+                    android:id="@+id/tv_zhushou_number"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="left|center"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/color_neirong"
+
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_marginBottom="@dimen/margin_neirong"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.5"
+                    android:gravity="left|center"
+                    android:paddingLeft="20dp"
+                    android:text="专业监测点总数:"
+                    android:textColor="@color/color_neirong"
+                    android:textSize="@dimen/leirong_text_size" />
+
+                <TextView
+                    android:id="@+id/tv_jiance_number"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="left|center"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/color_neirong"
+
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_marginBottom="@dimen/margin_neirong"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.5"
+                    android:gravity="left|center"
+                    android:paddingLeft="20dp"
+                    android:text="片区负责人总数:"
+                    android:textColor="@color/color_neirong"
+                    android:textSize="@dimen/leirong_text_size" />
+
+                <TextView
+                    android:id="@+id/tv_pianqu_number"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="left|center"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/color_neirong"
+
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_marginBottom="@dimen/margin_neirong"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.5"
+                    android:gravity="left|center"
+                    android:paddingLeft="20dp"
+                    android:text="地环站人员总数:"
+                    android:textColor="@color/color_neirong"
+                    android:textSize="@dimen/leirong_text_size" />
+
+                <TextView
+                    android:id="@+id/tv_dhz_number"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="left|center"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/color_neirong"
+
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
             <LinearLayout
                 android:layout_marginTop="@dimen/margin_neirong"
                 android:layout_marginBottom="@dimen/margin_neirong"
@@ -98,7 +213,7 @@
                     />
 
                 <TextView
-                    android:id="@+id/tv_person_number"
+                    android:id="@+id/tv_qcqf_number"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -139,65 +254,7 @@
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_marginTop="@dimen/margin_neirong"
-                android:layout_marginBottom="@dimen/margin_neirong"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:layout_height="0dp">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1.5"
-                    android:layout_height="match_parent"
-                    android:text="乡镇分管领导总数："
-                    android:paddingLeft="20dp"
-                    android:gravity="left|center"
-                    android:textSize="@dimen/leirong_text_size"
-                    android:textColor="@color/color_neirong"
-                    />
-
-                <TextView
-                    android:id="@+id/tv_leader_number"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="left|center"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/color_neirong"
-
-                    android:textSize="@dimen/leirong_text_size" />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_marginTop="@dimen/margin_neirong"
-                android:layout_marginBottom="@dimen/margin_neirong"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:layout_height="0dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1.5"
-                    android:layout_height="match_parent"
-                    android:text="国土所负责人总数："
-                    android:paddingLeft="20dp"
-                    android:gravity="left|center"
-                    android:textSize="@dimen/leirong_text_size"
-                    android:textColor="@color/color_neirong"
-                    />
-
-                <TextView
-                    android:id="@+id/tv_charge_number"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="left|center"
-                    android:text="@string/ceshi"
-                    android:textColor="@color/color_neirong"
-                    android:textSize="@dimen/leirong_text_size" />
-            </LinearLayout>
         </LinearLayout>
 
 

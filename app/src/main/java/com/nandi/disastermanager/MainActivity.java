@@ -24,11 +24,9 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -94,7 +92,6 @@ import com.nandi.disastermanager.entity.DetailPersonInfo;
 import com.nandi.disastermanager.entity.DetailPhoto;
 import com.nandi.disastermanager.entity.DetailPnInfo;
 import com.nandi.disastermanager.entity.DisasterByStateInfo;
-import com.nandi.disastermanager.entity.DisasterDetailInfo;
 import com.nandi.disastermanager.entity.DisasterPoint;
 import com.nandi.disastermanager.entity.PersonInfo;
 import com.nandi.disastermanager.entity.PersonLocation;
@@ -181,16 +178,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RadioButton rbYldzx;
     @BindView(R.id.rb_disaster_point)
     RadioButton rbDisasterPoint;
-    @BindView(R.id.tv_disaster_number)
-    TextView tvDisasterNumber;
-    @BindView(R.id.tv_person_number)
-    TextView tvPersonNumber;
-    @BindView(R.id.tv_equipment_number)
-    TextView tvEquipmentNumber;
-    @BindView(R.id.tv_leader_number)
-    TextView tvLeaderNumber;
-    @BindView(R.id.tv_charge_number)
-    TextView tvChargeNumber;
     @BindView(R.id.rb_qcqf_person)
     RadioButton rbQcqfPerson;
     @BindView(R.id.rb_zs_person)
@@ -260,6 +247,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayout llUtil;
     @BindView(R.id.btn_util)
     Button btnUtil;
+    @BindView(R.id.tv_disaster_number)
+    TextView tvDisasterNumber;
+    @BindView(R.id.tv_zhushou_number)
+    TextView tvZhushouNumber;
+    @BindView(R.id.tv_jiance_number)
+    TextView tvJianceNumber;
+    @BindView(R.id.tv_pianqu_number)
+    TextView tvPianquNumber;
+    @BindView(R.id.tv_dhz_number)
+    TextView tvDhzNumber;
+    @BindView(R.id.tv_qcqf_number)
+    TextView tvQcqfNumber;
+    @BindView(R.id.tv_equipment_number)
+    TextView tvEquipmentNumber;
 
     private boolean llAreaState = false;
     private boolean llDataState = false;
@@ -371,7 +372,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ButterKnife.bind(this);
         context = this;
         areaCode = "500110";
-        initStaData();
         initLocalData();
         initUtilData();
         dianziLayer = new ArcGISMapImageLayer(getResources().getString(R.string.dianziditu_url));
@@ -600,7 +600,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initStaData() {
         waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.statistics_url))
+        OkHttpUtils.get().url(getResources().getString(R.string.base_http) + "statistic/totalNum/3/" + areaCode)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -615,11 +615,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         try {
                             JSONObject object = new JSONObject(response);
                             JSONObject oj = object.getJSONObject("data");
-                            tvDisasterNumber.setText(oj.getString("disasterTotal"));
-                            tvPersonNumber.setText(oj.getString("personnelTotal"));
-                            tvChargeNumber.setText(oj.getString("LandTotal"));
-                            tvEquipmentNumber.setText(oj.getString("equipmentTotal"));
-                            tvLeaderNumber.setText(oj.getString("townshipTotal"));
+                            tvDisasterNumber.setText(oj.getString("disasterNum"));
+                            tvEquipmentNumber.setText(oj.getString("deviceNum"));
+                            tvZhushouNumber.setText(oj.getString("areaProfessorNum"));
+                            tvJianceNumber.setText(oj.getString("projectNum"));
+                            tvPianquNumber.setText(oj.getString("areaAdminNum"));
+                            tvDhzNumber.setText(oj.getString("dihuanzhanNum"));
+                            tvQcqfNumber.setText(oj.getString("humanNum"));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -765,7 +767,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
                     });
-                }else {
+                } else {
                     ListenableFuture<Point> pointListenableFuture = sceneView.screenToLocationAsync(screenPoint);
                     if (layers.contains(xingZhengLayer)) {
                         try {
@@ -1419,7 +1421,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onResponse(Object response, int id) {
-
+                        initStaData();
                     }
                 });
     }
@@ -3547,7 +3549,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static class UndoRedoItem {
 
         // Each item has an event type and optionally an object to use in undoing/redoing the action
-        private UndoRedoItem.Event mEvent;
+        private Event mEvent;
         private Object mElement;
 
         /**
@@ -3556,7 +3558,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          * @param event   the type of event that occured
          * @param element optionally an object to help undo/redo the action
          */
-        public UndoRedoItem(UndoRedoItem.Event event, Object element) {
+        public UndoRedoItem(Event event, Object element) {
             mEvent = event;
             mElement = element;
         }
@@ -3566,7 +3568,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          *
          * @return the type of the event
          */
-        public UndoRedoItem.Event getEvent() {
+        public Event getEvent() {
             return mEvent;
         }
 
