@@ -283,6 +283,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArcGISTiledElevationSource elevationSource;
     private LayerList layers;
     private Surface.ElevationSourceList elevationSources;
+    private List<DisasterPoint> disasterPoints;
     private List<PersonLocation> qcPersons = new ArrayList<>();
     private List<PersonLocation> zsPersons = new ArrayList<>();
     private List<PersonLocation> pqPersons = new ArrayList<>();
@@ -324,6 +325,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ListenableList<Graphic> weathersGraphics;
     private RadioGroup rg;
     private Dialog waitingDialog;
+    private DisasterDetailInfo disasterDetailInfo;
     private ServiceFeatureTable table;
 
     private TabDisasterInfo mTabDisasterInfo;
@@ -969,7 +971,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         WindowManager windowManager = getWindowManager();
         Display display = windowManager.getDefaultDisplay();
         WindowManager.LayoutParams lp = ss.getWindow().getAttributes();
-        lp.width = (int) (display.getWidth()); //设置宽度
+        lp.width = (int)(display.getWidth()); //设置宽度
         ss.getWindow().setAttributes(lp);
         ss.getWindow().setContentView(view);
     }
@@ -980,6 +982,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param zIndex
      */
     private void showEquipmentInfo(int zIndex) {
+        //TODO 根据Id显示设备信息
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_shebi, null);
         final LinearLayout llSheBeiInfo1 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_1);
         final LinearLayout llSheBeiInfo2 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_2);
@@ -1067,7 +1070,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 WindowManager windowManager = getWindowManager();
                 Display display = windowManager.getDefaultDisplay();
                 WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-                lp.width = (int) (display.getWidth()); //设置宽度
+                lp.width = (int)(display.getWidth()); //设置宽度
                 dialog.getWindow().setAttributes(lp);
                 dialog.getWindow().setContentView(view);
             }
@@ -1421,7 +1424,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onResponse(Object response, int id) {
-                        initStaData();
+
                     }
                 });
     }
@@ -3549,7 +3552,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static class UndoRedoItem {
 
         // Each item has an event type and optionally an object to use in undoing/redoing the action
-        private Event mEvent;
+        private UndoRedoItem.Event mEvent;
         private Object mElement;
 
         /**
@@ -3558,7 +3561,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          * @param event   the type of event that occured
          * @param element optionally an object to help undo/redo the action
          */
-        public UndoRedoItem(Event event, Object element) {
+        public UndoRedoItem(UndoRedoItem.Event event, Object element) {
             mEvent = event;
             mElement = element;
         }
@@ -3568,7 +3571,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          *
          * @return the type of the event
          */
-        public Event getEvent() {
+        public UndoRedoItem.Event getEvent() {
             return mEvent;
         }
 
