@@ -35,6 +35,7 @@
     <string name="shilin_qxsy_url">http://183.230.182.149:6081/arcgis/rest/services/Hosted/wanshengshilin_spk1/SceneServer/layers/0</string>
     <string name="shilin_elevation_url">http://183.230.182.149:6080/arcgis/rest/services/ws_shilindsm/ImageServer</string>
     <string name="jinqiao_elevation_url">http://183.230.182.149:6080/arcgis/rest/services/ws_jingqiaodem2/ImageServer</string>
+    <string name="chongqing_url">http://183.230.182.149:6080/arcgis/rest/services/chongqing_map/MapServer</string>
 
 
     <string name="base_http">http://183.230.182.149:18081/springmvc/</string>

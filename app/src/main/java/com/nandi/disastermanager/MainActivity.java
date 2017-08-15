@@ -2026,6 +2026,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     personLocationGraphics.clear();
                 } else {
                     personLocation();
+                    layers.clear();
+                    elevationSources.clear();
+                    layers.add(new ArcGISMapImageLayer(getResources().getString(R.string.chongqing_url)));
                 }
                 break;
             case R.id.iv_search_main:
