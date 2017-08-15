@@ -94,8 +94,11 @@ import com.nandi.disastermanager.entity.DetailPnInfo;
 import com.nandi.disastermanager.entity.DisasterByStateInfo;
 import com.nandi.disastermanager.entity.DisasterDetailInfo;
 import com.nandi.disastermanager.entity.DisasterPoint;
+import com.nandi.disastermanager.entity.PersonDHInfo;
+import com.nandi.disastermanager.entity.PersonFZInfo;
 import com.nandi.disastermanager.entity.PersonInfo;
 import com.nandi.disastermanager.entity.PersonLocation;
+import com.nandi.disastermanager.entity.PersonZSInfo;
 import com.nandi.disastermanager.entity.SearchPerson;
 import com.nandi.disastermanager.entity.SearchPlace;
 import com.nandi.disastermanager.entity.TabDisasterInfo;
@@ -363,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Stack<UndoRedoItem> mUndoElementStack = new Stack<>();
     private Stack<UndoRedoItem> mRedoElementStack = new Stack<>();
     private boolean mVertexDragStarted = false;
-
+    private String personType="-1";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -828,7 +831,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = localIdentifyGraphic.get();
                             if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
                                 int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                showLocalPersonInfo(zIndex);
                             }
                         } catch (InterruptedException | ExecutionException e1) {
                             e1.printStackTrace();
@@ -964,7 +966,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         WindowManager windowManager = getWindowManager();
         Display display = windowManager.getDefaultDisplay();
         WindowManager.LayoutParams lp = ss.getWindow().getAttributes();
-        lp.width = (int)(display.getWidth()); //设置宽度
+        lp.width = (int) (display.getWidth()); //设置宽度
         ss.getWindow().setAttributes(lp);
         ss.getWindow().setContentView(view);
     }
@@ -1063,7 +1065,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 WindowManager windowManager = getWindowManager();
                 Display display = windowManager.getDefaultDisplay();
                 WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-                lp.width = (int)(display.getWidth()); //设置宽度
+                lp.width = (int) (display.getWidth()); //设置宽度
                 dialog.getWindow().setAttributes(lp);
                 dialog.getWindow().setContentView(view);
             }
@@ -1073,126 +1075,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .show();
     }
 
-    private void showLocalPersonInfo(int zIndex) {
-        final String id, type;
-        String s = String.valueOf(zIndex);
-        id = s.substring(0, s.length() - 1);
-        type = String.valueOf(s.charAt(s.length() - 1));
-        Log.d(TAG, "id:" + id + "\ntype:" + type);
-        waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.get_local_person_info))
-                .addParams("id", id)
-                .addParams("type", type)
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        WaitingDialog.closeDialog(waitingDialog);
-                        Toast.makeText(getApplicationContext(), "网络连接失败！", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onResponse(String response, int id) {
-                        WaitingDialog.closeDialog(waitingDialog);
-                        Log.d("limeng", "response:" + response);
-                        Log.d("limeng", "response:" + response);
-                        String online = null;
-                        String dispicture = null;
-                        TextView tvOnline = null;
-                        try {
-                            JSONObject object = new JSONObject(response);
-                            String info = "";
-                            View view = null;
-                            if ("1".equals(type)) {
-                                String name = object.getString("admin_name");
-                                String address = object.getString("area_location");
-                                String mobile = object.getString("real_mobile");
-                                online = object.getString("online");
-                                dispicture = object.getString("admin_pic");
-                                info = "姓名：" + name + "\n"
-                                        + "乡镇：" + address + "\n"
-                                        + "电话：" + mobile;
-                                view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info1, null);
-                                ((TextView) view.findViewById(R.id.tv_1_person_name)).append(name == null ? "" : name);
-                                ((TextView) view.findViewById(R.id.tv_1_person_address)).append(address == null ? "" : address);
-                                ((TextView) view.findViewById(R.id.tv_1_person_mobile)).append(mobile == null ? "" : mobile);
-                                tvOnline = ((TextView) view.findViewById(R.id.tv_1_person_is));
-                            } else if ("3".equals(type)) {
-                                String name = object.getString("name");
-                                String address = object.getString("location");
-                                String tel = object.getString("zhibantel");
-                                String job = object.getString("job");
-                                String mobile = object.getString("iphone");
-                                online = object.getString("online");
-                                dispicture = object.getString("url");
-                                info = "姓名：" + name + "\n"
-                                        + "地址：" + address + "\n"
-                                        + "值班电话：" + tel + "\n"
-                                        + "职位：" + job + "\n"
-                                        + "手机：" + mobile;
-                                view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info2, null);
-                                ((TextView) view.findViewById(R.id.tv_2_person_name)).append(name == null ? "" : name);
-                                ((TextView) view.findViewById(R.id.tv_2_person_address)).append(address == null ? "" : address);
-                                ((TextView) view.findViewById(R.id.tv_2_person_mobile)).append(mobile == null ? "" : mobile);
-                                ((TextView) view.findViewById(R.id.tv_2_person_tel)).append(tel == null ? "" : tel);
-                                ((TextView) view.findViewById(R.id.tv_2_person_job)).append(job == null ? "" : job);
-                                tvOnline = ((TextView) view.findViewById(R.id.tv_2_person_is));
-                            } else if ("2".equals(type)) {
-                                String name = object.getString("disname");
-                                String gender = object.getString("gender");
-                                String age = object.getString("age");
-                                String mobile = object.getString("phone");
-                                String manage_area = object.getString("manage_area");
-                                String address = object.getString("disarea");
-                                String danwei = object.getString("unit_name");
-                                online = object.getString("online");
-                                String Head_url = object.getString("unit_name");
-                                dispicture = object.getString("dispicture");
-                                info = "姓名：" + name + "\n"
-                                        + "性别：" + gender + "\n"
-                                        + "年龄：" + age + "\n"
-                                        + "电话：" + mobile + "\n"
-                                        + "地址：" + address + "\n"
-                                        + "单位：" + danwei + "\n"
-                                        + "管理区域：" + manage_area + "\n";
-                                view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info3, null);
-                                ((TextView) view.findViewById(R.id.tv_3_person_name)).append(name == null ? "" : name);
-                                ((TextView) view.findViewById(R.id.tv_3_person_gender)).append(gender == null ? "" : gender);
-                                ((TextView) view.findViewById(R.id.tv_3_person_age)).append(age == null ? "" : age);
-                                ((TextView) view.findViewById(R.id.tv_3_person_mobile)).append(mobile == null ? "" : mobile);
-                                ((TextView) view.findViewById(R.id.tv_3_person_address)).append(address == null ? "" : address);
-                                ((TextView) view.findViewById(R.id.tv_3_person_danwei)).append(danwei == null ? "" : danwei);
-                                ((TextView) view.findViewById(R.id.tv_3_person_manage_area)).append(manage_area == null ? "" : manage_area);
-                                tvOnline = ((TextView) view.findViewById(R.id.tv_3_person_is));
-                            }
-                            if ("0".equals(online)) {
-                                tvOnline.append("不在线");
-                                tvOnline.setTextColor(Color.RED);
-                            } else {
-                                tvOnline.append("在线");
-                                tvOnline.setTextColor(Color.GREEN);
-                            }
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setView(view)
-                                    .show();
-                            Log.d("limeng", "dispicture=" + dispicture);
-                            Glide.with(MainActivity.this)
-                                    .load("http://183.230.108.112:9077/cqapp/" + dispicture)
-                                    .placeholder(R.mipmap.downloading)
-                                    .thumbnail(0.1f)
-                                    .error(R.mipmap.download_pass)
-                                    .into((ImageView) view.findViewById(R.id.dialog_image));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-    }
 
     private void showPersonInfo(int zIndex) {
+        String http="";
+        switch (personType){
+            case "1":
+                http=getResources().getString(R.string.qcqf_man_id)+zIndex;
+                break;
+            case "2":
+                http=getResources().getString(R.string.zs_man_id)+zIndex;
+                break;
+            case "3":
+                http=getResources().getString(R.string.fzr_man_id)+zIndex;
+                break;
+            case "4":
+                http=getResources().getString(R.string.dh_man_id)+areaCode;
+                break;
+        }
         waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.get_person_info))
-                .addParams("id", zIndex + "")
+        OkHttpUtils.get().url(getResources().getString(R.string.base_http)+http)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -1205,63 +1106,163 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onResponse(String response, int id) {
                         WaitingDialog.closeDialog(waitingDialog);
-                        Gson gson = new Gson();
-                        Type type = new TypeToken<List<PersonInfo>>() {
-                        }.getType();
-                        List<PersonInfo> personInfos = gson.fromJson(response, type);
-                        PersonInfo personInfo = personInfos.get(0);
-                        Log.d(TAG, "人员信息：" + personInfo);
-                        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info, null);
-                        ((TextView) view.findViewById(R.id.tv_0_person_name)).append(personInfo.getName() == null ? "" : personInfo.getName());
-                        ((TextView) view.findViewById(R.id.tv_0_person_work)).append(personInfo.getWork() == null ? "" : personInfo.getWork());
-                        String polics = "";
-                        switch (personInfo.getPolics() == null ? -1 : Integer.parseInt(personInfo.getPolics())) {
-                            case 1:
-                                polics = "中共党员";
+                        switch (personType){
+                            case "1":
+                                Gson gson = new Gson();
+                                PersonInfo personInfos = gson.fromJson(response, PersonInfo.class);
+                                if (personInfos.getData()==null){
+                                    return;
+                                }
+                                PersonInfo.DataBean personInfo = personInfos.getData();
+                                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info, null);
+                                ((TextView) view.findViewById(R.id.tv_0_person_name)).append(personInfo.getName() == null ? "" : personInfo.getName());
+                                ((TextView) view.findViewById(R.id.tv_0_person_work)).append(personInfo.getWork() == null ? "" : personInfo.getWork());
+                                String polics = "";
+                                switch (personInfo.getPolics() == null ? -1 : Integer.parseInt(personInfo.getPolics())) {
+                                    case 1:
+                                        polics = "中共党员";
+                                        break;
+                                    case 2:
+                                        polics = "中共预备党员";
+                                        break;
+                                    case 3:
+                                        polics = "共青团员";
+                                        break;
+                                    case 4:
+                                        polics = "群众";
+                                        break;
+                                    case 5:
+                                        polics = "民革党员";
+                                        break;
+                                    case 6:
+                                        polics = "民盟盟员";
+                                        break;
+                                    case 7:
+                                        polics = "民建会员";
+                                        break;
+                                }
+                                ((TextView) view.findViewById(R.id.tv_0_person_polics)).append(polics);
+                                ((TextView) view.findViewById(R.id.tv_0_person_nation)).append(personInfo.getNation() == null ? "" : personInfo.getNation());
+                                ((TextView) view.findViewById(R.id.tv_0_person_address)).append(personInfo.getAddress() == null ? "" : personInfo.getAddress());
+                                TextView tvOnline = ((TextView) view.findViewById(R.id.tv_0_person_is));
+                                if (personInfo.getOnlineStatus() == null|personInfo.getOnlineStatus() =="0") {
+                                    tvOnline.append("不在线");
+                                    tvOnline.setTextColor(Color.RED);
+                                } else {
+                                    tvOnline.append("在线");
+                                    tvOnline.setTextColor(Color.GREEN);
+                                }
+                                ((TextView) view.findViewById(R.id.tv_0_person_ismonitor)).append(personInfo.getIsMonitor() == 1 ? "监测负责人" : "监测人");
+                                ((TextView) view.findViewById(R.id.tv_0_person_brithday)).append(personInfo.getBirthday() == null ? "" : personInfo.getBirthday());
+                                ((TextView) view.findViewById(R.id.tv_0_person_realmobile)).append(personInfo.getRealMobile() == null ? "" : personInfo.getRealMobile());
+                                ((TextView) view.findViewById(R.id.tv_0_person_mobile)).append(personInfo.getMobile() == null ? "" : personInfo.getMobile());
+                                new AlertDialog.Builder(MainActivity.this)
+                                        .setView(view)
+                                        .show();
+                                //http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=7&path=wansheng/jinqiaozhen/zhuyunhua.jpg
+                                Glide.with(MainActivity.this)
+                                        .load("http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=7&path=" + personInfo.getHeadUrl())
+                                        .placeholder(R.mipmap.downloading)
+                                        .thumbnail(0.1f)
+                                        .error(R.mipmap.download_pass)
+                                        .into((ImageView) view.findViewById(R.id.dialog_image));
                                 break;
-                            case 2:
-                                polics = "中共预备党员";
+                            case "2":
+                                Gson gson2 = new Gson();
+                                PersonZSInfo mPersonZSInfo = gson2.fromJson(response, PersonZSInfo.class);
+                                if (mPersonZSInfo.getData()==null){
+                                    return;
+                                }
+                                PersonZSInfo.DataBean mPersonZSInfoData = mPersonZSInfo.getData();
+                                view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info1, null);
+                                ((TextView) view.findViewById(R.id.tv_1_person_name)).append(mPersonZSInfoData.getDisname());
+                                ((TextView) view.findViewById(R.id.tv_1_person_address)).append(mPersonZSInfoData.getDisarea());
+                                ((TextView) view.findViewById(R.id.tv_1_person_mobile)).append(mPersonZSInfoData.getPhone());
+                                TextView tvOnline1 = (TextView) view.findViewById(R.id.tv_1_person_is);
+                                if (mPersonZSInfoData.getOnlineStatus() == null|mPersonZSInfoData.getOnlineStatus() =="0") {
+                                    tvOnline1.append("不在线");
+                                    tvOnline1.setTextColor(Color.RED);
+                                } else {
+                                    tvOnline1.append("在线");
+                                    tvOnline1.setTextColor(Color.GREEN);
+                                }
+                                //http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=2&path=wansheng/baowei.jpg
+                                Glide.with(MainActivity.this)
+                                        .load("http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=2&path=" + mPersonZSInfoData.getDispicture())
+                                        .placeholder(R.mipmap.downloading)
+                                        .thumbnail(0.1f)
+                                        .error(R.mipmap.download_pass)
+                                        .into((ImageView) view.findViewById(R.id.dialog_image));
+                                new AlertDialog.Builder(MainActivity.this)
+                                        .setView(view)
+                                        .show();
                                 break;
-                            case 3:
-                                polics = "共青团员";
+                            case "3":
+                                Gson gson3 = new Gson();
+                                PersonFZInfo mPersonFZInfo = gson3.fromJson(response, PersonFZInfo.class);
+                                if (mPersonFZInfo.getData()==null){
+                                    return;
+                                }
+                                PersonFZInfo.DataBean mPersonFZInfoData = mPersonFZInfo.getData().get(0);
+                                view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info2, null);
+                                ((TextView) view.findViewById(R.id.tv_2_person_name)).append(mPersonFZInfoData.getAdmin_name());
+                                ((TextView) view.findViewById(R.id.tv_2_person_address)).append(mPersonFZInfoData.getArea_location());
+                                ((TextView) view.findViewById(R.id.tv_2_person_mobile)).append(mPersonFZInfoData.getReal_mobile());
+                                ((TextView) view.findViewById(R.id.tv_2_person_tel)).append(mPersonFZInfoData.getTelephone());
+                                ((TextView) view.findViewById(R.id.tv_2_person_job)).append("片区负责人");
+                                TextView tvOnline2 = ((TextView) view.findViewById(R.id.tv_2_person_is));
+                                if (mPersonFZInfoData.getOnlineStatus() == null|mPersonFZInfoData.getOnlineStatus() =="0") {
+                                    tvOnline2.append("不在线");
+                                    tvOnline2.setTextColor(Color.RED);
+                                } else {
+                                    tvOnline2.append("在线");
+                                    tvOnline2.setTextColor(Color.GREEN);
+                                }
+                                //http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=1&path=wansheng/huoyuenan.jpg
+                                Glide.with(MainActivity.this)
+                                        .load("http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=1&path=" + mPersonFZInfoData.getAdmin_pic())
+                                        .placeholder(R.mipmap.downloading)
+                                        .thumbnail(0.1f)
+                                        .error(R.mipmap.download_pass)
+                                        .into((ImageView) view.findViewById(R.id.dialog_image));
+                                new AlertDialog.Builder(MainActivity.this)
+                                        .setView(view)
+                                        .show();
                                 break;
-                            case 4:
-                                polics = "群众";
-                                break;
-                            case 5:
-                                polics = "民革党员";
-                                break;
-                            case 6:
-                                polics = "民盟盟员";
-                                break;
-                            case 7:
-                                polics = "民建会员";
+                            case "4":
+                                Gson gson4 = new Gson();
+                                PersonDHInfo mPersonDHInfo = gson4.fromJson(response, PersonDHInfo.class);
+                                if (mPersonDHInfo.getData()==null){
+                                    return;
+                                }
+                                PersonDHInfo.DataBean mPersonDHInfoData = mPersonDHInfo.getData().get(0);
+                                view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_info3, null);
+                                ((TextView) view.findViewById(R.id.tv_3_person_name)).append(mPersonDHInfoData.getName());
+                                ((TextView) view.findViewById(R.id.tv_3_person_mobile)).append(mPersonDHInfoData.getIphone());
+                                ((TextView) view.findViewById(R.id.tv_3_person_job)).append(mPersonDHInfoData.getJob());
+                                ((TextView) view.findViewById(R.id.tv_3_person_danwei)).append(mPersonDHInfoData.getLocation());
+                                ((TextView) view.findViewById(R.id.tv_3_person_manage_area)).append(mPersonDHInfoData.getArea_name());
+                                TextView tvOnline3 = ((TextView) view.findViewById(R.id.tv_3_person_is));
+                                if (mPersonDHInfoData.getOnlineStatus() == null|mPersonDHInfoData.getOnlineStatus() =="0") {
+                                    tvOnline3.append("不在线");
+                                    tvOnline3.setTextColor(Color.RED);
+                                } else {
+                                    tvOnline3.append("在线");
+                                    tvOnline3.setTextColor(Color.GREEN);
+                                }
+                                //http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=4&path=wansheng/mulianqing.jpg
+                                Glide.with(MainActivity.this)
+                                        .load("http://183.230.182.149:18080/springmvc-background/downloadImgOrVideo.do?type=4&path=" + mPersonDHInfoData.getUrl())
+                                        .placeholder(R.mipmap.downloading)
+                                        .thumbnail(0.1f)
+                                        .error(R.mipmap.download_pass)
+                                        .into((ImageView) view.findViewById(R.id.dialog_image));
+                                new AlertDialog.Builder(MainActivity.this)
+                                        .setView(view)
+                                        .show();
                                 break;
                         }
-                        ((TextView) view.findViewById(R.id.tv_0_person_polics)).append(polics);
-                        ((TextView) view.findViewById(R.id.tv_0_person_nation)).append(personInfo.getNation() == null ? "" : personInfo.getNation());
-                        ((TextView) view.findViewById(R.id.tv_0_person_address)).append(personInfo.getAddress() == null ? "" : personInfo.getAddress());
-                        TextView tvOnline = ((TextView) view.findViewById(R.id.tv_0_person_is));
-                        if (personInfo.getOnline() == 0) {
-                            tvOnline.append("不在线");
-                            tvOnline.setTextColor(Color.RED);
-                        } else {
-                            tvOnline.append("在线");
-                            tvOnline.setTextColor(Color.GREEN);
-                        }
-                        ((TextView) view.findViewById(R.id.tv_0_person_ismonitor)).append(personInfo.getIs_monitor() == 1 ? "监测负责人" : "监测人");
-                        ((TextView) view.findViewById(R.id.tv_0_person_brithday)).append(personInfo.getBrithday() == null ? "" : personInfo.getBrithday());
-                        ((TextView) view.findViewById(R.id.tv_0_person_realmobile)).append(personInfo.getReal_mobile() == null ? "" : personInfo.getReal_mobile());
-                        ((TextView) view.findViewById(R.id.tv_0_person_mobile)).append(personInfo.getMobile() == null ? "" : personInfo.getMobile());
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setView(view)
-                                .show();
-                        Glide.with(MainActivity.this)
-                                .load("http://183.230.108.112:9077/cqapp/" + personInfo.getHead_url())
-                                .placeholder(R.mipmap.downloading)
-                                .thumbnail(0.1f)
-                                .error(R.mipmap.download_pass)
-                                .into((ImageView) view.findViewById(R.id.dialog_image));
+
                     }
                 });
     }
@@ -1914,7 +1915,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (llMoreStateBefore != 3) {
                     layers.clear();
                     elevationSources.clear();
-                    initPersonData();
+
                     layers.add(dianziLayer);
                     Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
                     sceneView.setViewpointCamera(camera);
@@ -1972,11 +1973,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (llUtilState == false) {
             btnUtil.setText("关闭工具");
             llUtil.setVisibility(View.VISIBLE);
-            disasterGraphics.clear();
-            personGraphics.clear();
-            localGraphics.clear();
-            equipmentGraphics.clear();
-            weathersGraphics.clear();
+            clearAllGraphics();
             if (!layers.contains(highImageLayer)) {
                 layers.clear();
                 elevationSources.clear();
@@ -2223,9 +2220,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void initPersonData() {
+    /**
+     * 四重人员 type 1:群测群防 2：驻守 3:负责人 4：地环站
+     */
+    private void initPersonData(final String type,String http) {
         waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.get_person_location))
+        OkHttpUtils.get().url(getResources().getString(R.string.base_http) + http + areaCode)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -2237,18 +2237,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onResponse(String response, int id) {
                         WaitingDialog.closeDialog(waitingDialog);
+                        Log.d("limeng", "response:" + response);
                         try {
                             JSONObject object = new JSONObject(response);
-                            JSONObject oj = object.getJSONObject("data");
-                            JSONArray array = oj.getJSONArray("群测群防人");
-                            for (int i = 0; i < array.length() - 1; i++) {
+                            JSONArray array = object.getJSONArray("data");
+                            // TODO: 2017/8/14
+                            qcPersons.clear();
+                            for (int i = 0; i < array.length(); i++) {
                                 JSONObject o = array.getJSONObject(i);
                                 PersonLocation personLocation = new PersonLocation();
-                                personLocation.setId(o.getInt("id"));
-                                personLocation.setLat(o.getString("dis_lat"));
-                                personLocation.setLon(o.getString("dis_lon"));
+                                switch (type) {
+                                    case "1":
+                                        personLocation.setId(o.getInt("dis_id"));
+                                        personLocation.setLat(o.getString("dis_lat"));
+                                        personLocation.setLon(o.getString("dis_lon"));
+                                        break;
+                                    case "2":
+                                        personLocation.setId(o.getInt("id"));
+                                        personLocation.setLat(o.getString("lat"));
+                                        personLocation.setLon(o.getString("lng"));
+                                        break;
+                                    case "3":
+                                        personLocation.setId(o.getInt("id"));
+                                        personLocation.setLat(o.getString("lat"));
+                                        personLocation.setLon(o.getString("lon"));
+                                        break;
+                                    case "4":
+                                        personLocation.setId(o.getInt("id"));
+                                        personLocation.setLat(o.getString("lat"));
+                                        personLocation.setLon(o.getString("lng"));
+                                        break;
+                                }
                                 qcPersons.add(personLocation);
                             }
+                            Log.d("limeng","qcPersons.size();"+qcPersons.size());
                             setPersonGraphic();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -2258,6 +2280,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setPersonGraphic() {
+        qcGraphics.clear();
         BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.person);
         final PictureMarkerSymbol symbol = new PictureMarkerSymbol(drawable);
         symbol.setWidth(30);
@@ -2273,6 +2296,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     graphic.setZIndex(disasterPoint.getId());
                     qcGraphics.add(graphic);
                 }
+                updatePersonGraphic(qcGraphics);
 
             }
 
@@ -2380,6 +2404,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+    private  void clearAllGraphics(){
+         disasterGraphics.clear();
+         personGraphics.clear();
+         localGraphics.clear();
+         equipmentGraphics.clear();
+         weathersGraphics.clear();
+    }
+
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
         int id = compoundButton.getId();
@@ -2406,7 +2439,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Log.d("limeng", "mDisasterType=" + mDisasterType);
                     initDisasterData(areaCode);
                 } else {
-                    disasterGraphics.clear();
+                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_state_point_0://已销号
@@ -2415,7 +2448,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Log.d("limeng", "mDisasterType=" + mDisasterType);
                     initDisasterDataByState(areaCode, 0 + "");
                 } else {
-                    disasterGraphics.clear();
+                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_state_point_2://已治理灾害点
@@ -2424,7 +2457,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Log.d("limeng", "mDisasterType=" + mDisasterType);
                     initDisasterDataByState(areaCode, 2 + "");
                 } else {
-                    disasterGraphics.clear();
+                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_state_point_3://已搬迁灾害点
@@ -2433,7 +2466,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Log.d("limeng", "mDisasterType=" + mDisasterType);
                     initDisasterDataByState(areaCode, 3 + "");
                 } else {
-                    disasterGraphics.clear();
+                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_state_point_1://库岸调查
@@ -2442,40 +2475,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Log.d("limeng", "mDisasterType=" + mDisasterType);
                     initDisasterDataByState(areaCode, 1 + "");
                 } else {
-                    disasterGraphics.clear();
+                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_qcqf_person:
                 if (b) {
-                    updatePersonGraphic(qcGraphics);
+                    personType="1";
+                    initPersonData("1",getResources().getString(R.string.qcqf_man));
                     setPieChartData("71", "在线率");
                 } else {
-                    personGraphics.clear();
-
+                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_zs_person:
                 if (b) {
-                    updateLocalGraphic(zsGraphics);
+                    personType="2";
+                    initPersonData("2",getResources().getString(R.string.zs_man));
                     setPieChartData("64", "在线率");
                 } else {
-                    localGraphics.removeAll(zsGraphics);
+                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_pq_person:
                 if (b) {
-                    updateLocalGraphic(pqGraphics);
+                    personType="3";
+                    initPersonData("3",getResources().getString(R.string.fzr_man));
                     setPieChartData("90", "在线率");
                 } else {
-                    localGraphics.removeAll(pqGraphics);
+                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_dhz_person:
                 if (b) {
-                    updateLocalGraphic(dhzGraphics);
+                    personType="4";
+                    initPersonData("4",getResources().getString(R.string.dh_man));
                     setPieChartData("35", "在线率");
                 } else {
-                    localGraphics.removeAll(dhzGraphics);
+                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_equipment_jiance:
@@ -2483,7 +2519,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     updateEquipmentGraphic(jianceGraphics);
                     setPieChartData("88", "在线率");
                 } else {
-                    equipmentGraphics.clear();
+                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_jinqiao:
@@ -2526,7 +2562,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (b) {
                     updateWeather(weatherGraphics);
                 } else {
-                    weathersGraphics.clear();
                 }
                 break;
         }
@@ -2607,6 +2642,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         localGraphics.addAll(g);
     }
 
+    /**
+     * 更新人员
+     * @param q
+     */
     private void updatePersonGraphic(List<Graphic> q) {
         personGraphics.addAll(q);
     }

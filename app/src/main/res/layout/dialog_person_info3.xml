@@ -36,6 +36,7 @@
                 android:textSize="18sp" />
 
             <TextView
+                android:visibility="gone"
                 android:id="@+id/tv_3_person_gender"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -48,6 +49,7 @@
                 android:textSize="18sp" />
 
             <TextView
+                android:visibility="gone"
                 android:id="@+id/tv_3_person_age"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -114,13 +116,13 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tv_3_person_address"
+            android:id="@+id/tv_3_person_job"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginLeft="20dp"
             android:layout_weight="1"
             android:gravity="left|center"
-            android:text="地址："
+            android:text="职位："
             android:textColor="#000000"
             android:textSize="18sp" />
 
