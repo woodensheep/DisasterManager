@@ -58,4 +58,17 @@
 
 
     <string name="xingzheng_image_url">http://183.230.182.149:6082/arcgis/rest/services/ws_xzq/MapServer</string>
+
+    <!--群测群防-->
+    <string name="qcqf_man">/humaninfo/humans/</string>
+    <string name="zs_man">/areaprofessor/areaprofessor/</string>
+    <string name="fzr_man">/areaadmin/findAllAreaAdmin/</string>
+    <string name="dh_man">/dihuanzhanman/finddihuanzhanById/</string>
+
+    <string name="qcqf_man_id">/humaninfo/human/</string>
+    <string name="zs_man_id">/areaprofessor/professorbyid/</string>
+    <string name="fzr_man_id">/areaadmin/findAreaAdminById/</string>
+    <string name="dh_man_id">/dihuanzhanman/finddihuanzhanById/</string>
+
+
 </resources>
