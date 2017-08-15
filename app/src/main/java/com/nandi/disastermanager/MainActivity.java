@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -265,6 +266,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView tvQcqfNumber;
     @BindView(R.id.tv_equipment_number)
     TextView tvEquipmentNumber;
+    @BindView(R.id.iv_location)
+    ImageView ivLocation;
 
     private boolean llAreaState = false;
     private boolean llDataState = false;
@@ -370,6 +373,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Stack<UndoRedoItem> mUndoElementStack = new Stack<>();
     private Stack<UndoRedoItem> mRedoElementStack = new Stack<>();
     private boolean mVertexDragStarted = false;
+    private List<String> personList = new ArrayList<>();
+    private List<String> personImei = new ArrayList<>();
+    private ArrayAdapter personAdapter;
+
     private String personType="-1";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -636,6 +643,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setListeners() {
+        ivLocation.setOnClickListener(this);
         ivSearchMain.setOnClickListener(this);
         btnUtil.setOnClickListener(this);
         llXingzheng.setOnClickListener(this);
@@ -1427,7 +1435,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onResponse(Object response, int id) {
-
+                        initStaData();
                     }
                 });
     }
@@ -1872,6 +1880,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.iv_location:
+                personLocation();
+                break;
             case R.id.iv_search_main:
                 ToSearch();
                 break;
@@ -1977,6 +1988,182 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
+    private void personLocation() {
+        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_person_location, null);
+        RadioGroup rg = (RadioGroup) view.findViewById(R.id.rg_person_location);
+        RadioButton rbQcqf = (RadioButton) view.findViewById(R.id.rb_qcqf_location);
+        RadioButton rbZhushou = (RadioButton) view.findViewById(R.id.rb_zsdz_location);
+        RadioButton rbPianqu = (RadioButton) view.findViewById(R.id.rb_pqfz_location);
+        RadioButton rbZhihui = (RadioButton) view.findViewById(R.id.rb_zhzx_location);
+        RadioButton rbLocation = (RadioButton) view.findViewById(R.id.rb_person_location);
+        TextView tvStart = (TextView) view.findViewById(R.id.tv_start_time);
+        TextView tvEnd = (TextView) view.findViewById(R.id.tv_end_time);
+        Spinner spList = (Spinner) view.findViewById(R.id.sp_person_list);
+        Button btnSearch = (Button) view.findViewById(R.id.btn_location_search);
+        final LinearLayout llTime = (LinearLayout) view.findViewById(R.id.ll_check_time);
+        MyOnClickListener listener = new MyOnClickListener(rbQcqf, rbZhushou, rbPianqu, rbZhihui, tvStart, tvEnd, rbLocation, spList);
+        rbQcqf.setOnClickListener(listener);
+        rbZhushou.setOnClickListener(listener);
+        rbPianqu.setOnClickListener(listener);
+        rbZhihui.setOnClickListener(listener);
+        btnSearch.setOnClickListener(listener);
+        personAdapter = new ArrayAdapter(context, android.R.layout.simple_spinner_item, personList);
+        personAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spList.setAdapter(personAdapter);
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
+                switch (i) {
+                    case R.id.rb_person_location:
+                        llTime.setVisibility(View.GONE);
+                        break;
+                    case R.id.rb_person_line:
+                        llTime.setVisibility(View.VISIBLE);
+                        break;
+                }
+            }
+        });
+        new AlertDialog.Builder(MainActivity.this)
+                .setView(view)
+                .show();
+    }
+
+    private class MyOnClickListener implements View.OnClickListener {
+        RadioButton rbQcqf, rbZsdz, rbPqfz, rbZhzx, rbLocation;
+        TextView tvStart, tvEnd;
+        Spinner spList;
+        int type;
+
+        MyOnClickListener(RadioButton rbQcqf, RadioButton rbZsdz, RadioButton rbPqfz, RadioButton rbZhzx, TextView tvStart, TextView tvEnd, RadioButton rbLocation, Spinner spList) {
+            this.rbQcqf = rbQcqf;
+            this.rbZsdz = rbZsdz;
+            this.rbPqfz = rbPqfz;
+            this.rbZhzx = rbZhzx;
+            this.tvStart = tvStart;
+            this.tvEnd = tvEnd;
+            this.rbLocation = rbLocation;
+            this.spList = spList;
+        }
+
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.rb_qcqf_location:
+                    rbQcqf.setChecked(true);
+                    rbZsdz.setChecked(false);
+                    rbPqfz.setChecked(false);
+                    rbZhzx.setChecked(false);
+                    getPersonList(1, areaCode);
+                    break;
+                case R.id.rb_zsdz_location:
+                    rbQcqf.setChecked(false);
+                    rbZsdz.setChecked(true);
+                    rbPqfz.setChecked(false);
+                    rbZhzx.setChecked(false);
+                    getPersonList(2, areaCode);
+                    break;
+                case R.id.rb_pqfz_location:
+                    rbQcqf.setChecked(false);
+                    rbZsdz.setChecked(false);
+                    rbPqfz.setChecked(true);
+                    rbZhzx.setChecked(false);
+                    getPersonList(3, areaCode);
+                    break;
+                case R.id.rb_zhzx_location:
+                    rbQcqf.setChecked(false);
+                    rbZsdz.setChecked(false);
+                    rbPqfz.setChecked(false);
+                    rbZhzx.setChecked(true);
+                    getPersonList(4, "500000");
+                    break;
+                case R.id.tv_start_time:
+                    break;
+                case R.id.tv_end_time:
+                    break;
+                case R.id.btn_location_search:
+                    if (rbQcqf.isChecked()) {
+                        type = 1;
+                    } else if (rbZsdz.isChecked()) {
+                        type = 2;
+                    } else if (rbPqfz.isChecked()) {
+                        type = 3;
+                    } else {
+                        type = 4;
+                    }
+                    if (rbLocation.isChecked()) {
+                        getPersonLocation(personImei.get(spList.getSelectedItemPosition()), type);
+                    } else {
+                        getPersonLine();
+                    }
+                    break;
+            }
+        }
+
+        private void getPersonLocation(String s, int type) {
+            OkHttpUtils.get().url(getResources().getString(R.string.base_http) + "location/manLastLocaton/" + s + "/" + type)
+                    .build()
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onError(Call call, Exception e, int id) {
+                            Toast.makeText(context, "服务器连接失败！", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onResponse(String response, int id) {
+                            String time,lon,lat,pic,name,tel;
+                            try {
+                                JSONObject object =new JSONObject(response);
+                                JSONArray array=object.getJSONArray("data");
+                                JSONObject oj= (JSONObject) array.get(0);
+                                time=oj.getString("time");
+                                lon=oj.getString("lon");
+                                lat=oj.getString("lat");
+                                pic=oj.getString("head_pic");
+                                name=oj.getString("name");
+                                tel=oj.getString("tel");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+        }
+
+        private void getPersonList(int type, String code) {
+            personList.clear();
+            OkHttpUtils.get().url(getResources().getString(R.string.base_http) + "location/manNameByType/" + code + "/" + type)
+                    .build()
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onError(Call call, Exception e, int id) {
+                            Toast.makeText(context, "服务器连接失败！", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onResponse(String response, int id) {
+                            try {
+                                JSONObject object = new JSONObject(response);
+                                JSONArray data = (JSONArray) object.get("data");
+                                for (int i = 0; i < data.length(); i++) {
+                                    JSONObject o = data.getJSONObject(i);
+                                    personList.add(o.getString("name"));
+                                    personImei.add(o.getString("imei"));
+                                }
+                                personAdapter.notifyDataSetChanged();
+                                Log.d(TAG, "personList:" + personList);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+        }
+
+    }
+
+    private void getPersonLine() {
+
+    }
+
 
     private void setUtilBack() {
         if (llUtilState == false) {
@@ -3598,7 +3785,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static class UndoRedoItem {
 
         // Each item has an event type and optionally an object to use in undoing/redoing the action
-        private UndoRedoItem.Event mEvent;
+        private Event mEvent;
         private Object mElement;
 
         /**
@@ -3607,7 +3794,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          * @param event   the type of event that occured
          * @param element optionally an object to help undo/redo the action
          */
-        public UndoRedoItem(UndoRedoItem.Event event, Object element) {
+        public UndoRedoItem(Event event, Object element) {
             mEvent = event;
             mElement = element;
         }
@@ -3617,7 +3804,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          *
          * @return the type of the event
          */
-        public UndoRedoItem.Event getEvent() {
+        public Event getEvent() {
             return mEvent;
         }
 

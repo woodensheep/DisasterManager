@@ -40,16 +40,23 @@
         android:layout_alignParentRight="true"
         android:layout_margin="10dp"
         android:src="@drawable/compass" />
-
+    <ImageView
+        android:id="@+id/iv_location"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/iv_luopan"
+        android:src="@drawable/location"/>
 
     <ImageView
         android:id="@+id/iv_search_main"
         android:layout_width="40dp"
-        android:layout_below="@+id/iv_luopan"
+        android:layout_below="@+id/iv_location"
         android:layout_height="40dp"
         android:layout_alignParentRight="true"
         android:layout_margin="10dp"
-        android:src="@mipmap/ic_search" />
+        android:src="@drawable/search_icon" />
 
     <Button
         android:id="@+id/btn_util"

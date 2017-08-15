@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RadioGroup
+        android:id="@+id/rg_person_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rb_person_location"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginRight="30dp"
+            android:layout_weight="1"
+            android:background="@drawable/radiobtn_selector"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            android:text="人员定位查询"
+            android:textColor="@color/white"
+            android:textSize="25sp" />
+
+        <RadioButton
+            android:id="@+id/rb_person_line"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/radiobtn_selector"
+            android:button="@null"
+            android:gravity="center"
+            android:text="人员轨迹查询"
+            android:textColor="@color/white"
+            android:textSize="25sp" />
+
+
+    </RadioGroup>
+
+
+    <LinearLayout
+        android:id="@+id/ll_person_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rb_qcqf_location"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/search_rb_selector"
+                android:button="@null"
+                android:gravity="center"
+                android:text="群测群防人员"
+                android:textColor="@color/white"
+                android:layout_marginRight="20dp"
+                android:textSize="20sp" />
+
+            <RadioButton
+                android:id="@+id/rb_zsdz_location"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/search_rb_selector"
+                android:button="@null"
+                android:gravity="center"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1"
+                android:text="驻守地质队员"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+
+            <RadioButton
+                android:id="@+id/rb_pqfz_location"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/search_rb_selector"
+                android:button="@null"
+                android:gravity="center"
+                android:layout_marginRight="20dp"
+                android:text="片区负责人员"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+            <RadioButton
+                android:id="@+id/rb_zhzx_location"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/search_rb_selector"
+                android:button="@null"
+                android:layout_marginLeft="20dp"
+                android:gravity="center"
+                android:text="指挥中心人员"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_check_time"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:text="开始时间:"/>
+                <TextView
+                    android:id="@+id/tv_start_time"
+                    android:layout_width="wrap_content"
+                    android:background="@drawable/textview_background"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="20dp"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:textSize="20sp"
+                    android:layout_height="wrap_content"
+                    android:text="结束时间:"/>
+                <TextView
+                    android:id="@+id/tv_end_time"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="20dp"
+                    android:background="@drawable/textview_background"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/sp_person_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginRight="20dp"
+                >
+
+            </Spinner>
+
+            <Button
+                android:id="@+id/btn_location_search"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1"
+                android:background="@drawable/search_selector"
+                android:text="搜索"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+</LinearLayout>
