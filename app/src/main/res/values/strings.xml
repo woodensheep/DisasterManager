@@ -70,5 +70,7 @@
     <string name="fzr_man_id">/areaadmin/findAreaAdminById/</string>
     <string name="dh_man_id">/dihuanzhanman/finddihuanzhanById/</string>
 
+    <string name="kuangxuan">/kuangxuan/info/</string>
+
 
 </resources>

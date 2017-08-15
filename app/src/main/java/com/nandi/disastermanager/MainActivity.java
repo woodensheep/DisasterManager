@@ -50,9 +50,11 @@ import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.LinearUnit;
 import com.esri.arcgisruntime.geometry.LinearUnitId;
+import com.esri.arcgisruntime.geometry.PartCollection;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.PointCollection;
 import com.esri.arcgisruntime.geometry.Polygon;
+import com.esri.arcgisruntime.geometry.PolygonBuilder;
 import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.ArcGISMapImageLayer;
@@ -95,10 +97,12 @@ import com.nandi.disastermanager.entity.DetailPnInfo;
 import com.nandi.disastermanager.entity.DisasterByStateInfo;
 import com.nandi.disastermanager.entity.DisasterDetailInfo;
 import com.nandi.disastermanager.entity.DisasterPoint;
+import com.nandi.disastermanager.entity.KuangxuanInfo;
 import com.nandi.disastermanager.entity.PersonDHInfo;
 import com.nandi.disastermanager.entity.PersonFZInfo;
 import com.nandi.disastermanager.entity.PersonInfo;
 import com.nandi.disastermanager.entity.PersonLocation;
+import com.nandi.disastermanager.entity.PersonType;
 import com.nandi.disastermanager.entity.PersonZSInfo;
 import com.nandi.disastermanager.entity.SearchPerson;
 import com.nandi.disastermanager.entity.SearchPlace;
@@ -254,6 +258,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button btnUtil;
     @BindView(R.id.tv_disaster_number)
     TextView tvDisasterNumber;
+
+    @BindView(R.id.tv_equipment_number)
+    TextView tvEquipmentNumber;
+    @BindView(R.id.iv_location)
+    ImageView ivLocation;
     @BindView(R.id.tv_zhushou_number)
     TextView tvZhushouNumber;
     @BindView(R.id.tv_jiance_number)
@@ -264,10 +273,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView tvDhzNumber;
     @BindView(R.id.tv_qcqf_number)
     TextView tvQcqfNumber;
-    @BindView(R.id.tv_equipment_number)
-    TextView tvEquipmentNumber;
-    @BindView(R.id.iv_location)
-    ImageView ivLocation;
+    @BindView(R.id.btn_util_detail)
+    Button btnUtilDetail;
 
     private boolean llAreaState = false;
     private boolean llDataState = false;
@@ -352,6 +359,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DetailPnInfo mDetailPnInfo;
     private String mDisNo;
     private Map<String, String> maps = new HashMap<>();
+    private List<PersonType> mPersonTypes = new ArrayList<>();
     private LinearLayout llSwitchInfo;
     private GraphicsOverlay mGraphicsOverlay;
     private List<Graphic> mGraphics;
@@ -377,7 +385,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<String> personImei = new ArrayList<>();
     private ArrayAdapter personAdapter;
 
-    private String personType="-1";
+    private String personType = "-1";
+    private double detailarea;
+    private String detailhttp="";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -472,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.YELLOW, 5);
         mPolylineMidpointSymbol.setOutline(blackOutline);
         mPolygonFillSymbol =
-                new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.GREEN, null);
+                new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, 0x00ffffff, null);
     }
 
     public void pointClick(View v) {
@@ -643,6 +654,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setListeners() {
+        btnUtilDetail.setOnClickListener(this);
         ivLocation.setOnClickListener(this);
         ivSearchMain.setOnClickListener(this);
         btnUtil.setOnClickListener(this);
@@ -678,7 +690,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 final android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
-                if (llUtil.getVisibility() == View.VISIBLE) {
+
                     final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = sceneView.identifyGraphicsOverlayAsync(mGraphicsOverlay, screenPoint, 10.0, false);
                     identifyGraphic.addDoneListener(new Runnable() {
                         @Override
@@ -692,14 +704,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         double length = GeometryEngine.lengthGeodetic(geometry, new LinearUnit(LinearUnitId.KILOMETERS), GeodeticCurveType.GREAT_ELLIPTIC);
                                         tvMeasureResult.setText("长度为:" + length + "千米");
                                     } else if (geometry instanceof Polygon) {
-                                        double area = Math.abs(GeometryEngine.areaGeodetic(geometry, new AreaUnit(AreaUnitId.SQUARE_KILOMETERS), GeodeticCurveType.GREAT_ELLIPTIC));
-                                        tvMeasureResult.setText("面积为:" + area + "平方千米");
-                                        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_township_statistics, null);
-                                        TextView tvTownshipName = (TextView) view.findViewById(R.id.tv_township_name);
-                                        tvTownshipName.setText("统计信息");
-                                        AlertDialog mDialogCharts = new AlertDialog.Builder(MainActivity.this)
-                                                .setView(view)
-                                                .show();
+                                        detailarea = Math.abs(GeometryEngine.areaGeodetic(geometry, new AreaUnit(AreaUnitId.SQUARE_KILOMETERS), GeodeticCurveType.GREAT_ELLIPTIC));
+                                        //tvMeasureResult.setText("面积为:" + area + "平方千米");
+                                        PolygonBuilder builder = new PolygonBuilder((Polygon) geometry);
+                                        PartCollection parts = builder.getParts();
+                                        Iterator<Point> iterator = parts.getPartsAsPoints().iterator();
+                                        detailhttp = "";
+                                        while (iterator.hasNext()) {
+                                            Point next = iterator.next();
+                                            Log.d(TAG, "x:" + next.getX() + "--y:" + next.getY() + "\n");
+                                            detailhttp = detailhttp + next.getX() + "," + next.getY() + "@";
+                                        }
+
                                     }
                                 }
                                 if (!graphic.isEmpty() && !(graphic.get(0).getGeometry() instanceof Polygon)) {
@@ -781,7 +797,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
                     });
-                } else {
+
                     ListenableFuture<Point> pointListenableFuture = sceneView.screenToLocationAsync(screenPoint);
                     if (layers.contains(xingZhengLayer)) {
                         try {
@@ -831,7 +847,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = personIdentifyGraphic.get();
                                 if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
                                     int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                    showPersonInfo(zIndex);
+                                    showPersonInfo(mPersonTypes.get(zIndex).getId(), mPersonTypes.get(zIndex).getType());
                                 }
                             } catch (InterruptedException | ExecutionException e1) {
                                 e1.printStackTrace();
@@ -845,7 +861,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = localIdentifyGraphic.get();
                                 if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
                                     int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                    showLocalPersonInfo(zIndex);
                                 }
                             } catch (InterruptedException | ExecutionException e1) {
                                 e1.printStackTrace();
@@ -866,7 +881,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
                     });
-                }
+
 
 
                 return super.onSingleTapConfirmed(e);
@@ -973,6 +988,98 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
+    }
+
+    private void setOkhttpKuangxuan(String http, final double area) {
+        OkHttpUtils.get().url(getResources().getString(R.string.base_http) + getResources().getString(R.string.kuangxuan) + http + "/" + areaCode)
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        Gson gson = new Gson();
+                        KuangxuanInfo mKuangxuanInfo = gson.fromJson(response, KuangxuanInfo.class);
+                        KuangxuanInfo.DataBean data = mKuangxuanInfo.getData();
+                        if (data == null) {
+                            return;
+                        }
+                        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_kuangxuan_statistics, null);
+                        ((TextView) view.findViewById(R.id.tv_kuangxuan_1)).setText(data.getDisaster().size() + "");
+                        ((TextView) view.findViewById(R.id.tv_kuangxuan_2)).setText(data.getHavaOver().size() + "");
+                        ((TextView) view.findViewById(R.id.tv_kuangxuan_3)).setText(data.getHavaMoved().size() + "");
+                        ((TextView) view.findViewById(R.id.tv_kuangxuan_4)).setText(data.getHavaKilled().size() + "");
+                        ((TextView) view.findViewById(R.id.tv_kuangxuan_5)).setText(data.getHuman().size() + "");
+                        ((TextView) view.findViewById(R.id.tv_kuangxuan_6)).setText(data.getAreaAdmin().size() + "");
+                        ((TextView) view.findViewById(R.id.tv_kuangxuan_7)).setText(data.getAreaProfessor().size() + "");
+                        ((TextView) view.findViewById(R.id.tv_kuangxuan_8)).setText(data.getDihuanzhan().size() + "");
+                        ((TextView) view.findViewById(R.id.tv_kuangxuan_9)).setText(String.format("%.4f", area) + "");
+
+                        //Todo 灾害点打点
+                        List<TabDisasterInfo.DataBean> datas = new ArrayList<TabDisasterInfo.DataBean>();
+                        TabDisasterInfo.DataBean dataBean;
+                        for (int i = 0; i < data.getDisaster().size(); i++) {
+                            dataBean = new TabDisasterInfo.DataBean();
+                            dataBean.setId(data.getDisaster().get(i).getId());
+                            dataBean.setDisLat(data.getDisaster().get(i).getDisLat());
+                            dataBean.setDisLon(data.getDisaster().get(i).getDisLon());
+                            dataBean.setDisNo(data.getDisaster().get(i).getDisNo());
+                            dataBean.setDisType(data.getDisaster().get(i).getDisType());
+                            datas.add(dataBean);
+                        }
+                        mTabDisasterInfo = new TabDisasterInfo();
+                        mTabDisasterInfo.setData(datas);
+                        mTabDisasterInfo.getData().size();
+                        setOverlay();
+                        //Todo 人员打点
+                        PersonLocation personLocation;
+                        mPersonTypes.clear();
+                        qcPersons.clear();
+                        for (int i = 0; i < data.getHuman().size(); i++) {
+                            personLocation = new PersonLocation();
+                            personLocation.setId(data.getHuman().get(i).getDis_id());
+                            personLocation.setLat(data.getHuman().get(i).getDis_lat() + "");
+                            personLocation.setLon(data.getHuman().get(i).getDis_lon() + "");
+                            personLocation.setType("1");
+                            qcPersons.add(personLocation);
+                        }
+                        for (int i = 0; i < data.getAreaProfessor().size(); i++) {
+                            personLocation = new PersonLocation();
+                            personLocation.setId(data.getAreaProfessor().get(i).getId());
+                            personLocation.setLat(data.getAreaProfessor().get(i).getLat() + "");
+                            personLocation.setLon(data.getAreaProfessor().get(i).getLng() + "");
+                            personLocation.setType("2");
+                            qcPersons.add(personLocation);
+                        }
+                        for (int i = 0; i < data.getAreaAdmin().size(); i++) {
+                            personLocation = new PersonLocation();
+                            personLocation.setId(data.getAreaAdmin().get(i).getId());
+                            personLocation.setLat(data.getAreaAdmin().get(i).getLat() + "");
+                            personLocation.setLon(data.getAreaAdmin().get(i).getLon() + "");
+                            personLocation.setType("3");
+                            qcPersons.add(personLocation);
+                        }
+                        for (int i = 0; i < data.getDihuanzhan().size(); i++) {
+                            personLocation = new PersonLocation();
+                            personLocation.setId(data.getDihuanzhan().get(i).getId());
+                            personLocation.setLat(data.getDihuanzhan().get(i).getLat() + "");
+                            personLocation.setLon(data.getDihuanzhan().get(i).getLng() + "");
+                            personLocation.setType("4");
+                            qcPersons.add(personLocation);
+                        }
+                        setPersonGraphic();
+                        AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                                .setView(view)
+                                .show();
+                        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();//获取dialog信息
+                        params.width = WindowManager.LayoutParams.WRAP_CONTENT;
+                        params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                        dialog.getWindow().setAttributes(params);//设置大小
+                    }
+                });
     }
 
 
@@ -1093,24 +1200,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private void showPersonInfo(int zIndex) {
-        String http="";
-        switch (personType){
+    private void showPersonInfo(int zIndex, final String type) {
+        String http = "";
+        switch (type) {
             case "1":
-                http=getResources().getString(R.string.qcqf_man_id)+zIndex;
+                http = getResources().getString(R.string.qcqf_man_id) + zIndex;
                 break;
             case "2":
-                http=getResources().getString(R.string.zs_man_id)+zIndex;
+                http = getResources().getString(R.string.zs_man_id) + zIndex;
                 break;
             case "3":
-                http=getResources().getString(R.string.fzr_man_id)+zIndex;
+                http = getResources().getString(R.string.fzr_man_id) + zIndex;
                 break;
             case "4":
-                http=getResources().getString(R.string.dh_man_id)+areaCode;
+                http = getResources().getString(R.string.dh_man_id) + areaCode;
                 break;
         }
         waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.base_http)+http)
+        OkHttpUtils.get().url(getResources().getString(R.string.base_http) + http)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -1123,11 +1230,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onResponse(String response, int id) {
                         WaitingDialog.closeDialog(waitingDialog);
-                        switch (personType){
+                        switch (type) {
                             case "1":
                                 Gson gson = new Gson();
                                 PersonInfo personInfos = gson.fromJson(response, PersonInfo.class);
-                                if (personInfos.getData()==null){
+                                if (personInfos.getData() == null) {
                                     return;
                                 }
                                 PersonInfo.DataBean personInfo = personInfos.getData();
@@ -1162,7 +1269,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 ((TextView) view.findViewById(R.id.tv_0_person_nation)).append(personInfo.getNation() == null ? "" : personInfo.getNation());
                                 ((TextView) view.findViewById(R.id.tv_0_person_address)).append(personInfo.getAddress() == null ? "" : personInfo.getAddress());
                                 TextView tvOnline = ((TextView) view.findViewById(R.id.tv_0_person_is));
-                                if (personInfo.getOnlineStatus() == null|personInfo.getOnlineStatus() =="0") {
+                                if (personInfo.getOnlineStatus() == null | personInfo.getOnlineStatus() == "0") {
                                     tvOnline.append("不在线");
                                     tvOnline.setTextColor(Color.RED);
                                 } else {
@@ -1187,7 +1294,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             case "2":
                                 Gson gson2 = new Gson();
                                 PersonZSInfo mPersonZSInfo = gson2.fromJson(response, PersonZSInfo.class);
-                                if (mPersonZSInfo.getData()==null){
+                                if (mPersonZSInfo.getData() == null) {
                                     return;
                                 }
                                 PersonZSInfo.DataBean mPersonZSInfoData = mPersonZSInfo.getData();
@@ -1196,7 +1303,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 ((TextView) view.findViewById(R.id.tv_1_person_address)).append(mPersonZSInfoData.getDisarea());
                                 ((TextView) view.findViewById(R.id.tv_1_person_mobile)).append(mPersonZSInfoData.getPhone());
                                 TextView tvOnline1 = (TextView) view.findViewById(R.id.tv_1_person_is);
-                                if (mPersonZSInfoData.getOnlineStatus() == null|mPersonZSInfoData.getOnlineStatus() =="0") {
+                                if (mPersonZSInfoData.getOnlineStatus() == null | mPersonZSInfoData.getOnlineStatus() == "0") {
                                     tvOnline1.append("不在线");
                                     tvOnline1.setTextColor(Color.RED);
                                 } else {
@@ -1217,7 +1324,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             case "3":
                                 Gson gson3 = new Gson();
                                 PersonFZInfo mPersonFZInfo = gson3.fromJson(response, PersonFZInfo.class);
-                                if (mPersonFZInfo.getData()==null){
+                                if (mPersonFZInfo.getData() == null) {
                                     return;
                                 }
                                 PersonFZInfo.DataBean mPersonFZInfoData = mPersonFZInfo.getData().get(0);
@@ -1228,7 +1335,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 ((TextView) view.findViewById(R.id.tv_2_person_tel)).append(mPersonFZInfoData.getTelephone());
                                 ((TextView) view.findViewById(R.id.tv_2_person_job)).append("片区负责人");
                                 TextView tvOnline2 = ((TextView) view.findViewById(R.id.tv_2_person_is));
-                                if (mPersonFZInfoData.getOnlineStatus() == null|mPersonFZInfoData.getOnlineStatus() =="0") {
+                                if (mPersonFZInfoData.getOnlineStatus() == null | mPersonFZInfoData.getOnlineStatus() == "0") {
                                     tvOnline2.append("不在线");
                                     tvOnline2.setTextColor(Color.RED);
                                 } else {
@@ -1249,7 +1356,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             case "4":
                                 Gson gson4 = new Gson();
                                 PersonDHInfo mPersonDHInfo = gson4.fromJson(response, PersonDHInfo.class);
-                                if (mPersonDHInfo.getData()==null){
+                                if (mPersonDHInfo.getData() == null) {
                                     return;
                                 }
                                 PersonDHInfo.DataBean mPersonDHInfoData = mPersonDHInfo.getData().get(0);
@@ -1260,7 +1367,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 ((TextView) view.findViewById(R.id.tv_3_person_danwei)).append(mPersonDHInfoData.getLocation());
                                 ((TextView) view.findViewById(R.id.tv_3_person_manage_area)).append(mPersonDHInfoData.getArea_name());
                                 TextView tvOnline3 = ((TextView) view.findViewById(R.id.tv_3_person_is));
-                                if (mPersonDHInfoData.getOnlineStatus() == null|mPersonDHInfoData.getOnlineStatus() =="0") {
+                                if (mPersonDHInfoData.getOnlineStatus() == null | mPersonDHInfoData.getOnlineStatus() == "0") {
                                     tvOnline3.append("不在线");
                                     tvOnline3.setTextColor(Color.RED);
                                 } else {
@@ -1877,9 +1984,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return view;
     }
 
+
+    //// TODO: 2017/8/15 onClick
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.btn_util_detail:
+                setOkhttpKuangxuan(detailhttp, detailarea);
+                break;
             case R.id.iv_location:
                 personLocation();
                 break;
@@ -2111,17 +2223,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         @Override
                         public void onResponse(String response, int id) {
-                            String time,lon,lat,pic,name,tel;
+                            String time, lon, lat, pic, name, tel;
                             try {
-                                JSONObject object =new JSONObject(response);
-                                JSONArray array=object.getJSONArray("data");
-                                JSONObject oj= (JSONObject) array.get(0);
-                                time=oj.getString("time");
-                                lon=oj.getString("lon");
-                                lat=oj.getString("lat");
-                                pic=oj.getString("head_pic");
-                                name=oj.getString("name");
-                                tel=oj.getString("tel");
+                                JSONObject object = new JSONObject(response);
+                                JSONArray array = object.getJSONArray("data");
+                                JSONObject oj = (JSONObject) array.get(0);
+                                time = oj.getString("time");
+                                lon = oj.getString("lon");
+                                lat = oj.getString("lat");
+                                pic = oj.getString("head_pic");
+                                name = oj.getString("name");
+                                tel = oj.getString("tel");
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -2168,12 +2280,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setUtilBack() {
         if (llUtilState == false) {
             btnUtil.setText("关闭工具");
+            clearAllGraphics();
+            //图层设置
+            layers.clear();
+            elevationSources.clear();
+            layers.add(lowImageLayer);
+            layers.add(highImageLayer);
+            elevationSources.add(elevationSource);
+            Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+            sceneView.setViewpointCamera(camera);
+
             llUtil.setVisibility(View.VISIBLE);
             llArea.setVisibility(View.INVISIBLE);
             llData.setVisibility(View.INVISIBLE);
             llUtilState = true;
         } else {
             btnUtil.setText("打开工具");
+            btnUtilDetail.setVisibility(View.GONE);
+            clearAllGraphics();
             clear();
             tvMeasureResult.setText("");
             llUtil.setVisibility(View.INVISIBLE);
@@ -2411,7 +2535,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 四重人员 type 1:群测群防 2：驻守 3:负责人 4：地环站
      */
-    private void initPersonData(final String type,String http) {
+    private void initPersonData(final String type, String http) {
         waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
         OkHttpUtils.get().url(getResources().getString(R.string.base_http) + http + areaCode)
                 .build()
@@ -2439,26 +2563,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         personLocation.setId(o.getInt("dis_id"));
                                         personLocation.setLat(o.getString("dis_lat"));
                                         personLocation.setLon(o.getString("dis_lon"));
+                                        personLocation.setType("1");
                                         break;
                                     case "2":
                                         personLocation.setId(o.getInt("id"));
                                         personLocation.setLat(o.getString("lat"));
                                         personLocation.setLon(o.getString("lng"));
+                                        personLocation.setType("2");
                                         break;
                                     case "3":
                                         personLocation.setId(o.getInt("id"));
                                         personLocation.setLat(o.getString("lat"));
                                         personLocation.setLon(o.getString("lon"));
+                                        personLocation.setType("3");
                                         break;
                                     case "4":
                                         personLocation.setId(o.getInt("id"));
                                         personLocation.setLat(o.getString("lat"));
                                         personLocation.setLon(o.getString("lng"));
+                                        personLocation.setType("4");
                                         break;
                                 }
                                 qcPersons.add(personLocation);
                             }
-                            Log.d("limeng","qcPersons.size();"+qcPersons.size());
+                            Log.d("limeng", "qcPersons.size();" + qcPersons.size());
                             setPersonGraphic();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -2469,20 +2597,60 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setPersonGraphic() {
         qcGraphics.clear();
-        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.person);
-        final PictureMarkerSymbol symbol = new PictureMarkerSymbol(drawable);
-        symbol.setWidth(30);
-        symbol.setHeight(30);
-        symbol.setOffsetY(11);
-        symbol.loadAsync();
-        symbol.addDoneLoadingListener(new Runnable() {
+        mPersonTypes.clear();
+        final PictureMarkerSymbol symbol1 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.person_1));
+        final PictureMarkerSymbol symbol2 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.person_2));
+        final PictureMarkerSymbol symbol3 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.person_3));
+        final PictureMarkerSymbol symbol4 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.person_4));
+        symbol1.setWidth(40);
+        symbol1.setHeight(40);
+        symbol1.setOffsetY(11);
+        symbol2.setWidth(40);
+        symbol2.setHeight(40);
+        symbol2.setOffsetY(11);
+        symbol3.setWidth(40);
+        symbol3.setHeight(40);
+        symbol3.setOffsetY(11);
+        symbol4.setWidth(40);
+        symbol4.setHeight(40);
+        symbol4.setOffsetY(11);
+        symbol1.loadAsync();
+        symbol1.addDoneLoadingListener(new Runnable() {
             @Override
             public void run() {
-                for (PersonLocation disasterPoint : qcPersons) {
+                for (int i = 0; i < qcPersons.size(); i++) {
+                    PersonLocation disasterPoint = qcPersons.get(i);
                     Point point = new Point(Double.valueOf(disasterPoint.getLon()), Double.valueOf(disasterPoint.getLat()), SpatialReferences.getWgs84());
-                    Graphic graphic = new Graphic(point, symbol);
-                    graphic.setZIndex(disasterPoint.getId());
-                    qcGraphics.add(graphic);
+                    Graphic graphic1;
+                    Graphic graphic2;
+                    Graphic graphic3;
+                    Graphic graphic4;
+                    switch (disasterPoint.getType()) {
+                        case "1":
+                            graphic1 = new Graphic(point, symbol1);
+                            graphic1.setZIndex(i);
+                            mPersonTypes.add(new PersonType(disasterPoint.getId(), disasterPoint.getType()));
+                            qcGraphics.add(graphic1);
+                            break;
+                        case "2":
+                            graphic2 = new Graphic(point, symbol2);
+                            graphic2.setZIndex(i);
+                            mPersonTypes.add(new PersonType(disasterPoint.getId(), disasterPoint.getType()));
+                            qcGraphics.add(graphic2);
+                            break;
+                        case "3":
+                            graphic3 = new Graphic(point, symbol3);
+                            graphic3.setZIndex(i);
+                            mPersonTypes.add(new PersonType(disasterPoint.getId(), disasterPoint.getType()));
+                            qcGraphics.add(graphic3);
+                            break;
+                        case "4":
+                            graphic4 = new Graphic(point, symbol4);
+                            graphic4.setZIndex(i);
+                            mPersonTypes.add(new PersonType(disasterPoint.getId(), disasterPoint.getType()));
+                            qcGraphics.add(graphic4);
+                            break;
+                    }
                 }
                 updatePersonGraphic(qcGraphics);
 
@@ -2593,14 +2761,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private  void clearAllGraphics(){
-         disasterGraphics.clear();
-         personGraphics.clear();
-         localGraphics.clear();
-         equipmentGraphics.clear();
-         weathersGraphics.clear();
+    private void clearAllGraphics() {
+        disasterGraphics.clear();
+        personGraphics.clear();
+        localGraphics.clear();
+        equipmentGraphics.clear();
+        weathersGraphics.clear();
     }
 
+    /**
+     * TODO onCheckedChanged
+     * @param compoundButton
+     * @param b
+     */
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
         int id = compoundButton.getId();
@@ -2668,8 +2841,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.rb_qcqf_person:
                 if (b) {
-                    personType="1";
-                    initPersonData("1",getResources().getString(R.string.qcqf_man));
+                    personType = "1";
+                    initPersonData("1", getResources().getString(R.string.qcqf_man));
                     setPieChartData("71", "在线率");
                 } else {
                     clearAllGraphics();
@@ -2677,8 +2850,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.rb_zs_person:
                 if (b) {
-                    personType="2";
-                    initPersonData("2",getResources().getString(R.string.zs_man));
+                    personType = "2";
+                    initPersonData("2", getResources().getString(R.string.zs_man));
                     setPieChartData("64", "在线率");
                 } else {
                     clearAllGraphics();
@@ -2686,8 +2859,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.rb_pq_person:
                 if (b) {
-                    personType="3";
-                    initPersonData("3",getResources().getString(R.string.fzr_man));
+                    personType = "3";
+                    initPersonData("3", getResources().getString(R.string.fzr_man));
                     setPieChartData("90", "在线率");
                 } else {
                     clearAllGraphics();
@@ -2695,9 +2868,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.rb_dhz_person:
                 if (b) {
-                    personType="4";
-                    initPersonData("4",getResources().getString(R.string.dh_man));
-                    setPieChartData("35", "在线率");
+                    personType = "4";
+                    initPersonData("4", getResources().getString(R.string.dh_man));
+                    setPieChartData("95", "在线率");
                 } else {
                     clearAllGraphics();
                 }
@@ -2833,6 +3006,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * 更新人员
+     *
      * @param q
      */
     private void updatePersonGraphic(List<Graphic> q) {
@@ -2850,6 +3024,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void updateGraphic(List<Graphic> g) {
         disasterGraphics.clear();
+        Log.d("limeng", "allGraphics=" + allGraphics.size());
         disasterGraphics.addAll(g);
     }
 
@@ -2974,11 +3149,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawables.get(i - 1));
             //Optionally set the size, if not set the image will be auto sized based on its size in pixels,
             //its appearance would then differ across devices with different resolutions.
-            pinStarBlueSymbol.setHeight(40);
-            pinStarBlueSymbol.setWidth(40);
+            pinStarBlueSymbol.setHeight(55);
+            pinStarBlueSymbol.setWidth(55);
             //Optionally set the offset, to align the base of the symbol aligns with the point geometry
             pinStarBlueSymbol.setOffsetY(
-                    11); //The image used for the symbol has a transparent buffer around it, so the offset is not simply height/2
+                    8); //The image used for the symbol has a transparent buffer around it, so the offset is not simply height/2
             pinStarBlueSymbol.loadAsync();
             //[DocRef: END]
             final int finalI = i;
@@ -3604,6 +3779,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCurrentPolygon = null;
         mCurrentPointCollection = null;
         mListener.onClearStateChanged(false);
+        clearAllGraphics();
     }
 
     /**
@@ -3767,6 +3943,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDrawingMode = DrawingMode.NONE;
         clearStack(mRedoElementStack);
         mListener.onDrawingFinished();
+        btnUtilDetail.setVisibility(View.VISIBLE);
     }
 
     /**

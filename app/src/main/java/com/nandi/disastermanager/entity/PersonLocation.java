@@ -8,6 +8,16 @@ public class PersonLocation {
     private String lat;
     private String lon;
     private int id;
+    //四重人员 type 1:群测群防 2：驻守 3:负责人 4：地环站
+    private String type;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public PersonLocation() {
     }
