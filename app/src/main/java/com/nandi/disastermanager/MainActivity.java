@@ -128,7 +128,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -4058,6 +4057,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * the listener that the drawing has finished.
      */
     private void finishDrawing() {
+        btnUtilDetail.setVisibility(View.GONE);
         // If current point is null then there is no drawing to finish
         if (mCurrentPoint != null) {
             switch (mDrawingMode) {
@@ -4073,6 +4073,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     break;
                 case POLYGON:
+                    btnUtilDetail.setVisibility(View.VISIBLE);
                     // If we're drawing a polygon, logic is similar to finishing a polyline, but additionally need
                     // to remove the final midpoint
                     if (mGraphics.size() > 0) {
@@ -4119,7 +4120,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDrawingMode = DrawingMode.NONE;
         clearStack(mRedoElementStack);
         mListener.onDrawingFinished();
-        btnUtilDetail.setVisibility(View.VISIBLE);
     }
 
     /**
