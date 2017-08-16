@@ -1020,16 +1020,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setOkhttpKuangxuan(String http, final double area) {
+        waitingDialog=WaitingDialog.createLoadingDialog(context,"正在请求中...");
         OkHttpUtils.get().url(getResources().getString(R.string.base_http) + getResources().getString(R.string.kuangxuan) + http + "/" + areaCode)
                 .build()
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-
+                        Toast.makeText(context,"请检查网络",Toast.LENGTH_SHORT).show();
+                        WaitingDialog.closeDialog(waitingDialog);
                     }
 
                     @Override
                     public void onResponse(String response, int id) {
+                        WaitingDialog.closeDialog(waitingDialog);
                         Gson gson = new Gson();
                         KuangxuanInfo mKuangxuanInfo = gson.fromJson(response, KuangxuanInfo.class);
                         KuangxuanInfo.DataBean data = mKuangxuanInfo.getData();
