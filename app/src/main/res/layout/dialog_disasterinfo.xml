@@ -75,17 +75,23 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:text="隐患点名称："
                         android:textColor="@color/relic_text_color"
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
                         android:id="@+id/tv_dis_name"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/ceshi"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textColor="@color/relic_text_edit_color"
                         android:textSize="@dimen/relic_text_edit" />
                 </LinearLayout>
@@ -96,18 +102,24 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="隐患点类型："
                         android:textColor="@color/relic_text_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
                         android:id="@+id/tv_dis_type"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/ceshi"
                         android:textColor="@color/relic_text_edit_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
                 </LinearLayout>
 
@@ -119,18 +131,24 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="隐患点编号："
                         android:textColor="@color/relic_text_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
                         android:id="@+id/tv_dis_no"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/ceshi"
                         android:textColor="@color/relic_text_edit_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
                 </LinearLayout>
 
@@ -140,18 +158,24 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="乡镇："
                         android:textColor="@color/relic_text_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
                         android:id="@+id/tv_area_id"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/ceshi"
                         android:textColor="@color/relic_text_edit_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
                 </LinearLayout>
 
@@ -161,18 +185,24 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="详细地址："
                         android:textColor="@color/relic_text_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
                         android:id="@+id/tv_dis_location"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/ceshi"
                         android:textColor="@color/relic_text_edit_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
                 </LinearLayout>
 
@@ -182,18 +212,24 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="主要诱因："
                         android:textColor="@color/relic_text_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
                         android:id="@+id/tv_dis_cause"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/ceshi"
                         android:textColor="@color/relic_text_edit_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
                 </LinearLayout>
 
@@ -203,18 +239,24 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="受威胁人数："
                         android:textColor="@color/relic_text_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
                         android:id="@+id/tv_imperil_man"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/ceshi"
                         android:textColor="@color/relic_text_edit_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
                 </LinearLayout>
 
@@ -224,18 +266,24 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="受威胁户数："
                         android:textColor="@color/relic_text_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
                         android:id="@+id/tv_imperil_families"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/ceshi"
                         android:textColor="@color/relic_text_edit_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
                 </LinearLayout>
 
@@ -247,18 +295,24 @@
                     >
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="影响对象："
                         android:textColor="@color/relic_text_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
 
                     <TextView
                         android:id="@+id/tv_main_object"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/ceshi"
                         android:textColor="@color/relic_text_edit_color"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/textview_background"
                         android:textSize="@dimen/relic_text" />
                 </LinearLayout>
 

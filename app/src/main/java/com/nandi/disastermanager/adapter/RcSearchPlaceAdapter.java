@@ -17,12 +17,21 @@ import com.nandi.disastermanager.entity.SearchPlace;
 public class RcSearchPlaceAdapter extends RecyclerView.Adapter<RcSearchPlaceAdapter.ViewHolderA>{
     private Context mContext;
     private SearchPlace mSearchPlace;
+    private OnItemClickListener mOnItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mOnItemClickListener = listener;
+    }
 
     public RcSearchPlaceAdapter(Context context, SearchPlace searchPlace) {
         mContext = context;
         mSearchPlace =  searchPlace;
     }
 
+
+    public interface OnItemClickListener{
+        void onItemClick(View view);
+    }
     @Override
     public ViewHolderA onCreateViewHolder(ViewGroup parent, int viewType) {
         //此处动态加载ViewHolder的布局文件并返回holder
@@ -52,7 +61,7 @@ public class RcSearchPlaceAdapter extends RecyclerView.Adapter<RcSearchPlaceAdap
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定
-    class ViewHolderA extends RecyclerView.ViewHolder{
+    class ViewHolderA extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView tv_1;
         TextView tv_2;
@@ -60,11 +69,18 @@ public class RcSearchPlaceAdapter extends RecyclerView.Adapter<RcSearchPlaceAdap
         TextView tv_4;
         public ViewHolderA(View itemView) {
             super(itemView);
-
+            itemView.setOnClickListener(this);
             tv_1 = (TextView) itemView.findViewById(R.id.tv_search_1);
             tv_2 = (TextView) itemView.findViewById(R.id.tv_search_2);
             tv_3 = (TextView) itemView.findViewById(R.id.tv_search_3);
             tv_4 = (TextView) itemView.findViewById(R.id.tv_search_4);
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (mOnItemClickListener != null) {
+                mOnItemClickListener.onItemClick(view);
+            }
         }
     }
 
