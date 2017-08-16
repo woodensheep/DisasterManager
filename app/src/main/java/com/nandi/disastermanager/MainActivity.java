@@ -296,6 +296,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArcGISMapImageLayer ssYLLayer;
     ArcGISMapImageLayer xingZhengLayer;
     FeatureLayer xzFeatureLayer;
+    ArcGISMapImageLayer chongqingLayer;
     List<ArcGISSceneLayer> jinQiaoLayers = new ArrayList<>();
     List<ArcGISSceneLayer> shiLinLayers = new ArrayList<>();
     private ArcGISScene scene;
@@ -395,6 +396,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private double detailarea;
     private String detailhttp="";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -404,6 +406,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         areaCode = "500110";
         initLocalData();
         initUtilData();
+        chongqingLayer = new ArcGISMapImageLayer(getResources().getString(R.string.chongqing_url));
         dianziLayer = new ArcGISMapImageLayer(getResources().getString(R.string.dianziditu_url));
         lowImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_url));
         highImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_19_url));
@@ -1044,7 +1047,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         ((TextView) view.findViewById(R.id.tv_kuangxuan_8)).setText(data.getDihuanzhan().size() + "");
                         ((TextView) view.findViewById(R.id.tv_kuangxuan_9)).setText(String.format("%.4f", area) + "");
 
-                        //Todo 灾害点打点
                         List<TabDisasterInfo.DataBean> datas = new ArrayList<TabDisasterInfo.DataBean>();
                         TabDisasterInfo.DataBean dataBean;
                         for (int i = 0; i < data.getDisaster().size(); i++) {
@@ -1060,7 +1062,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         mTabDisasterInfo.setData(datas);
                         mTabDisasterInfo.getData().size();
                         setOverlay();
-                        //Todo 人员打点
                         PersonLocation personLocation;
                         mPersonTypes.clear();
                         qcPersons.clear();
@@ -1127,7 +1128,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param zIndex
      */
     private void showEquipmentInfo(int zIndex) {
-        //TODO 根据Id显示设备信息
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_shebi, null);
         final LinearLayout llSheBeiInfo1 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_1);
         final LinearLayout llSheBeiInfo2 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_2);
@@ -1759,7 +1759,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @return
      */
     private View addPersonView() {
-        // TODO 动态添加布局(xml方式)
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);       //LayoutInflater inflater1=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LayoutInflater inflater3 = LayoutInflater.from(this);
@@ -1787,7 +1786,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @return
      */
     private View addPhotoView() {
-        // TODO 动态添加布局(xml方式)
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);       //LayoutInflater inflater1=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LayoutInflater inflater3 = LayoutInflater.from(this);
@@ -1845,7 +1843,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @return
      */
     private View addTextView(String info) {
-        // TODO 动态添加布局(xml方式)
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);       //LayoutInflater inflater1=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 //      LayoutInflater inflater2 = getLayoutInflater();
@@ -1864,7 +1861,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private View addTableView1() {
         DetailDisCard.DataBean mFCard = mDetailDisCard.getData();
-        // TODO 动态添加布局(xml方式)
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);       //LayoutInflater inflater1=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LayoutInflater inflater3 = LayoutInflater.from(this);
@@ -1907,7 +1903,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private View addTableView2() {
         DetailHeCard.DataBean mHedgeCard = mDetailHeCard.getData();
-        // TODO 动态添加布局(xml方式)
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);       //LayoutInflater inflater1=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LayoutInflater inflater3 = LayoutInflater.from(this);
@@ -1971,7 +1966,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private View addTableView3() {
         DetailPnInfo.DataBean mDetailPn = mDetailPnInfo.getData();
-        // TODO 动态添加布局(xml方式)
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);       //LayoutInflater inflater1=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 //      LayoutInflater inflater2 = getLayoutInflater();
@@ -2011,7 +2005,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    //// TODO: 2017/8/15 onClick
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -2023,9 +2016,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     personLocationGraphics.clear();
                 } else {
                     personLocation();
-                    layers.clear();
-                    elevationSources.clear();
-                    layers.add(new ArcGISMapImageLayer(getResources().getString(R.string.chongqing_url)));
+                    if (!layers.contains(chongqingLayer)){
+                        layers.clear();
+                        elevationSources.clear();
+                        layers.add(chongqingLayer);
+                    }
                 }
                 break;
             case R.id.iv_search_main:
@@ -2731,7 +2726,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         try {
                             JSONObject object = new JSONObject(response);
                             JSONArray array = object.getJSONArray("data");
-                            // TODO: 2017/8/14
                             qcPersons.clear();
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject o = array.getJSONObject(i);
@@ -2948,7 +2942,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * TODO onCheckedChanged
      * @param compoundButton
      * @param b
      */
