@@ -72,6 +72,7 @@
     <string name="dh_man_id">/dihuanzhanman/finddihuanzhanById/</string>
 
     <string name="kuangxuan">/kuangxuan/info/</string>
-
+    <string name="HelloTitle">"视频通话"</string>
+    <string name="endCall1">结束通话</string>
 
 </resources>

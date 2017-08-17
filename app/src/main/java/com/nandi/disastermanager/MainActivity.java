@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
@@ -115,6 +116,7 @@ import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.DateTimePickUtil;
 import com.nandi.disastermanager.utils.LocalJson;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
+import com.nandi.disastermanager.videocall.helloanychat.VideoCallActivity;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.Callback;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -310,6 +312,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GraphicsOverlay equipmentGraphicOverlay;
     private GraphicsOverlay mGraphicsOverlay;
     private GraphicsOverlay personLocationGraphicOverlay;
+    private GraphicsOverlay searchPlaceGraphicOverlay;
+    private GraphicsOverlay searchPersonGraphicOverlay;
     private List<Graphic> allGraphics = new ArrayList<>();//所有的灾害点图标
     private List<Graphic> otherGraphics = new ArrayList<>();//已消耗灾害点图标
     private List<Graphic> allHuaPOGraphics = new ArrayList<>();
@@ -337,6 +341,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ListenableList<Graphic> equipmentGraphics;
     private ListenableList<Graphic> weathersGraphics;
     private ListenableList<Graphic> personLocationGraphics;
+    private ListenableList<Graphic> searchPlaceGraphics;
+    private ListenableList<Graphic> searchPersonGraphics;
     private RadioGroup rg;
     private Dialog waitingDialog;
     private DisasterDetailInfo disasterDetailInfo;
@@ -388,6 +394,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<personLocationInfo.DataBean> personLocationData;
     private double detailarea;
     private String detailhttp = "";
+    private SearchPlace.DataBean searchPlaceBean;
+    private SearchPerson.DataBean searchPersonBean;
+    private AlertDialog searchDialog;
 
 
     @Override
@@ -427,6 +436,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         GraphicsOverlay weatherGraphicOverlay = new GraphicsOverlay();
         mGraphicsOverlay = new GraphicsOverlay();
         personLocationGraphicOverlay = new GraphicsOverlay();
+        searchPlaceGraphicOverlay = new GraphicsOverlay();
+        searchPersonGraphicOverlay = new GraphicsOverlay();
         disasterGraphics = graphicsOverlay.getGraphics();
         mGraphics = mGraphicsOverlay.getGraphics();
         personGraphics = personGraphicsOverlay.getGraphics();
@@ -434,6 +445,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         equipmentGraphics = equipmentGraphicOverlay.getGraphics();
         weathersGraphics = weatherGraphicOverlay.getGraphics();
         personLocationGraphics = personLocationGraphicOverlay.getGraphics();
+        searchPlaceGraphics = searchPlaceGraphicOverlay.getGraphics();
+        searchPersonGraphics = searchPersonGraphicOverlay.getGraphics();
         ListenableList<GraphicsOverlay> graphicsOverlays = sceneView.getGraphicsOverlays();
         graphicsOverlays.add(mGraphicsOverlay);
         graphicsOverlays.add(graphicsOverlay);
@@ -442,6 +455,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         graphicsOverlays.add(equipmentGraphicOverlay);
         graphicsOverlays.add(weatherGraphicOverlay);
         graphicsOverlays.add(personLocationGraphicOverlay);
+        graphicsOverlays.add(searchPlaceGraphicOverlay);
+        graphicsOverlays.add(searchPersonGraphicOverlay);
         elevationSources = scene.getBaseSurface().getElevationSources();
         scene.setBasemap(Basemap.createImagery());
         sceneView.setScene(scene);
@@ -514,6 +529,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void polygonClick(View v) {
         if (!v.isSelected()) {
+            clearAllGraphics();
             v.setSelected(true);
             setDrawingMode(DrawingMode.POLYGON);
             mPointButton.setEnabled(false);
@@ -639,7 +655,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 final android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
-
                 final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = sceneView.identifyGraphicsOverlayAsync(mGraphicsOverlay, screenPoint, 10.0, false);
                 identifyGraphic.addDoneListener(new Runnable() {
                     @Override
@@ -746,97 +761,127 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 });
+                if (!mPolylineButton.isSelected()&&!mPolygonButton.isSelected()&&!mPointButton.isSelected()) {
 
-                ListenableFuture<Point> pointListenableFuture = sceneView.screenToLocationAsync(screenPoint);
-                if (layers.contains(xingZhengLayer)) {
-                    try {
-                        Point point = pointListenableFuture.get();
-                        QueryParameters query = new QueryParameters();
-                        query.setGeometry(point);
-                        ListenableFuture<FeatureQueryResult> future = table.queryFeaturesAsync(query);
-                        FeatureQueryResult result = future.get();
-                        Iterator<Feature> iterator = result.iterator();
-                        while (iterator.hasNext()) {
-                            Feature feature = iterator.next();
-                            Log.e(TAG, "----------" + feature.getAttributes().get("name"));
-                            String name = (String) feature.getAttributes().get("name");
-                            View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_township_statistics, null);
-                            TextView tvTownshipName = (TextView) view.findViewById(R.id.tv_township_name);
-                            tvTownshipName.setText(name);
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setView(view)
-                                    .show();
-                        }
-                    } catch (InterruptedException | ExecutionException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-                final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic1 = sceneView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 10.0, false, 2);
-                final ListenableFuture<IdentifyGraphicsOverlayResult> personIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(personGraphicsOverlay, screenPoint, 10.0, false, 2);
-                final ListenableFuture<IdentifyGraphicsOverlayResult> equipmentIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(equipmentGraphicOverlay, screenPoint, 10.0, false, 2);
-                final ListenableFuture<IdentifyGraphicsOverlayResult> locationIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(personLocationGraphicOverlay, screenPoint, 10.0, false, 2);
-                identifyGraphic1.addDoneListener(new Runnable() {
-                    @Override
-                    public void run() {
+                    ListenableFuture<Point> pointListenableFuture = sceneView.screenToLocationAsync(screenPoint);
+                    if (layers.contains(xingZhengLayer)) {
                         try {
-                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = identifyGraphic1.get();
-                            if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
-                                int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                showInfo(zIndex);
+                            Point point = pointListenableFuture.get();
+                            QueryParameters query = new QueryParameters();
+                            query.setGeometry(point);
+                            ListenableFuture<FeatureQueryResult> future = table.queryFeaturesAsync(query);
+                            FeatureQueryResult result = future.get();
+                            Iterator<Feature> iterator = result.iterator();
+                            while (iterator.hasNext()) {
+                                Feature feature = iterator.next();
+                                Log.e(TAG, "----------" + feature.getAttributes().get("name"));
+                                String name = (String) feature.getAttributes().get("name");
+                                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_township_statistics, null);
+                                TextView tvTownshipName = (TextView) view.findViewById(R.id.tv_township_name);
+                                tvTownshipName.setText(name);
+                                new AlertDialog.Builder(MainActivity.this)
+                                        .setView(view)
+                                        .show();
                             }
                         } catch (InterruptedException | ExecutionException e1) {
                             e1.printStackTrace();
                         }
                     }
-                });
-                personIdentifyGraphic.addDoneListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = personIdentifyGraphic.get();
-                            if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
-                                int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                showPersonInfo(mPersonTypes.get(zIndex).getId(), mPersonTypes.get(zIndex).getType());
-                            }
-                        } catch (InterruptedException | ExecutionException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                });
-                equipmentIdentifyGraphic.addDoneListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = equipmentIdentifyGraphic.get();
-                            if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
-                                int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                showEquipmentInfo(zIndex);
-                            }
-                        } catch (InterruptedException | ExecutionException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                });
-                locationIdentifyGraphic.addDoneListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = locationIdentifyGraphic.get();
-                            if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
-                                int i = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                String s = String.valueOf(i);
-                                String id = s.substring(0, s.length() - 1);
-                                String type = String.valueOf(s.charAt(s.length() - 1));
-                                Log.d(TAG, "zIndex:" + i);
-                                if (i != 0) {
-                                    showPersonLocation(Integer.valueOf(id), type);
+                    final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic1 = sceneView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 10.0, false, 2);
+                    final ListenableFuture<IdentifyGraphicsOverlayResult> personIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(personGraphicsOverlay, screenPoint, 10.0, false, 2);
+                    final ListenableFuture<IdentifyGraphicsOverlayResult> equipmentIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(equipmentGraphicOverlay, screenPoint, 10.0, false, 2);
+                    final ListenableFuture<IdentifyGraphicsOverlayResult> locationIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(personLocationGraphicOverlay, screenPoint, 10.0, false, 2);
+                    final ListenableFuture<IdentifyGraphicsOverlayResult> searchPlaceIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(searchPlaceGraphicOverlay, screenPoint, 10.0, false, 2);
+                    final ListenableFuture<IdentifyGraphicsOverlayResult> searchPersonIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(searchPersonGraphicOverlay, screenPoint, 10.0, false, 2);
+                    identifyGraphic1.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = identifyGraphic1.get();
+                                if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
+                                    int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+                                    showInfo(zIndex);
                                 }
+                            } catch (InterruptedException | ExecutionException e1) {
+                                e1.printStackTrace();
                             }
-                        } catch (InterruptedException | ExecutionException e1) {
-                            e1.printStackTrace();
                         }
-                    }
-                });
+                    });
+                    personIdentifyGraphic.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = personIdentifyGraphic.get();
+                                if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
+                                    int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+                                    showPersonInfo(mPersonTypes.get(zIndex).getId(), mPersonTypes.get(zIndex).getType());
+                                }
+                            } catch (InterruptedException | ExecutionException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
+                    equipmentIdentifyGraphic.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = equipmentIdentifyGraphic.get();
+                                if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
+                                    int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+                                    showEquipmentInfo(zIndex);
+                                }
+                            } catch (InterruptedException | ExecutionException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
+                    locationIdentifyGraphic.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = locationIdentifyGraphic.get();
+                                if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
+                                    int i = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+                                    String s = String.valueOf(i);
+                                    String id = s.substring(0, s.length() - 1);
+                                    String type = String.valueOf(s.charAt(s.length() - 1));
+                                    Log.d(TAG, "zIndex:" + i);
+                                    if (i != 0) {
+                                        showPersonLocation(Integer.valueOf(id), type);
+                                    }
+                                }
+                            } catch (InterruptedException | ExecutionException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
+                    searchPersonIdentifyGraphic.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = searchPersonIdentifyGraphic.get();
+                                if (identifyGraphicsOverlayResult.getGraphics().size() > 0 && searchPersonBean != null) {
+                                    showSearchPersonInfo();
+                                }
+                            } catch (InterruptedException | ExecutionException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
+                    searchPlaceIdentifyGraphic.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = searchPlaceIdentifyGraphic.get();
+                                if (identifyGraphicsOverlayResult.getGraphics().size() > 0 && searchPlaceBean != null) {
+                                    showSearchPlaceInfo();
+                                }
+                            } catch (InterruptedException | ExecutionException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
+                }
 
 
                 return super.onSingleTapConfirmed(e);
@@ -945,6 +990,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    private void showSearchPersonInfo() {
+        new AlertDialog.Builder(context)
+                .setMessage("姓名：" + searchPersonBean.getName() + "\n" +
+                        "电话：" + searchPersonBean.getPhone() + "\n" +
+                        "东经：" + searchPersonBean.getLon() + "\n" +
+                        "北纬：" + searchPersonBean.getLat()
+                )
+                .show();
+    }
+
+    private void showSearchPlaceInfo() {
+        new AlertDialog.Builder(context)
+                .setMessage("名称：" + searchPlaceBean.getName() + "\n" +
+                        "东经：" + searchPlaceBean.getLon() + "\n" +
+                        "北纬：" + searchPlaceBean.getLat()
+                )
+                .show();
+    }
+
     private void showPersonLocation(int zIndex, String type) {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_location_person_info, null);
         TextView tvName = (TextView) view.findViewById(R.id.tv_name);
@@ -970,6 +1034,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onClick(View view) {
                         //TODO 视频通话
+                        startActivity(new Intent(MainActivity.this, VideoCallActivity.class));
                     }
                 });
                 new AlertDialog.Builder(context)
@@ -1028,6 +1093,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                         mTabDisasterInfo = new TabDisasterInfo();
                         mTabDisasterInfo.setData(datas);
+                        Log.d("limeng","mTabDisasterInfo.size"+mTabDisasterInfo.getData().size());
                         setOverlay();
                         PersonLocation personLocation;
                         mPersonTypes.clear();
@@ -1991,7 +2057,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.iv_search_main:
-                ToSearch();
+                if (searchPersonGraphics.size() > 0 || searchPlaceGraphics.size() > 0) {
+                    searchPlaceGraphics.clear();
+                    searchPersonGraphics.clear();
+                } else {
+                    if (!layers.contains(lowImageLayer)) {
+                        layers.clear();
+                        elevationSources.clear();
+                        layers.add(lowImageLayer);
+                        layers.add(highImageLayer);
+                        elevationSources.add(elevationSource);
+                        Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+                        sceneView.setViewpointCameraAsync(camera, 2);
+                    }
+                    ToSearch();
+                }
                 break;
             case R.id.iv_luopan:
                 resetPosition();
@@ -2420,31 +2500,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setUtilBack() {
-        if (llUtilState == false) {
+        if (!llUtilState) {
             btnUtil.setText("关闭工具");
-            clearAllGraphics();
-            //图层设置
-            layers.clear();
-            elevationSources.clear();
-            layers.add(lowImageLayer);
-            layers.add(highImageLayer);
-            elevationSources.add(elevationSource);
-            Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
-            sceneView.setViewpointCamera(camera);
-
             llUtil.setVisibility(View.VISIBLE);
-            llArea.setVisibility(View.INVISIBLE);
-            llData.setVisibility(View.INVISIBLE);
             llUtilState = true;
         } else {
             btnUtil.setText("打开工具");
             btnUtilDetail.setVisibility(View.GONE);
-            clearAllGraphics();
             clear();
             tvMeasureResult.setText("");
             llUtil.setVisibility(View.INVISIBLE);
-            llArea.setVisibility(View.VISIBLE);
-            llData.setVisibility(View.VISIBLE);
             llUtilState = false;
         }
     }
@@ -2457,7 +2522,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 搜索
      */
     private void ToSearch() {
-
         final View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_search, null);
         final Spinner spinner1 = (Spinner) view.findViewById(R.id.spinner1);
         final Spinner spinner2 = (Spinner) view.findViewById(R.id.spinner2);
@@ -2574,7 +2638,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                             public void onItemClick(View view) {
                                                 int position = rc.getChildAdapterPosition(view);
                                                 if (position > 0) {
-                                                    setSearchPlaceOverlay(mSearchPlace.getData().get(position - 1), searchType2);
+                                                    searchPlaceBean = mSearchPlace.getData().get(position - 1);
+                                                    setSearchPlaceOverlay(searchPlaceBean);
                                                 }
                                             }
                                         });
@@ -2588,7 +2653,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                             public void onItemClick(View view) {
                                                 int position = rc.getChildAdapterPosition(view);
                                                 if (position > 0) {
-                                                    setSearchPersonOverlay(mSearchPerson.getData().get(position - 1), searchType2);
+                                                    searchPersonBean = mSearchPerson.getData().get(position - 1);
+                                                    setSearchPersonOverlay(searchPersonBean);
                                                 }
                                             }
                                         });
@@ -2599,8 +2665,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        final AlertDialog ss = new AlertDialog.Builder(MainActivity.this).setView(view).create();
-        ss.show();
+        searchDialog = new AlertDialog.Builder(MainActivity.this).setView(view).create();
+        searchDialog.show();
 
         //http://183.230.182.149:18081/springmvc/seek/search/"+areaCode+"/"+searchValue+"/"+searchType1+"/"+searchType2
         //http://183.230.182.149:18081/springmvc/seek/search/500110/s/8/27
@@ -2608,29 +2674,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //http://183.230.182.149:18081/springmvc/seek/search/500110,/%E7%8E%8B/26/33
     }
 
-    private void setSearchPersonOverlay(SearchPerson.DataBean data, int type) {
-        PersonLocation personLocation;
-        mPersonTypes.clear();
-        qcPersons.clear();
-        personLocation = new PersonLocation();
-        personLocation.setLat(data.getLat() + "");
-        personLocation.setLon(data.getLon() + "");
-        personLocation.setType(type + "");
-        qcPersons.add(personLocation);
-        setPersonGraphic();
+    private void setSearchPersonOverlay(final SearchPerson.DataBean data) {
+        searchPersonGraphics.clear();
+        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(context, R.mipmap.search_person);
+        final PictureMarkerSymbol symbol = new PictureMarkerSymbol(drawable);
+        symbol.setWidth(80);
+        symbol.setHeight(100);
+        symbol.loadAsync();
+        symbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                Point point = new Point(data.getLon(), data.getLat(), SpatialReferences.getWgs84());
+                Graphic graphic = new Graphic(point, symbol);
+                searchPersonGraphics.add(graphic);
+                Camera camera = new Camera(data.getLat(), data.getLon(), 10000, 0, 0, 0.0);
+                sceneView.setViewpointCameraAsync(camera, 2);
+                searchDialog.dismiss();
+            }
+        });
     }
 
-    private void setSearchPlaceOverlay(SearchPlace.DataBean data, int type) {
-        List<TabDisasterInfo.DataBean> datas = new ArrayList<TabDisasterInfo.DataBean>();
-        TabDisasterInfo.DataBean dataBean = new TabDisasterInfo.DataBean();
-        dataBean.setDisLat(data.getLat());
-        dataBean.setDisLon(data.getLon());
-        dataBean.setDisNo(data.getNumber());
-        dataBean.setDisType(type);
-        datas.add(dataBean);
-        mTabDisasterInfo = new TabDisasterInfo();
-        mTabDisasterInfo.setData(datas);
-        setOverlay();
+    private void setSearchPlaceOverlay(final SearchPlace.DataBean data) {
+        searchPlaceGraphics.clear();
+        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(context, R.mipmap.search_point);
+        final PictureMarkerSymbol symbol = new PictureMarkerSymbol(drawable);
+        symbol.setWidth(80);
+        symbol.setHeight(100);
+        symbol.loadAsync();
+        symbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                Point point = new Point(data.getLon(), data.getLat(), SpatialReferences.getWgs84());
+                Graphic graphic = new Graphic(point, symbol);
+                searchPlaceGraphics.add(graphic);
+                Camera camera = new Camera(data.getLat(), data.getLon(), 10000, 0, 0, 0.0);
+                sceneView.setViewpointCameraAsync(camera, 2);
+                searchDialog.dismiss();
+            }
+        });
     }
 
     private void addWeather() {
@@ -2851,7 +2932,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        lp.rightMargin = 10;
+        lp.rightMargin = 100;
         lp.bottomMargin = 30;
         if (view == null) {
             view = inflater.inflate(resource, null);
@@ -2953,6 +3034,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         localGraphics.clear();
         equipmentGraphics.clear();
         weathersGraphics.clear();
+        allGraphics.clear();
+        mTabDisasterInfo=null;
+        qcPersons.clear();
     }
 
     /**

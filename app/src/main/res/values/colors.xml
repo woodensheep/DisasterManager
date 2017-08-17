@@ -43,4 +43,11 @@
     <color name="button_default_border">#FF444444</color>
     <color name="button_focused_border">#FFAAAAAA</color>
     <color name="button_disabled_focused_border">#FF888888</color>
+
+    <color name="grey">#363636</color>
+    <color name="dark_grey">#282828</color>
+    <color name="trans_dark_grey">#80282828</color>
+    <color name="trans_white">#20ffffff</color>
+    <color name="trans">#00000000</color>
+    <color name="blue">#cc33b5e5</color>
 </resources>
