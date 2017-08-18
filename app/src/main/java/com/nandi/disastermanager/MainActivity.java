@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
@@ -78,8 +79,6 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
 import com.esri.arcgisruntime.mapping.view.LocationToScreenResult;
 import com.esri.arcgisruntime.mapping.view.SceneView;
-import com.esri.arcgisruntime.mapping.view.SpatialReferenceChangedEvent;
-import com.esri.arcgisruntime.mapping.view.SpatialReferenceChangedListener;
 import com.esri.arcgisruntime.mapping.view.ViewpointChangedEvent;
 import com.esri.arcgisruntime.mapping.view.ViewpointChangedListener;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
@@ -664,12 +663,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rbEquipmentYingji.setOnCheckedChangeListener(this);
         rbQxyj.setOnCheckedChangeListener(this);
         rbQxyb.setOnCheckedChangeListener(this);
-        sceneView.addViewpointChangedListener(new ViewpointChangedListener() {
-            @Override
-            public void viewpointChanged(ViewpointChangedEvent viewpointChangedEvent) {
-
-            }
-        });
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -1010,16 +1003,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sceneView.addViewpointChangedListener(new ViewpointChangedListener() {
             @Override
             public void viewpointChanged(ViewpointChangedEvent viewpointChangedEvent) {
-                int widthPixels = context.getResources().getDisplayMetrics().widthPixels;
-                int heightPixels = context.getResources().getDisplayMetrics().heightPixels;
-                final android.graphics.Point startPoint = new android.graphics.Point(0, 0);
-                final android.graphics.Point endPoint = new android.graphics.Point(widthPixels, heightPixels);
                 new Thread() {
                     @Override
                     public void run() {
                         super.run();
-
                         try {
+                            int widthPixels = context.getResources().getDisplayMetrics().widthPixels;
+                            int heightPixels = context.getResources().getDisplayMetrics().heightPixels;
+                            android.graphics.Point startPoint = new android.graphics.Point(0, 0);
+                            android.graphics.Point endPoint = new android.graphics.Point(widthPixels, heightPixels);
                             Point start = sceneView.screenToLocationAsync(startPoint).get();
                             Point end = sceneView.screenToLocationAsync(endPoint).get();
                             PointCollection collection = new PointCollection(SpatialReferences.getWgs84());
@@ -1034,10 +1026,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 @Override
                                 public void run() {
                                     tvScale.setText("(1  :  " + scale + ")");
-
                                 }
                             });
-                        } catch (InterruptedException | ExecutionException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -3373,12 +3364,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    /**
+     * 气象预警改变图层
+     */
     private void changeRender() {
         new Thread() {
             @Override
             public void run() {
                 super.run();
                 try {
+                    Message msg=Message.obtain();
+                    msg.what=1;
                     while (true) {
                         setOldRender();
                         Thread.sleep(2000);
@@ -3386,9 +3382,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         setOldRender2();
                         Thread.sleep(2000);
                         xzFeatureLayer.resetRenderer();
-                        //Thread.sleep(3000);
                     }
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -3405,7 +3400,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         uniqueValueRenderer.getFieldNames().add("name");
 
         SimpleFillSymbol defaultFillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.NULL, Color.BLACK, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 2));
-        SimpleFillSymbol symbol1 = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.RED, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 2));
+        SimpleFillSymbol symbol1 = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.RED, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 1));
 
 //        uniqueValueRenderer.setDefaultSymbol(defaultFillSymbol);
         uniqueValueRenderer.setDefaultLabel("Other");
@@ -3434,9 +3429,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        jinQiaoValue.add("金桥镇");
 //        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("金桥镇", "State of Nevada", symbol1, jinQiaoValue));
 //
-//        List<Object> qingNianVlue = new ArrayList<>();
-//        qingNianVlue.add("青年镇");
-//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("青年镇", "State of Nevada", symbol2, qingNianVlue));
+        List<Object> qingNianVlue = new ArrayList<>();
+        qingNianVlue.add("青年镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("青年镇", "State of Nevada", symbol1, qingNianVlue));
 //
 //        List<Object> heiShanValue = new ArrayList<>();
 //        heiShanValue.add("黑山镇");
@@ -3453,7 +3448,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         uniqueValueRenderer.getFieldNames().add("name");
 
         SimpleFillSymbol defaultFillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.NULL, Color.BLACK, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 2));
-        SimpleFillSymbol symbol3 = new SimpleFillSymbol(SimpleFillSymbol.Style.NULL, Color.parseColor("#00ffffff"), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 2));
+        SimpleFillSymbol symbol3 = new SimpleFillSymbol(SimpleFillSymbol.Style.NULL, Color.parseColor("#00ffffff"), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 1));
 
 //        uniqueValueRenderer.setDefaultSymbol(defaultFillSymbol);
         uniqueValueRenderer.setDefaultLabel("Other");
@@ -3482,9 +3477,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        jinQiaoValue.add("金桥镇");
 //        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("金桥镇", "State of Nevada", symbol1, jinQiaoValue));
 //
-//        List<Object> qingNianVlue = new ArrayList<>();
-//        qingNianVlue.add("青年镇");
-//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("青年镇", "State of Nevada", symbol2, qingNianVlue));
+        List<Object> qingNianVlue = new ArrayList<>();
+        qingNianVlue.add("青年镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("青年镇", "State of Nevada", symbol3, qingNianVlue));
 //
 //        List<Object> heiShanValue = new ArrayList<>();
 //        heiShanValue.add("黑山镇");
