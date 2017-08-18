@@ -33,21 +33,14 @@
         <include layout="@layout/activity_data_manage" />
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/iv_luopan"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentRight="true"
-        android:layout_margin="10dp"
-        android:src="@drawable/compass" />
 
     <ImageView
         android:id="@+id/iv_location"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/iv_luopan"
         android:layout_margin="10dp"
+        android:layout_below="@+id/map_control"
         android:src="@drawable/location" />
 
     <ImageView
@@ -165,21 +158,33 @@
         android:visibility="gone" />
 
     <LinearLayout
+        android:id="@+id/map_control"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_toLeftOf="@id/iv_luopan">
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dp"
+        android:background="@color/white"
+        android:layout_marginTop="10dp">
+
         <ImageButton
             android:id="@+id/iv_enlarge"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@mipmap/enlarge"
-           />
+            android:background="@drawable/map_control_selector"
+            android:src="@mipmap/enlarge" />
+
+        <ImageView
+            android:id="@+id/iv_luopan"
+            android:layout_width="50dp"
+            android:background="@drawable/map_control_selector"
+            android:layout_height="50dp"
+            android:src="@mipmap/compass" />
+
         <ImageButton
             android:id="@+id/iv_narrow"
+            android:background="@drawable/map_control_selector"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@mipmap/narrow"
-            />
+            android:src="@mipmap/narrow" />
     </LinearLayout>
 </RelativeLayout>
