@@ -78,6 +78,8 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
 import com.esri.arcgisruntime.mapping.view.LocationToScreenResult;
 import com.esri.arcgisruntime.mapping.view.SceneView;
+import com.esri.arcgisruntime.mapping.view.SpatialReferenceChangedEvent;
+import com.esri.arcgisruntime.mapping.view.SpatialReferenceChangedListener;
 import com.esri.arcgisruntime.mapping.view.ViewpointChangedEvent;
 import com.esri.arcgisruntime.mapping.view.ViewpointChangedListener;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
@@ -1010,23 +1012,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void viewpointChanged(ViewpointChangedEvent viewpointChangedEvent) {
                 int widthPixels = context.getResources().getDisplayMetrics().widthPixels;
                 int heightPixels = context.getResources().getDisplayMetrics().heightPixels;
-                android.graphics.Point startPoint = new android.graphics.Point(0, 0);
-                android.graphics.Point endPoint = new android.graphics.Point(widthPixels, heightPixels);
-                try {
-                    Point start = sceneView.screenToLocationAsync(startPoint).get();
-                    Point end = sceneView.screenToLocationAsync(endPoint).get();
-                    PointCollection collection = new PointCollection(SpatialReferences.getWgs84());
-                    collection.add(start);
-                    collection.add(end);
-                    Polyline polyline = new Polyline(collection);
-                    double realLength = GeometryEngine.lengthGeodetic(polyline, new LinearUnit(LinearUnitId.METERS), GeodeticCurveType.GREAT_ELLIPTIC);
-                    double screenLength = getScreenSizeOfDevice() * 2.54;
-                    Log.d(TAG, "实际长度：" + realLength + "\n" + "屏幕尺寸：" + screenLength);
-                    int scale= (int) (Math.ceil((realLength/screenLength)/1000)*1000);
-                    tvScale.setText("(1  :  "+scale+")");
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
+                final android.graphics.Point startPoint = new android.graphics.Point(0, 0);
+                final android.graphics.Point endPoint = new android.graphics.Point(widthPixels, heightPixels);
+                new Thread() {
+                    @Override
+                    public void run() {
+                        super.run();
+
+                        try {
+                            Point start = sceneView.screenToLocationAsync(startPoint).get();
+                            Point end = sceneView.screenToLocationAsync(endPoint).get();
+                            PointCollection collection = new PointCollection(SpatialReferences.getWgs84());
+                            collection.add(start);
+                            collection.add(end);
+                            Polyline polyline = new Polyline(collection);
+                            double realLength = GeometryEngine.lengthGeodetic(polyline, new LinearUnit(LinearUnitId.METERS), GeodeticCurveType.GREAT_ELLIPTIC) * 100;
+                            double screenLength = getScreenSizeOfDevice() * 2.54;
+                            Log.d(TAG, "实际长度：" + realLength + "\n" + "屏幕尺寸：" + screenLength);
+                            final int scale = (int) (Math.ceil((realLength / screenLength) / 1000) * 1000);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tvScale.setText("(1  :  " + scale + ")");
+
+                                }
+                            });
+                        } catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
 
             }
         });
