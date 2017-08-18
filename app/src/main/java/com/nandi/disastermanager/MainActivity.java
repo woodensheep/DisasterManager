@@ -77,6 +77,8 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
 import com.esri.arcgisruntime.mapping.view.LocationToScreenResult;
 import com.esri.arcgisruntime.mapping.view.SceneView;
+import com.esri.arcgisruntime.mapping.view.ViewpointChangedEvent;
+import com.esri.arcgisruntime.mapping.view.ViewpointChangedListener;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
@@ -126,6 +128,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -656,6 +659,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rbEquipmentYingji.setOnCheckedChangeListener(this);
         rbQxyj.setOnCheckedChangeListener(this);
         rbQxyb.setOnCheckedChangeListener(this);
+        sceneView.addViewpointChangedListener(new ViewpointChangedListener() {
+            @Override
+            public void viewpointChanged(ViewpointChangedEvent viewpointChangedEvent) {
+
+            }
+        });
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -1150,14 +1159,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void showDialogPic() {
         final View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_pic, null);
-        final AlertDialog ss = new AlertDialog.Builder(MainActivity.this).create();
+        final AlertDialog ss = new AlertDialog.Builder(MainActivity.this).setView(view).create();
         ss.show();
         WindowManager windowManager = getWindowManager();
         Display display = windowManager.getDefaultDisplay();
         WindowManager.LayoutParams lp = ss.getWindow().getAttributes();
         lp.width = (int) (display.getWidth()); //设置宽度
+        lp.height = (int) (display.getHeight()); //设置宽度
         ss.getWindow().setAttributes(lp);
-        ss.getWindow().setContentView(view);
     }
 
     /**
@@ -1215,13 +1224,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d("limeng", "chartsInfo.getData().getX1().size()=" + chartsInfo.getData().getX1().size());
                 Log.d("limeng", "chartsInfo.getData().getX1().get(0).size()=" + chartsInfo.getData().getX1().get(0).size());
                 ArrayList<PointValue> values = new ArrayList<PointValue>();//折线上的点
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
-
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd");
+                List<Float> axisValues=new ArrayList<Float>();
+                List<String> axisValuesLabels=new ArrayList<String>();
+                Date date=new Date();
+                int number=chartsInfo.getData().getX1().size()/7;
                 for (int i = 0; i < chartsInfo.getData().getX1().size(); i++) {
                     List<Float> x = chartsInfo.getData().getX1().get(i);
+                    date.setTime(Long.parseLong(new BigDecimal(x.get(0)+"").toPlainString()));
+                    String s = simpleDateFormat.format(date);
                     values.add(new PointValue(x.get(0), x.get(1) / 1000));
+                    axisValues.add(x.get(0));
+                    axisValuesLabels.add(s);
                 }
-
                 Line line = new Line(values).setColor(Color.GREEN);//声明线并设置颜色
                 line.setCubic(false);//设置是平滑的还是直的
                 line.setStrokeWidth(1);
@@ -1231,14 +1246,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mChartView.setInteractive(false);//设置图表是可以交互的（拖拽，缩放等效果的前提）
                 mChartView.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);//设置缩放方向
                 LineChartData data = new LineChartData();
-                Axis axisX = new Axis();//x轴
+
+                Axis axisX =Axis.generateAxisFromCollection(axisValues,axisValuesLabels);
                 Axis axisY = new Axis();//y轴
                 axisX.setHasSeparationLine(true);
                 axisX.setTextColor(Color.BLACK);
                 axisX.setLineColor(Color.BLACK);
                 axisX.setInside(false);
-                axisX.setMaxLabelChars(8);
                 axisX.setName("日期");
+                axisX.setTextSize(16);
+                axisX.setMaxLabelChars(8);
                 axisY.setName("实时位移(m)");
                 axisY.setLineColor(Color.BLACK);
                 axisY.setTextColor(Color.BLACK);
@@ -1247,13 +1264,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 data.setAxisYLeft(axisY);
                 data.setLines(lines);
                 mChartView.setLineChartData(data);//给图表设置数据
-
                 AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
                         .show();
                 WindowManager windowManager = getWindowManager();
                 Display display = windowManager.getDefaultDisplay();
                 WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-                lp.width = (int) (display.getWidth()); //设置宽度
+                lp.width = WindowManager.LayoutParams.WRAP_CONTENT; //设置宽度
+                lp.height = WindowManager.LayoutParams.WRAP_CONTENT; //设置宽度
                 dialog.getWindow().setAttributes(lp);
                 dialog.getWindow().setContentView(view);
             }
@@ -1864,13 +1881,88 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
         rc1.setLayoutManager(new LinearLayoutManager(this));
-        rc1.setAdapter(new RcPhotoAdapter(this, mList1));
+        RcPhotoAdapter rcAdapter1 = new RcPhotoAdapter(this, mList1);
+        RcPhotoAdapter rcAdapter2 = new RcPhotoAdapter(this, mList2);
+        RcPhotoAdapter rcAdapter3 = new RcPhotoAdapter(this, mList3);
+        RcPhotoAdapter rcAdapter4 = new RcPhotoAdapter(this, mList4);
+        final View view1=getLayoutInflater().inflate(R.layout.dialog_pic,null);
+        final ImageView imageView = (ImageView) view1.findViewById(R.id.iv_pic);
+        final AlertDialog alertDialog=new AlertDialog.Builder(context).setView(view1).create();
+        rcAdapter1.setItemClickListener(new RcPhotoAdapter.onItemClickListener() {
+            @Override
+            public void OnItemClick(View view, int position) {
+                alertDialog.show();
+                WindowManager windowManager = getWindowManager();
+                Display display = windowManager.getDefaultDisplay();
+                WindowManager.LayoutParams lp = alertDialog.getWindow().getAttributes();
+                lp.width = (int) (display.getWidth());
+                lp.height = (int) (display.getHeight());
+                alertDialog.getWindow().setAttributes(lp);
+                String url=view.getTag()+"";
+                Glide.with(context).load(url)
+                        .placeholder(R.mipmap.downloading)
+                        .error(R.mipmap.download_pass)
+                        .into(imageView);
+            }
+        });
+        rcAdapter2.setItemClickListener(new RcPhotoAdapter.onItemClickListener() {
+            @Override
+            public void OnItemClick(View view, int position) {
+                alertDialog.show();
+                WindowManager windowManager = getWindowManager();
+                Display display = windowManager.getDefaultDisplay();
+                WindowManager.LayoutParams lp = alertDialog.getWindow().getAttributes();
+                lp.width = (int) (display.getWidth());
+                lp.height = (int) (display.getHeight());
+                alertDialog.getWindow().setAttributes(lp);
+                String url=view.getTag()+"";
+                Glide.with(context).load(url)
+                        .placeholder(R.mipmap.downloading)
+                        .error(R.mipmap.download_pass)
+                        .into(imageView);
+            }
+        });
+        rcAdapter3.setItemClickListener(new RcPhotoAdapter.onItemClickListener() {
+            @Override
+            public void OnItemClick(View view, int position) {
+                alertDialog.show();
+                WindowManager windowManager = getWindowManager();
+                Display display = windowManager.getDefaultDisplay();
+                WindowManager.LayoutParams lp = alertDialog.getWindow().getAttributes();
+                lp.width = (int) (display.getWidth());
+                lp.height = (int) (display.getHeight());
+                alertDialog.getWindow().setAttributes(lp);
+                String url=view.getTag()+"";
+                Glide.with(context).load(url)
+                        .placeholder(R.mipmap.downloading)
+                        .error(R.mipmap.download_pass)
+                        .into(imageView);
+            }
+        });
+        rcAdapter4.setItemClickListener(new RcPhotoAdapter.onItemClickListener() {
+            @Override
+            public void OnItemClick(View view, int position) {
+                alertDialog.show();
+                WindowManager windowManager = getWindowManager();
+                Display display = windowManager.getDefaultDisplay();
+                WindowManager.LayoutParams lp = alertDialog.getWindow().getAttributes();
+                lp.width = (int) (display.getWidth());
+                lp.height = (int) (display.getHeight());
+                alertDialog.getWindow().setAttributes(lp);
+                String url=view.getTag()+"";
+                Glide.with(context).load(url)
+                        .placeholder(R.mipmap.downloading)
+                        .error(R.mipmap.download_pass)
+                        .into(imageView);
+            }
+        });
+        rc1.setAdapter(rcAdapter1);
         rc2.setLayoutManager(new LinearLayoutManager(this));
-        rc2.setAdapter(new RcPhotoAdapter(this, mList2));
+        rc2.setAdapter(rcAdapter2);
         rc3.setLayoutManager(new LinearLayoutManager(this));
-        rc3.setAdapter(new RcPhotoAdapter(this, mList3));
+        rc3.setAdapter(rcAdapter3);
         rc4.setLayoutManager(new LinearLayoutManager(this));
-        rc4.setAdapter(new RcPhotoAdapter(this, mList4));
+        rc4.setAdapter(rcAdapter4);
         return view;
     }
 
@@ -3232,9 +3324,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     while (true) {
                         setOldRender();
-                        Thread.sleep(1000);
-                        xzFeatureLayer.resetRenderer();
                         Thread.sleep(2000);
+                        xzFeatureLayer.resetRenderer();
+                        setOldRender2();
+                        Thread.sleep(2000);
+                        xzFeatureLayer.resetRenderer();
+                        //Thread.sleep(3000);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -3253,89 +3348,90 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         uniqueValueRenderer.getFieldNames().add("name");
 
         SimpleFillSymbol defaultFillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.NULL, Color.BLACK, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 2));
-        SimpleFillSymbol symbol1 = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.RED, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 3));
-        SimpleFillSymbol symbol2 = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.parseColor("#FF6100"), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 3));
-        SimpleFillSymbol symbol3 = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.YELLOW, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 3));
+        SimpleFillSymbol symbol1 = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.RED, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 2));
 
-        uniqueValueRenderer.setDefaultSymbol(defaultFillSymbol);
-        uniqueValueRenderer.setDefaultLabel("Other");
-
-        List<Object> wanDongValue = new ArrayList<>();
-        wanDongValue.add("万东镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("万东镇", "State of California", symbol2, wanDongValue));
-
-        List<Object> congLinValue = new ArrayList<>();
-        congLinValue.add("丛林镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("丛林镇", "State of Arizona", symbol2, congLinValue));
-
-        List<Object> guanBaValue = new ArrayList<>();
-        guanBaValue.add("关坝镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("关坝镇", "State of Nevada", symbol3, guanBaValue));
-
-        List<Object> nanTongValue = new ArrayList<>();
-        nanTongValue.add("南桐镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("南桐镇", "State of Nevada", symbol3, nanTongValue));
-
-        List<Object> shiLinValue = new ArrayList<>();
-        shiLinValue.add("石林镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("石林镇", "State of Nevada", symbol1, shiLinValue));
-
-        List<Object> jinQiaoValue = new ArrayList<>();
-        jinQiaoValue.add("金桥镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("金桥镇", "State of Nevada", symbol1, jinQiaoValue));
-
-        List<Object> qingNianVlue = new ArrayList<>();
-        qingNianVlue.add("青年镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("青年镇", "State of Nevada", symbol2, qingNianVlue));
-
-        List<Object> heiShanValue = new ArrayList<>();
-        heiShanValue.add("黑山镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("黑山镇", "State of Nevada", symbol3, heiShanValue));
-
-        xzFeatureLayer.setRenderer(uniqueValueRenderer);
-    }
-
-    private void setNewRender() {
-        UniqueValueRenderer uniqueValueRenderer = new UniqueValueRenderer();
-        uniqueValueRenderer.getFieldNames().add("name");
-
-        SimpleFillSymbol defaultFillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.NULL, Color.BLACK, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 2));
-        SimpleFillSymbol symbol1 = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.WHITE, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 3));
-
-        uniqueValueRenderer.setDefaultSymbol(defaultFillSymbol);
+//        uniqueValueRenderer.setDefaultSymbol(defaultFillSymbol);
         uniqueValueRenderer.setDefaultLabel("Other");
 
         List<Object> wanDongValue = new ArrayList<>();
         wanDongValue.add("万东镇");
         uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("万东镇", "State of California", symbol1, wanDongValue));
 
-        List<Object> congLinValue = new ArrayList<>();
-        congLinValue.add("丛林镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("丛林镇", "State of Arizona", symbol1, congLinValue));
+//        List<Object> congLinValue = new ArrayList<>();
+//        congLinValue.add("丛林镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("丛林镇", "State of Arizona", symbol2, congLinValue));
+//
+//        List<Object> guanBaValue = new ArrayList<>();
+//        guanBaValue.add("关坝镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("关坝镇", "State of Nevada", symbol3, guanBaValue));
+//
+//        List<Object> nanTongValue = new ArrayList<>();
+//        nanTongValue.add("南桐镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("南桐镇", "State of Nevada", symbol3, nanTongValue));
+//
+//        List<Object> shiLinValue = new ArrayList<>();
+//        shiLinValue.add("石林镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("石林镇", "State of Nevada", symbol1, shiLinValue));
+//
+//        List<Object> jinQiaoValue = new ArrayList<>();
+//        jinQiaoValue.add("金桥镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("金桥镇", "State of Nevada", symbol1, jinQiaoValue));
+//
+//        List<Object> qingNianVlue = new ArrayList<>();
+//        qingNianVlue.add("青年镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("青年镇", "State of Nevada", symbol2, qingNianVlue));
+//
+//        List<Object> heiShanValue = new ArrayList<>();
+//        heiShanValue.add("黑山镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("黑山镇", "State of Nevada", symbol3, heiShanValue));
 
-        List<Object> guanBaValue = new ArrayList<>();
-        guanBaValue.add("关坝镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("关坝镇", "State of Nevada", symbol1, guanBaValue));
+        xzFeatureLayer.setRenderer(uniqueValueRenderer);
+    }
 
-        List<Object> nanTongValue = new ArrayList<>();
-        nanTongValue.add("南桐镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("南桐镇", "State of Nevada", symbol1, nanTongValue));
+    /**
+     * 变换颜色
+     */
+    private void setOldRender2() {
+        UniqueValueRenderer uniqueValueRenderer = new UniqueValueRenderer();
+        uniqueValueRenderer.getFieldNames().add("name");
 
-        List<Object> shiLinValue = new ArrayList<>();
-        shiLinValue.add("石林镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("石林镇", "State of Nevada", symbol1, shiLinValue));
+        SimpleFillSymbol defaultFillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.NULL, Color.BLACK, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 2));
+        SimpleFillSymbol symbol3 = new SimpleFillSymbol(SimpleFillSymbol.Style.NULL, Color.parseColor("#00ffffff"), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 2));
 
-        List<Object> jinQiaoValue = new ArrayList<>();
-        jinQiaoValue.add("金桥镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("金桥镇", "State of Nevada", symbol1, jinQiaoValue));
+//        uniqueValueRenderer.setDefaultSymbol(defaultFillSymbol);
+        uniqueValueRenderer.setDefaultLabel("Other");
 
-        List<Object> qingNianVlue = new ArrayList<>();
-        qingNianVlue.add("青年镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("青年镇", "State of Nevada", symbol1, qingNianVlue));
+        List<Object> wanDongValue = new ArrayList<>();
+        wanDongValue.add("万东镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("万东镇", "State of California", symbol3, wanDongValue));
 
-        List<Object> heiShanValue = new ArrayList<>();
-        heiShanValue.add("黑山镇");
-        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("黑山镇", "State of Nevada", symbol1, heiShanValue));
+//        List<Object> congLinValue = new ArrayList<>();
+//        congLinValue.add("丛林镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("丛林镇", "State of Arizona", symbol2, congLinValue));
+//
+//        List<Object> guanBaValue = new ArrayList<>();
+//        guanBaValue.add("关坝镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("关坝镇", "State of Nevada", symbol3, guanBaValue));
+//
+//        List<Object> nanTongValue = new ArrayList<>();
+//        nanTongValue.add("南桐镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("南桐镇", "State of Nevada", symbol3, nanTongValue));
+//
+//        List<Object> shiLinValue = new ArrayList<>();
+//        shiLinValue.add("石林镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("石林镇", "State of Nevada", symbol1, shiLinValue));
+//
+//        List<Object> jinQiaoValue = new ArrayList<>();
+//        jinQiaoValue.add("金桥镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("金桥镇", "State of Nevada", symbol1, jinQiaoValue));
+//
+//        List<Object> qingNianVlue = new ArrayList<>();
+//        qingNianVlue.add("青年镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("青年镇", "State of Nevada", symbol2, qingNianVlue));
+//
+//        List<Object> heiShanValue = new ArrayList<>();
+//        heiShanValue.add("黑山镇");
+//        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("黑山镇", "State of Nevada", symbol3, heiShanValue));
 
         xzFeatureLayer.setRenderer(uniqueValueRenderer);
     }

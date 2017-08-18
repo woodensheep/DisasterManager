@@ -16,10 +16,10 @@ import java.util.List;
  * Created by lemon on 2017/7/25.
  */
 
-public class RcPhotoAdapter extends RecyclerView.Adapter<RcPhotoAdapter.ViewHolderA>{
+public class RcPhotoAdapter extends RecyclerView.Adapter<RcPhotoAdapter.ViewHolderA> {
     private Context mContext;
     private List<String> mList ;
-
+    private onItemClickListener mItemClickListener;
     public RcPhotoAdapter(Context context,List<String> mList) {
         mContext = context;
         this.mList =  mList;
@@ -34,7 +34,7 @@ public class RcPhotoAdapter extends RecyclerView.Adapter<RcPhotoAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(ViewHolderA holder, int position) {
+    public void onBindViewHolder(final ViewHolderA holder, final int position) {
         //此处设置Item中view的数据
         String str4= "暂无";
                 if(mList.get(position)!=null&&mList.get(position)!="") {
@@ -47,6 +47,15 @@ public class RcPhotoAdapter extends RecyclerView.Adapter<RcPhotoAdapter.ViewHold
                 .thumbnail(0.1f)
                 .error(R.mipmap.download_pass)
                 .into(holder.iv);
+        holder.iv.setTag(str4);
+        if(mItemClickListener!=null){
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mItemClickListener.OnItemClick(holder.iv,position);
+                }
+            });
+        }
     }
 
     @Override
@@ -63,6 +72,14 @@ public class RcPhotoAdapter extends RecyclerView.Adapter<RcPhotoAdapter.ViewHold
             super(itemView);
             iv = (ImageView) itemView.findViewById(R.id.iv_disaster_photo);
         }
+
     }
 
+    public void setItemClickListener(onItemClickListener onItemClickListener){
+        this.mItemClickListener=onItemClickListener;
+    }
+
+    public interface onItemClickListener{
+        void OnItemClick(View view ,int position);
+    }
 }
