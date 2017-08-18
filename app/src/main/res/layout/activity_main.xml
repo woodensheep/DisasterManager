@@ -40,21 +40,22 @@
         android:layout_alignParentRight="true"
         android:layout_margin="10dp"
         android:src="@drawable/compass" />
+
     <ImageView
         android:id="@+id/iv_location"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignParentRight="true"
-        android:layout_margin="10dp"
         android:layout_below="@+id/iv_luopan"
-        android:src="@drawable/location"/>
+        android:layout_margin="10dp"
+        android:src="@drawable/location" />
 
     <ImageView
         android:id="@+id/iv_search_main"
         android:layout_width="40dp"
-        android:layout_below="@+id/iv_location"
         android:layout_height="40dp"
         android:layout_alignParentRight="true"
+        android:layout_below="@+id/iv_location"
         android:layout_margin="10dp"
         android:src="@drawable/search_icon" />
 
@@ -68,15 +69,15 @@
         android:text="打开工具" />
 
     <Button
-        android:visibility="gone"
         android:id="@+id/btn_util_detail"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:text="显示详情"
         android:layout_above="@+id/ll_data"
+        android:layout_marginBottom="18dp"
         android:layout_toLeftOf="@+id/btn_util"
         android:layout_toStartOf="@+id/btn_util"
-        android:layout_marginBottom="18dp" />
+        android:text="显示详情"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/ll_util"
@@ -97,69 +98,88 @@
             android:onClick="pointClick"
             android:src="@drawable/ic_action_point" />
 
-            <ImageButton
-                android:id="@+id/polylineButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/button_bar_background"
-                android:contentDescription="@string/polylineButtonDescription"
-                android:onClick="polylineClick"
-                android:src="@drawable/ic_action_polyline" />
+        <ImageButton
+            android:id="@+id/polylineButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_bar_background"
+            android:contentDescription="@string/polylineButtonDescription"
+            android:onClick="polylineClick"
+            android:src="@drawable/ic_action_polyline" />
 
-            <ImageButton
-                android:id="@+id/polygonButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/button_bar_background"
-                android:contentDescription="@string/polygonButtonDescription"
-                android:onClick="polygonClick"
-                android:src="@drawable/ic_action_polygon" />
+        <ImageButton
+            android:id="@+id/polygonButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_bar_background"
+            android:contentDescription="@string/polygonButtonDescription"
+            android:onClick="polygonClick"
+            android:src="@drawable/ic_action_polygon" />
 
-            <ImageButton
-                android:id="@+id/undoButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/button_bar_background"
-                android:contentDescription="@string/undoButtonDescription"
-                android:onClick="undoClick"
-                android:src="@drawable/ic_action_undo" />
+        <ImageButton
+            android:id="@+id/undoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_bar_background"
+            android:contentDescription="@string/undoButtonDescription"
+            android:onClick="undoClick"
+            android:src="@drawable/ic_action_undo" />
 
-            <ImageButton
-                android:id="@+id/redoButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/button_bar_background"
-                android:contentDescription="@string/redoButtonDescription"
-                android:onClick="redoClick"
-                android:src="@drawable/ic_action_redo" />
+        <ImageButton
+            android:id="@+id/redoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_bar_background"
+            android:contentDescription="@string/redoButtonDescription"
+            android:onClick="redoClick"
+            android:src="@drawable/ic_action_redo" />
 
-            <ImageButton
-                android:id="@+id/clearButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/button_bar_background"
-                android:contentDescription="@string/clearButtonDescription"
-                android:onClick="clearClick"
-                android:src="@drawable/ic_action_clear" />
-        </LinearLayout>
+        <ImageButton
+            android:id="@+id/clearButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_bar_background"
+            android:contentDescription="@string/clearButtonDescription"
+            android:onClick="clearClick"
+            android:src="@drawable/ic_action_clear" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_measure_result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
+        android:layout_margin="100dp"
         android:layout_marginRight="30dp"
         android:textColor="#ffffff"
-        android:layout_margin="100dp"
         android:textSize="20sp" />
 
 
     <com.nandi.disastermanager.ui.CircleBar
-        android:visibility="gone"
+        android:id="@+id/pie_chart"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="-60dp"
-        android:id="@+id/pie_chart"
-        android:layout_width="200dp"
-        android:layout_height="200dp"/>
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_toLeftOf="@id/iv_luopan">
+        <ImageButton
+            android:id="@+id/iv_enlarge"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@mipmap/enlarge"
+           />
+        <ImageButton
+            android:id="@+id/iv_narrow"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@mipmap/narrow"
+            />
+    </LinearLayout>
 </RelativeLayout>

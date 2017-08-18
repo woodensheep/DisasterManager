@@ -77,8 +77,6 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
 import com.esri.arcgisruntime.mapping.view.LocationToScreenResult;
 import com.esri.arcgisruntime.mapping.view.SceneView;
-import com.esri.arcgisruntime.mapping.view.ViewpointChangedEvent;
-import com.esri.arcgisruntime.mapping.view.ViewpointChangedListener;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
@@ -284,6 +282,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView tvQcqfNumber;
     @BindView(R.id.btn_util_detail)
     Button btnUtilDetail;
+    @BindView(R.id.iv_enlarge)
+    ImageButton ivEnlarge;
+    @BindView(R.id.iv_narrow)
+    ImageButton ivNarrow;
 
     private boolean llAreaState = false;
     private boolean llDataState = false;
@@ -399,7 +401,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SearchPlace.DataBean searchPlaceBean;
     private SearchPerson.DataBean searchPersonBean;
     private AlertDialog searchDialog;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -621,6 +622,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setListeners() {
+        ivEnlarge.setOnClickListener(this);
+        ivNarrow.setOnClickListener(this);
         btnUtilDetail.setOnClickListener(this);
         ivLocation.setOnClickListener(this);
         ivSearchMain.setOnClickListener(this);
@@ -653,12 +656,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rbEquipmentYingji.setOnCheckedChangeListener(this);
         rbQxyj.setOnCheckedChangeListener(this);
         rbQxyb.setOnCheckedChangeListener(this);
-        sceneView.addViewpointChangedListener(new ViewpointChangedListener() {
-            @Override
-            public void viewpointChanged(ViewpointChangedEvent viewpointChangedEvent) {
-
-            }
-        });
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -2049,6 +2046,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.iv_enlarge:
+                setEnlarge();
+                break;
+            case R.id.iv_narrow:
+                setNarrow();
+                break;
             case R.id.btn_util_detail:
                 setOkhttpKuangxuan(detailhttp, detailarea);
                 break;
@@ -2183,6 +2186,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setUtilBack();
                 break;
         }
+    }
+
+    private void setNarrow() {
+        Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
+        Camera elevate = currentViewpointCamera.elevate(-10000);
+        sceneView.setViewpointCameraAsync(elevate,1);
+
+    }
+
+    private void setEnlarge() {
+        Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
+        Camera elevate = currentViewpointCamera.elevate(10000);
+        sceneView.setViewpointCameraAsync(elevate,1);
     }
 
     private void personLocation() {
