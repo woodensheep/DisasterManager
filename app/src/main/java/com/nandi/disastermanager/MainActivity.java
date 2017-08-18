@@ -2282,14 +2282,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setNarrow() {
         Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
-        Camera elevate = currentViewpointCamera.elevate(-10000);
+        Camera elevate = currentViewpointCamera.elevate(4000);
         sceneView.setViewpointCameraAsync(elevate,1);
 
     }
 
     private void setEnlarge() {
         Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
-        Camera elevate = currentViewpointCamera.elevate(10000);
+        Camera elevate = currentViewpointCamera.elevate(-4000);
         sceneView.setViewpointCameraAsync(elevate,1);
     }
 
