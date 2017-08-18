@@ -187,4 +187,13 @@
             android:layout_height="50dp"
             android:src="@mipmap/narrow" />
     </LinearLayout>
+    <TextView
+        android:id="@+id/tv_scale"
+        android:textColor="@color/white"
+        android:textSize="28sp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </RelativeLayout>

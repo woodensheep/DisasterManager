@@ -18,6 +18,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -289,6 +290,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageButton ivEnlarge;
     @BindView(R.id.iv_narrow)
     ImageButton ivNarrow;
+    @BindView(R.id.tv_scale)
+    TextView tvScale;
 
     private boolean llAreaState = false;
     private boolean llDataState = false;
@@ -1002,6 +1005,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
+        sceneView.addViewpointChangedListener(new ViewpointChangedListener() {
+            @Override
+            public void viewpointChanged(ViewpointChangedEvent viewpointChangedEvent) {
+                int widthPixels = context.getResources().getDisplayMetrics().widthPixels;
+                int heightPixels = context.getResources().getDisplayMetrics().heightPixels;
+                android.graphics.Point startPoint = new android.graphics.Point(0, 0);
+                android.graphics.Point endPoint = new android.graphics.Point(widthPixels, heightPixels);
+                try {
+                    Point start = sceneView.screenToLocationAsync(startPoint).get();
+                    Point end = sceneView.screenToLocationAsync(endPoint).get();
+                    PointCollection collection = new PointCollection(SpatialReferences.getWgs84());
+                    collection.add(start);
+                    collection.add(end);
+                    Polyline polyline = new Polyline(collection);
+                    double realLength = GeometryEngine.lengthGeodetic(polyline, new LinearUnit(LinearUnitId.METERS), GeodeticCurveType.GREAT_ELLIPTIC);
+                    double screenLength = getScreenSizeOfDevice() * 2.54;
+                    Log.d(TAG, "实际长度：" + realLength + "\n" + "屏幕尺寸：" + screenLength);
+                    int scale= (int) (Math.ceil((realLength/screenLength)/1000)*1000);
+                    tvScale.setText("(1  :  "+scale+")");
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+    }
+
+    private double getScreenSizeOfDevice() {
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        double x = Math.pow(width, 2);
+        double y = Math.pow(height, 2);
+        double diagonal = Math.sqrt(x + y);
+
+        int dens = dm.densityDpi;
+        double screenInches = diagonal / (double) dens;
+        Log.d(TAG, "The screenInches " + screenInches);
+        return screenInches;
     }
 
     private void showSearchPersonInfo() {
@@ -1225,13 +1267,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d("limeng", "chartsInfo.getData().getX1().get(0).size()=" + chartsInfo.getData().getX1().get(0).size());
                 ArrayList<PointValue> values = new ArrayList<PointValue>();//折线上的点
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd");
-                List<Float> axisValues=new ArrayList<Float>();
-                List<String> axisValuesLabels=new ArrayList<String>();
-                Date date=new Date();
-                int number=chartsInfo.getData().getX1().size()/7;
+                List<Float> axisValues = new ArrayList<Float>();
+                List<String> axisValuesLabels = new ArrayList<String>();
+                Date date = new Date();
+                int number = chartsInfo.getData().getX1().size() / 7;
                 for (int i = 0; i < chartsInfo.getData().getX1().size(); i++) {
                     List<Float> x = chartsInfo.getData().getX1().get(i);
-                    date.setTime(Long.parseLong(new BigDecimal(x.get(0)+"").toPlainString()));
+                    date.setTime(Long.parseLong(new BigDecimal(x.get(0) + "").toPlainString()));
                     String s = simpleDateFormat.format(date);
                     values.add(new PointValue(x.get(0), x.get(1) / 1000));
                     axisValues.add(x.get(0));
@@ -1247,7 +1289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mChartView.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);//设置缩放方向
                 LineChartData data = new LineChartData();
 
-                Axis axisX =Axis.generateAxisFromCollection(axisValues,axisValuesLabels);
+                Axis axisX = Axis.generateAxisFromCollection(axisValues, axisValuesLabels);
                 Axis axisY = new Axis();//y轴
                 axisX.setHasSeparationLine(true);
                 axisX.setTextColor(Color.BLACK);
@@ -1885,9 +1927,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RcPhotoAdapter rcAdapter2 = new RcPhotoAdapter(this, mList2);
         RcPhotoAdapter rcAdapter3 = new RcPhotoAdapter(this, mList3);
         RcPhotoAdapter rcAdapter4 = new RcPhotoAdapter(this, mList4);
-        final View view1=getLayoutInflater().inflate(R.layout.dialog_pic,null);
+        final View view1 = getLayoutInflater().inflate(R.layout.dialog_pic, null);
         final ImageView imageView = (ImageView) view1.findViewById(R.id.iv_pic);
-        final AlertDialog alertDialog=new AlertDialog.Builder(context).setView(view1).create();
+        final AlertDialog alertDialog = new AlertDialog.Builder(context).setView(view1).create();
         rcAdapter1.setItemClickListener(new RcPhotoAdapter.onItemClickListener() {
             @Override
             public void OnItemClick(View view, int position) {
@@ -1898,7 +1940,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 lp.width = (int) (display.getWidth());
                 lp.height = (int) (display.getHeight());
                 alertDialog.getWindow().setAttributes(lp);
-                String url=view.getTag()+"";
+                String url = view.getTag() + "";
                 Glide.with(context).load(url)
                         .placeholder(R.mipmap.downloading)
                         .error(R.mipmap.download_pass)
@@ -1915,7 +1957,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 lp.width = (int) (display.getWidth());
                 lp.height = (int) (display.getHeight());
                 alertDialog.getWindow().setAttributes(lp);
-                String url=view.getTag()+"";
+                String url = view.getTag() + "";
                 Glide.with(context).load(url)
                         .placeholder(R.mipmap.downloading)
                         .error(R.mipmap.download_pass)
@@ -1932,7 +1974,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 lp.width = (int) (display.getWidth());
                 lp.height = (int) (display.getHeight());
                 alertDialog.getWindow().setAttributes(lp);
-                String url=view.getTag()+"";
+                String url = view.getTag() + "";
                 Glide.with(context).load(url)
                         .placeholder(R.mipmap.downloading)
                         .error(R.mipmap.download_pass)
@@ -1949,7 +1991,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 lp.width = (int) (display.getWidth());
                 lp.height = (int) (display.getHeight());
                 alertDialog.getWindow().setAttributes(lp);
-                String url=view.getTag()+"";
+                String url = view.getTag() + "";
                 Glide.with(context).load(url)
                         .placeholder(R.mipmap.downloading)
                         .error(R.mipmap.download_pass)
@@ -2283,14 +2325,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setNarrow() {
         Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
         Camera elevate = currentViewpointCamera.elevate(4000);
-        sceneView.setViewpointCameraAsync(elevate,1);
+        sceneView.setViewpointCameraAsync(elevate, 1);
 
     }
 
     private void setEnlarge() {
         Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
         Camera elevate = currentViewpointCamera.elevate(-4000);
-        sceneView.setViewpointCameraAsync(elevate,1);
+        sceneView.setViewpointCameraAsync(elevate, 1);
     }
 
     private void personLocation() {
