@@ -77,6 +77,8 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
 import com.esri.arcgisruntime.mapping.view.LocationToScreenResult;
 import com.esri.arcgisruntime.mapping.view.SceneView;
+import com.esri.arcgisruntime.mapping.view.ViewpointChangedEvent;
+import com.esri.arcgisruntime.mapping.view.ViewpointChangedListener;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
@@ -651,6 +653,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rbEquipmentYingji.setOnCheckedChangeListener(this);
         rbQxyj.setOnCheckedChangeListener(this);
         rbQxyb.setOnCheckedChangeListener(this);
+        sceneView.addViewpointChangedListener(new ViewpointChangedListener() {
+            @Override
+            public void viewpointChanged(ViewpointChangedEvent viewpointChangedEvent) {
+
+            }
+        });
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -761,7 +769,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 });
-                if (!mPolylineButton.isSelected()&&!mPolygonButton.isSelected()&&!mPointButton.isSelected()) {
+                if (!mPolylineButton.isSelected() && !mPolygonButton.isSelected() && !mPointButton.isSelected()) {
 
                     ListenableFuture<Point> pointListenableFuture = sceneView.screenToLocationAsync(screenPoint);
                     if (layers.contains(xingZhengLayer)) {
@@ -1093,7 +1101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                         mTabDisasterInfo = new TabDisasterInfo();
                         mTabDisasterInfo.setData(datas);
-                        Log.d("limeng","mTabDisasterInfo.size"+mTabDisasterInfo.getData().size());
+                        Log.d("limeng", "mTabDisasterInfo.size" + mTabDisasterInfo.getData().size());
                         setOverlay();
                         PersonLocation personLocation;
                         mPersonTypes.clear();
@@ -2053,6 +2061,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         layers.clear();
                         elevationSources.clear();
                         layers.add(chongqingLayer);
+                        clearAllGraphics();
                     }
                 }
                 break;
@@ -3035,7 +3044,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         equipmentGraphics.clear();
         weathersGraphics.clear();
         allGraphics.clear();
-        mTabDisasterInfo=null;
+        mTabDisasterInfo = null;
         qcPersons.clear();
     }
 
@@ -3182,8 +3191,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.rb_qxyj:
                 if (b) {
-                    setRender();
                     layers.add(xzFeatureLayer);
+                    changeRender();
                 } else {
                     layers.remove(xzFeatureLayer);
                 }
@@ -3198,11 +3207,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+    private void changeRender() {
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                try {
+                    while (true) {
+                        setOldRender();
+                        Thread.sleep(1000);
+                        xzFeatureLayer.resetRenderer();
+                        Thread.sleep(2000);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+
     private void updateWeather(List<Graphic> g) {
         weathersGraphics.addAll(g);
     }
 
-    private void setRender() {
+    private void setOldRender() {
         UniqueValueRenderer uniqueValueRenderer = new UniqueValueRenderer();
         uniqueValueRenderer.getFieldNames().add("name");
 
@@ -3245,6 +3275,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         List<Object> heiShanValue = new ArrayList<>();
         heiShanValue.add("黑山镇");
         uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("黑山镇", "State of Nevada", symbol3, heiShanValue));
+
+        xzFeatureLayer.setRenderer(uniqueValueRenderer);
+    }
+
+    private void setNewRender() {
+        UniqueValueRenderer uniqueValueRenderer = new UniqueValueRenderer();
+        uniqueValueRenderer.getFieldNames().add("name");
+
+        SimpleFillSymbol defaultFillSymbol = new SimpleFillSymbol(SimpleFillSymbol.Style.NULL, Color.BLACK, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 2));
+        SimpleFillSymbol symbol1 = new SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.WHITE, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.GRAY, 3));
+
+        uniqueValueRenderer.setDefaultSymbol(defaultFillSymbol);
+        uniqueValueRenderer.setDefaultLabel("Other");
+
+        List<Object> wanDongValue = new ArrayList<>();
+        wanDongValue.add("万东镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("万东镇", "State of California", symbol1, wanDongValue));
+
+        List<Object> congLinValue = new ArrayList<>();
+        congLinValue.add("丛林镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("丛林镇", "State of Arizona", symbol1, congLinValue));
+
+        List<Object> guanBaValue = new ArrayList<>();
+        guanBaValue.add("关坝镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("关坝镇", "State of Nevada", symbol1, guanBaValue));
+
+        List<Object> nanTongValue = new ArrayList<>();
+        nanTongValue.add("南桐镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("南桐镇", "State of Nevada", symbol1, nanTongValue));
+
+        List<Object> shiLinValue = new ArrayList<>();
+        shiLinValue.add("石林镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("石林镇", "State of Nevada", symbol1, shiLinValue));
+
+        List<Object> jinQiaoValue = new ArrayList<>();
+        jinQiaoValue.add("金桥镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("金桥镇", "State of Nevada", symbol1, jinQiaoValue));
+
+        List<Object> qingNianVlue = new ArrayList<>();
+        qingNianVlue.add("青年镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("青年镇", "State of Nevada", symbol1, qingNianVlue));
+
+        List<Object> heiShanValue = new ArrayList<>();
+        heiShanValue.add("黑山镇");
+        uniqueValueRenderer.getUniqueValues().add(new UniqueValueRenderer.UniqueValue("黑山镇", "State of Nevada", symbol1, heiShanValue));
 
         xzFeatureLayer.setRenderer(uniqueValueRenderer);
     }
