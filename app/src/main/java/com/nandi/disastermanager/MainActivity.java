@@ -93,7 +93,6 @@ import com.nandi.disastermanager.adapter.RcPersonAdapter;
 import com.nandi.disastermanager.adapter.RcPhotoAdapter;
 import com.nandi.disastermanager.adapter.RcSearchPersonAdapter;
 import com.nandi.disastermanager.adapter.RcSearchPlaceAdapter;
-import com.nandi.disastermanager.entity.ChartsInfo;
 import com.nandi.disastermanager.entity.DetailBaseInfo;
 import com.nandi.disastermanager.entity.DetailDisCard;
 import com.nandi.disastermanager.entity.DetailHeCard;
@@ -103,6 +102,17 @@ import com.nandi.disastermanager.entity.DetailPnInfo;
 import com.nandi.disastermanager.entity.DisasterByStateInfo;
 import com.nandi.disastermanager.entity.DisasterDetailInfo;
 import com.nandi.disastermanager.entity.DisasterPoint;
+import com.nandi.disastermanager.entity.EquipmentLocation;
+import com.nandi.disastermanager.entity.EquipmentType1;
+import com.nandi.disastermanager.entity.EquipmentType11;
+import com.nandi.disastermanager.entity.EquipmentType14;
+import com.nandi.disastermanager.entity.EquipmentType19;
+import com.nandi.disastermanager.entity.EquipmentType20;
+import com.nandi.disastermanager.entity.EquipmentType22;
+import com.nandi.disastermanager.entity.EquipmentType23;
+import com.nandi.disastermanager.entity.EquipmentType25;
+import com.nandi.disastermanager.entity.EquipmentType26;
+import com.nandi.disastermanager.entity.EquipmentType3;
 import com.nandi.disastermanager.entity.KuangxuanInfo;
 import com.nandi.disastermanager.entity.PersonDHInfo;
 import com.nandi.disastermanager.entity.PersonFZInfo;
@@ -112,13 +122,14 @@ import com.nandi.disastermanager.entity.PersonType;
 import com.nandi.disastermanager.entity.PersonZSInfo;
 import com.nandi.disastermanager.entity.SearchPerson;
 import com.nandi.disastermanager.entity.SearchPlace;
+import com.nandi.disastermanager.entity.SingleEquipment;
 import com.nandi.disastermanager.entity.TabDisasterInfo;
 import com.nandi.disastermanager.entity.personLocationInfo;
+import com.nandi.disastermanager.http.EquipmentOkhttp;
 import com.nandi.disastermanager.ui.CircleBar;
 import com.nandi.disastermanager.ui.MyRadioGroup;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.DateTimePickUtil;
-import com.nandi.disastermanager.utils.LocalJson;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
 import com.nandi.disastermanager.videocall.helloanychat.VideoCallActivity;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -130,7 +141,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -140,17 +150,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import lecho.lib.hellocharts.gesture.ZoomType;
-import lecho.lib.hellocharts.model.Axis;
-import lecho.lib.hellocharts.model.Line;
-import lecho.lib.hellocharts.model.LineChartData;
-import lecho.lib.hellocharts.model.PointValue;
-import lecho.lib.hellocharts.view.LineChartView;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -408,6 +413,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SearchPlace.DataBean searchPlaceBean;
     private SearchPerson.DataBean searchPersonBean;
     private AlertDialog searchDialog;
+    /**点击的设备的id**/
+    private int equipmentzIndex;
+    /**所有设备信息**/
+    private EquipmentLocation equipmentLocation;
+    /**
+     * ALL_EQUIPMENT:请求所有设备后
+     * SINGLE_EQUIPMENT:点击单个设备后
+     * SINGLE_EQUIPMENT_DETAIL:点击单个设备的详细数据后
+     */
+    private Handler handler=new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what){
+                case EquipmentOkhttp.ALL_EQUIPMENT:
+                    equipmentLocation=(EquipmentLocation)msg.obj;
+                    Log.d("limeng",equipmentLocation.getData().size()+"");
+                    addEquipment();
+                    break;
+                case EquipmentOkhttp.SINGLE_EQUIPMENT:
+                    SingleEquipment singleEquipment=(SingleEquipment)msg.obj;
+                    showEquipmentInfo(singleEquipment);
+                    break;
+                case EquipmentOkhttp.SINGLE_EQUIPMENT_DETAIL:
+                    String s=(String)msg.obj;
+                    showEquipmentDetail(s,msg.arg1);
+                    break;
+            }
+            return false;
+        }
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -840,7 +875,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = equipmentIdentifyGraphic.get();
                                 if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
                                     int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                    showEquipmentInfo(zIndex);
+                                    equipmentzIndex=zIndex;
+                                    //设备点击
+                                    EquipmentOkhttp.getSingleEquipment(context,zIndex,handler);
                                 }
                             } catch (InterruptedException | ExecutionException e1) {
                                 e1.printStackTrace();
@@ -1126,7 +1163,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onResponse(String response, int id) {
                         WaitingDialog.closeDialog(waitingDialog);
                         Gson gson = new Gson();
-                        KuangxuanInfo mKuangxuanInfo = gson.fromJson(response, KuangxuanInfo.class);
+                        KuangxuanInfo mKuangxuanInfo = null;
+                        try {
+                             mKuangxuanInfo = gson.fromJson(response, KuangxuanInfo.class);
+                        }catch (Exception e){
+
+                        }
+                        if ( null==mKuangxuanInfo) {
+                            Toast.makeText(context,"框选框内无数据点",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         KuangxuanInfo.DataBean data = mKuangxuanInfo.getData();
                         if (data == null) {
                             return;
@@ -1220,13 +1266,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 测试设备信息
      *
-     * @param zIndex
      */
-    private void showEquipmentInfo(int zIndex) {
+    private void showEquipmentInfo(final SingleEquipment singleEquipment) {
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_shebi, null);
         final LinearLayout llSheBeiInfo1 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_1);
         final LinearLayout llSheBeiInfo2 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_2);
         final LinearLayout llSheBeiInfo3 = (LinearLayout) view.findViewById(R.id.ll_shebei_info_3);
+        ((TextView) view.findViewById(R.id.tv_monitor_name)).setText(singleEquipment.getData().getMonitor_name());
+        ((TextView) view.findViewById(R.id.tv_static_name)).setText(singleEquipment.getData().getStatic_name());
+        ((TextView) view.findViewById(R.id.tv_device_name)).setText(singleEquipment.getData().getDevice_name());
+        ((TextView) view.findViewById(R.id.tv_hardware_version)).setText(singleEquipment.getData().getHardware_version());
+        ((TextView) view.findViewById(R.id.tv_soft_version)).setText(singleEquipment.getData().getSoft_version());
+        ((TextView) view.findViewById(R.id.tv_register_date)).setText(singleEquipment.getData().getRegister_date().replace("T","\t"));
+        ((TextView) view.findViewById(R.id.tv_state)).setText("1".equals(singleEquipment.getData().getState())?"正常工作":"离线");
+
+        ((TextView) view.findViewById(R.id.tv_project_name)).setText(singleEquipment.getData().getProject_name());
+        ((TextView) view.findViewById(R.id.tv_start_date)).setText(singleEquipment.getData().getStart_date().replace("T","\t"));
+        ((TextView) view.findViewById(R.id.tv_project_add)).setText(singleEquipment.getData().getProject_add());
+        ((TextView) view.findViewById(R.id.tv_longitude)).setText(singleEquipment.getData().getLongitude()+"");
+        ((TextView) view.findViewById(R.id.tv_latitude)).setText(singleEquipment.getData().getLatitude()+"");
+        ((TextView) view.findViewById(R.id.tv_project_man)).setText(singleEquipment.getData().getProject_man());
         ImageView ivPic = (ImageView) view.findViewById(R.id.iv_pic);
         ivPic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1266,67 +1325,72 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvCheckToDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.activity_charts, null);
-                LineChartView mChartView = (LineChartView) view.findViewById(R.id.chart);
-                ChartsInfo chartsInfo = LocalJson.parseJson(context, "gpsData.json");
-                Log.d("limeng", "chartsInfo.getData().getX1().size()=" + chartsInfo.getData().getX1().size());
-                Log.d("limeng", "chartsInfo.getData().getX1().get(0).size()=" + chartsInfo.getData().getX1().get(0).size());
-                ArrayList<PointValue> values = new ArrayList<PointValue>();//折线上的点
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd");
-                List<Float> axisValues = new ArrayList<Float>();
-                List<String> axisValuesLabels = new ArrayList<String>();
-                Date date = new Date();
-                int number = chartsInfo.getData().getX1().size() / 7;
-                for (int i = 0; i < chartsInfo.getData().getX1().size(); i++) {
-                    List<Float> x = chartsInfo.getData().getX1().get(i);
-                    date.setTime(Long.parseLong(new BigDecimal(x.get(0) + "").toPlainString()));
-                    String s = simpleDateFormat.format(date);
-                    values.add(new PointValue(x.get(0), x.get(1) / 1000));
-                    axisValues.add(x.get(0));
-                    axisValuesLabels.add(s);
+                String deviceNo;
+                switch (singleEquipment.getData().getMonitor_type()){
+                    case 1:
+                        deviceNo=singleEquipment.getData().getTable_name();
+                        break;
+                    case 3:
+                        deviceNo=equipmentzIndex+"";
+                        break;
+                    case 22:
+                        deviceNo=equipmentzIndex+"";
+                        break;
+                    default:
+                        deviceNo=singleEquipment.getData().getDevice_no();
+                        break;
                 }
-                Line line = new Line(values).setColor(Color.GREEN);//声明线并设置颜色
-                line.setCubic(false);//设置是平滑的还是直的
-                line.setStrokeWidth(1);
-                line.setHasPoints(false);
-                List<Line> lines = new ArrayList<Line>();
-                lines.add(line);
-                mChartView.setInteractive(false);//设置图表是可以交互的（拖拽，缩放等效果的前提）
-                mChartView.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);//设置缩放方向
-                LineChartData data = new LineChartData();
-
-                Axis axisX = Axis.generateAxisFromCollection(axisValues, axisValuesLabels);
-                Axis axisY = new Axis();//y轴
-                axisX.setHasSeparationLine(true);
-                axisX.setTextColor(Color.BLACK);
-                axisX.setLineColor(Color.BLACK);
-                axisX.setInside(false);
-                axisX.setName("日期");
-                axisX.setTextSize(16);
-                axisX.setMaxLabelChars(8);
-                axisY.setName("实时位移(m)");
-                axisY.setLineColor(Color.BLACK);
-                axisY.setTextColor(Color.BLACK);
-                axisY.setTextSize(16);
-                data.setAxisXBottom(axisX);
-                data.setAxisYLeft(axisY);
-                data.setLines(lines);
-                mChartView.setLineChartData(data);//给图表设置数据
-                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
-                        .show();
-                WindowManager windowManager = getWindowManager();
-                Display display = windowManager.getDefaultDisplay();
-                WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-                lp.width = WindowManager.LayoutParams.WRAP_CONTENT; //设置宽度
-                lp.height = WindowManager.LayoutParams.WRAP_CONTENT; //设置宽度
-                dialog.getWindow().setAttributes(lp);
-                dialog.getWindow().setContentView(view);
+                EquipmentOkhttp.getSingleEquipmentDetail(context,deviceNo,singleEquipment.getData().getMonitor_type()+"",handler);
             }
         });
         AlertDialog dialog1 = new AlertDialog.Builder(MainActivity.this)
                 .setView(view)
                 .show();
     }
+
+    /**
+     * 显示设备曲线信息
+     * @param response 信息实体
+     * @param type 设备type
+     */
+    private void showEquipmentDetail(String response,int type){
+        Gson gson=new Gson();
+        switch (type){
+            case 1: EquipmentType1 equipmentType1=gson.fromJson(response, EquipmentType1.class);
+                EquipmentOkhttp.getType1lines(context,equipmentType1);
+                break;
+            case 3: EquipmentType3 equipmentType3=gson.fromJson(response, EquipmentType3.class);
+                EquipmentOkhttp.getType3lines(context,equipmentType3);
+                break;
+            case 11:EquipmentType11 equipmentType11=gson.fromJson(response, EquipmentType11.class);
+                EquipmentOkhttp.getType11lines(context,equipmentType11);
+                break;
+            case 14:EquipmentType14 equipmentType14=gson.fromJson(response, EquipmentType14.class);
+                EquipmentOkhttp.getType14lines(context,equipmentType14);
+                break;
+            case 19:EquipmentType19 equipmentType19=gson.fromJson(response, EquipmentType19.class);
+                EquipmentOkhttp.getType19lines(context,equipmentType19);
+                break;
+            case 20:EquipmentType20 equipmentType20=gson.fromJson(response, EquipmentType20.class);
+                EquipmentOkhttp.getType20lines(context,equipmentType20);
+                break;
+            case 22:EquipmentType22 equipmentType22=gson.fromJson(response, EquipmentType22.class);
+                EquipmentOkhttp.getType22lines(context,equipmentType22);
+                break;
+            case 23:EquipmentType23 equipmentType23=gson.fromJson(response, EquipmentType23.class);
+                EquipmentOkhttp.getType23lines(context,equipmentType23);
+                break;
+            case 25:EquipmentType25 equipmentType25=gson.fromJson(response, EquipmentType25.class);
+                EquipmentOkhttp.getType25lines(context,equipmentType25);
+                break;
+            case 26:EquipmentType26 equipmentType26=gson.fromJson(response, EquipmentType26.class);
+                EquipmentOkhttp.getType26lines(context,equipmentType26);
+                break;
+        }
+
+
+    }
+
 
 
     private void showPersonInfo(int zIndex, final String type) {
@@ -2287,14 +2351,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (view != null) {
                     rlMain.removeView(view);
                 }
-                addEquipment();
                 if (llMoreStateBefore != 4) {
                     layers.clear();
                     elevationSources.clear();
                     layers.add(lowImageLayer);
                     layers.add(highImageLayer);
                     elevationSources.add(elevationSource);
-                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+                    Camera camera = new Camera(29.375, 107.58056, 50000.0, 0, 20, 0.0);
                     sceneView.setViewpointCamera(camera);
                 }
                 break;
@@ -3311,7 +3374,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.rb_equipment_jiance:
                 if (b) {
-                    updateEquipmentGraphic(jianceGraphics);
+                    EquipmentOkhttp.getAllEquipment(context,"500232",handler);
                     setPieChartData("88", "在线率");
                 } else {
                     clearAllGraphics();
@@ -3489,20 +3552,147 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    /**
+     * 添加设备
+     */
     private void addEquipment() {
-        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.sign);
-        final PictureMarkerSymbol symbol = new PictureMarkerSymbol(drawable);
-        symbol.setWidth(50);
-        symbol.setHeight(50);
-        symbol.setOffsetY(11);
-        symbol.loadAsync();
-        symbol.addDoneLoadingListener(new Runnable() {
+        final PictureMarkerSymbol symbol1 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip1));
+        final PictureMarkerSymbol symbol2 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip2));
+        final PictureMarkerSymbol symbol3 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip3));
+        final PictureMarkerSymbol symbol4 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip4));
+        final PictureMarkerSymbol symbol5 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip5));
+        final PictureMarkerSymbol symbol8 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip8));
+        final PictureMarkerSymbol symbol9 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip9));
+        final PictureMarkerSymbol symbol10 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip10));
+        final PictureMarkerSymbol symbol11 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip11));
+        final PictureMarkerSymbol symbol12 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip12));
+        final PictureMarkerSymbol symbol14 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip14));
+        final PictureMarkerSymbol symbol15 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip15));
+        final PictureMarkerSymbol symbol16 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip16));
+        final PictureMarkerSymbol symbol17 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip17));
+        final PictureMarkerSymbol symbol18 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip18));
+        final PictureMarkerSymbol symbol19 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip19));
+        final PictureMarkerSymbol symbol20 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip20));
+        final PictureMarkerSymbol symbol21 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip21));
+        final PictureMarkerSymbol symbol22 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip22));
+        final PictureMarkerSymbol symbol23 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip23));
+        final PictureMarkerSymbol symbol24 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip24));
+        final PictureMarkerSymbol symbol25 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip25));
+        final PictureMarkerSymbol symbol26 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip26));
+        symbol1.setWidth(45);symbol1.setHeight(60);symbol1.setOffsetY(11);
+        symbol2.setWidth(45);symbol2.setHeight(60);symbol2.setOffsetY(11);
+        symbol3.setWidth(45);symbol3.setHeight(60);symbol3.setOffsetY(11);
+        symbol4.setWidth(45);symbol4.setHeight(60);symbol4.setOffsetY(11);
+        symbol8.setWidth(45);symbol8.setHeight(60);symbol8.setOffsetY(11);
+        symbol9.setWidth(45);symbol9.setHeight(60);symbol9.setOffsetY(11);
+        symbol10.setWidth(45);symbol10.setHeight(60);symbol10.setOffsetY(11);
+        symbol11.setWidth(45);symbol11.setHeight(60);symbol11.setOffsetY(11);
+        symbol12.setWidth(45);symbol12.setHeight(60);symbol12.setOffsetY(11);
+        symbol14.setWidth(45);symbol14.setHeight(60);symbol14.setOffsetY(11);
+        symbol15.setWidth(45);symbol15.setHeight(60);symbol15.setOffsetY(11);
+        symbol16.setWidth(45);symbol16.setHeight(60);symbol16.setOffsetY(11);
+        symbol17.setWidth(45);symbol17.setHeight(60);symbol17.setOffsetY(11);
+        symbol18.setWidth(45);symbol18.setHeight(60);symbol18.setOffsetY(11);
+        symbol19.setWidth(45);symbol19.setHeight(60);symbol19.setOffsetY(11);
+        symbol20.setWidth(45);symbol20.setHeight(60);symbol20.setOffsetY(11);
+        symbol21.setWidth(45);symbol21.setHeight(60);symbol21.setOffsetY(11);
+        symbol22.setWidth(45);symbol22.setHeight(60);symbol22.setOffsetY(11);
+        symbol23.setWidth(45);symbol23.setHeight(60);symbol23.setOffsetY(11);
+        symbol24.setWidth(45);symbol24.setHeight(60);symbol24.setOffsetY(11);
+        symbol25.setWidth(45);symbol25.setHeight(60);symbol25.setOffsetY(11);
+        symbol26.setWidth(45);symbol26.setHeight(60);symbol26.setOffsetY(11);
+        symbol1.loadAsync();
+        symbol1.addDoneLoadingListener(new Runnable() {
             @Override
             public void run() {
-                Point point = new Point(106.91015726332898, 28.87312428984992, SpatialReferences.getWgs84());
-                Graphic graphic = new Graphic(point, symbol);
-                graphic.setZIndex(100000);
-                jianceGraphics.add(graphic);
+                for (EquipmentLocation.DataBean data:equipmentLocation.getData()){
+                    if(1==data.getType()){
+                        Log.d("limeng","data.getResult().size()="+data.getResult().size());
+                        Random random=new Random();
+                        for (EquipmentLocation.DataBean.ResultBean result:data.getResult()){
+                            if(0!=result.getLatitude()) {
+                                Point point = new Point(result.getLongitude()+random.nextInt(1000)*0.0001, result.getLatitude()+random.nextInt(1000)*0.0001, SpatialReferences.getWgs84());
+                                Graphic graphic=null;
+                                switch (result.getMonitor_type()) {
+                                    case 1:
+                                        graphic = new Graphic(point, symbol1);
+                                        break;
+                                    case 2:
+                                        graphic = new Graphic(point, symbol2);
+                                        break;
+                                    case 3:
+                                        graphic = new Graphic(point, symbol3);
+                                        break;
+                                    case 4:
+                                        graphic = new Graphic(point, symbol4);
+                                        break;
+                                    case 5:
+                                        graphic = new Graphic(point, symbol5);
+                                        break;
+                                    case 8:
+                                        graphic = new Graphic(point, symbol8);
+                                        break;
+                                    case 9:
+                                        graphic = new Graphic(point, symbol9);
+                                        break;
+                                    case 10:
+                                        graphic = new Graphic(point, symbol10);
+                                        break;
+                                    case 11:
+                                        graphic = new Graphic(point, symbol11);
+                                        break;
+                                    case 12:
+                                        graphic = new Graphic(point, symbol12);
+                                        break;
+                                    case 14:
+                                        graphic = new Graphic(point, symbol14);
+                                        break;
+                                    case 15:
+                                        graphic = new Graphic(point, symbol15);
+                                        break;
+                                    case 16:
+                                        graphic = new Graphic(point, symbol16);
+                                        break;
+                                    case 17:
+                                        graphic = new Graphic(point, symbol17);
+                                        break;
+                                    case 18:
+                                        graphic = new Graphic(point, symbol18);
+                                        break;
+                                    case 19:
+                                        graphic = new Graphic(point, symbol19);
+                                        break;
+                                    case 20:
+                                        graphic = new Graphic(point, symbol20);
+                                        break;
+                                    case 21:
+                                        graphic = new Graphic(point, symbol21);
+                                        break;
+                                    case 22:
+                                        graphic = new Graphic(point, symbol22);
+                                        break;
+                                    case 23:
+                                        graphic = new Graphic(point, symbol23);
+                                        break;
+                                    case 24:
+                                        graphic = new Graphic(point, symbol24);
+                                        break;
+                                    case 25:
+                                        graphic = new Graphic(point, symbol25);
+                                        break;
+                                    case 26:
+                                        graphic = new Graphic(point, symbol26);
+                                        break;
+                                }
+                                graphic.setZIndex(result.getId());
+                                jianceGraphics.add(graphic);
+                            }
+                        }
+                    }
+
+                }
+
+                updateEquipmentGraphic(jianceGraphics);
             }
 
         });

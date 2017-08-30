@@ -24,8 +24,8 @@ public class MyApplication extends Application {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(new LoggerInterceptor("网络请求"))
                 .cookieJar(cookieJar)
-                .connectTimeout(10000L, TimeUnit.MILLISECONDS)
-                .readTimeout(10000L, TimeUnit.MILLISECONDS)
+                .connectTimeout(10000*6L, TimeUnit.MILLISECONDS)
+                .readTimeout(10000*6L, TimeUnit.MILLISECONDS)
                 //其他配置
                 .build();
 

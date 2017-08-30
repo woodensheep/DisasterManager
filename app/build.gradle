@@ -21,7 +21,10 @@ android {
             jniLibs.srcDirs = ['libs']
         }
     }
+
 }
+
+
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -43,4 +46,6 @@ dependencies {
     compile 'com.android.support:support-v4:25.3.0'
     compile 'com.github.lecho:hellocharts-library:1.5.8@aar'
     compile 'com.wuxiaolong.pullloadmorerecyclerview:library:1.1.2'
+
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
 }

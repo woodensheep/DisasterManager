@@ -19,7 +19,7 @@ import com.nandi.disastermanager.R;
  */
 
 public class WaitingDialog {
-
+    private static Dialog mDialogUtils;
     public static Dialog createLoadingDialog(Context context, String msg) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.dialog_loading, null);// 得到加载view
@@ -46,7 +46,7 @@ public class WaitingDialog {
         window.setAttributes(lp);
         window.setWindowAnimations(R.style.PopWindowAnimStyle);
         loadingDialog.show();
-
+        mDialogUtils=loadingDialog;
         return loadingDialog;
     }
 
@@ -56,6 +56,16 @@ public class WaitingDialog {
      * @param mDialogUtils
      */
     public static void closeDialog(Dialog mDialogUtils) {
+        if (mDialogUtils != null && mDialogUtils.isShowing()) {
+            mDialogUtils.dismiss();
+        }
+    }
+
+    /**
+     * 关闭dialog
+     *
+     */
+    public static void closeDialog() {
         if (mDialogUtils != null && mDialogUtils.isShowing()) {
             mDialogUtils.dismiss();
         }
