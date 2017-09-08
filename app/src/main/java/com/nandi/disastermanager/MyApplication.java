@@ -3,6 +3,9 @@ package com.nandi.disastermanager;
 import android.app.Application;
 import android.content.Context;
 
+import com.alibaba.sdk.android.push.CloudPushService;
+import com.alibaba.sdk.android.push.CommonCallback;
+import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.cookie.CookieJarImpl;
 import com.zhy.http.okhttp.cookie.store.PersistentCookieStore;
@@ -17,10 +20,14 @@ import okhttp3.OkHttpClient;
  */
 
 public class MyApplication extends Application {
+
+    private static final String TAG = "MyApplication";
+
     private static Context mContext;
     @Override
     public void onCreate() {
         super.onCreate();
+        initCloudChannel(this);
         mContext = getApplicationContext();
         CookieJarImpl cookieJar = new CookieJarImpl(new PersistentCookieStore(getApplicationContext()));
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
@@ -36,4 +43,22 @@ public class MyApplication extends Application {
     public static Context getContext() {
         return mContext;
     }
+    private void initCloudChannel(Context applicationContext) {
+        PushServiceFactory.init(applicationContext);
+        CloudPushService pushService = PushServiceFactory.getCloudPushService();
+        pushService.register(applicationContext, new CommonCallback() {
+            @Override
+            public void onSuccess(String response) {
+                Log.d(TAG, "init cloudchannel success--------------------------------------------");
+            }
+
+            @Override
+            public void onFailed(String errorCode, String errorMessage) {
+                Log.d(TAG, "---------------------------------------------init cloudchannel failed -- errorcode:" + errorCode + " -- errorMessage:" + errorMessage);
+            }
+        });
+
+
+    }
+
 }

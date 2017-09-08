@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nandi.disastermanager">
+
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
@@ -14,6 +18,12 @@
         android:label="@string/app_name1"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.alibaba.app.appkey"
+            android:value="24617043" />
+        <meta-data
+            android:name="com.alibaba.app.appsecret"
+            android:value="d751a1236a17e4f10ac8ddbc72634531" />
         <activity android:name=".MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="landscape"
@@ -52,6 +62,43 @@
             android:screenOrientation="landscape"
             android:theme="@style/TipDialog"
             ></activity>
+        <activity android:name=".videocall.helloanychat.ProgressActivity"
+            android:screenOrientation="landscape"/>
+        <activity android:name=".videocall.helloanychat.ReceiveVideoActivity"
+            android:screenOrientation="landscape"/>
+        <service android:name=".videocall.helloanychat.MyService"
+            android:enabled="true"/>
+        <receiver android:name=".videocall.helloanychat.MyReceiver" >
+            <intent-filter>
+                <action android:name="com.fubangty.action.NOTIFICATION_OPENED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.fubangty.action.NOTIFICATION_REMOVED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.taobao.accs.intent.action.COMMAND" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.taobao.taobao.intent.action.COMMAND" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="org.agoo.android.intent.action.RECEIVE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
