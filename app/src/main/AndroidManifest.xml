@@ -45,6 +45,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".search.SearchActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/TipDialog"
+            ></activity>
     </application>
 
 </manifest>

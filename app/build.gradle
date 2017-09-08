@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'org.greenrobot.greendao'
 android {
     compileSdkVersion 25
     buildToolsVersion "26.0.0"
@@ -46,6 +47,6 @@ dependencies {
     compile 'com.android.support:support-v4:25.3.0'
     compile 'com.github.lecho:hellocharts-library:1.5.8@aar'
     compile 'com.wuxiaolong.pullloadmorerecyclerview:library:1.1.2'
-
+    compile 'org.greenrobot:greendao:3.2.2'
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
 }

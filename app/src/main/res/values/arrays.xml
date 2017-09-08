@@ -39,5 +39,14 @@
         <item>万盛</item>
     </string-array>
 
+    <string-array name="search_type_4">
+        <item>等级</item>
+    </string-array>
+    <string-array name="search_type_5">
+        <item>灾害类型</item>
+    </string-array>
+    <string-array name="search_type_6">
+        <item>诱发因素</item>
+    </string-array>
 
 </resources>

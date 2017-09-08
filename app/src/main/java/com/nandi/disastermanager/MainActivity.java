@@ -126,6 +126,7 @@ import com.nandi.disastermanager.entity.SingleEquipment;
 import com.nandi.disastermanager.entity.TabDisasterInfo;
 import com.nandi.disastermanager.entity.personLocationInfo;
 import com.nandi.disastermanager.http.EquipmentOkhttp;
+import com.nandi.disastermanager.search.SearchActivity;
 import com.nandi.disastermanager.ui.CircleBar;
 import com.nandi.disastermanager.ui.MyRadioGroup;
 import com.nandi.disastermanager.ui.WaitingDialog;
@@ -2286,7 +2287,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
                         sceneView.setViewpointCameraAsync(camera, 2);
                     }
-                    ToSearch();
+                    //ToSearch();
+                    SearchActivity.startIntent(context);
                 }
                 break;
             case R.id.iv_luopan:

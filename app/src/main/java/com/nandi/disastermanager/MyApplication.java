@@ -1,6 +1,7 @@
 package com.nandi.disastermanager;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.cookie.CookieJarImpl;
@@ -16,10 +17,11 @@ import okhttp3.OkHttpClient;
  */
 
 public class MyApplication extends Application {
-
+    private static Context mContext;
     @Override
     public void onCreate() {
         super.onCreate();
+        mContext = getApplicationContext();
         CookieJarImpl cookieJar = new CookieJarImpl(new PersistentCookieStore(getApplicationContext()));
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(new LoggerInterceptor("网络请求"))
@@ -31,5 +33,7 @@ public class MyApplication extends Application {
 
         OkHttpUtils.initClient(okHttpClient);
     }
-
+    public static Context getContext() {
+        return mContext;
+    }
 }
