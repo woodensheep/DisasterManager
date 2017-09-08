@@ -243,9 +243,9 @@ public class VideoActivity extends Activity implements AnyChatBaseEvent {
 
 	private void exitVideoDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Are you sure to exit ?")
+		builder.setMessage("确定要退出吗?")
 				.setCancelable(false)
-				.setPositiveButton("Yes",
+				.setPositiveButton("确定",
 						new DialogInterface.OnClickListener() {
 
 							@Override
@@ -254,7 +254,7 @@ public class VideoActivity extends Activity implements AnyChatBaseEvent {
 								destroyCurActivity();
 							}
 						})
-				.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -308,6 +308,9 @@ public class VideoActivity extends Activity implements AnyChatBaseEvent {
 		super.onDestroy();
 		handler.removeCallbacks(runnable);
 		anychatSDK.removeEvent(this);
+		anychatSDK.LeaveRoom(-1);
+		anychatSDK.Logout();
+		anychatSDK.Release();
 		anychatSDK.mSensorHelper.DestroySensor();
 		finish();
 	}
@@ -427,8 +430,5 @@ public class VideoActivity extends Activity implements AnyChatBaseEvent {
 
 		// 销毁当前界面
 		destroyCurActivity();
-		Intent mIntent = new Intent("VideoActivity");
-		// 发送广播
-		sendBroadcast(mIntent);
 	}
 }

@@ -26,6 +26,7 @@
         </activity>
         <activity
             android:name=".videocall.helloanychat.VideoActivity"
+            android:screenOrientation="landscape"
             android:configChanges="orientation|keyboardHidden|navigation" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -33,6 +34,7 @@
         </activity>
         <activity
             android:name=".videocall.helloanychat.VideoCallActivity"
+            android:screenOrientation="landscape"
             android:configChanges="orientation|keyboardHidden|navigation" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -40,6 +42,7 @@
         </activity>
         <activity
             android:name=".videocall.helloanychat.VideoConfig"
+            android:screenOrientation="landscape"
             android:configChanges="orientation|keyboardHidden|navigation">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />

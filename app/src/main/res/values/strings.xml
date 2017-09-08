@@ -14,6 +14,7 @@
     <string name="undoButtonDescription">Undo last drawing event button</string>
     <string name="redoButtonDescription">Redo last undone drawing event button</string>
     <string name="clearButtonDescription">Clear current drawings button</string>
+    <string name="invite_video_chat_url">http://183.230.108.112:8087/video/findTestData.do </string>
     <string name="image_layer_13_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng13/MapServer</string>
     <string name="image_layer_13_19_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng13_19/MapServer</string>
     <string name="get_disaster_point">http://www.cqdzjc.com:8090/meteor/findWanShengData.do</string>
@@ -26,6 +27,7 @@
     <string name="shiliangtu_url">http://183.230.182.149:6082/arcgis/rest/services/wangsheng_xzqqie/MapServer</string>
     <string name="dianziditu_url">http://183.230.182.149:6080/arcgis/rest/services/wanshengmap/MapServer</string>
     <string name="yuliang_url">http://183.230.182.149:6080/arcgis/rest/services/wansheng_dzx/MapServer</string>
+    <string name="ssyl_url">http://183.230.182.149:6080/arcgis/rest/services/wangsheng_yl1/MapServer?f=jsapi</string>
     <string name="ssyl_url">http://183.230.182.149:6081/arcgis/rest/services/Hosted/gz_xz_520000/VectorTileServer</string>
     <string name="elevation_image_service">http://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer</string>
     <string name="statistics_url">http://183.230.108.112:9077/cqapp/wansheng/getSomething.do</string>
@@ -79,5 +81,13 @@
     <string name="kuangxuan">/kuangxuan/info/</string>
     <string name="HelloTitle">"视频通话"</string>
     <string name="endCall1">结束通话</string>
-
+    <string name="permission_get_accounts_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_GET_ACCOUNTS</string>
+    <string name="permission_read_phone_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_READ_PHONE_STATE</string>
+    <string name="permission_call_phone_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_CALL_PHONE</string>
+    <string name="permission_camera_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_CAMERA</string>
+    <string name="permission_access_fine_location_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_ACCESS_FINE_LOCATION</string>
+    <string name="permission_access_coarse_location_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_ACCESS_COARSE_LOCATION</string>
+    <string name="permission_read_external_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_READ_EXTERNAL_STORAGE</string>
+    <string name="permission_white_external_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_WRITE_EXTERNAL_STORAGE</string>
+    <string name="permission_recode_audio_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_RECORD_AUDIO</string>
 </resources>

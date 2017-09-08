@@ -65,12 +65,9 @@ public class VideoConfig extends Activity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-		
 		mConfigEntity = ConfigService.LoadConfig(this);
 		setContentView(R.layout.videoconfig);
 		
-		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.titlebar);  
 		mImgBtnReturn = (ImageButton) this.findViewById(R.id.returnImgBtn);
 		mTitleName = (TextView) this.findViewById(R.id.titleName);
 		mImgBtnReturn.setOnClickListener(onClickListener);
