@@ -7,11 +7,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -130,6 +132,7 @@ import com.nandi.disastermanager.ui.CircleBar;
 import com.nandi.disastermanager.ui.MyRadioGroup;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.DateTimePickUtil;
+import com.nandi.disastermanager.utils.PermissionUtils;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
 import com.nandi.disastermanager.videocall.helloanychat.VideoCallActivity;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -413,31 +416,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SearchPlace.DataBean searchPlaceBean;
     private SearchPerson.DataBean searchPersonBean;
     private AlertDialog searchDialog;
-    /**点击的设备的id**/
+    /**
+     * 点击的设备的id
+     **/
     private int equipmentzIndex;
-    /**所有设备信息**/
+    /**
+     * 所有设备信息
+     **/
     private EquipmentLocation equipmentLocation;
     /**
      * ALL_EQUIPMENT:请求所有设备后
      * SINGLE_EQUIPMENT:点击单个设备后
      * SINGLE_EQUIPMENT_DETAIL:点击单个设备的详细数据后
      */
-    private Handler handler=new Handler(new Handler.Callback() {
+    private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case EquipmentOkhttp.ALL_EQUIPMENT:
-                    equipmentLocation=(EquipmentLocation)msg.obj;
-                    Log.d("limeng",equipmentLocation.getData().size()+"");
+                    equipmentLocation = (EquipmentLocation) msg.obj;
+                    Log.d("limeng", equipmentLocation.getData().size() + "");
                     addEquipment();
                     break;
                 case EquipmentOkhttp.SINGLE_EQUIPMENT:
-                    SingleEquipment singleEquipment=(SingleEquipment)msg.obj;
+                    SingleEquipment singleEquipment = (SingleEquipment) msg.obj;
                     showEquipmentInfo(singleEquipment);
                     break;
                 case EquipmentOkhttp.SINGLE_EQUIPMENT_DETAIL:
-                    String s=(String)msg.obj;
-                    showEquipmentDetail(s,msg.arg1);
+                    String s = (String) msg.obj;
+                    showEquipmentDetail(s, msg.arg1);
                     break;
             }
             return false;
@@ -452,6 +459,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         context = this;
         areaCode = "500110";
         initUtilData();
+        if (Build.VERSION.SDK_INT >= 23) {
+            PermissionUtils.requestMultiPermissions(MainActivity.this, mPermissionGrant);
+        }
         chongqingLayer = new ArcGISMapImageLayer(getResources().getString(R.string.chongqing_url));
         dianziLayer = new ArcGISMapImageLayer(getResources().getString(R.string.dianziditu_url));
         lowImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_url));
@@ -515,6 +525,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setlogin("", "");
     }
 
+    private PermissionUtils.PermissionGrant mPermissionGrant = new PermissionUtils.PermissionGrant() {
+        @Override
+        public void onPermissionGranted(int requestCode) {
+            switch (requestCode) {
+                case PermissionUtils.CODE_CAMERA:
+                    break;
+                case PermissionUtils.CODE_RECORD_AUDIO:
+                    break;
+                case PermissionUtils.CODE_READ_EXTERNAL_STORAGE:
+                    break;
+            }
+        }
+    };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermissionUtils.requestPermissionsResult(this, requestCode, permissions, grantResults, mPermissionGrant);
+    }
 
     private void setPieChartData(String text, String desText) {
         pieChart.setVisibility(View.VISIBLE);
@@ -875,9 +904,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = equipmentIdentifyGraphic.get();
                                 if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
                                     int zIndex = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                    equipmentzIndex=zIndex;
+                                    equipmentzIndex = zIndex;
                                     //设备点击
-                                    EquipmentOkhttp.getSingleEquipment(context,zIndex,handler);
+                                    EquipmentOkhttp.getSingleEquipment(context, zIndex, handler);
                                 }
                             } catch (InterruptedException | ExecutionException e1) {
                                 e1.printStackTrace();
@@ -1122,7 +1151,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             llCall.setVisibility(View.GONE);
         }
-        for (personLocationInfo.DataBean dataBean : personLocationData) {
+        for (final personLocationInfo.DataBean dataBean : personLocationData) {
             if (zIndex == dataBean.getId()) {
                 tvName.setText(dataBean.getName());
                 tvMobile.setText(dataBean.getTel());
@@ -1133,7 +1162,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onClick(View view) {
                         //TODO 视频通话
-                        startActivity(new Intent(MainActivity.this, VideoCallActivity.class));
+                        Intent intent = new Intent(MainActivity.this, VideoCallActivity.class);
+                        intent.putExtra("PHONE_NUMBER", dataBean.getTel());
+                        startActivity(intent);
                     }
                 });
                 new AlertDialog.Builder(context)
@@ -1165,12 +1196,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Gson gson = new Gson();
                         KuangxuanInfo mKuangxuanInfo = null;
                         try {
-                             mKuangxuanInfo = gson.fromJson(response, KuangxuanInfo.class);
-                        }catch (Exception e){
+                            mKuangxuanInfo = gson.fromJson(response, KuangxuanInfo.class);
+                        } catch (Exception e) {
 
                         }
-                        if ( null==mKuangxuanInfo) {
-                            Toast.makeText(context,"框选框内无数据点",Toast.LENGTH_SHORT).show();
+                        if (null == mKuangxuanInfo) {
+                            Toast.makeText(context, "框选框内无数据点", Toast.LENGTH_SHORT).show();
                             return;
                         }
                         KuangxuanInfo.DataBean data = mKuangxuanInfo.getData();
@@ -1265,7 +1296,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * 测试设备信息
-     *
      */
     private void showEquipmentInfo(final SingleEquipment singleEquipment) {
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_shebi, null);
@@ -1277,14 +1307,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ((TextView) view.findViewById(R.id.tv_device_name)).setText(singleEquipment.getData().getDevice_name());
         ((TextView) view.findViewById(R.id.tv_hardware_version)).setText(singleEquipment.getData().getHardware_version());
         ((TextView) view.findViewById(R.id.tv_soft_version)).setText(singleEquipment.getData().getSoft_version());
-        ((TextView) view.findViewById(R.id.tv_register_date)).setText(singleEquipment.getData().getRegister_date().replace("T","\t"));
-        ((TextView) view.findViewById(R.id.tv_state)).setText("1".equals(singleEquipment.getData().getState())?"正常工作":"离线");
+        ((TextView) view.findViewById(R.id.tv_register_date)).setText(singleEquipment.getData().getRegister_date().replace("T", "\t"));
+        ((TextView) view.findViewById(R.id.tv_state)).setText("1".equals(singleEquipment.getData().getState()) ? "正常工作" : "离线");
 
         ((TextView) view.findViewById(R.id.tv_project_name)).setText(singleEquipment.getData().getProject_name());
-        ((TextView) view.findViewById(R.id.tv_start_date)).setText(singleEquipment.getData().getStart_date().replace("T","\t"));
+        ((TextView) view.findViewById(R.id.tv_start_date)).setText(singleEquipment.getData().getStart_date().replace("T", "\t"));
         ((TextView) view.findViewById(R.id.tv_project_add)).setText(singleEquipment.getData().getProject_add());
-        ((TextView) view.findViewById(R.id.tv_longitude)).setText(singleEquipment.getData().getLongitude()+"");
-        ((TextView) view.findViewById(R.id.tv_latitude)).setText(singleEquipment.getData().getLatitude()+"");
+        ((TextView) view.findViewById(R.id.tv_longitude)).setText(singleEquipment.getData().getLongitude() + "");
+        ((TextView) view.findViewById(R.id.tv_latitude)).setText(singleEquipment.getData().getLatitude() + "");
         ((TextView) view.findViewById(R.id.tv_project_man)).setText(singleEquipment.getData().getProject_man());
         ImageView ivPic = (ImageView) view.findViewById(R.id.iv_pic);
         ivPic.setOnClickListener(new View.OnClickListener() {
@@ -1326,21 +1356,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 String deviceNo;
-                switch (singleEquipment.getData().getMonitor_type()){
+                switch (singleEquipment.getData().getMonitor_type()) {
                     case 1:
-                        deviceNo=singleEquipment.getData().getTable_name();
+                        deviceNo = singleEquipment.getData().getTable_name();
                         break;
                     case 3:
-                        deviceNo=equipmentzIndex+"";
+                        deviceNo = equipmentzIndex + "";
                         break;
                     case 22:
-                        deviceNo=equipmentzIndex+"";
+                        deviceNo = equipmentzIndex + "";
                         break;
                     default:
-                        deviceNo=singleEquipment.getData().getDevice_no();
+                        deviceNo = singleEquipment.getData().getDevice_no();
                         break;
                 }
-                EquipmentOkhttp.getSingleEquipmentDetail(context,deviceNo,singleEquipment.getData().getMonitor_type()+"",handler);
+                EquipmentOkhttp.getSingleEquipmentDetail(context, deviceNo, singleEquipment.getData().getMonitor_type() + "", handler);
             }
         });
         AlertDialog dialog1 = new AlertDialog.Builder(MainActivity.this)
@@ -1350,47 +1380,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * 显示设备曲线信息
+     *
      * @param response 信息实体
-     * @param type 设备type
+     * @param type     设备type
      */
-    private void showEquipmentDetail(String response,int type){
-        Gson gson=new Gson();
-        switch (type){
-            case 1: EquipmentType1 equipmentType1=gson.fromJson(response, EquipmentType1.class);
-                EquipmentOkhttp.getType1lines(context,equipmentType1);
+    private void showEquipmentDetail(String response, int type) {
+        Gson gson = new Gson();
+        switch (type) {
+            case 1:
+                EquipmentType1 equipmentType1 = gson.fromJson(response, EquipmentType1.class);
+                EquipmentOkhttp.getType1lines(context, equipmentType1);
                 break;
-            case 3: EquipmentType3 equipmentType3=gson.fromJson(response, EquipmentType3.class);
-                EquipmentOkhttp.getType3lines(context,equipmentType3);
+            case 3:
+                EquipmentType3 equipmentType3 = gson.fromJson(response, EquipmentType3.class);
+                EquipmentOkhttp.getType3lines(context, equipmentType3);
                 break;
-            case 11:EquipmentType11 equipmentType11=gson.fromJson(response, EquipmentType11.class);
-                EquipmentOkhttp.getType11lines(context,equipmentType11);
+            case 11:
+                EquipmentType11 equipmentType11 = gson.fromJson(response, EquipmentType11.class);
+                EquipmentOkhttp.getType11lines(context, equipmentType11);
                 break;
-            case 14:EquipmentType14 equipmentType14=gson.fromJson(response, EquipmentType14.class);
-                EquipmentOkhttp.getType14lines(context,equipmentType14);
+            case 14:
+                EquipmentType14 equipmentType14 = gson.fromJson(response, EquipmentType14.class);
+                EquipmentOkhttp.getType14lines(context, equipmentType14);
                 break;
-            case 19:EquipmentType19 equipmentType19=gson.fromJson(response, EquipmentType19.class);
-                EquipmentOkhttp.getType19lines(context,equipmentType19);
+            case 19:
+                EquipmentType19 equipmentType19 = gson.fromJson(response, EquipmentType19.class);
+                EquipmentOkhttp.getType19lines(context, equipmentType19);
                 break;
-            case 20:EquipmentType20 equipmentType20=gson.fromJson(response, EquipmentType20.class);
-                EquipmentOkhttp.getType20lines(context,equipmentType20);
+            case 20:
+                EquipmentType20 equipmentType20 = gson.fromJson(response, EquipmentType20.class);
+                EquipmentOkhttp.getType20lines(context, equipmentType20);
                 break;
-            case 22:EquipmentType22 equipmentType22=gson.fromJson(response, EquipmentType22.class);
-                EquipmentOkhttp.getType22lines(context,equipmentType22);
+            case 22:
+                EquipmentType22 equipmentType22 = gson.fromJson(response, EquipmentType22.class);
+                EquipmentOkhttp.getType22lines(context, equipmentType22);
                 break;
-            case 23:EquipmentType23 equipmentType23=gson.fromJson(response, EquipmentType23.class);
-                EquipmentOkhttp.getType23lines(context,equipmentType23);
+            case 23:
+                EquipmentType23 equipmentType23 = gson.fromJson(response, EquipmentType23.class);
+                EquipmentOkhttp.getType23lines(context, equipmentType23);
                 break;
-            case 25:EquipmentType25 equipmentType25=gson.fromJson(response, EquipmentType25.class);
-                EquipmentOkhttp.getType25lines(context,equipmentType25);
+            case 25:
+                EquipmentType25 equipmentType25 = gson.fromJson(response, EquipmentType25.class);
+                EquipmentOkhttp.getType25lines(context, equipmentType25);
                 break;
-            case 26:EquipmentType26 equipmentType26=gson.fromJson(response, EquipmentType26.class);
-                EquipmentOkhttp.getType26lines(context,equipmentType26);
+            case 26:
+                EquipmentType26 equipmentType26 = gson.fromJson(response, EquipmentType26.class);
+                EquipmentOkhttp.getType26lines(context, equipmentType26);
                 break;
         }
 
 
     }
-
 
 
     private void showPersonInfo(int zIndex, final String type) {
@@ -3374,7 +3414,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.rb_equipment_jiance:
                 if (b) {
-                    EquipmentOkhttp.getAllEquipment(context,"500232",handler);
+                    EquipmentOkhttp.getAllEquipment(context, "500232", handler);
                     setPieChartData("88", "在线率");
                 } else {
                     clearAllGraphics();
@@ -3436,8 +3476,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 super.run();
                 try {
-                    Message msg=Message.obtain();
-                    msg.what=1;
+                    Message msg = Message.obtain();
+                    msg.what = 1;
                     while (true) {
                         setOldRender();
                         Thread.sleep(2000);
@@ -3579,40 +3619,84 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final PictureMarkerSymbol symbol24 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip24));
         final PictureMarkerSymbol symbol25 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip25));
         final PictureMarkerSymbol symbol26 = new PictureMarkerSymbol((BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.blueequip26));
-        symbol1.setWidth(45);symbol1.setHeight(60);symbol1.setOffsetY(11);
-        symbol2.setWidth(45);symbol2.setHeight(60);symbol2.setOffsetY(11);
-        symbol3.setWidth(45);symbol3.setHeight(60);symbol3.setOffsetY(11);
-        symbol4.setWidth(45);symbol4.setHeight(60);symbol4.setOffsetY(11);
-        symbol8.setWidth(45);symbol8.setHeight(60);symbol8.setOffsetY(11);
-        symbol9.setWidth(45);symbol9.setHeight(60);symbol9.setOffsetY(11);
-        symbol10.setWidth(45);symbol10.setHeight(60);symbol10.setOffsetY(11);
-        symbol11.setWidth(45);symbol11.setHeight(60);symbol11.setOffsetY(11);
-        symbol12.setWidth(45);symbol12.setHeight(60);symbol12.setOffsetY(11);
-        symbol14.setWidth(45);symbol14.setHeight(60);symbol14.setOffsetY(11);
-        symbol15.setWidth(45);symbol15.setHeight(60);symbol15.setOffsetY(11);
-        symbol16.setWidth(45);symbol16.setHeight(60);symbol16.setOffsetY(11);
-        symbol17.setWidth(45);symbol17.setHeight(60);symbol17.setOffsetY(11);
-        symbol18.setWidth(45);symbol18.setHeight(60);symbol18.setOffsetY(11);
-        symbol19.setWidth(45);symbol19.setHeight(60);symbol19.setOffsetY(11);
-        symbol20.setWidth(45);symbol20.setHeight(60);symbol20.setOffsetY(11);
-        symbol21.setWidth(45);symbol21.setHeight(60);symbol21.setOffsetY(11);
-        symbol22.setWidth(45);symbol22.setHeight(60);symbol22.setOffsetY(11);
-        symbol23.setWidth(45);symbol23.setHeight(60);symbol23.setOffsetY(11);
-        symbol24.setWidth(45);symbol24.setHeight(60);symbol24.setOffsetY(11);
-        symbol25.setWidth(45);symbol25.setHeight(60);symbol25.setOffsetY(11);
-        symbol26.setWidth(45);symbol26.setHeight(60);symbol26.setOffsetY(11);
+        symbol1.setWidth(45);
+        symbol1.setHeight(60);
+        symbol1.setOffsetY(11);
+        symbol2.setWidth(45);
+        symbol2.setHeight(60);
+        symbol2.setOffsetY(11);
+        symbol3.setWidth(45);
+        symbol3.setHeight(60);
+        symbol3.setOffsetY(11);
+        symbol4.setWidth(45);
+        symbol4.setHeight(60);
+        symbol4.setOffsetY(11);
+        symbol8.setWidth(45);
+        symbol8.setHeight(60);
+        symbol8.setOffsetY(11);
+        symbol9.setWidth(45);
+        symbol9.setHeight(60);
+        symbol9.setOffsetY(11);
+        symbol10.setWidth(45);
+        symbol10.setHeight(60);
+        symbol10.setOffsetY(11);
+        symbol11.setWidth(45);
+        symbol11.setHeight(60);
+        symbol11.setOffsetY(11);
+        symbol12.setWidth(45);
+        symbol12.setHeight(60);
+        symbol12.setOffsetY(11);
+        symbol14.setWidth(45);
+        symbol14.setHeight(60);
+        symbol14.setOffsetY(11);
+        symbol15.setWidth(45);
+        symbol15.setHeight(60);
+        symbol15.setOffsetY(11);
+        symbol16.setWidth(45);
+        symbol16.setHeight(60);
+        symbol16.setOffsetY(11);
+        symbol17.setWidth(45);
+        symbol17.setHeight(60);
+        symbol17.setOffsetY(11);
+        symbol18.setWidth(45);
+        symbol18.setHeight(60);
+        symbol18.setOffsetY(11);
+        symbol19.setWidth(45);
+        symbol19.setHeight(60);
+        symbol19.setOffsetY(11);
+        symbol20.setWidth(45);
+        symbol20.setHeight(60);
+        symbol20.setOffsetY(11);
+        symbol21.setWidth(45);
+        symbol21.setHeight(60);
+        symbol21.setOffsetY(11);
+        symbol22.setWidth(45);
+        symbol22.setHeight(60);
+        symbol22.setOffsetY(11);
+        symbol23.setWidth(45);
+        symbol23.setHeight(60);
+        symbol23.setOffsetY(11);
+        symbol24.setWidth(45);
+        symbol24.setHeight(60);
+        symbol24.setOffsetY(11);
+        symbol25.setWidth(45);
+        symbol25.setHeight(60);
+        symbol25.setOffsetY(11);
+        symbol26.setWidth(45);
+        symbol26.setHeight(60);
+        symbol26.setOffsetY(11);
         symbol1.loadAsync();
         symbol1.addDoneLoadingListener(new Runnable() {
             @Override
             public void run() {
-                for (EquipmentLocation.DataBean data:equipmentLocation.getData()){
-                    if(1==data.getType()){
-                        Log.d("limeng","data.getResult().size()="+data.getResult().size());
-                        Random random=new Random();
-                        for (EquipmentLocation.DataBean.ResultBean result:data.getResult()){
-                            if(0!=result.getLatitude()) {
-                                Point point = new Point(result.getLongitude()+random.nextInt(1000)*0.0001, result.getLatitude()+random.nextInt(1000)*0.0001, SpatialReferences.getWgs84());
-                                Graphic graphic=null;
+                for (EquipmentLocation.DataBean data : equipmentLocation.getData()) {
+                    if (1 == data.getType()) {
+                        Log.d("limeng", "data.getResult().size()=" + data.getResult().size());
+                        Random random = new Random();
+                        for (EquipmentLocation.DataBean.ResultBean result : data.getResult()) {
+                            if (0 != result.getLatitude()) {
+                                Point point = new Point(result.getLongitude() + random.nextInt(1000) * 0.0001, result.getLatitude() + random.nextInt(1000) * 0.0001, SpatialReferences.getWgs84());
+                                Graphic graphic = null;
                                 switch (result.getMonitor_type()) {
                                     case 1:
                                         graphic = new Graphic(point, symbol1);
