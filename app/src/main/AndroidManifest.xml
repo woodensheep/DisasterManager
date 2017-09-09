@@ -15,7 +15,7 @@
         android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/icon"
-        android:label="@string/app_name"
+        android:label="@string/app_name1"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data
@@ -24,7 +24,7 @@
         <meta-data
             android:name="com.alibaba.app.appsecret"
             android:value="d751a1236a17e4f10ac8ddbc72634531" />
-        <activity android:name=".MainActivity"
+        <activity android:name=".LoginActivity"
             android:launchMode="singleTask"
             android:screenOrientation="landscape"
             >
@@ -34,6 +34,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".MainActivity"
+            android:screenOrientation="landscape">
+
+        </activity>
+
         <activity
             android:name=".videocall.helloanychat.VideoActivity"
             android:screenOrientation="landscape"
