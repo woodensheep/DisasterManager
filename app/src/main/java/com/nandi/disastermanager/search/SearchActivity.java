@@ -171,8 +171,8 @@ public class SearchActivity extends Activity {
             @Override
             public void onClick(View v) {
                 mDisasterPoints.clear();
-                mDisasterPoints.add(new DisasterPoint(1l,"1","1","1","1","1","1","大型","滑坡","自然","**滑坡"));
-                mDisasterPoints.add(new DisasterPoint(2l,"2","2","2","2","2","2","小型","滑坡","自然","**滑坡"));
+                mDisasterPoints.add(new DisasterPoint(1l,"1","1","1","1","1","1","1","1","","大型","滑坡","自然","**滑坡"));
+                mDisasterPoints.add(new DisasterPoint(1l,"1","1","1","1","1","1","1","1","","大型","滑坡","自然","**滑坡"));
                 rcSearchAdapter.notifyDataSetChanged();
             }
         });

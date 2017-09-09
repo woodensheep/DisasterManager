@@ -10,6 +10,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        //加上这句话
+        multiDexEnabled true
         ndk {
             //选择要添加的对应cpu类型的.so库。
             abiFilters 'armeabi','armeabi-v7a', 'x86'
@@ -62,4 +64,5 @@ dependencies {
     compile 'com.aliyun.ams:alicloud-android-push:3.0.11@aar'
     compile 'com.aliyun.ams:alicloud-android-utdid:1.1.5.3'
     compile 'com.aliyun.ams:alicloud-android-ut:5.1.0'
+
 }

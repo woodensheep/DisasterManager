@@ -67,8 +67,16 @@
         <activity android:name=".search.SearchActivity"
             android:screenOrientation="landscape"
             android:theme="@style/TipDialog"
-            >
-        </activity>
+        />
+        <activity android:name=".search.DetailDataActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/TipDialog"/>
+        <activity android:name=".search.MonitorDataActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/TipDialog"/>
+        <activity android:name=".search.MonitorListActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/TipDialog"/>
         <activity android:name=".videocall.helloanychat.ProgressActivity"
             android:screenOrientation="landscape"/>
         <activity android:name=".videocall.helloanychat.ReceiveVideoActivity"

@@ -1,6 +1,7 @@
 package com.nandi.disastermanager.search;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -110,9 +111,12 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
         public void onClick(View view) {
             switch (view.getId()){
                 case tv_search_5:
-                    Log.d("limeng","5");
+                    Intent intent =  new Intent(mContext,MonitorListActivity.class);
+                    mContext.startActivity(intent);
                     break;
                 case tv_search_6:
+                    Intent intent1 =  new Intent(mContext,DetailDataActivity.class);
+                    mContext.startActivity(intent1);
                     break;
                 case tv_search_7:
                     break;
