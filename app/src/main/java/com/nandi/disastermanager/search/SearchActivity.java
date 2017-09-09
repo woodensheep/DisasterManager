@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -90,6 +91,12 @@ public class SearchActivity extends Activity {
 
         dateShow.setLayoutManager(new LinearLayoutManager(this));
         rcSearchAdapter=new RcSearchAdapter(this,mDisasterPoints);
+        rcSearchAdapter.setOnItemClickListener(new RcSearchAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view) {
+                Log.d("limeng","6");
+            }
+        });
         dateShow.setAdapter(rcSearchAdapter);
 
         btnSearch.setOnClickListener(new View.OnClickListener() {

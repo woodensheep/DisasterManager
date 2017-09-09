@@ -302,9 +302,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageButton ivNarrow;
     @BindView(R.id.tv_scale)
     TextView tvScale;
+    @BindView(R.id.map_control)
+    LinearLayout mapControl;
 
-    private boolean llAreaState = false;
-    private boolean llDataState = false;
+    private boolean llAreaState = true;
+    private boolean llDataState = true;
     private boolean llUtilState = false;
     private int llMoreState = -1;
     private int llMoreStateBefore = -1;
@@ -319,10 +321,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArcGISMapImageLayer xingZhengLayer;
     FeatureLayer xzFeatureLayer;
     ArcGISMapImageLayer chongqingLayer;
+    ArcGISMapImageLayer gzYingXiangLayer;
+    ArcGISMapImageLayer gzDianZhiLayer;
+    ArcGISMapImageLayer gzXingZhengLayer;
     List<ArcGISSceneLayer> jinQiaoLayers = new ArrayList<>();
     List<ArcGISSceneLayer> shiLinLayers = new ArrayList<>();
     private ArcGISScene scene;
     private ArcGISTiledElevationSource elevationSource;
+    private ArcGISTiledElevationSource gzElevationSource;
     private LayerList layers;
     private Surface.ElevationSourceList elevationSources;
     private List<PersonLocation> qcPersons = new ArrayList<>();
@@ -459,10 +465,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ButterKnife.bind(this);
         context = this;
         areaCode = "500110";
+        setAnimator();
         initUtilData();
         if (Build.VERSION.SDK_INT >= 23) {
             PermissionUtils.requestMultiPermissions(MainActivity.this, mPermissionGrant);
         }
+        gzDianZhiLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_dianzi_url));
+        gzYingXiangLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url));
+        gzXingZhengLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_xingzheng_url));
+        gzElevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.guizhou_gaocheng_url));
+
         chongqingLayer = new ArcGISMapImageLayer(getResources().getString(R.string.chongqing_url));
         dianziLayer = new ArcGISMapImageLayer(getResources().getString(R.string.dianziditu_url));
         lowImageLayer = new ArcGISMapImageLayer(getResources().getString(R.string.image_layer_13_url));
@@ -524,6 +536,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mClearButton.setEnabled(false);
         setListeners();
         setlogin("", "");
+    }
+
+    private void setAnimator() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                setDataBack();
+                setAreaBack();
+            }
+        }, 500);
     }
 
     private PermissionUtils.PermissionGrant mPermissionGrant = new PermissionUtils.PermissionGrant() {
@@ -1061,8 +1085,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void loadStatusChanged(LoadStatusChangedEvent loadStatusChangedEvent) {
                 String name = loadStatusChangedEvent.getNewLoadStatus().name();
                 if ("LOADED".equals(name)) {
-                    layers.add(xingZhengLayer);
-                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+                    layers.add(gzDianZhiLayer);
+//                    elevationSources.add(gzElevationSource);
+                    Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
                     sceneView.setViewpointCamera(camera);
                 }
             }
@@ -1162,7 +1187,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 btnCall.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //TODO 视频通话
                         Intent intent = new Intent(MainActivity.this, VideoCallActivity.class);
                         intent.putExtra("PHONE_NUMBER", dataBean.getTel());
                         startActivity(intent);
@@ -2318,16 +2342,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     searchPlaceGraphics.clear();
                     searchPersonGraphics.clear();
                 } else {
-                    if (!layers.contains(lowImageLayer)) {
+                    if (!layers.contains(gzDianZhiLayer)) {
                         layers.clear();
                         elevationSources.clear();
-                        layers.add(lowImageLayer);
-                        layers.add(highImageLayer);
-                        elevationSources.add(elevationSource);
-                        Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+                        layers.add(gzDianZhiLayer);
+                        Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
                         sceneView.setViewpointCameraAsync(camera, 2);
                     }
-                    //ToSearch();
                     SearchActivity.startIntent(context);
                 }
                 break;
@@ -4182,14 +4203,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setAreaBack() {
-        if (llAreaState == false) {
+        if (llAreaState) {
             ObjectAnimator animator = ObjectAnimator.ofFloat(llArea, "x", 0, -(llArea.getWidth() - 70));
             animator.setDuration(1000);
             animator.start();
             ObjectAnimator animator1 = ObjectAnimator.ofFloat(ivAreaBack, "rotation", 0, 180);
             animator1.setDuration(100);
             animator1.start();
-            llAreaState = true;
+            llAreaState = false;
         } else {
             ObjectAnimator animator = ObjectAnimator.ofFloat(llArea, "x", -(llArea.getWidth() - 70), 0);
             animator.setDuration(1000);
@@ -4197,19 +4218,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ObjectAnimator animator1 = ObjectAnimator.ofFloat(ivAreaBack, "rotation", 180, 0);
             animator1.setDuration(100);
             animator1.start();
-            llAreaState = false;
+            llAreaState = true;
         }
     }
 
     private void setDataBack() {
-        if (llDataState == false) {
+        if (llDataState) {
             ObjectAnimator animator = ObjectAnimator.ofFloat(llData, "x", 0, -(llData.getWidth() - 70));
             animator.setDuration(1000);
             animator.start();
             ObjectAnimator animator1 = ObjectAnimator.ofFloat(ivDataBack, "rotation", 0, 180);
             animator1.setDuration(100);
             animator1.start();
-            llDataState = true;
+            llDataState = false;
         } else {
             ObjectAnimator animator = ObjectAnimator.ofFloat(llData, "x", -(llData.getWidth() - 70), 0);
             animator.setDuration(1000);
@@ -4217,7 +4238,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ObjectAnimator animator1 = ObjectAnimator.ofFloat(ivDataBack, "rotation", 180, 0);
             animator1.setDuration(100);
             animator1.start();
-            llDataState = false;
+            llDataState = true;
         }
     }
 
