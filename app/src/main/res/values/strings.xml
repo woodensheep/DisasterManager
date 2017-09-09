@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name1">贵州省地质灾害巡查</string>
+    <string name="app_name">贵州省地质灾害巡查</string>
     <string name="ceshi"></string>
     <string name="action_draw">Draw</string>
     <string name="action_undo">Undo</string>
