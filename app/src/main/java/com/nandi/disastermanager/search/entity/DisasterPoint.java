@@ -6,6 +6,7 @@ import org.greenrobot.greendao.annotation.Id;
 
 /**
  * Created by lemon on 2017/9/7.
+ * 建数据库表
  */
 @Entity
 public class DisasterPoint {
@@ -19,10 +20,12 @@ public class DisasterPoint {
     private String lat;
     /**州市**/
     private String city;
-    /**区县**/
+    /**区县编号**/
     private String areaCode;
+    /**区县**/
+    private String county;
     /**乡镇**/
-    private String villages;
+    private String town;
     /**等级**/
     private String threatLevel;
     /**类型**/
@@ -31,22 +34,30 @@ public class DisasterPoint {
     private String inducement;
     /**名称**/
     private String disasterName;
+    /**导航纬度**/
+    private String LATITUDE;
+    /**导航经度**/
+    private String LONGITUDE;
 
-    @Generated(hash = 783840771)
+    @Generated(hash = 265713837)
     public DisasterPoint(Long id, String disasterCode, String lon, String lat,
-            String city, String areaCode, String villages, String threatLevel,
-            String type, String inducement, String disasterName) {
+            String city, String areaCode, String county, String town,
+            String threatLevel, String type, String inducement, String disasterName,
+            String LATITUDE, String LONGITUDE) {
         this.id = id;
         this.disasterCode = disasterCode;
         this.lon = lon;
         this.lat = lat;
         this.city = city;
         this.areaCode = areaCode;
-        this.villages = villages;
+        this.county = county;
+        this.town = town;
         this.threatLevel = threatLevel;
         this.type = type;
         this.inducement = inducement;
         this.disasterName = disasterName;
+        this.LATITUDE = LATITUDE;
+        this.LONGITUDE = LONGITUDE;
     }
     @Generated(hash = 410069605)
     public DisasterPoint() {
@@ -99,12 +110,7 @@ public class DisasterPoint {
     public void setCity(String city) {
         this.city = city;
     }
-    public String getVillages() {
-        return this.villages;
-    }
-    public void setVillages(String villages) {
-        this.villages = villages;
-    }
+
     public String getThreatLevel() {
         return this.threatLevel;
     }
@@ -116,6 +122,30 @@ public class DisasterPoint {
     }
     public void setInducement(String inducement) {
         this.inducement = inducement;
+    }
+    public String getLATITUDE() {
+        return this.LATITUDE;
+    }
+    public void setLATITUDE(String LATITUDE) {
+        this.LATITUDE = LATITUDE;
+    }
+    public String getLONGITUDE() {
+        return this.LONGITUDE;
+    }
+    public void setLONGITUDE(String LONGITUDE) {
+        this.LONGITUDE = LONGITUDE;
+    }
+    public String getCounty() {
+        return this.county;
+    }
+    public void setCounty(String county) {
+        this.county = county;
+    }
+    public String getTown() {
+        return this.town;
+    }
+    public void setTown(String town) {
+        this.town = town;
     }
 
 }

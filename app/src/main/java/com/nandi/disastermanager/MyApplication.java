@@ -7,6 +7,7 @@ import android.util.Log;
 import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
 import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
+import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.cookie.CookieJarImpl;
 import com.zhy.http.okhttp.cookie.store.PersistentCookieStore;
@@ -30,6 +31,7 @@ public class MyApplication extends Application {
         super.onCreate();
         initCloudChannel(this);
         mContext = getApplicationContext();
+        GreenDaoManager.getInstance();
         CookieJarImpl cookieJar = new CookieJarImpl(new PersistentCookieStore(getApplicationContext()));
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(new LoggerInterceptor("网络请求"))

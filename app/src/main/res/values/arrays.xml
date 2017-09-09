@@ -53,8 +53,15 @@
     <string-array name="search_type_4">
         <item>等级</item>
     </string-array>
+    <!--01滑坡 02地面塌陷 03泥石流 05地裂缝 06不稳定斜坡 07崩塌-->
     <string-array name="search_type_5">
         <item>灾害类型</item>
+        <item>滑坡 </item>
+        <item>地面塌陷</item>
+        <item>泥石流</item>
+        <item>地裂缝</item>
+        <item>不稳定斜坡</item>
+        <item>崩塌</item>
     </string-array>
     <string-array name="search_type_6">
         <item>诱发因素</item>
