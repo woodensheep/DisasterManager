@@ -2,6 +2,7 @@ package com.nandi.disastermanager;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;

@@ -4,24 +4,30 @@
     android:layout_height="match_parent"
     android:background="@drawable/callin_bg"
      >
-    <Button
-        android:id="@+id/btn_reject"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_centerVertical="true"
-        android:background="@drawable/reject_press_selector"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="30dp"
-         />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="horizontal">
+
 
     <Button
         android:id="@+id/btn_accept"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="30dp"
         android:background="@drawable/accept_press_selector"
+        android:layout_marginRight="400dp"
          />
+    <Button
+        android:id="@+id/btn_reject"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_centerVertical="true"
+        android:background="@drawable/reject_press_selector"
+        android:layout_alignParentRight="true"
+         />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_msg"
@@ -29,6 +35,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:textSize="30sp"
+        android:textColor="@color/white"
+        android:text="视频来了"
         android:layout_marginTop="96dp"
          />
 

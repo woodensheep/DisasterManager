@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import com.alibaba.sdk.android.push.MessageReceiver;
 import com.alibaba.sdk.android.push.notification.CPushMessage;
@@ -14,6 +15,8 @@ import com.nandi.disastermanager.utils.LogUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Map;
 
 /**
  * Created by ChenPeng on 2017/5/31.
@@ -24,6 +27,27 @@ public class MyReceiver extends MessageReceiver {
     private Notification notification;
     private NotificationManager manager;
     private Message message;
+    @Override
+    public void onNotification(Context context, String title, String summary, Map<String, String> extraMap) {
+        // TODO 处理推送通知
+        Log.e(TAG, "Receive notification, title: " + title + ", summary: " + summary + ", extraMap: " + extraMap);
+    }
+    @Override
+    public void onNotificationOpened(Context context, String title, String summary, String extraMap) {
+        Log.e(TAG, "onNotificationOpened, title: " + title + ", summary: " + summary + ", extraMap:" + extraMap);
+    }
+    @Override
+    protected void onNotificationClickedWithNoAction(Context context, String title, String summary, String extraMap) {
+        Log.e(TAG, "onNotificationClickedWithNoAction, title: " + title + ", summary: " + summary + ", extraMap:" + extraMap);
+    }
+    @Override
+    protected void onNotificationReceivedInApp(Context context, String title, String summary, Map<String, String> extraMap, int openType, String openActivity, String openUrl) {
+        Log.e(TAG, "onNotificationReceivedInApp, title: " + title + ", summary: " + summary + ", extraMap:" + extraMap + ", openType:" + openType + ", openActivity:" + openActivity + ", openUrl:" + openUrl);
+    }
+    @Override
+    protected void onNotificationRemoved(Context context, String messageId) {
+        Log.e(TAG, "onNotificationRemoved");
+    }
     @Override
     protected void onMessage(Context context, CPushMessage cPushMessage) {
         super.onMessage(context, cPushMessage);
@@ -36,7 +60,7 @@ public class MyReceiver extends MessageReceiver {
             message.setInvite_userId(object.getInt("userId"));
             message.setRoom_id(object.getInt("roomId"));
             message.setInvite_man(object.getString("yqr"));
-            message.setUser_name(object.getString("taget"));
+//            message.setUser_name(object.getString("taget"));
             message.setPush_msg(object.getString("message"));
             sendNotification(context);
             Intent intent=new Intent();

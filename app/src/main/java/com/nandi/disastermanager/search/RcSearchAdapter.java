@@ -43,7 +43,7 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
     @Override
     public ViewHolderA onCreateViewHolder(ViewGroup parent, int viewType) {
         //此处动态加载ViewHolder的布局文件并返回holder
-        View view = LayoutInflater.from(mContext).inflate(R.layout.recycleview_item_search,parent, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.recycleview_item_search_gz,parent, false);
         ViewHolderA holderA = new ViewHolderA(view);
         return holderA;
     }

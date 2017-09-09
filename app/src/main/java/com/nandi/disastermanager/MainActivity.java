@@ -43,6 +43,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.sdk.android.push.CloudPushService;
+import com.alibaba.sdk.android.push.CommonCallback;
+import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 import com.bumptech.glide.Glide;
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.data.Feature;
@@ -133,6 +136,7 @@ import com.nandi.disastermanager.ui.CircleBar;
 import com.nandi.disastermanager.ui.MyRadioGroup;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.DateTimePickUtil;
+import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.PermissionUtils;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
 import com.nandi.disastermanager.videocall.helloanychat.VideoCallActivity;
@@ -466,6 +470,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         context = this;
         areaCode = "500110";
         setAnimator();
+        bindAccount();
         initUtilData();
         if (Build.VERSION.SDK_INT >= 23) {
             PermissionUtils.requestMultiPermissions(MainActivity.this, mPermissionGrant);
@@ -536,6 +541,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mClearButton.setEnabled(false);
         setListeners();
         setlogin("", "");
+    }
+
+    private void bindAccount() {
+        PushServiceFactory.getCloudPushService().bindAccount("123456", new CommonCallback() {
+            @Override
+            public void onSuccess(String s) {
+                LogUtils.d(TAG,"绑定账号成功！/"+s);
+            }
+
+            @Override
+            public void onFailed(String s, String s1) {
+                LogUtils.d(TAG,"绑定账号失败！/"+s);
+
+            }
+        });
     }
 
     private void setAnimator() {
