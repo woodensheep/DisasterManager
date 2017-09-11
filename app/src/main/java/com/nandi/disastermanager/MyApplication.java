@@ -31,7 +31,6 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         initCloudChannel(this);
-        Fresco.initialize(this);
         mContext = getApplicationContext();
         GreenDaoManager.getInstance();
         CookieJarImpl cookieJar = new CookieJarImpl(new PersistentCookieStore(getApplicationContext()));

@@ -65,6 +65,4 @@ dependencies {
     compile 'com.aliyun.ams:alicloud-android-ut:5.1.0'
     testCompile 'junit:junit:4.12'
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
-    compile 'com.facebook.fresco:fresco:1.5.0'
-    compile 'com.facebook.fresco:webpsupport:0.12.0'
 }
