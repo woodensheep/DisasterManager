@@ -1,6 +1,7 @@
 package com.nandi.disastermanager.search;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,11 +25,7 @@ import static com.nandi.disastermanager.R.id.tv_monitor_9;
 public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHolderA> {
     private Context mContext;
     private MonitorData mMonitorData;
-    private MonitorAdapter.OnItemClickListener mOnItemClickListener;
-
-    public void setOnItemClickListener(MonitorAdapter.OnItemClickListener listener) {
-        mOnItemClickListener = listener;
-    }
+    public MonitorAdapter.OnItemClickListener mOnItemClickListener;
 
     public MonitorAdapter(Context context, MonitorData mMonitorData) {
         mContext = context;
@@ -36,9 +33,6 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
     }
 
 
-    public interface OnItemClickListener {
-        void onItemClick(View view);
-    }
 
     @Override
     public MonitorAdapter.ViewHolderA onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -49,7 +43,7 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(MonitorAdapter.ViewHolderA holder, int position) {
+    public void onBindViewHolder(MonitorAdapter.ViewHolderA holder, final int position) {
         if (position == 0) {
 
             holder.tv_1.setText("监测点编号");
@@ -61,17 +55,27 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
             holder.tv_7.setText("累计告警");
             holder.tv_8.setText("查看图片");
             holder.tv_9.setText("查看上报");
+            holder.tv_8.setBackground(null);
+            holder.tv_9.setBackground(null);
             holder.view_lin.setVisibility(View.VISIBLE);
         } else {
             holder.tv_1.setText(mMonitorData.getData().getResult().get(position - 1).getID());
             holder.tv_2.setText(mMonitorData.getData().getResult().get(position - 1).getNAME());
             holder.tv_3.setText(mMonitorData.getData().getResult().get(position - 1).getTime());
-            holder.tv_4.setText("null");
+            holder.tv_4.setText(" ");
             holder.tv_5.setText(mMonitorData.getData().getResult().get(position - 1).getMONITORDATA() + "");
-            holder.tv_6.setText("null");
-            holder.tv_7.setText("null");
+            holder.tv_6.setText(" ");
+            holder.tv_7.setText(" ");
             holder.tv_8.setText("查看图片");
             holder.tv_9.setText("查看");
+        }
+        if (mOnItemClickListener != null) {
+            holder.tv_8.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mOnItemClickListener.onClick(position);
+                }
+            });
         }
     }
 
@@ -82,7 +86,7 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定
-    class ViewHolderA extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolderA extends RecyclerView.ViewHolder  {
 
         TextView tv_1;
         TextView tv_2;
@@ -97,7 +101,6 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
 
         public ViewHolderA(View itemView) {
             super(itemView);
-            itemView.setOnClickListener(this);
             tv_1 = (TextView) itemView.findViewById(R.id.tv_monitor_1);
             tv_2 = (TextView) itemView.findViewById(R.id.tv_monitor_2);
             tv_3 = (TextView) itemView.findViewById(R.id.tv_monitor_3);
@@ -108,27 +111,14 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
             tv_8 = (TextView) itemView.findViewById(R.id.tv_monitor_8);
             tv_9 = (TextView) itemView.findViewById(R.id.tv_monitor_9);
             view_lin = itemView.findViewById(R.id.view_line);
-
-            tv_8.setOnClickListener(this);
-            tv_9.setOnClickListener(this);
         }
+    }
+    public interface OnItemClickListener {
+        void onClick(int position);
+    }
 
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()) {
-                case tv_monitor_8:
-                    Log.d("limeng", "5");
-                    break;
-                case tv_monitor_9:
-                    break;
-
-                default:
-
-                    break;
-            }
-
-
-        }
+    public void setOnItemClickListener(MonitorAdapter.OnItemClickListener onItemClickListener) {
+        this.mOnItemClickListener = onItemClickListener;
     }
 
 }

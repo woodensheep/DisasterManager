@@ -8,9 +8,10 @@ import java.util.List;
 
 public class MonitorData {
 
+
     /**
      * meta : {"success":true,"message":"ok"}
-     * data : {"pageNo":1,"pageSize":10,"totalCount":1,"totalPages":1,"result":[{"PHONE":"15285116811","GATHER":"骆林","MONITORDATA":10,"time":"2017-08-08 10:39:13","lon":107,"NAME":"拥党村六组不稳定斜坡（滑坡）_01","WEATHER":"阴天","IS_DANGER":0,"ID":"521421060058_01","lat":27}],"offset":0,"limit":10,"length":8,"funcName":"page","prev":1,"next":1}
+     * data : {"pageNo":1,"pageSize":10000,"totalCount":1,"totalPages":1,"result":[{"PHONE":"13885272488","GATHER":"蒋方明","MONITORDATA":200,"time":"2017-09-11 11:15:07","lon":106,"NAME":"轿子山镇厦耳村前寨滑坡_02","WEATHER":"晴天","IS_DANGER":0,"ID":"520402010003_02","lat":28}],"offset":0,"limit":10000,"length":8,"funcName":"page","prev":1,"next":1}
      */
 
     private MetaBean meta;
@@ -61,12 +62,12 @@ public class MonitorData {
     public static class DataBean {
         /**
          * pageNo : 1
-         * pageSize : 10
+         * pageSize : 10000
          * totalCount : 1
          * totalPages : 1
-         * result : [{"PHONE":"15285116811","GATHER":"骆林","MONITORDATA":10,"time":"2017-08-08 10:39:13","lon":107,"NAME":"拥党村六组不稳定斜坡（滑坡）_01","WEATHER":"阴天","IS_DANGER":0,"ID":"521421060058_01","lat":27}]
+         * result : [{"PHONE":"13885272488","GATHER":"蒋方明","MONITORDATA":200,"time":"2017-09-11 11:15:07","lon":106,"NAME":"轿子山镇厦耳村前寨滑坡_02","WEATHER":"晴天","IS_DANGER":0,"ID":"520402010003_02","lat":28}]
          * offset : 0
-         * limit : 10
+         * limit : 10000
          * length : 8
          * funcName : page
          * prev : 1
@@ -175,28 +176,28 @@ public class MonitorData {
 
         public static class ResultBean {
             /**
-             * PHONE : 15285116811
-             * GATHER : 骆林
-             * MONITORDATA : 10
-             * time : 2017-08-08 10:39:13
-             * lon : 107
-             * NAME : 拥党村六组不稳定斜坡（滑坡）_01
-             * WEATHER : 阴天
+             * PHONE : 13885272488
+             * GATHER : 蒋方明
+             * MONITORDATA : 200.0
+             * time : 2017-09-11 11:15:07
+             * lon : 106.0
+             * NAME : 轿子山镇厦耳村前寨滑坡_02
+             * WEATHER : 晴天
              * IS_DANGER : 0
-             * ID : 521421060058_01
-             * lat : 27
+             * ID : 520402010003_02
+             * lat : 28.0
              */
 
             private String PHONE;
             private String GATHER;
             private double MONITORDATA;
             private String time;
-            private int lon;
+            private double lon;
             private String NAME;
             private String WEATHER;
             private int IS_DANGER;
             private String ID;
-            private int lat;
+            private double lat;
 
             public String getPHONE() {
                 return PHONE;
@@ -230,11 +231,11 @@ public class MonitorData {
                 this.time = time;
             }
 
-            public int getLon() {
+            public double getLon() {
                 return lon;
             }
 
-            public void setLon(int lon) {
+            public void setLon(double lon) {
                 this.lon = lon;
             }
 
@@ -270,11 +271,11 @@ public class MonitorData {
                 this.ID = ID;
             }
 
-            public int getLat() {
+            public double getLat() {
                 return lat;
             }
 
-            public void setLat(int lat) {
+            public void setLat(double lat) {
                 this.lat = lat;
             }
         }

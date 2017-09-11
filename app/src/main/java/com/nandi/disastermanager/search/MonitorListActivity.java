@@ -2,6 +2,7 @@ package com.nandi.disastermanager.search;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,7 +30,7 @@ import okhttp3.Call;
 public class MonitorListActivity extends Activity {
     @BindView(R.id.date_show)
     RecyclerView dateShow;
-    private  MonitorListAdapter monitorListAdapter;
+    private MonitorListAdapter monitorListAdapter;
     private Context mContext;
     private MonitorListData monitorListData;
 
@@ -38,7 +39,7 @@ public class MonitorListActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor_list);
         ButterKnife.bind(this);
-        mContext= this;
+        mContext = this;
         monitorListData = new MonitorListData();
 
         monitorListRequest();
@@ -58,16 +59,28 @@ public class MonitorListActivity extends Activity {
                     @Override
                     public void onResponse(String response, int id) {
                         WaitingDialog.closeDialog();
-                        Log.i("qingsong",response);
+                        Log.i("qingsong", response);
                         Gson gson = new Gson();
                         monitorListData = gson.fromJson(response, MonitorListData.class);
+                        setAdapter();
 
-                        dateShow.setLayoutManager(new LinearLayoutManager(mContext));
-                        monitorListAdapter=new MonitorListAdapter(mContext,monitorListData);
-                        dateShow.setAdapter(monitorListAdapter);
                     }
                 });
 
+    }
+
+    private void setAdapter() {
+        dateShow.setLayoutManager(new LinearLayoutManager(mContext));
+        monitorListAdapter = new MonitorListAdapter(mContext, monitorListData);
+        monitorListAdapter.setOnItemClickListener(new MonitorListAdapter.OnItemClickListener() {
+            @Override
+            public void onClick(int position) {
+                Intent intent = new Intent(mContext, MonitorDataActivity.class);
+                intent.putExtra("ID",monitorListData.getData().getResult().get(position-1).getID());
+                startActivity(intent);
+            }
+        });
+        dateShow.setAdapter(monitorListAdapter);
     }
 
 }

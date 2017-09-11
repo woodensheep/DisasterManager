@@ -7,6 +7,7 @@ import android.util.Log;
 import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
 import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.cookie.CookieJarImpl;
@@ -30,6 +31,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         initCloudChannel(this);
+        Fresco.initialize(this);
         mContext = getApplicationContext();
         GreenDaoManager.getInstance();
         CookieJarImpl cookieJar = new CookieJarImpl(new PersistentCookieStore(getApplicationContext()));

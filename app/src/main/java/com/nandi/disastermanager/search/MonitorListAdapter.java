@@ -27,21 +27,14 @@ import static com.nandi.disastermanager.R.id.tv_monitor_9;
 public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.ViewHolderA>{
     private Context mContext;
     private MonitorListData mMonitorListData;
-    private MonitorListAdapter.OnItemClickListener mOnItemClickListener;
-
-    public void setOnItemClickListener(MonitorListAdapter.OnItemClickListener listener) {
-        mOnItemClickListener = listener;
-    }
-
+    public MonitorListAdapter.OnItemClickListener mOnItemClickListener;
     public MonitorListAdapter(Context context,MonitorListData mMonitorListData) {
         mContext = context;
         this.mMonitorListData =  mMonitorListData;
     }
 
 
-    public interface OnItemClickListener{
-        void onItemClick(View view);
-    }
+
     @Override
     public MonitorListAdapter.ViewHolderA onCreateViewHolder(ViewGroup parent, int viewType) {
         //此处动态加载ViewHolder的布局文件并返回holder
@@ -51,7 +44,7 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
     }
 
     @Override
-    public void onBindViewHolder(MonitorListAdapter.ViewHolderA holder, int position) {
+    public void onBindViewHolder(MonitorListAdapter.ViewHolderA holder, final int position) {
         if(position==0){
             holder.tv_1.setText("监测点编号");
             holder.tv_2.setText("监测点名称");
@@ -65,7 +58,16 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
             holder.tv_2.setText(mMonitorListData.getData().getResult().get(position-1).getNAME());
             holder.tv_3.setText(mMonitorListData.getData().getResult().get(position-1).getTime());
             holder.tv_4.setText("查看详情");
+            holder.tv_4.setTag(position);
 
+        }
+        if (mOnItemClickListener != null) {
+            holder.tv_4.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mOnItemClickListener.onClick(position);
+                }
+            });
         }
     }
 
@@ -76,7 +78,7 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定
-    class ViewHolderA extends RecyclerView.ViewHolder implements View.OnClickListener{
+    class ViewHolderA extends RecyclerView.ViewHolder {
 
         TextView tv_1;
         TextView tv_2;
@@ -86,29 +88,20 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
 
         public ViewHolderA(View itemView) {
             super(itemView);
-            itemView.setOnClickListener(this);
             tv_1 = (TextView) itemView.findViewById(R.id.tv_monitor_1);
             tv_2 = (TextView) itemView.findViewById(R.id.tv_monitor_2);
             tv_3 = (TextView) itemView.findViewById(R.id.tv_monitor_3);
             tv_4 = (TextView) itemView.findViewById(R.id.tv_monitor_4);
             view_line = itemView.findViewById(R.id.view_line);
-            tv_4.setOnClickListener(this);
         }
 
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()){
-                case tv_monitor_4:
-                    Intent intent =  new Intent(mContext,MonitorDataActivity.class);
-                    mContext.startActivity(intent);
-                    break;
-                default:
+    }
+    public interface OnItemClickListener {
+        void onClick(int position);
+    }
 
-                    break;
-            }
-
-
-        }
+    public void setOnItemClickListener(MonitorListAdapter.OnItemClickListener onItemClickListener) {
+        this.mOnItemClickListener = onItemClickListener;
     }
 
 }
