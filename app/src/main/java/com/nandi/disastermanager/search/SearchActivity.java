@@ -263,7 +263,7 @@ public class SearchActivity extends Activity {
 
     private void getlistType() {
         WaitingDialog.createLoadingDialog(context,"");
-        OkHttpUtils.get().url("http://192.168.10.73:8080/gzcmd/appdocking/listType")
+        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/appdocking/listType")
                 .build()
                 .execute(new StringCallback() {
                     @Override

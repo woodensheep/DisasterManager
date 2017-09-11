@@ -42,7 +42,7 @@ public class MonitorPhotoActivity extends Activity {
 
     private void monitorListRequest(String id,String time) {
 
-        OkHttpUtils.get().url("http://192.168.10.195:8080/gzcmd/detection/findPhoto/"+id+"/"+time)
+        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/detection/findPhoto/"+id+"/"+time)
                 .build()
                 .execute(new StringCallback() {
                     @Override

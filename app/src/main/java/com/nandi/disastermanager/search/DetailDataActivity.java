@@ -49,12 +49,12 @@ public class DetailDataActivity extends Activity {
         Long id = getIntent().getLongExtra("id",0);
         DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(id + "");
         Log.i("Tag",disasterPoint.getDisasterCode());
-        monitorListRequest();
+        monitorListRequest(disasterPoint.getDisasterCode());
     }
 
-    private void monitorListRequest() {
+    private void monitorListRequest(String code) {
 
-        OkHttpUtils.get().url("http://192.168.10.195:8080/gzcmd/disaterpoint/findByDisaterCode/520402010001")
+        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/disaterpoint/findByDisaterCode/"+code)
                 .build()
                 .execute(new StringCallback() {
                     @Override

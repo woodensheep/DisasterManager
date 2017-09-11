@@ -40,12 +40,12 @@ public class MonitorListActivity extends Activity {
         Long id = getIntent().getLongExtra("id",0);
         DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(id + "");
 
-        monitorListRequest("520402010001");
+        monitorListRequest(disasterPoint.getDisasterCode());
     }
 
     private void monitorListRequest(String code) {
 
-        OkHttpUtils.get().url("http://192.168.10.195:8080/gzcmd/detection/findMonitorAll/"+code+"/1/10000")
+        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/detection/findMonitorAll/"+code+"/1/10000")
                 .build()
                 .execute(new StringCallback() {
                     @Override

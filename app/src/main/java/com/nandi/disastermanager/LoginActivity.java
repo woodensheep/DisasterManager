@@ -82,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void loginPost(String userNumber,String password){
             WaitingDialog.createLoadingDialog(mContext,"正在登录。。。");
-            OkHttpUtils.get().url("http://192.168.10.73:8080/gzcmd/appdocking/login/"+userNumber+"/"+password)
+            OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/appdocking/login/"+userNumber+"/"+password)
                     .build()
                     .execute(new StringCallback() {
                         @Override
@@ -171,7 +171,7 @@ public class LoginActivity extends AppCompatActivity {
      * 请求所有灾害点
      */
     private void loginDisaster(String id,String level){
-        RequestCall build = OkHttpUtils.get().url("http://192.168.10.73:8080/gzcmd/appdocking/listDisaster/" + id + "/" + level)
+        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/appdocking/listDisaster/" + id + "/" + level)
                 .build();
         build.execute(new StringCallback() {
                     @Override

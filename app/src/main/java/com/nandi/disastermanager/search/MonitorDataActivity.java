@@ -90,7 +90,7 @@ public class MonitorDataActivity extends Activity {
 
     private void monitorListRequest(String id) {
 
-        OkHttpUtils.get().url("http://192.168.10.195:8080/gzcmd/detection/findMonitorData/" + id + "/1/10000")
+        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/detection/findMonitorData/" + id + "/1/10000")
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -116,7 +116,7 @@ public class MonitorDataActivity extends Activity {
 
     private void monitorCurveRequest(String id, String startTime, String endTime) {
 
-        OkHttpUtils.get().url("http://192.168.10.195:8080/gzcmd/tabcollect/findHighcharts/" + id + "/" + startTime + "/" + endTime)
+        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/tabcollect/findHighcharts/" + id + "/" + startTime + "/" + endTime)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -147,7 +147,7 @@ public class MonitorDataActivity extends Activity {
             @Override
             public void onClick(int position) {
                 Intent intent = new Intent(mContext, MonitorPhotoActivity.class);
-                intent.putExtra("ID", mMonitorData.getData().getResult().get(position - 1).getID());
+                intent.putExtra("ID", mMonitorData.getData().getResult().get(position-1).getID());
                 intent.putExtra("Time", mMonitorData.getData().getResult().get(position - 1).getTime());
                 startActivity(intent);
             }
