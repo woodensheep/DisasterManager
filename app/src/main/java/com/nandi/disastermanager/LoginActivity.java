@@ -140,7 +140,17 @@ public class LoginActivity extends AppCompatActivity {
                     loginInfo.getData().get(4).getTownmap().get(i).getId());
             GreenDaoManager.insertArea(areaInfo);
         }
-
+        int id = -1;
+        if (1==loginInfo.getData().get(0).getLevel()){
+            id=loginInfo.getData().get(1).getProvince().get(0).getId();
+        }else if(2==loginInfo.getData().get(0).getLevel()){
+            id=loginInfo.getData().get(2).getCitymap().get(0).getId();
+        }else if(3==loginInfo.getData().get(0).getLevel()){
+            id=loginInfo.getData().get(3).getCountymap().get(0).getId();
+        }else if(4==loginInfo.getData().get(0).getLevel()){
+            id=loginInfo.getData().get(4).getCountymap().get(0).getId();
+        }
+        loginDisaster(id+"",loginInfo.getData().get(0).getLevel()+"");
     }
 
     /**
@@ -178,7 +188,9 @@ public class LoginActivity extends AppCompatActivity {
                                             dataBean.getDzmc(),
                                             dataBean.getLATITUDE()+"",
                                             dataBean.getLONGITUDE()+"");
+                                    GreenDaoManager.insertDisasterPoint(disasterPoint);
                                 }
+
 
                             }
                         }).start();
