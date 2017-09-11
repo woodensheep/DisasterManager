@@ -92,7 +92,15 @@ public class GreenDaoManager {
                                                 .list();
         return disasterList;
     }
+    /**
+     * 根据id查询地灾点
+     */
+    public  static DisasterPoint queryDisasterById(String id) {
 
+        DisasterPoint disasterList = GreenDaoManager.getInstance().getSession().getDisasterPointDao().queryBuilder()
+                .where(DisasterPointDao.Properties.Id.like(id)).unique();
+        return disasterList;
+    }
     /**
      * 根据隐患点类型查询
      */

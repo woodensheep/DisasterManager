@@ -164,27 +164,34 @@
         android:layout_alignParentRight="true"
         android:layout_margin="10dp"
         android:background="@color/white"
+        android:orientation="horizontal"
         android:layout_marginTop="10dp">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/iv_enlarge"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:background="@drawable/map_control_selector"
+            android:layout_margin="5dp"
             android:src="@mipmap/enlarge" />
-
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/button_color_dark"/>
         <ImageView
             android:id="@+id/iv_luopan"
             android:layout_width="50dp"
-            android:background="@drawable/map_control_selector"
             android:layout_height="50dp"
+            android:layout_margin="5dp"
             android:src="@mipmap/compass" />
-
-        <ImageButton
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/button_color_dark"/>
+        <ImageView
             android:id="@+id/iv_narrow"
-            android:background="@drawable/map_control_selector"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_margin="5dp"
             android:src="@mipmap/narrow" />
     </LinearLayout>
     <TextView

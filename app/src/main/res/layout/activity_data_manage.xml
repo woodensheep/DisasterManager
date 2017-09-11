@@ -270,7 +270,6 @@
                             android:textColor="@color/color_neirong"
                             android:textSize="@dimen/leirong_text_size" />
                     </LinearLayout>
-                    <include layout="@layout/item_qxsy"/>
 
                 </LinearLayout>
             </LinearLayout>

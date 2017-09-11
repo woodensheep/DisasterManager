@@ -60,7 +60,6 @@ public class MyReceiver extends MessageReceiver {
             message.setInvite_userId(object.getInt("userId"));
             message.setRoom_id(object.getInt("roomId"));
             message.setInvite_man(object.getString("yqr"));
-//            message.setUser_name(object.getString("taget"));
             message.setPush_msg(object.getString("message"));
             sendNotification(context);
             Intent intent=new Intent();
