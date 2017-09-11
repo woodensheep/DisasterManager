@@ -115,7 +115,13 @@ public class LoginActivity extends AppCompatActivity {
         Gson gson = new Gson();
         loginInfo=gson.fromJson(response, LoginInfo.class);
         if (loginInfo.getMeta().isSuccess()==false){
-            Toast.makeText(mContext,loginInfo.getMeta().getMessage() , Toast.LENGTH_SHORT).show();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(mContext,loginInfo.getMeta().getMessage() , Toast.LENGTH_SHORT).show();
+                }
+            });
+
             return;
         }
         SharedUtils.putShare(mContext,"loginlevel",loginInfo.getData().get(0).getLevel()+"");
