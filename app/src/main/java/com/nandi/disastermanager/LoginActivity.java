@@ -114,11 +114,11 @@ public class LoginActivity extends AppCompatActivity {
     private void saveArea(String response) {
         Gson gson = new Gson();
         loginInfo=gson.fromJson(response, LoginInfo.class);
-        SharedUtils.putShare(mContext,"loginlevel",loginInfo.getData().get(0).getLevel()+"");
         if (loginInfo.getMeta().isSuccess()==false){
             Toast.makeText(mContext,loginInfo.getMeta().getMessage() , Toast.LENGTH_SHORT).show();
             return;
         }
+        SharedUtils.putShare(mContext,"loginlevel",loginInfo.getData().get(0).getLevel()+"");
         for (int i=0;i<loginInfo.getData().get(2).getCitymap().size();i++) {
             AreaInfo areaInfo=new AreaInfo(null,
                     loginInfo.getData().get(2).getCitymap().get(i).getLevel(),
