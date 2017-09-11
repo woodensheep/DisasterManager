@@ -53,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
         mContext = this;
+        userName.setText((String)SharedUtils.getShare(mContext,"loginname",""));
         initEvent();
     }
 
@@ -193,7 +194,7 @@ public class LoginActivity extends AppCompatActivity {
                                             null,
                                             dataBean.getCounty(),
                                             dataBean.getTown(),
-                                            dataBean.getLevel()+"",
+                                            dataBean.getXqdj()+"",
                                             type,
                                             dataBean.getYfys(),
                                             dataBean.getDzmc(),

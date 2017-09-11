@@ -3,8 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="800dp"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:padding="5dp"
+    android:gravity="center"
     android:orientation="vertical"
     android:background="@drawable/linlear_background"
     tools:context="com.nandi.disastermanager.search.MonitorDataActivity">
@@ -31,7 +32,7 @@
         android:text="数据曲线"
         android:textSize="20sp"
         android:gravity="center"
-        android:textColor="@color/white"
+        android:textColor="@color/trans_dark_grey"
         android:background="@color/colorPrimary"
         />
 </LinearLayout>
@@ -42,4 +43,59 @@
         android:layout_height="match_parent">
     </android.support.v7.widget.RecyclerView>
 
+    <LinearLayout
+        android:visibility="gone"
+        android:background="@color/white"
+        android:id="@+id/ll_chart"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="开始时间："
+                android:gravity="center"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/tv_chart_start_time"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text=""
+                android:gravity="center"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="结束时间："
+                android:gravity="center"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/tv_chart_end_time"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text=""
+                android:gravity="center"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btn_chart"
+                android:layout_width="wrap_content"
+                android:text="查询"
+                android:gravity="center"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            />
+    </LinearLayout>
 </LinearLayout>

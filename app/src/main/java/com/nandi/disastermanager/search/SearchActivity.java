@@ -13,18 +13,25 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.AreaInfo;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
+import com.nandi.disastermanager.search.entity.ListType;
 import com.nandi.disastermanager.search.entity.LoginInfo;
+import com.nandi.disastermanager.ui.WaitingDialog;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.Call;
 
 import static com.nandi.disastermanager.R.id.date_show;
 
@@ -68,6 +75,10 @@ public class SearchActivity extends Activity {
     private String type="";
     private String inducement="";
     private String disasterName="";
+    private List<String> mItems4=new ArrayList<>();
+    private String[] mItems5=new String[10];
+    private List<String> mItems6=new ArrayList<>();;
+    private ListType listType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +86,8 @@ public class SearchActivity extends Activity {
         setContentView(R.layout.activity_search_gz);
         ButterKnife.bind(this);
         context = this;
-        initViews();
+        getlistType();
+
     }
 
 
@@ -83,9 +95,7 @@ public class SearchActivity extends Activity {
         List<String> mItems1 = new ArrayList<>();
         final List<String> mItems2 = new ArrayList<>();
         final List<String> mItems3 = new ArrayList<>();
-        final String[] mItems4 = getResources().getStringArray(R.array.search_type_4);
-        final String[] mItems5 = getResources().getStringArray(R.array.search_type_5);
-        final String[] mItems6 = getResources().getStringArray(R.array.search_type_6);
+         mItems5 = getResources().getStringArray(R.array.search_type_5);
         mItems1.add("筛查州市");
         for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(2)) {
             mItems1.add(areaInfo.getName());
@@ -251,6 +261,40 @@ public class SearchActivity extends Activity {
         });
     }
 
+    private void getlistType() {
+        WaitingDialog.createLoadingDialog(context,"");
+        OkHttpUtils.get().url("http://192.168.10.73:8080/gzcmd/appdocking/listType")
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        WaitingDialog.closeDialog();
+                        Toast.makeText(context, "请求失败", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        WaitingDialog.closeDialog();
+                        Gson gson=new Gson();
+                        listType=gson.fromJson(response, ListType.class);
+                        if (listType.getData()==null){
+                            return;
+                        }
+                        mItems4.clear();
+                        mItems4.add("等级");
+                        for (int i=0;i<listType.getData().getXqdj().size();i++) {
+                            mItems4.add(listType.getData().getXqdj().get(i));
+                        }
+                        mItems6.clear();
+                        mItems6.add("诱发因素");
+                        for (int i=0;i<listType.getData().getYfys().size();i++) {
+                            mItems6.add(listType.getData().getYfys().get(i));
+                        }
+                        initViews();
+                    }
+                });
+
+    }
 
     /**
      * 启动activity

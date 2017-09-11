@@ -3,8 +3,6 @@ package com.nandi.disastermanager.search;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,15 +11,10 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.nandi.disastermanager.R;
-import com.nandi.disastermanager.entity.EquipmentLocation;
-import com.nandi.disastermanager.search.entity.DetailData;
 import com.nandi.disastermanager.search.entity.MonitorListData;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
