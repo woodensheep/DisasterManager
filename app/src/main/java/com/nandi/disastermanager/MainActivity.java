@@ -1,10 +1,14 @@
 package com.nandi.disastermanager;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
@@ -19,6 +23,7 @@ import android.provider.Settings;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -470,6 +475,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return false;
         }
     });
+    private MyBroadcastReceiver receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -482,10 +488,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setAnimator();
         bindAccount();
         initUtilData();
+        receiver = new MyBroadcastReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("POINT_INFO");
+        registerReceiver(receiver, intentFilter);
         PermissionUtils.requestMultiPermissions(MainActivity.this, mPermissionGrant);
         gzDianZhiLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_dianzi_url));
         gzYingXiangLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url));
-        gzYingXiangLayerHigh=new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url_1));
+        gzYingXiangLayerHigh = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url_1));
         gzXingZhengLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_xingzheng_url));
         gzElevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.guizhou_gaocheng_url));
         gzQxsyLayer = new ArcGISSceneLayer(getResources().getString(R.string.guizhou_qxsy_url));
@@ -556,7 +566,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void uploadLocation() {
-        uploadLocationInfo(106.3016, 29.3650);//// TODO: 2017/9/11 上传坐标
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         //获取当前可用的位置控制器
         List<String> list = locationManager.getProviders(true);
@@ -576,6 +585,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Toast.LENGTH_LONG).show();
             return;
         }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         Location location = locationManager.getLastKnownLocation(provider);
         if (location != null) {
             //获取当前位置，这里只用到了经纬度
@@ -591,7 +603,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onLocationChanged(Location location) {
                 //位置信息变化时触发
-//                uploadLocationInfo(location.getLongitude(), location.getLatitude());
+                uploadLocationInfo(location.getLongitude(), location.getLatitude());
                 Log.d(TAG, "坐标信息:" + location.getLongitude() + "/" + location.getLatitude());
             }
 
@@ -623,7 +635,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void uploadLocationInfo(double longitude, double latitude) {
-        OkHttpUtils.get().url(getResources().getString(R.string.upload_location_url) + longitude + "/" + latitude + "/" + SharedUtils.getShare(context, "loginname", ""))
+        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url) + "location/addCoordinates/" + longitude + "/" + latitude + "/" + SharedUtils.getShare(context, "loginname", ""))
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -638,7 +650,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void bindAccount() {
-        PushServiceFactory.getCloudPushService().bindAccount("123456", new CommonCallback() {
+        PushServiceFactory.getCloudPushService().bindAccount((String) SharedUtils.getShare(context, "loginname", ""), new CommonCallback() {
             @Override
             public void onSuccess(String s) {
                 LogUtils.d(TAG, "绑定账号成功！/" + s);
@@ -1215,11 +1227,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         scene.addLoadStatusChangedListener(new LoadStatusChangedListener() {
             @Override
-            public void loadStatusChanged(LoadStatusChangedEvent loadStatusChangedEvent) {//// TODO: 2017/9/11
+            public void loadStatusChanged(LoadStatusChangedEvent loadStatusChangedEvent) {
                 String name = loadStatusChangedEvent.getNewLoadStatus().name();
                 if ("LOADED".equals(name)) {
-                    layers.add(gzYingXiangLayerHigh);
-                    layers.add(gzYingXiangLayer);
+                    layers.add(gzDianZhiLayer);
 //                    elevationSources.add(gzElevationSource);
                     Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
                     sceneView.setViewpointCamera(camera);
@@ -2141,7 +2152,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-
                 return 1;
             }
         });
@@ -5016,5 +5026,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private class MyBroadcastReceiver extends BroadcastReceiver {
 
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals("POINT_INFO")) {
+                long id = intent.getLongExtra("ID", 0);
+                setQueryOverlay(id);
+            }
+        }
+
+        private void setQueryOverlay(long id) {
+            com.nandi.disastermanager.search.entity.DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(String.valueOf(id));
+            Camera camera = new Camera(Double.valueOf(disasterPoint.getLat()), Double.valueOf(disasterPoint.getLon()), 100, 0, 0, 0.0);
+            sceneView.setViewpointCameraAsync(camera, 2);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);
+    }
 }
