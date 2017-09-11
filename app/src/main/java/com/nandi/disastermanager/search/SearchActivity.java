@@ -271,6 +271,7 @@ public class SearchActivity extends Activity {
                     @Override
                     public void onError(Call call, Exception e, int id) {
                         WaitingDialog.closeDialog();
+
                         Toast.makeText(context, "请求失败", Toast.LENGTH_SHORT).show();
                     }
 

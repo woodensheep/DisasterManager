@@ -51,13 +51,14 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
             holder.tv_3.setText("监测时间");
             holder.tv_4.setText(" ");
             holder.tv_4.setBackground(null);
+            holder.tv_4.setEnabled(false);
             holder.view_line.setVisibility(View.VISIBLE);
-
         }else{
             holder.tv_1.setText(mMonitorListData.getData().getResult().get(position-1).getID());
             holder.tv_2.setText(mMonitorListData.getData().getResult().get(position-1).getNAME());
             holder.tv_3.setText(mMonitorListData.getData().getResult().get(position-1).getTime());
             holder.tv_4.setText("查看详情");
+            holder.tv_4.setEnabled(true);
             holder.tv_4.setTag(position);
 
         }

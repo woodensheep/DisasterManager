@@ -185,12 +185,12 @@ public class MonitorListData {
              */
 
             private String time;
-            private int lon;
+            private double lon;
             private String NAME;
             private String disName;
             private String disnNum;
             private String ID;
-            private int lat;
+            private double lat;
             private int REGIONID;
 
             public String getTime() {
@@ -201,11 +201,11 @@ public class MonitorListData {
                 this.time = time;
             }
 
-            public int getLon() {
+            public double getLon() {
                 return lon;
             }
 
-            public void setLon(int lon) {
+            public void setLon(double lon) {
                 this.lon = lon;
             }
 
@@ -241,11 +241,11 @@ public class MonitorListData {
                 this.ID = ID;
             }
 
-            public int getLat() {
+            public double getLat() {
                 return lat;
             }
 
-            public void setLat(int lat) {
+            public void setLat(double lat) {
                 this.lat = lat;
             }
 

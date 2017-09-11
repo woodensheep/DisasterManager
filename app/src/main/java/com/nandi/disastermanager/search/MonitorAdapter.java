@@ -57,6 +57,8 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
             holder.tv_9.setText("查看上报");
             holder.tv_8.setBackground(null);
             holder.tv_9.setBackground(null);
+            holder.tv_8.setEnabled(false);
+            holder.tv_9.setEnabled(false);
             holder.view_lin.setVisibility(View.VISIBLE);
         } else {
             holder.tv_1.setText(mMonitorData.getData().getResult().get(position - 1).getID());
@@ -68,6 +70,8 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
             holder.tv_7.setText(" ");
             holder.tv_8.setText("查看图片");
             holder.tv_9.setText("查看");
+            holder.tv_8.setEnabled(true);
+            holder.tv_9.setEnabled(true);
         }
         if (mOnItemClickListener != null) {
             holder.tv_8.setOnClickListener(new View.OnClickListener() {

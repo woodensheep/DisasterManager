@@ -75,6 +75,7 @@ public class MonitorListActivity extends Activity {
         monitorListAdapter.setOnItemClickListener(new MonitorListAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
+
                 Intent intent = new Intent(mContext, MonitorDataActivity.class);
                 intent.putExtra("ID", monitorListData.getData().getResult().get(position - 1).getID());
                 startActivity(intent);
