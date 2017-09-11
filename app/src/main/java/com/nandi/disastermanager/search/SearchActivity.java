@@ -90,7 +90,6 @@ public class SearchActivity extends Activity {
 
     }
 
-
     private void initViews() {
         List<String> mItems1 = new ArrayList<>();
         final List<String> mItems2 = new ArrayList<>();
@@ -243,6 +242,7 @@ public class SearchActivity extends Activity {
         rcSearchAdapter.setOnItemClickListener(new RcSearchAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view) {
+
                 Log.d("limeng", "6");
             }
         });

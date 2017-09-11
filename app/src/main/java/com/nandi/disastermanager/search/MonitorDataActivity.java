@@ -31,8 +31,6 @@ import com.google.gson.Gson;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.ChartData;
 import com.nandi.disastermanager.search.entity.MonitorData;
-import com.nandi.disastermanager.search.entity.MonitorListData;
-import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -206,7 +204,7 @@ public class MonitorDataActivity extends Activity {
                 if ("".equals(startTime)&&"".equals(endTime)) {
                     Toast.makeText(mContext,"请选择时间",Toast.LENGTH_SHORT).show();
                 }else {
-                    monitorCurveRequest("521421060058_01", startTime, endTime);
+                    monitorCurveRequest(ID, startTime, endTime);
                 }
                 break;
         }

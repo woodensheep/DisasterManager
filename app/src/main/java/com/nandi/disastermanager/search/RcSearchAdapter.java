@@ -3,14 +3,12 @@ package com.nandi.disastermanager.search;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nandi.disastermanager.R;
-import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 
 import java.util.List;
@@ -116,7 +114,6 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
                 case tv_search_5:
                     Intent intent =  new Intent(mContext,MonitorListActivity.class);
                     view.getTag();
-
                     mContext.startActivity(intent);
                     break;
                 case tv_search_6:
