@@ -242,8 +242,10 @@ public class SearchActivity extends Activity {
         rcSearchAdapter.setOnItemClickListener(new RcSearchAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view) {
-
-                Log.d("limeng", "6");
+                Long id = (Long) view.getTag();
+                Intent intent=new Intent("POINT_INFO");
+                intent.putExtra("ID",id);
+                sendBroadcast(intent);
             }
         });
         dateShow.setAdapter(rcSearchAdapter);

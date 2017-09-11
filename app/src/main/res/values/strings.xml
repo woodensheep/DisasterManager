@@ -40,14 +40,13 @@
     <string name="chongqing_url">http://183.230.182.149:6080/arcgis/rest/services/chongqing_map/MapServer</string>
 
 
-    <string name="guizhou_dianzi_url">http://183.230.182.149:6082/arcgis/rest/services/guizhou_map/MapServer</string>
+    <string name="guizhou_dianzi_url">http://183.230.182.149:6080/arcgis/rest/services/guizhou_map/MapServer</string>
     <string name="guizhou_yingxiang_url">http://183.230.182.149:6082/arcgis/rest/services/guizhou/MapServer</string>
     <string name="guizhou_yingxiang_url_1">http://183.230.182.149:6080/arcgis/rest/services/guizhou_ok18/MapServer </string>
     <string name="guizhou_xingzheng_url">http://183.230.182.149:6082/arcgis/rest/services/gz_xz_520000/MapServer</string>
     <string name="guizhou_gaocheng_url">http://183.230.182.149:6082/arcgis/rest/services/guizhou_dem/ImageServer</string>
     <string name="guizhou_qxsy_url">http://183.230.182.149:6081/arcgis/rest/services/Hosted/guiyang/SceneServer/layers</string>
     <string name="guizhou_qxsy_gc_url">http://183.230.182.149:6082/arcgis/rest/services/gz_qxsydemA11/ImageServer</string>
-    <string name="upload_location_url">http://192.168.10.73:8080/gzcmd/location/addCoordinates/</string>
 
     <string name="base_http">http://183.230.182.149:18081/springmvc/</string>
     <string name="login">http://183.230.182.149:18081/springmvc/login/login/cq_guotu/ycmcwin2000qwe</string>
