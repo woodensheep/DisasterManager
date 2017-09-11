@@ -33,12 +33,12 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="landscape"></activity>
+            android:screenOrientation="landscape" />
         <activity
             android:name=".videocall.helloanychat.VideoActivity"
             android:configChanges="orientation|keyboardHidden|navigation"
@@ -66,7 +66,10 @@
         <activity
             android:name=".search.SearchActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/TipDialog" />
+            android:theme="@style/TipDialog">
+
+        </activity>
+
         <activity
             android:name=".search.DetailDataActivity"
             android:screenOrientation="landscape"
@@ -79,9 +82,13 @@
             android:name=".search.MonitorListActivity"
             android:screenOrientation="landscape"
             android:theme="@style/TipDialog" />
-        <activity android:name=".search.MonitorPhotoActivity"
+        <activity
+            android:name=".search.MonitorPhotoActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/TipDialog"/>
+            android:theme="@style/TipDialog" />
+        <activity android:name=".search.NavigationActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/TipDialog" />
         <activity
             android:name=".videocall.helloanychat.ProgressActivity"
             android:screenOrientation="landscape" />

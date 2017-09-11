@@ -65,14 +65,10 @@ public class MonitorPhotoAdapter extends RecyclerView.Adapter<MonitorPhotoAdapte
         String url = "http://gzgdm.oss-cn-guizhou-gov.aliyuncs.com/" + mMonitorData.getData().get(position).getUrl();
         try {
           String s=  URLDecoder.decode(url,"UTF-8");
-
             Glide.with(mContext).load(s).placeholder(R.mipmap.ic_launcher).into(holder.monitor_photo);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
-
-
     }
 
     @Override

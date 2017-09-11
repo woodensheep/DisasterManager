@@ -31,7 +31,9 @@ import com.google.gson.Gson;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.ChartData;
 import com.nandi.disastermanager.search.entity.MonitorData;
+import com.nandi.disastermanager.search.entity.MonitorListData;
 import com.nandi.disastermanager.ui.WaitingDialog;
+import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -95,17 +97,20 @@ public class MonitorDataActivity extends Activity {
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        WaitingDialog.closeDialog();
                         Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
                     }
-
                     @Override
                     public void onResponse(String response, int id) {
-                        WaitingDialog.closeDialog();
                         Log.i("qingsong", response);
                         Gson gson = new Gson();
                         mMonitorData = gson.fromJson(response, MonitorData.class);
-                        setAdapter();
+                        if (mMonitorData.getMeta().isSuccess()){
+                            setAdapter();
+                            ToastUtils.showShort(mContext,mMonitorData.getMeta().getMessage());
+                        }else{
+                            ToastUtils.showShort(mContext,mMonitorData.getMeta().getMessage());
+                        }
+
                     }
                 });
 

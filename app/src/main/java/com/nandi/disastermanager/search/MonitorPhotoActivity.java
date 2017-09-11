@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.MonitorPhoto;
 import com.nandi.disastermanager.ui.WaitingDialog;
+import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -46,20 +47,24 @@ public class MonitorPhotoActivity extends Activity {
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        WaitingDialog.closeDialog();
+
                         Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onResponse(String response, int id) {
-                        WaitingDialog.closeDialog();
-                        Log.i("qingsong", response);
                         Gson gson = new Gson();
                         monitorPhoto = gson.fromJson(response, MonitorPhoto.class);
+                        if (monitorPhoto.getMeta().isSuccess()){
+                            Log.i("qingsong", response);
+                            dateShow.setLayoutManager(new LinearLayoutManager(mContext));
+                            monitorPhotoAdapter = new MonitorPhotoAdapter(mContext, monitorPhoto);
+                            dateShow.setAdapter(monitorPhotoAdapter);
+                            ToastUtils.showShort(mContext,monitorPhoto.getMeta().getMessage());
+                        }else {
+                            ToastUtils.showShort(mContext,monitorPhoto.getMeta().getMessage());
+                        }
 
-                        dateShow.setLayoutManager(new LinearLayoutManager(mContext));
-                        monitorPhotoAdapter = new MonitorPhotoAdapter(mContext, monitorPhoto);
-                        dateShow.setAdapter(monitorPhotoAdapter);
                     }
                 });
 

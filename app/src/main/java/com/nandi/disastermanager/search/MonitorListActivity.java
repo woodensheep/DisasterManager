@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.MonitorListData;
 import com.nandi.disastermanager.ui.WaitingDialog;
+import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -45,18 +46,21 @@ public class MonitorListActivity extends Activity {
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        WaitingDialog.closeDialog();
                         Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onResponse(String response, int id) {
-                        WaitingDialog.closeDialog();
-                        Log.i("qingsong", response);
+                        Log.i("TAG", response);
+
                         Gson gson = new Gson();
                         monitorListData = gson.fromJson(response, MonitorListData.class);
-                        setAdapter();
-
+                        if (monitorListData.getMeta().isSuccess()){
+                            ToastUtils.showShort(mContext,monitorListData.getMeta().getMessage());
+                            setAdapter();
+                        }else{
+                            ToastUtils.showShort(mContext,monitorListData.getMeta().getMessage());
+                        }
                     }
                 });
 
@@ -69,7 +73,7 @@ public class MonitorListActivity extends Activity {
             @Override
             public void onClick(int position) {
                 Intent intent = new Intent(mContext, MonitorDataActivity.class);
-                intent.putExtra("ID",monitorListData.getData().getResult().get(position-1).getID());
+                intent.putExtra("ID", monitorListData.getData().getResult().get(position - 1).getID());
                 startActivity(intent);
             }
         });

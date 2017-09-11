@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nandi.disastermanager.R;
+import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 
 import java.util.List;
@@ -67,6 +68,8 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
             holder.tv_3.setText(mdisasterPoints.get(position-1).getThreatLevel());
             holder.tv_4.setText(mdisasterPoints.get(position-1).getInducement());
             holder.tv_5.setVisibility(View.VISIBLE);
+            holder.tv_5.setTag(mdisasterPoints.get(position-1).getId());
+
             holder.tv_6.setVisibility(View.VISIBLE);
             holder.tv_7.setVisibility(View.VISIBLE);
             holder.view_line.setVisibility(View.GONE);
@@ -112,6 +115,8 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
             switch (view.getId()){
                 case tv_search_5:
                     Intent intent =  new Intent(mContext,MonitorListActivity.class);
+                    view.getTag();
+
                     mContext.startActivity(intent);
                     break;
                 case tv_search_6:
@@ -119,6 +124,8 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
                     mContext.startActivity(intent1);
                     break;
                 case tv_search_7:
+                    Intent intent2 =  new Intent(mContext,NavigationActivity.class);
+                    mContext.startActivity(intent2);
                     break;
                 default:
                     if (mOnItemClickListener != null) {
