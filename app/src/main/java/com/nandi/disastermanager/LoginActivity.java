@@ -97,7 +97,19 @@ public class LoginActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     GreenDaoManager.deleteAll();
-                                    saveArea(response);
+                                    Gson gson = new Gson();
+                                    loginInfo=gson.fromJson(response, LoginInfo.class);
+                                    if (loginInfo.getMeta().isSuccess()==false){
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(mContext,loginInfo.getMeta().getMessage() , Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                        WaitingDialog.closeDialog();
+                                        return;
+                                    }
+                                    saveArea();
                                     SharedUtils.putShare(mContext,"loginname",name);
                                     SharedUtils.putShare(mContext,"loginpswd",pswd);
                                     Intent intent=new Intent(mContext,MainActivity.class);
@@ -111,19 +123,9 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void saveArea(String response) {
-        Gson gson = new Gson();
-        loginInfo=gson.fromJson(response, LoginInfo.class);
-        if (loginInfo.getMeta().isSuccess()==false){
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(mContext,loginInfo.getMeta().getMessage() , Toast.LENGTH_SHORT).show();
-                }
-            });
+    private void saveArea() {
 
-            return;
-        }
+
         SharedUtils.putShare(mContext,"loginlevel",loginInfo.getData().get(0).getLevel()+"");
         for (int i=0;i<loginInfo.getData().get(2).getCitymap().size();i++) {
             AreaInfo areaInfo=new AreaInfo(null,

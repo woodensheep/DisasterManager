@@ -67,9 +67,10 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
             holder.tv_4.setText(mdisasterPoints.get(position-1).getInducement());
             holder.tv_5.setVisibility(View.VISIBLE);
             holder.tv_5.setTag(mdisasterPoints.get(position-1).getId());
-
             holder.tv_6.setVisibility(View.VISIBLE);
+            holder.tv_6.setTag(mdisasterPoints.get(position-1).getId());
             holder.tv_7.setVisibility(View.VISIBLE);
+            holder.tv_7.setTag(mdisasterPoints.get(position-1).getId());
             holder.view_line.setVisibility(View.GONE);
         }
     }
@@ -113,15 +114,17 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
             switch (view.getId()){
                 case tv_search_5:
                     Intent intent =  new Intent(mContext,MonitorListActivity.class);
-                    view.getTag();
+                    intent.putExtra("id", (Long)view.getTag());
                     mContext.startActivity(intent);
                     break;
                 case tv_search_6:
                     Intent intent1 =  new Intent(mContext,DetailDataActivity.class);
+                    intent1.putExtra("id", (Long)view.getTag());
                     mContext.startActivity(intent1);
                     break;
                 case tv_search_7:
                     Intent intent2 =  new Intent(mContext,NavigationActivity.class);
+                    intent2.putExtra("id", (Long)view.getTag());
                     mContext.startActivity(intent2);
                     break;
                 default:

@@ -55,26 +55,6 @@ public class AMapUtil {
             context.startActivity(intent);
     }
 
-    /**
-     * @param context
-     * @param sourceApplication 终点名称
-     * @param lat               终点纬度
-     * @param lon               经度
-     */
-    public static void goToBaiduHD(Context context, String sourceApplication, String lat, String lon) {
-            try {
-                //"origin=latlng:"+"34.264642646862,108.95108518068&" +   //起点  此处不传值默认选择当前位置
-
-                intent = Intent.getIntent("intent://map/direction?" +
-                        //"origin=latlng:"+"34.264642646862,108.95108518068&" +   //起点  此处不传值默认选择当前位置
-                        "destination=latlng:" + lat + "," + lon + "|name:" + sourceApplication +        //终点
-                        "&mode=driving&" +          //导航路线方式
-                        "&src=慧医#Intent;scheme=bdapp;package=com.baidu.BaiduMap.pad;end");
-                context.startActivity(intent); //启动调用
-            } catch (URISyntaxException e) {
-                Log.e("intent", e.getMessage());
-            }
-    }
 
     /**
      * @param context
@@ -83,16 +63,9 @@ public class AMapUtil {
      * @param lon               经度
      */
     public static void goToBaidu(Context context, String sourceApplication, String lat, String lon) {
-            try {
-                intent = Intent.getIntent("intent://map/direction?" +
-                        //"origin=latlng:"+"34.264642646862,108.95108518068&" +   //起点  此处不传值默认选择当前位置
-                        "destination=latlng:" + lat + "," + lon + "|name:" + sourceApplication +        //终点
-                        "&mode=driving&" +          //导航路线方式
-                        "&src=慧医#Intent;scheme=bdapp;package=com.baidu.BaiduMap;end");
-                context.startActivity(intent); //启动调用
-            } catch (URISyntaxException e) {
-                Log.e("intent", e.getMessage());
-            }
+        intent = new Intent();
+        intent.setData(Uri.parse("baidumap://map/direction?destination="+lat+","+lon+"&mode=driving"));
+        context.startActivity(intent);
     }
     /**
      * @param context

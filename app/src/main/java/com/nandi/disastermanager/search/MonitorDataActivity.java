@@ -104,7 +104,7 @@ public class MonitorDataActivity extends Activity {
                         mMonitorData = gson.fromJson(response, MonitorData.class);
                         if (mMonitorData.getMeta().isSuccess()){
                             setAdapter();
-                            ToastUtils.showShort(mContext,mMonitorData.getMeta().getMessage());
+
                         }else{
                             ToastUtils.showShort(mContext,mMonitorData.getMeta().getMessage());
                         }

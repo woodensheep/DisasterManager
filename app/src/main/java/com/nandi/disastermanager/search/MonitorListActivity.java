@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.nandi.disastermanager.R;
+import com.nandi.disastermanager.dao.GreenDaoManager;
+import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.MonitorListData;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -35,13 +37,15 @@ public class MonitorListActivity extends Activity {
         ButterKnife.bind(this);
         mContext = this;
         monitorListData = new MonitorListData();
+        Long id = getIntent().getLongExtra("id",0);
+        DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(id + "");
 
-        monitorListRequest();
+        monitorListRequest("520402010001");
     }
 
-    private void monitorListRequest() {
+    private void monitorListRequest(String code) {
 
-        OkHttpUtils.get().url("http://192.168.10.195:8080/gzcmd/detection/findMonitorAll/520402010001/1/10000")
+        OkHttpUtils.get().url("http://192.168.10.195:8080/gzcmd/detection/findMonitorAll/"+code+"/1/10000")
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -56,7 +60,6 @@ public class MonitorListActivity extends Activity {
                         Gson gson = new Gson();
                         monitorListData = gson.fromJson(response, MonitorListData.class);
                         if (monitorListData.getMeta().isSuccess()){
-                            ToastUtils.showShort(mContext,monitorListData.getMeta().getMessage());
                             setAdapter();
                         }else{
                             ToastUtils.showShort(mContext,monitorListData.getMeta().getMessage());

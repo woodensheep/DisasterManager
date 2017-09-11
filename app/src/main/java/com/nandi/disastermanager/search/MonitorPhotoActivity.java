@@ -60,7 +60,6 @@ public class MonitorPhotoActivity extends Activity {
                             dateShow.setLayoutManager(new LinearLayoutManager(mContext));
                             monitorPhotoAdapter = new MonitorPhotoAdapter(mContext, monitorPhoto);
                             dateShow.setAdapter(monitorPhotoAdapter);
-                            ToastUtils.showShort(mContext,monitorPhoto.getMeta().getMessage());
                         }else {
                             ToastUtils.showShort(mContext,monitorPhoto.getMeta().getMessage());
                         }

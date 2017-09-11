@@ -11,7 +11,9 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.nandi.disastermanager.R;
+import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.DetailData;
+import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.MonitorListData;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -44,7 +46,9 @@ public class DetailDataActivity extends Activity {
         ButterKnife.bind(this);
         mContext = this;
         mDetailData = new DetailData();
-
+        Long id = getIntent().getLongExtra("id",0);
+        DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(id + "");
+        Log.i("Tag",disasterPoint.getDisasterCode());
         monitorListRequest();
     }
 

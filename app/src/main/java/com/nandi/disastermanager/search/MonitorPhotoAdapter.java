@@ -64,8 +64,14 @@ public class MonitorPhotoAdapter extends RecyclerView.Adapter<MonitorPhotoAdapte
     public void onBindViewHolder(final MonitorPhotoAdapter.ViewHolderA holder, int position) {
         String url = "http://gzgdm.oss-cn-guizhou-gov.aliyuncs.com/" + mMonitorData.getData().get(position).getUrl();
         try {
+            Log.i("TAG",url);
           String s=  URLDecoder.decode(url,"UTF-8");
-            Glide.with(mContext).load(s).placeholder(R.mipmap.ic_launcher).into(holder.monitor_photo);
+            Glide.with(mContext)
+                    .load(url)
+                    .placeholder(R.mipmap.downloading)
+                    .thumbnail(0.1f)
+                    .error(R.mipmap.download_pass)
+                    .into(holder.monitor_photo);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
