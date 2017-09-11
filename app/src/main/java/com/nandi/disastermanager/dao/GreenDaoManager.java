@@ -161,4 +161,24 @@ public class GreenDaoManager {
     }
 
 
+    /**
+     * 根据搜索查询
+     */
+    public  static List<DisasterPoint> queryDisasterList(String city, String county, String town,
+                                                         String threatLevel, String type, String inducement, String disasterName) {
+
+        List<DisasterPoint> disasterList = GreenDaoManager.getInstance().getSession().getDisasterPointDao().queryBuilder()
+                .where(DisasterPointDao.Properties.City.like("%"+city+"%"),
+                        DisasterPointDao.Properties.County.like("%"+county+"%"),
+                        DisasterPointDao.Properties.Town.like("%"+town+"%"),
+                        DisasterPointDao.Properties.ThreatLevel.like("%"+threatLevel+"%"),
+                        DisasterPointDao.Properties.Type.like("%"+type+"%"),
+                        DisasterPointDao.Properties.Inducement.like("%"+inducement+"%"),
+                        DisasterPointDao.Properties.DisasterName.like("%"+disasterName+"%"))
+                .list();
+
+        return disasterList;
+    }
+
+
 }

@@ -51,32 +51,43 @@ public class SearchActivity extends Activity {
     RecyclerView dateShow;
 
     private Context context;
-    /**数据**/
-    private List<DisasterPoint> mDisasterPoints=new ArrayList<>();
-    /**recycleView适配器**/
+    /**
+     * 数据
+     **/
+    private List<DisasterPoint> mDisasterPoints = new ArrayList<>();
+    /**
+     * recycleView适配器
+     **/
     RcSearchAdapter rcSearchAdapter;
     private LoginInfo loginInfo;
+    private String disasterCode="";
+    private String city="";
+    private String county="";
+    private String town="";
+    private String threatLevel="";
+    private String type="";
+    private String inducement="";
+    private String disasterName="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_gz);
         ButterKnife.bind(this);
-        context=this;
+        context = this;
         initViews();
     }
 
 
-
     private void initViews() {
-        List<String> mItems1=new ArrayList<>();
-        final List<String> mItems2=new ArrayList<>();
-        final List<String> mItems3=new ArrayList<>();
+        List<String> mItems1 = new ArrayList<>();
+        final List<String> mItems2 = new ArrayList<>();
+        final List<String> mItems3 = new ArrayList<>();
         final String[] mItems4 = getResources().getStringArray(R.array.search_type_4);
         final String[] mItems5 = getResources().getStringArray(R.array.search_type_5);
         final String[] mItems6 = getResources().getStringArray(R.array.search_type_6);
         mItems1.add("筛查州市");
-        for (AreaInfo areaInfo: GreenDaoManager.queryAreaLevel(2)) {
+        for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(2)) {
             mItems1.add(areaInfo.getName());
         }
         mItems2.add("筛查区县");
@@ -85,9 +96,9 @@ public class SearchActivity extends Activity {
         final ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems1);
         final ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems2);
         final ArrayAdapter<String> adapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems3);
-        ArrayAdapter<String> adapter4 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems4);
-        ArrayAdapter<String> adapter5 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems5);
-        ArrayAdapter<String> adapter6 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems6);
+        final ArrayAdapter<String> adapter4 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems4);
+        final ArrayAdapter<String> adapter5 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems5);
+        final ArrayAdapter<String> adapter6 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems6);
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapter3.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -104,18 +115,25 @@ public class SearchActivity extends Activity {
         sp1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!"筛查州市".equals(adapter1.getItem(position))){
-                    String name=adapter1.getItem(position);
-                    int code=GreenDaoManager.queryArea2(name).get(0).getArea_id();
+                if (!"筛查州市".equals(adapter1.getItem(position))) {
+                    String name = adapter1.getItem(position);
+                    city= name;
+                    county="";
+                    town="";
+                    int code = GreenDaoManager.queryArea2(name).get(0).getArea_id();
                     mItems2.clear();
                     mItems2.add("筛查区县");
-                    for (AreaInfo areaInfo: GreenDaoManager.queryAreaLevel(3,code)) {
+                    for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(3, code)) {
                         mItems2.add(areaInfo.getName());
                     }
                     adapter2.notifyDataSetChanged();
                     mItems3.clear();
                     mItems3.add("筛查乡镇");
                     adapter3.notifyDataSetChanged();
+                }else {
+                    city="";
+                    county="";
+                    town="";
                 }
 
             }
@@ -127,16 +145,21 @@ public class SearchActivity extends Activity {
         sp2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!"筛查区县".equals(adapter2.getItem(position))){
-                    String name=adapter2.getItem(position);
-                    int code=GreenDaoManager.queryArea3(name).get(0).getArea_id();
+                if (!"筛查区县".equals(adapter2.getItem(position))) {
+                    String name = adapter2.getItem(position);
+                    county=name;
+                    town="";
+                    int code = GreenDaoManager.queryArea3(name).get(0).getArea_id();
                     mItems3.clear();
                     mItems3.add("筛查乡镇");
-                    for (AreaInfo areaInfo: GreenDaoManager.queryAreaLevel(4,code)) {
+                    for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(4, code)) {
                         mItems3.add(areaInfo.getName());
                     }
                     adapter3.notifyDataSetChanged();
 
+                }else {
+                    county="";
+                    town="";
                 }
             }
 
@@ -148,7 +171,55 @@ public class SearchActivity extends Activity {
         sp3.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!"筛查乡镇".equals(adapter3.getItem(position))) {
+                     town = adapter3.getItem(position);
+                }else {
+                    town="";
+                }
+                }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        sp4.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!"等级".equals(adapter4.getItem(position))) {
+                    threatLevel=adapter4.getItem(position) ;
+                }else {
+                    threatLevel="";
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        sp5.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!"灾害类型".equals(adapter5.getItem(position))) {
+                    type=adapter5.getItem(position);
+                }else {
+                    type="";
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        sp6.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!"诱发因素".equals(adapter6.getItem(position))) {
+                    inducement=adapter6.getItem(position);
+                }else {
+                    inducement="";
+                }
             }
 
             @Override
@@ -158,11 +229,11 @@ public class SearchActivity extends Activity {
         });
 
         dateShow.setLayoutManager(new LinearLayoutManager(this));
-        rcSearchAdapter=new RcSearchAdapter(this,mDisasterPoints);
+        rcSearchAdapter = new RcSearchAdapter(this, mDisasterPoints);
         rcSearchAdapter.setOnItemClickListener(new RcSearchAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view) {
-                Log.d("limeng","6");
+                Log.d("limeng", "6");
             }
         });
         dateShow.setAdapter(rcSearchAdapter);
@@ -170,7 +241,11 @@ public class SearchActivity extends Activity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                disasterName=etSearch.getText().toString().trim();
                 mDisasterPoints.clear();
+                List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterList(city, county, town, threatLevel, type, inducement, disasterName);
+                Log.d("limeng", "onClick"+disasterPoints.size());
+                mDisasterPoints.addAll(disasterPoints);
                 rcSearchAdapter.notifyDataSetChanged();
             }
         });

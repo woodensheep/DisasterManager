@@ -49,9 +49,12 @@
         <item>@string/permission_read_external_hint</item>
         <item>@string/permission_white_external_hint</item>
     </string-array>
-
     <string-array name="search_type_4">
         <item>等级</item>
+        <item>小型</item>
+        <item>中型</item>
+        <item>大型</item>
+        <item>特大型</item>
     </string-array>
     <!--01滑坡 02地面塌陷 03泥石流 05地裂缝 06不稳定斜坡 07崩塌-->
     <string-array name="search_type_5">
@@ -65,6 +68,8 @@
     </string-array>
     <string-array name="search_type_6">
         <item>诱发因素</item>
+        <item>自然</item>
+        <item>人为</item>
     </string-array>
 
 </resources>

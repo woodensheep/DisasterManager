@@ -21,6 +21,7 @@ import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
+import com.zhy.http.okhttp.request.RequestCall;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -157,9 +158,9 @@ public class LoginActivity extends AppCompatActivity {
      * 请求所有灾害点
      */
     private void loginDisaster(String id,String level){
-        OkHttpUtils.get().url("http://192.168.10.73:8080/gzcmd/appdocking/listDisaster/"+id+"/"+level)
-                .build()
-                .execute(new StringCallback() {
+        RequestCall build = OkHttpUtils.get().url("http://192.168.10.73:8080/gzcmd/appdocking/listDisaster/" + id + "/" + level)
+                .build();
+        build.execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
                         WaitingDialog.closeDialog();
@@ -174,6 +175,16 @@ public class LoginActivity extends AppCompatActivity {
                                 Gson gson=new Gson();
                                 DisasterData disasterData=gson.fromJson(response, DisasterData.class);
                                 for (DisasterData.DataBean dataBean:disasterData.getData()) {
+                                    String type="";
+                                    switch (dataBean.getZhzl()){
+                                        case "01":type="滑坡";break;
+                                        case "02":type="地面塌陷"; break;
+                                        case "03":type="泥石流";break;
+                                        case "04":break;
+                                        case "05":type="地裂缝";break;
+                                        case "06":type="不稳定斜坡";break;
+                                        case "07":type="崩塌";break;
+                                    }
                                     DisasterPoint disasterPoint=new DisasterPoint(null,
                                             dataBean.getDzbh(),
                                             dataBean.getJd()+"",
@@ -183,7 +194,7 @@ public class LoginActivity extends AppCompatActivity {
                                             dataBean.getCounty(),
                                             dataBean.getTown(),
                                             dataBean.getLevel()+"",
-                                            dataBean.getZhzl(),
+                                            type,
                                             dataBean.getYfys(),
                                             dataBean.getDzmc(),
                                             dataBean.getLATITUDE()+"",
