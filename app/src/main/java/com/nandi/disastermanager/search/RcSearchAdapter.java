@@ -60,6 +60,7 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
             holder.tv_6.setVisibility(View.INVISIBLE);
             holder.tv_7.setVisibility(View.INVISIBLE);
             holder.view_line.setVisibility(View.VISIBLE);
+            holder.itemView.setTag(-1L);
         }else{
             holder.tv_1.setText(mdisasterPoints.get(position-1).getDisasterCode());
             holder.tv_2.setText(mdisasterPoints.get(position-1).getDisasterName());

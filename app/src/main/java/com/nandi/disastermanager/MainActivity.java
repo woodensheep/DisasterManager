@@ -53,6 +53,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
 import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 import com.bumptech.glide.Glide;
@@ -476,7 +477,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     });
     private MyBroadcastReceiver receiver;
-
+    public CloudPushService cloudPushService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -566,6 +567,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void uploadLocation() {
+        uploadLocationInfo(106.3016, 29.3650);
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         //获取当前可用的位置控制器
         List<String> list = locationManager.getProviders(true);
@@ -650,7 +652,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void bindAccount() {
-        PushServiceFactory.getCloudPushService().bindAccount((String) SharedUtils.getShare(context, "loginname", ""), new CommonCallback() {
+        cloudPushService = PushServiceFactory.getCloudPushService();
+        cloudPushService.turnOnPushChannel(new CommonCallback() {
+            @Override
+            public void onSuccess(String s) {
+                Log.d(TAG,"推送通道打开成功！");
+            }
+
+            @Override
+            public void onFailed(String s, String s1) {
+                Log.d(TAG,"推送通道打开失败！");
+
+            }
+        });
+        cloudPushService.bindAccount((String) SharedUtils.getShare(context, "loginname", ""), new CommonCallback() {
             @Override
             public void onSuccess(String s) {
                 LogUtils.d(TAG, "绑定账号成功！/" + s);
@@ -1257,7 +1272,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Polyline polyline = new Polyline(collection);
                             double realLength = GeometryEngine.lengthGeodetic(polyline, new LinearUnit(LinearUnitId.METERS), GeodeticCurveType.GREAT_ELLIPTIC) * 100;
                             double screenLength = getScreenSizeOfDevice() * 2.54;
-                            Log.d(TAG, "实际长度：" + realLength + "\n" + "屏幕尺寸：" + screenLength);
                             final int scale = (int) (Math.ceil((realLength / screenLength) / 1000) * 1000);
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -3255,7 +3269,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (layers.contains(gzQxsyLayer)) {
             Camera camera = new Camera(26.696073, 104.727771, 3000, 0, 0, 0.0);
             sceneView.setViewpointCameraAsync(camera, 2);
-        } else {
+        }else if (layers.contains(gzDianZhiLayer)){
+            Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+            sceneView.setViewpointCameraAsync(camera, 2);
+        }
+        else {
             Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
             sceneView.setViewpointCameraAsync(camera, 2);
         }
@@ -5048,5 +5066,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
+        cloudPushService.turnOffPushChannel(new CommonCallback() {
+            @Override
+            public void onSuccess(String s) {
+                LogUtils.d(TAG,"推送通道关闭成功！");
+            }
+
+            @Override
+            public void onFailed(String s, String s1) {
+                LogUtils.d(TAG,"推送通道关闭失败！");
+
+            }
+        });
     }
 }

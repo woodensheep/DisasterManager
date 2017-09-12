@@ -243,6 +243,9 @@ public class SearchActivity extends Activity {
             @Override
             public void onItemClick(View view) {
                 Long id = (Long) view.getTag();
+                if (id==-1){
+                    return;
+                }
                 Intent intent=new Intent("POINT_INFO");
                 intent.putExtra("ID",id);
                 sendBroadcast(intent);

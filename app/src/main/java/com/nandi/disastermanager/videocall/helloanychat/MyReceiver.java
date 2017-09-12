@@ -59,7 +59,6 @@ public class MyReceiver extends MessageReceiver {
             JSONObject object=new JSONObject(msg);
             message.setInvite_userId(object.getInt("userid"));
             message.setRoom_id(object.getInt("roomid"));
-            message.setInvite_man(object.getString("invite"));
             message.setPush_msg(object.getString("message"));
             sendNotification(context);
             Intent intent=new Intent();

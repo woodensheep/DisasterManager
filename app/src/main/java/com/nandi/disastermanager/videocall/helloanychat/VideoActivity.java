@@ -43,14 +43,15 @@ public class VideoActivity extends Activity implements AnyChatBaseEvent {
 	private ImageButton mBtnSpeakCtrl; // 控制音频的按钮
 
 	public AnyChatCoreSDK anychatSDK;
+	private Intent broadcastIntent;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		Intent intent = getIntent();
-		userID = Integer.parseInt(intent.getStringExtra("UserID"));
-
+		userID = intent.getIntExtra("USER_ID",0);
+		broadcastIntent=new Intent("stop_service");
 		InitSDK();
 		InitLayout();
 
@@ -264,6 +265,7 @@ public class VideoActivity extends Activity implements AnyChatBaseEvent {
 	}
 
 	private void destroyCurActivity() {
+		sendBroadcast(broadcastIntent);
 		onPause();
 		onDestroy();
 	}
@@ -397,7 +399,7 @@ public class VideoActivity extends Activity implements AnyChatBaseEvent {
 				anychatSDK.UserCameraControl(dwUserId, 0);
 				anychatSDK.UserSpeakControl(dwUserId, 0);
 				bOtherVideoOpened = false;
-				
+				destroyCurActivity();
 			}
 
 		} else {

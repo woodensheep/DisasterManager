@@ -115,6 +115,7 @@ public class LoginActivity extends AppCompatActivity {
                                     Intent intent=new Intent(mContext,MainActivity.class);
                                     startActivity(intent);
                                     WaitingDialog.closeDialog();
+                                    finish();
                                 }
                             }).start();
 
