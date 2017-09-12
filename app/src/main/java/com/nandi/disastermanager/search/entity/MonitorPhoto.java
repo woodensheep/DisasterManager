@@ -1,12 +1,13 @@
 package com.nandi.disastermanager.search.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by qingsong on 2017/9/11.
  */
 
-public class MonitorPhoto {
+public class MonitorPhoto implements Serializable{
 
 
     /**
@@ -33,7 +34,7 @@ public class MonitorPhoto {
         this.data = data;
     }
 
-    public static class MetaBean {
+    public static class MetaBean implements Serializable {
         /**
          * success : true
          * message : ok
@@ -59,7 +60,7 @@ public class MonitorPhoto {
         }
     }
 
-    public static class DataBean {
+    public static class DataBean implements Serializable{
         /**
          * name : 卧牛村不稳定斜坡_01_20170810104227.jpg
          * url : D:/GeoDisasterPhoto/卧牛村不稳定斜坡_01_20170810104227.jpg

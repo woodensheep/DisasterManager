@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.AreaInfo;
@@ -87,7 +88,7 @@ public class SearchActivity extends Activity {
         ButterKnife.bind(this);
         context = this;
         getlistType();
-
+        MyApplication.getActivities().add(this);
     }
 
     private void initViews() {
@@ -246,9 +247,9 @@ public class SearchActivity extends Activity {
                 if (id==-1){
                     return;
                 }
-                Intent intent=new Intent("POINT_INFO");
-                intent.putExtra("ID",id);
-                sendBroadcast(intent);
+//                Intent intent=new Intent("POINT_INFO");
+//                intent.putExtra("ID",id);
+//                sendBroadcast(intent);
             }
         });
         dateShow.setAdapter(rcSearchAdapter);

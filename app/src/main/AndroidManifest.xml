@@ -3,17 +3,18 @@
     package="com.nandi.disastermanager">
 
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.RESTART_PACKAGES" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -27,65 +28,66 @@
         <meta-data
             android:name="com.alibaba.app.appsecret"
             android:value="d751a1236a17e4f10ac8ddbc72634531" />
-        <activity android:name=".LoginActivity"
+
+        <activity
+            android:name=".LoginActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="landscape"
-            >
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="landscape" />
-
-
         <activity
             android:name=".videocall.helloanychat.VideoActivity"
-            android:screenOrientation="landscape"
-            android:configChanges="orientation|keyboardHidden|navigation" >
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
             android:name=".videocall.helloanychat.VideoCallActivity"
-            android:screenOrientation="landscape"
-            android:configChanges="orientation|keyboardHidden|navigation" >
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
             android:name=".videocall.helloanychat.VideoConfig"
-            android:screenOrientation="landscape"
-            android:configChanges="orientation|keyboardHidden|navigation">
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".search.SearchActivity"
+        <activity
+            android:name=".search.SearchActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/TipDialog"
-        />
-
+            android:theme="@style/TipDialog" />
         <activity
             android:name=".search.DetailDataActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/TipDialog"/>
-        <activity android:name=".search.MonitorDataActivity"
+            android:theme="@style/TipDialog" />
+        <activity
+            android:name=".search.MonitorDataActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/TipDialog"/>
-        <activity android:name=".search.MonitorListActivity"
+            android:theme="@style/TipDialog" />
+        <activity
+            android:name=".search.MonitorListActivity"
             android:screenOrientation="landscape"
             android:theme="@style/TipDialog" />
         <activity
             android:name=".search.MonitorPhotoActivity"
             android:screenOrientation="landscape"
             android:theme="@style/TipDialog" />
-        <activity android:name=".search.NavigationActivity"
+        <activity
+            android:name=".search.NavigationActivity"
             android:screenOrientation="landscape"
             android:theme="@style/TipDialog" />
         <activity
@@ -98,7 +100,8 @@
         <service
             android:name=".videocall.helloanychat.MyService"
             android:enabled="true" />
-        <service android:name="com.alibaba.sdk.android.push.AliyunPushIntentService"/>
+        <service android:name="com.alibaba.sdk.android.push.AliyunPushIntentService" />
+
         <receiver
             android:name=".videocall.helloanychat.MyReceiver"
             android:exported="false">
@@ -114,6 +117,12 @@
                 <action android:name="com.alibaba.sdk.android.push.RECEIVE" />
             </intent-filter>
         </receiver>
+
+        <activity android:name=".search.EnlargePhotoActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/TipDialog">
+
+        </activity>
     </application>
 
 </manifest>

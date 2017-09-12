@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -28,9 +30,11 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.gson.Gson;
+import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.ChartData;
 import com.nandi.disastermanager.search.entity.MonitorData;
+import com.nandi.disastermanager.search.entity.MonitorPhoto;
 import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -75,6 +79,7 @@ public class MonitorDataActivity extends Activity {
     private String ID;
     private String startTime = "";
     private String endTime = "";
+    private MonitorPhoto monitorPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,30 +91,32 @@ public class MonitorDataActivity extends Activity {
         ID = getIntent().getStringExtra("ID");
         Log.i("TAG", getIntent().getStringExtra("ID"));
         monitorListRequest(getIntent().getStringExtra("ID"));
+        MyApplication.getActivities().add(this);
     }
 
     private void monitorListRequest(String id) {
 
-        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/detection/findMonitorData/" + id + "/1/10000")
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/detection/findMonitorData/" + id + "/1/10000")
                 .build()
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
                         Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
                     }
+
                     @Override
                     public void onResponse(String response, int id) {
                         Log.i("qingsong", response);
                         Gson gson = new Gson();
                         mMonitorData = gson.fromJson(response, MonitorData.class);
-                        if (mMonitorData.getMeta().isSuccess()){
-                            if (mMonitorData.getData().getResult().size() == 0){
-                                ToastUtils.showLong(mContext,"当前监测点没有监测数据");
+                        if (mMonitorData.getMeta().isSuccess()) {
+                            if (mMonitorData.getData().getResult().size() == 0) {
+                                ToastUtils.showLong(mContext, "当前监测点没有监测数据");
                                 finish();
                             }
                             setAdapter();
-                        }else{
-                            ToastUtils.showShort(mContext,mMonitorData.getMeta().getMessage());
+                        } else {
+                            ToastUtils.showShort(mContext, mMonitorData.getMeta().getMessage());
                         }
 
                     }
@@ -119,7 +126,7 @@ public class MonitorDataActivity extends Activity {
 
     private void monitorCurveRequest(String id, String startTime, String endTime) {
 
-        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/tabcollect/findHighcharts/" + id + "/" + startTime + "/" + endTime)
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/tabcollect/findHighcharts/" + id + "/" + startTime + "/" + endTime)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -134,7 +141,7 @@ public class MonitorDataActivity extends Activity {
                         Log.i("qingsong", response);
                         Gson gson = new Gson();
                         ChartData chartData = gson.fromJson(response, ChartData.class);
-                        if (!(chartData.getData().getMONITORDATA().size()==0)){
+                        if (!(chartData.getData().getMONITORDATA().size() == 0)) {
                             setChartlines(chartData);
                         }
                     }
@@ -149,15 +156,50 @@ public class MonitorDataActivity extends Activity {
         monitorAdapter.setOnItemClickListener(new MonitorAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
-                Intent intent = new Intent(mContext, MonitorPhotoActivity.class);
-                intent.putExtra("ID", mMonitorData.getData().getResult().get(position-1).getID());
-                intent.putExtra("Time", mMonitorData.getData().getResult().get(position - 1).getTime());
-                startActivity(intent);
+//                Intent intent = new Intent(mContext, MonitorPhotoActivity.class);
+                String id = mMonitorData.getData().getResult().get(position - 1).getID();
+                String time = mMonitorData.getData().getResult().get(position - 1).getTime();
+//                startActivity(intent);
+                downloadPhoto(id, time);
             }
         });
         dateShow.setAdapter(monitorAdapter);
 
     }
+
+    private void downloadPhoto(String id, String time) {
+
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/detection/findPhoto/" + id + "/" + time)
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+
+                        Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        Gson gson = new Gson();
+                        monitorPhoto = gson.fromJson(response, MonitorPhoto.class);
+                        if (monitorPhoto.getMeta().isSuccess()) {
+                            if (monitorPhoto.getData().size() == 0) {
+                                ToastUtils.showLong(mContext, "当前监测点没有图片");
+                                return;
+                            }
+                            Log.i("qingsong", response);
+                            Intent intent=new Intent(mContext,MonitorPhotoActivity.class);
+                            intent.putExtra("MONITOR_PHOTO",monitorPhoto);
+                            startActivity(intent);
+                        } else {
+                            ToastUtils.showShort(mContext, monitorPhoto.getMeta().getMessage());
+                        }
+
+                    }
+                });
+
+    }
+
 
     @OnClick({R.id.data_monitor, R.id.data_curve, R.id.tv_chart_start_time, R.id.tv_chart_end_time, R.id.btn_chart})
     public void onViewClicked(View view) {
@@ -184,8 +226,8 @@ public class MonitorDataActivity extends Activity {
                         startTime = getTime(date);
                     }
                 }).setSubmitText("确定")
-                  .setCancelText("取消")
-                  .build();
+                        .setCancelText("取消")
+                        .build();
                 //pvTime.setDate(Calendar.getInstance());//注：根据需求来决定是否使用该方法（一般是精确到秒的情况），此项可以在弹出选择器的时候重新设置当前时间，避免在初始化之后由于时间已经设定，导致选中时间与当前时间不匹配的问题。
                 pvTime.show();
                 break;
@@ -198,15 +240,15 @@ public class MonitorDataActivity extends Activity {
                         endTime = getTime(date);
                     }
                 }).setSubmitText("确定")
-                  .setCancelText("取消")
-                  .build();
+                        .setCancelText("取消")
+                        .build();
                 //pvTime.setDate(Calendar.getInstance());//注：根据需求来决定是否使用该方法（一般是精确到秒的情况），此项可以在弹出选择器的时候重新设置当前时间，避免在初始化之后由于时间已经设定，导致选中时间与当前时间不匹配的问题。
                 pvTime2.show();
                 break;
             case R.id.btn_chart:
-                if ("".equals(startTime)&&"".equals(endTime)) {
-                    Toast.makeText(mContext,"请选择时间",Toast.LENGTH_SHORT).show();
-                }else {
+                if ("".equals(startTime) && "".equals(endTime)) {
+                    Toast.makeText(mContext, "请选择时间", Toast.LENGTH_SHORT).show();
+                } else {
                     monitorCurveRequest(ID, startTime, endTime);
                 }
                 break;
@@ -218,13 +260,13 @@ public class MonitorDataActivity extends Activity {
         return format.format(date);
     }
 
-    public  void setChartlines(ChartData chartData) {
+    public void setChartlines(ChartData chartData) {
         setLineChartStyle("监测数据(mm)", mLineChart);
         //设置数据
         ArrayList<Entry> values = new ArrayList<>();
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
         for (List<Float> lists : chartData.getData().getMONITORDATA()) {
-            Log.d("limeng",lists.get(0)+"-"+lists.get(1));
+            Log.d("limeng", lists.get(0) + "-" + lists.get(1));
             Entry pointEntry = new Entry(lists.get(0), lists.get(1));
             values.add(pointEntry);
         }
@@ -239,22 +281,23 @@ public class MonitorDataActivity extends Activity {
         set1.setDrawFilled(false);
         dataSets.add(set1);
         LineData data = new LineData(dataSets);
-        Log.d("limeng",values.size()+"-"+dataSets.size());
+        Log.d("limeng", values.size() + "-" + dataSets.size());
         mLineChart.setData(data);
 
     }
 
     /**
      * 设置折线图样式
-     * @param text 描述
+     *
+     * @param text       描述
      * @param mLineChart 折线图控件
      */
-    private void setLineChartStyle(String text,LineChart mLineChart) {
+    private void setLineChartStyle(String text, LineChart mLineChart) {
         Description description = new Description();
         description.setText("");
         description.setTextSize(19);
         description.setTextAlign(Paint.Align.LEFT);
-        description.setPosition(100,100);
+        description.setPosition(100, 100);
         mLineChart.setDescription(description);
         mLineChart.setNoDataText("暂无数据");
         //给X轴属性

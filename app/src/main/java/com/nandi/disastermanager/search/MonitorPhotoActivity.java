@@ -2,10 +2,13 @@ package com.nandi.disastermanager.search;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -23,54 +26,32 @@ import okhttp3.Call;
 public class MonitorPhotoActivity extends Activity {
     @BindView(R.id.date_show)
     RecyclerView dateShow;
-    private Context mContext;
-    private MonitorPhoto monitorPhoto;
     private MonitorPhotoAdapter monitorPhotoAdapter;
+    private MonitorPhoto monitorPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor_photo);
         ButterKnife.bind(this);
-        mContext = this;
-        monitorPhoto = new MonitorPhoto();
-        String id = getIntent().getStringExtra("ID");
-        String time = getIntent().getStringExtra("Time");
-        Log.i("TAG", id+time);
-        monitorListRequest(id, time);
+        monitorPhoto = (MonitorPhoto) getIntent().getSerializableExtra("MONITOR_PHOTO");
+        dateShow.setLayoutManager(new LinearLayoutManager(this));
+        monitorPhotoAdapter = new MonitorPhotoAdapter(this, monitorPhoto);
+        dateShow.setAdapter(monitorPhotoAdapter);
+        setListener();
     }
 
-    private void monitorListRequest(String id,String time) {
-
-        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/detection/findPhoto/"+id+"/"+time)
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-
-                        Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onResponse(String response, int id) {
-                        Gson gson = new Gson();
-                        monitorPhoto = gson.fromJson(response, MonitorPhoto.class);
-                        if (monitorPhoto.getMeta().isSuccess()){
-                            if (monitorPhoto.getData().size() == 0){
-                                ToastUtils.showLong(mContext,"当前监测点没有图片");
-                                finish();
-                            }
-                            Log.i("qingsong", response);
-                            dateShow.setLayoutManager(new LinearLayoutManager(mContext));
-                            monitorPhotoAdapter = new MonitorPhotoAdapter(mContext, monitorPhoto);
-                            dateShow.setAdapter(monitorPhotoAdapter);
-                        }else {
-                            ToastUtils.showShort(mContext,monitorPhoto.getMeta().getMessage());
-                        }
-
-                    }
-                });
-
+    private void setListener() {
+        monitorPhotoAdapter.setOnItemClickListener(new MonitorPhotoAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view) {
+                int position = dateShow.getChildAdapterPosition(view);
+                String url = "http://gzgdm.oss-cn-guizhou-gov.aliyuncs.com/" + monitorPhoto.getData().get(position).getUrl();
+                Intent intent=new Intent(MonitorPhotoActivity.this,EnlargePhotoActivity.class);
+                intent.putExtra("PHOTO_URL",url);
+                startActivity(intent);
+            }
+        });
     }
 
 }

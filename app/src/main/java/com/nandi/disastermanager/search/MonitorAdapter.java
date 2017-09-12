@@ -1,5 +1,6 @@
 package com.nandi.disastermanager.search;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.MonitorData;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -36,7 +38,6 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
     }
 
 
-
     @Override
     public MonitorAdapter.ViewHolderA onCreateViewHolder(ViewGroup parent, int viewType) {
         //此处动态加载ViewHolder的布局文件并返回holder
@@ -60,14 +61,15 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
             holder.tv_9.setEnabled(false);
             holder.view_lin.setVisibility(View.VISIBLE);
         } else {
-                holder.tv_1.setText(mMonitorData.getData().getResult().get(position - 1).getID());
-                holder.tv_2.setText(mMonitorData.getData().getResult().get(position - 1).getNAME());
-                holder.tv_3.setText(mMonitorData.getData().getResult().get(position - 1).getTime());
-                holder.tv_5.setText(mMonitorData.getData().getResult().get(position - 1).getMONITORDATA() + "");
-                holder.tv_8.setText("查看图片");
-                holder.tv_9.setText("查看");
-                holder.tv_8.setEnabled(true);
-                holder.tv_9.setEnabled(true);
+            holder.tv_1.setText(mMonitorData.getData().getResult().get(position - 1).getID());
+            holder.tv_2.setText(mMonitorData.getData().getResult().get(position - 1).getNAME());
+            holder.tv_3.setText(mMonitorData.getData().getResult().get(position - 1).getTime());
+            holder.tv_5.setText(mMonitorData.getData().getResult().get(position - 1).getMONITORDATA() + "");
+            holder.tv_8.setText("查看图片");
+            holder.tv_9.setText("查看");
+            holder.tv_8.setEnabled(true);
+            holder.tv_9.setEnabled(true);
+            holder.tv_9.setTag(position);
         }
         if (mOnItemClickListener != null) {
             holder.tv_8.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +88,7 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定
-    class ViewHolderA extends RecyclerView.ViewHolder  {
+    class ViewHolderA extends RecyclerView.ViewHolder {
 
         TextView tv_1;
         TextView tv_2;
@@ -108,11 +110,22 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
             tv_9.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ToastUtils.showShort(mContext,"我点击了查看上报");
+                    int position = (int) v.getTag();
+                    double lon = mMonitorData.getData().getResult().get(position - 1).getLon();
+                    double lat = mMonitorData.getData().getResult().get(position - 1).getLat();
+                    Intent intent = new Intent("POINT_INFO");
+                    intent.putExtra("LON", lon);
+                    intent.putExtra("LAT",lat);
+                    mContext.sendBroadcast(intent);
+                    List<Activity> activities = MyApplication.getActivities();
+                    for (Activity activity : activities) {
+                        activity.finish();
+                    }
                 }
             });
         }
     }
+
     public interface OnItemClickListener {
         void onClick(int position);
     }

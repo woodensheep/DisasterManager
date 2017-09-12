@@ -1,5 +1,6 @@
 package com.nandi.disastermanager;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
@@ -13,6 +14,8 @@ import com.zhy.http.okhttp.cookie.CookieJarImpl;
 import com.zhy.http.okhttp.cookie.store.PersistentCookieStore;
 import com.zhy.http.okhttp.log.LoggerInterceptor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -24,8 +27,9 @@ import okhttp3.OkHttpClient;
 public class MyApplication extends Application {
 
     private static final String TAG = "MyApplication";
-
+    private static List<Activity> activities;
     private static Context mContext;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -36,16 +40,29 @@ public class MyApplication extends Application {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(new LoggerInterceptor("网络请求"))
                 .cookieJar(cookieJar)
-                .connectTimeout(10000*6L, TimeUnit.MILLISECONDS)
-                .readTimeout(10000*6L, TimeUnit.MILLISECONDS)
+                .connectTimeout(10000 * 6L, TimeUnit.MILLISECONDS)
+                .readTimeout(10000 * 6L, TimeUnit.MILLISECONDS)
                 //其他配置
                 .build();
 
         OkHttpUtils.initClient(okHttpClient);
+
+    }
+
+    public static List<Activity> getActivities() {
+        if (activities == null) {
+            synchronized (Object.class) {
+                if (activities == null) {
+                    activities = new ArrayList<>();
+                }
+            }
+        }
+        return activities;
     }
     public static Context getContext() {
         return mContext;
     }
+
     private void initCloudChannel(Context applicationContext) {
         PushServiceFactory.init(applicationContext);
         CloudPushService pushService = PushServiceFactory.getCloudPushService();

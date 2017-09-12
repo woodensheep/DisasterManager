@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
@@ -41,6 +42,7 @@ public class MonitorListActivity extends Activity {
         DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(id + "");
 
         monitorListRequest(disasterPoint.getDisasterCode());
+        MyApplication.getActivities().add(this);
     }
 
     private void monitorListRequest(String code) {

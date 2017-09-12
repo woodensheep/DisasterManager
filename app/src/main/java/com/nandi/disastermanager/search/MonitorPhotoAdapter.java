@@ -11,7 +11,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.BitmapTypeRequest;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.MonitorData;
 import com.nandi.disastermanager.search.entity.MonitorPhoto;
@@ -84,7 +87,7 @@ public class MonitorPhotoAdapter extends RecyclerView.Adapter<MonitorPhotoAdapte
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定
-    class ViewHolderA extends RecyclerView.ViewHolder {
+    class ViewHolderA extends RecyclerView.ViewHolder implements View.OnClickListener{
         private ImageView monitor_photo;
         private View view_lian;
 
@@ -92,6 +95,14 @@ public class MonitorPhotoAdapter extends RecyclerView.Adapter<MonitorPhotoAdapte
             super(itemView);
             monitor_photo = (ImageView) itemView.findViewById(R.id.monitor_photo);
             view_lian = itemView.findViewById(R.id.view_line);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (mOnItemClickListener!=null){
+                mOnItemClickListener.onItemClick(view);
+            }
         }
     }
 

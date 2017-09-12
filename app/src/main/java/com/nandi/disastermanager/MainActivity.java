@@ -478,6 +478,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     });
     private MyBroadcastReceiver receiver;
     public CloudPushService cloudPushService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -656,12 +657,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cloudPushService.turnOnPushChannel(new CommonCallback() {
             @Override
             public void onSuccess(String s) {
-                Log.d(TAG,"推送通道打开成功！");
+                Log.d(TAG, "推送通道打开成功！");
             }
 
             @Override
             public void onFailed(String s, String s1) {
-                Log.d(TAG,"推送通道打开失败！");
+                Log.d(TAG, "推送通道打开失败！");
 
             }
         });
@@ -1303,7 +1304,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         int dens = dm.densityDpi;
         double screenInches = diagonal / (double) dens;
-        Log.d(TAG, "The screenInches " + screenInches);
         return screenInches;
     }
 
@@ -2508,9 +2508,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     sceneView.setViewpointCameraAsync(camera, 2);
                 }
                 SearchActivity.startIntent(context);
-                if (gzPointGraphicOverlay.getGraphics().size() == 0) {
-                    setGZOverlay();
-                }
                 break;
             case R.id.iv_luopan:
                 resetPosition();
@@ -2620,26 +2617,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void setGZOverlay() {
-        final List<com.nandi.disastermanager.search.entity.DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
-        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_1);
-        final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawable);
-        pinStarBlueSymbol.setHeight(55);
-        pinStarBlueSymbol.setWidth(55);
-        pinStarBlueSymbol.setOffsetY(8);
-        pinStarBlueSymbol.loadAsync();
-        pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
-            @Override
-            public void run() {
-                for (com.nandi.disastermanager.search.entity.DisasterPoint disasterPoint : disasterPoints) {
-                    Point point = new Point(Double.valueOf(disasterPoint.getLon()), Double.valueOf(disasterPoint.getLat()), SpatialReferences.getWgs84());
-                    Graphic graphic = new Graphic(point, pinStarBlueSymbol);
-                    graphic.setZIndex(disasterPoint.getId().intValue());
-                    gzPointGraphicOverlay.getGraphics().add(graphic);
-                }
-            }
-        });
-    }
 
     private void setNarrow() {
         Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
@@ -3269,11 +3246,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (layers.contains(gzQxsyLayer)) {
             Camera camera = new Camera(26.696073, 104.727771, 3000, 0, 0, 0.0);
             sceneView.setViewpointCameraAsync(camera, 2);
-        }else if (layers.contains(gzDianZhiLayer)){
+        } else if (layers.contains(gzDianZhiLayer)) {
             Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
             sceneView.setViewpointCameraAsync(camera, 2);
-        }
-        else {
+        } else {
             Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
             sceneView.setViewpointCameraAsync(camera, 2);
         }
@@ -5050,16 +5026,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals("POINT_INFO")) {
-                long id = intent.getLongExtra("ID", 0);
-                setQueryOverlay(id);
+                double lon = intent.getDoubleExtra("LON", 0);
+                double lat = intent.getDoubleExtra("LAT", 0);
+                setQueryOverlay(lon, lat);
             }
         }
 
-        private void setQueryOverlay(long id) {
-            com.nandi.disastermanager.search.entity.DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(String.valueOf(id));
-            Camera camera = new Camera(Double.valueOf(disasterPoint.getLat()), Double.valueOf(disasterPoint.getLon()), 100, 0, 0, 0.0);
+        private void setQueryOverlay(double lon, double lat) {
+            Log.d(TAG, "经度：" + lon + "纬度：" + lat);
+            setGZOverlay(lon, lat);
+            Camera camera = new Camera(lat, lon, 1000, 0, 0, 0.0);
             sceneView.setViewpointCameraAsync(camera, 2);
         }
+    }
+
+    private void setGZOverlay(final double lon, final double lat) {
+        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_1);
+        final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawable);
+        pinStarBlueSymbol.setHeight(55);
+        pinStarBlueSymbol.setWidth(55);
+        pinStarBlueSymbol.setOffsetY(8);
+        pinStarBlueSymbol.loadAsync();
+        pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                Point point = new Point(lon, lat, SpatialReferences.getWgs84());
+                Graphic graphic = new Graphic(point, pinStarBlueSymbol);
+                graphic.setZIndex(0);
+                gzPointGraphicOverlay.getGraphics().add(graphic);
+            }
+        });
     }
 
     @Override
@@ -5069,12 +5065,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cloudPushService.turnOffPushChannel(new CommonCallback() {
             @Override
             public void onSuccess(String s) {
-                LogUtils.d(TAG,"推送通道关闭成功！");
+                LogUtils.d(TAG, "推送通道关闭成功！");
             }
 
             @Override
             public void onFailed(String s, String s1) {
-                LogUtils.d(TAG,"推送通道关闭失败！");
+                LogUtils.d(TAG, "推送通道关闭失败！");
 
             }
         });
