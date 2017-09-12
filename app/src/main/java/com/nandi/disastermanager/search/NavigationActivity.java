@@ -47,7 +47,7 @@ public class NavigationActivity extends Activity {
         }
         if (AMapUtil.isInstallByRead("com.autonavi.minimap")) {
         }else{
-            baidu.setText("高德地图（未安装）");
+            gaode.setText("高德地图（未安装）");
         }
     }
 

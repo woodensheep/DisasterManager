@@ -56,6 +56,10 @@ public class MonitorPhotoActivity extends Activity {
                         Gson gson = new Gson();
                         monitorPhoto = gson.fromJson(response, MonitorPhoto.class);
                         if (monitorPhoto.getMeta().isSuccess()){
+                            if (monitorPhoto.getData().size() == 0){
+                                ToastUtils.showLong(mContext,"当前监测点没有图片");
+                                finish();
+                            }
                             Log.i("qingsong", response);
                             dateShow.setLayoutManager(new LinearLayoutManager(mContext));
                             monitorPhotoAdapter = new MonitorPhotoAdapter(mContext, monitorPhoto);
