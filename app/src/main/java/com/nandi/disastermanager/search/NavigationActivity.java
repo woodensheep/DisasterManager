@@ -11,6 +11,7 @@ import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.utils.AMapUtil;
 import com.nandi.disastermanager.utils.ToastUtils;
+import com.nandi.disastermanager.utils.TransformUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,8 +26,8 @@ public class NavigationActivity extends Activity {
     @BindView(R.id.gaode)
     Button gaode;
     private String disNo;
-    private String lat;
-    private String lon;
+    private double lat;
+    private double lon;
     private String name;
 
     @Override
@@ -38,8 +39,8 @@ public class NavigationActivity extends Activity {
         DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(id + "");
         Log.i("Tag",disasterPoint.getDisasterCode()+"---"+disasterPoint.getLat());
         disNo = disasterPoint.getDisasterCode();
-        lat = disasterPoint.getLATITUDE();
-        lon = disasterPoint.getLONGITUDE();
+        lat = Double.parseDouble(disasterPoint.getLATITUDE());
+        lon = Double.parseDouble(disasterPoint.getLONGITUDE());
         name = disasterPoint.getDisasterName();
         if (AMapUtil.isInstallByRead("com.baidu.BaiduMap")) {
         }else{
@@ -56,14 +57,18 @@ public class NavigationActivity extends Activity {
         switch (view.getId()) {
             case R.id.baidu:
                 if (AMapUtil.isInstallByRead("com.baidu.BaiduMap")) {
-                    AMapUtil.goToBaidu(this, name, lat, lon);
+                    double[] tobd09 = TransformUtil.wgs84tobd09(lon, lat);
+//                    AMapUtil.goToBaidu(this, name, tobd09[1]+"",tobd09[0]+"");
+                    AMapUtil.goToBaidu(this, name, lat+"",lon+"");
+
                 }else{
                     ToastUtils.showShort(this,"您尚未安装百度地图");
                 }
                 break;
             case R.id.gaode:
                 if (AMapUtil.isInstallByRead("com.autonavi.minimap")) {
-                    AMapUtil.goToGaoDe(NavigationActivity.this, name, lat, lon, "1");
+                    double[] togcj02 = TransformUtil.wgs84togcj02(lon, lat);
+                    AMapUtil.goToGaoDe(NavigationActivity.this, name,togcj02[1]+"" , togcj02[0]+"", "1");
                 }else{
                     ToastUtils.showShort(this,"您尚未安装高德地图");
                 }

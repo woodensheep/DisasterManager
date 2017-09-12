@@ -20,7 +20,9 @@ import java.util.List;
 
 public class AMapUtil {
     private static Intent intent;
-
+    public static double pi = 3.1415926535897932384626;
+    public static double a = 6378245.0;
+    public static double ee = 0.00669342162296594323;
     public static String getAllApp(Context context) {
         String packageName = "";
         PackageManager pm = context.getPackageManager();
@@ -96,6 +98,5 @@ public class AMapUtil {
     public static boolean isInstallByRead(String packageName) {
         return new File("/data/data/" + packageName).exists();
     }
-
 
 }
