@@ -3,6 +3,7 @@ package com.nandi.disastermanager.search;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.MonitorData;
+import com.nandi.disastermanager.utils.ToastUtils;
 
 import java.util.List;
 
@@ -26,6 +28,7 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
     private Context mContext;
     private MonitorData mMonitorData;
     public MonitorAdapter.OnItemClickListener mOnItemClickListener;
+    private int count;
 
     public MonitorAdapter(Context context, MonitorData mMonitorData) {
         mContext = context;
@@ -45,14 +48,10 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
     @Override
     public void onBindViewHolder(MonitorAdapter.ViewHolderA holder, final int position) {
         if (position == 0) {
-
             holder.tv_1.setText("监测点编号");
             holder.tv_2.setText("监测点名称");
             holder.tv_3.setText("监测时间");
-            holder.tv_4.setText("数据有效性");
             holder.tv_5.setText("实测数据");
-            holder.tv_6.setText("相邻告警");
-            holder.tv_7.setText("累计告警");
             holder.tv_8.setText("查看图片");
             holder.tv_9.setText("查看上报");
             holder.tv_8.setBackground(null);
@@ -61,17 +60,14 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
             holder.tv_9.setEnabled(false);
             holder.view_lin.setVisibility(View.VISIBLE);
         } else {
-            holder.tv_1.setText(mMonitorData.getData().getResult().get(position - 1).getID());
-            holder.tv_2.setText(mMonitorData.getData().getResult().get(position - 1).getNAME());
-            holder.tv_3.setText(mMonitorData.getData().getResult().get(position - 1).getTime());
-            holder.tv_4.setText(" ");
-            holder.tv_5.setText(mMonitorData.getData().getResult().get(position - 1).getMONITORDATA() + "");
-            holder.tv_6.setText(" ");
-            holder.tv_7.setText(" ");
-            holder.tv_8.setText("查看图片");
-            holder.tv_9.setText("查看");
-            holder.tv_8.setEnabled(true);
-            holder.tv_9.setEnabled(true);
+                holder.tv_1.setText(mMonitorData.getData().getResult().get(position - 1).getID());
+                holder.tv_2.setText(mMonitorData.getData().getResult().get(position - 1).getNAME());
+                holder.tv_3.setText(mMonitorData.getData().getResult().get(position - 1).getTime());
+                holder.tv_5.setText(mMonitorData.getData().getResult().get(position - 1).getMONITORDATA() + "");
+                holder.tv_8.setText("查看图片");
+                holder.tv_9.setText("查看");
+                holder.tv_8.setEnabled(true);
+                holder.tv_9.setEnabled(true);
         }
         if (mOnItemClickListener != null) {
             holder.tv_8.setOnClickListener(new View.OnClickListener() {
@@ -95,10 +91,7 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
         TextView tv_1;
         TextView tv_2;
         TextView tv_3;
-        TextView tv_4;
         TextView tv_5;
-        TextView tv_6;
-        TextView tv_7;
         TextView tv_8;
         TextView tv_9;
         View view_lin;
@@ -108,13 +101,16 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
             tv_1 = (TextView) itemView.findViewById(R.id.tv_monitor_1);
             tv_2 = (TextView) itemView.findViewById(R.id.tv_monitor_2);
             tv_3 = (TextView) itemView.findViewById(R.id.tv_monitor_3);
-            tv_4 = (TextView) itemView.findViewById(R.id.tv_monitor_4);
             tv_5 = (TextView) itemView.findViewById(R.id.tv_monitor_5);
-            tv_6 = (TextView) itemView.findViewById(R.id.tv_monitor_6);
-            tv_7 = (TextView) itemView.findViewById(R.id.tv_monitor_7);
             tv_8 = (TextView) itemView.findViewById(R.id.tv_monitor_8);
             tv_9 = (TextView) itemView.findViewById(R.id.tv_monitor_9);
             view_lin = itemView.findViewById(R.id.view_line);
+            tv_9.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ToastUtils.showShort(mContext,"我点击了查看上报");
+                }
+            });
         }
     }
     public interface OnItemClickListener {

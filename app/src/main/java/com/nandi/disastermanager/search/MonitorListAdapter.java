@@ -48,15 +48,13 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
         if(position==0){
             holder.tv_1.setText("监测点编号");
             holder.tv_2.setText("监测点名称");
-            holder.tv_3.setText("监测时间");
-            holder.tv_4.setText(" ");
             holder.tv_4.setBackground(null);
+            holder.tv_4.setText(" ");
             holder.tv_4.setEnabled(false);
             holder.view_line.setVisibility(View.VISIBLE);
         }else{
             holder.tv_1.setText(mMonitorListData.getData().getResult().get(position-1).getID());
             holder.tv_2.setText(mMonitorListData.getData().getResult().get(position-1).getNAME());
-            holder.tv_3.setText(mMonitorListData.getData().getResult().get(position-1).getTime());
             holder.tv_4.setText("查看详情");
             holder.tv_4.setEnabled(true);
             holder.tv_4.setTag(position);
@@ -83,7 +81,6 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
 
         TextView tv_1;
         TextView tv_2;
-        TextView tv_3;
         TextView tv_4;
         View view_line;
 
@@ -91,7 +88,6 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
             super(itemView);
             tv_1 = (TextView) itemView.findViewById(R.id.tv_monitor_1);
             tv_2 = (TextView) itemView.findViewById(R.id.tv_monitor_2);
-            tv_3 = (TextView) itemView.findViewById(R.id.tv_monitor_3);
             tv_4 = (TextView) itemView.findViewById(R.id.tv_monitor_4);
             view_line = itemView.findViewById(R.id.view_line);
         }

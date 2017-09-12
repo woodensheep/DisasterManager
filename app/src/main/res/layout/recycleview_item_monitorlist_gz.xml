@@ -40,26 +40,10 @@
             android:textSize="20sp"
             android:text="ss" />
 
-        <View
-            android:layout_width="1dp"
-            android:background="@color/button_color_gz_gray"
-            android:layout_height="45dp"/>
 
         <TextView
             android:textColor="@color/button_color_gz_dark"
-            android:layout_weight="2.5"
-            android:id="@+id/tv_monitor_3"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:text="ss" />
-
-
-        <TextView
-            android:textColor="@color/button_color_gz_dark"
-            android:layout_weight="2.5"
+            android:layout_weight="1"
             android:id="@+id/tv_monitor_4"
             android:layout_width="0dp"
             android:layout_height="match_parent"

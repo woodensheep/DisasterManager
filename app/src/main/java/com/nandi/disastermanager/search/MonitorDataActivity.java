@@ -103,8 +103,11 @@ public class MonitorDataActivity extends Activity {
                         Gson gson = new Gson();
                         mMonitorData = gson.fromJson(response, MonitorData.class);
                         if (mMonitorData.getMeta().isSuccess()){
+                            if (mMonitorData.getData().getResult().size() == 0){
+                                ToastUtils.showLong(mContext,"当前监测点没有监测数据");
+                                finish();
+                            }
                             setAdapter();
-
                         }else{
                             ToastUtils.showShort(mContext,mMonitorData.getMeta().getMessage());
                         }
