@@ -14,15 +14,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -107,7 +104,6 @@ import com.nandi.disastermanager.adapter.RcPersonAdapter;
 import com.nandi.disastermanager.adapter.RcPhotoAdapter;
 import com.nandi.disastermanager.adapter.RcSearchPersonAdapter;
 import com.nandi.disastermanager.adapter.RcSearchPlaceAdapter;
-import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.entity.DetailBaseInfo;
 import com.nandi.disastermanager.entity.DetailDisCard;
 import com.nandi.disastermanager.entity.DetailHeCard;
@@ -141,15 +137,16 @@ import com.nandi.disastermanager.entity.SingleEquipment;
 import com.nandi.disastermanager.entity.TabDisasterInfo;
 import com.nandi.disastermanager.entity.personLocationInfo;
 import com.nandi.disastermanager.http.EquipmentOkhttp;
+import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.SearchActivity;
 import com.nandi.disastermanager.ui.CircleBar;
 import com.nandi.disastermanager.ui.MyRadioGroup;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.DateTimePickUtil;
 import com.nandi.disastermanager.utils.LogUtils;
-import com.nandi.disastermanager.utils.PermissionUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
+import com.nandi.disastermanager.utils.ToastUtils;
 import com.nandi.disastermanager.videocall.helloanychat.VideoCallActivity;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.Callback;
@@ -240,8 +237,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //    RadioButton rbShilin;
 //    @BindView(R.id.rg_qxsy)
 //    RadioGroup rgQxsy;
-    @BindView(R.id.rb_state_point_0)
-    RadioButton rbStatePoint0;
     @BindView(R.id.rb_state_point_2)
     RadioButton rbStatePoint2;
     @BindView(R.id.rb_state_point_3)
@@ -256,8 +251,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RadioButton rbEquipmentYingji;
     @BindView(R.id.rb_equipment_fengsu)
     RadioButton rbEquipmentFengsu;
-    @BindView(R.id.iv_luopan)
-    ImageView ivLuopan;
     @BindView(R.id.iv_xz_more)
     ImageView ivXzMore;
     @BindView(R.id.ll_xingzheng)
@@ -291,35 +284,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayout llUtil;
     @BindView(R.id.btn_util)
     Button btnUtil;
-    @BindView(R.id.tv_disaster_number)
-    TextView tvDisasterNumber;
 
-    @BindView(R.id.tv_equipment_number)
-    TextView tvEquipmentNumber;
     @BindView(R.id.iv_location)
     ImageView ivLocation;
-    @BindView(R.id.tv_zhushou_number)
-    TextView tvZhushouNumber;
-    @BindView(R.id.tv_jiance_number)
-    TextView tvJianceNumber;
-    @BindView(R.id.tv_pianqu_number)
-    TextView tvPianquNumber;
-    @BindView(R.id.tv_dhz_number)
-    TextView tvDhzNumber;
-    @BindView(R.id.tv_qcqf_number)
-    TextView tvQcqfNumber;
     @BindView(R.id.btn_util_detail)
     Button btnUtilDetail;
     @BindView(R.id.tv_scale)
     TextView tvScale;
-    @BindView(R.id.map_control)
-    LinearLayout mapControl;
     @BindView(R.id.ll_qxsy)
     LinearLayout llQxsy;
-    @BindView(R.id.iv_enlarge)
-    ImageView ivEnlarge;
-    @BindView(R.id.iv_narrow)
-    ImageView ivNarrow;
+    @BindView(R.id.ll_enlarge)
+    LinearLayout llEnlarge;
+    @BindView(R.id.ll_compass)
+    LinearLayout llCompass;
+    @BindView(R.id.ll_narrow)
+    LinearLayout llNarrow;
+    @BindView(R.id.tv_xc_number)
+    TextView tvXcNumber;
+    @BindView(R.id.tv_disaster_number)
+    TextView tvDisasterNumber;
+    @BindView(R.id.tv_jiance_number)
+    TextView tvJianceNumber;
+    @BindView(R.id.tv_jcz_number)
+    TextView tvJczNumber;
+    @BindView(R.id.tv_qcqf_number)
+    TextView tvQcqfNumber;
+    @BindView(R.id.tv_pqfz_number)
+    TextView tvPqfzNumber;
+    @BindView(R.id.tv_zs_number)
+    TextView tvZsNumber;
+    @BindView(R.id.tv_dhz_number)
+    TextView tvDhzNumber;
+    @BindView(R.id.rb_state_point_0)
+    RadioButton rbStatePoint0;
+    @BindView(R.id.ll_control)
+    LinearLayout llControl;
+    @BindView(R.id.map_control)
+    LinearLayout mapControl;
 
     private boolean llAreaState = true;
     private boolean llDataState = true;
@@ -486,6 +487,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ButterKnife.bind(this);
         context = this;
         areaCode = "500110";
+//        checkUpdate();
         uploadLocation();
         setAnimator();
         bindAccount();
@@ -494,7 +496,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("POINT_INFO");
         registerReceiver(receiver, intentFilter);
-        PermissionUtils.requestMultiPermissions(MainActivity.this, mPermissionGrant);
         gzDianZhiLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_dianzi_url));
         gzYingXiangLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url));
         gzYingXiangLayerHigh = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url_1));
@@ -567,8 +568,70 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setlogin("", "");
     }
 
+    private void checkUpdate() {
+        OkHttpUtils.get().url("")//// TODO: 2017/9/13
+                .addParams("versionNumber", getVerCode(this))
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        ToastUtils.showShort(context, "网络故障，请检查网路！");
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        Log.d(TAG, "返回的数据：" + response);
+                        try {
+                            JSONObject object = new JSONObject(response);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+    }
+
+    private void showNoticeDialog() {
+        Dialog dialog;
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle("版本更新");
+        builder.setMessage("发现新版本,是否立即下载？");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent service = new Intent(MainActivity.this, UpdataService.class);
+                startService(service);
+//                Intent intent = new Intent(MainActivity.this,SettingsActivity.class);
+//                intent.putExtra("settings_type","8");
+//                intent.putExtra("settings", "系统信息");
+//                startActivity(intent);
+                dialog.dismiss();
+
+            }
+        });
+        builder.setNegativeButton("下次再说", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialog = builder.create();
+        dialog.show();
+        dialog.setCanceledOnTouchOutside(false);
+    }
+
+    public static String getVerCode(Context context) {
+        int versionNumber = -1;
+        try {
+            versionNumber = context.getPackageManager().getPackageInfo("com.nandi.disastermanager", 0).versionCode;
+            System.out.println("当前版本" + versionNumber);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("version", e.getMessage());
+        }
+        return versionNumber + "";
+    }
+
     private void uploadLocation() {
-        uploadLocationInfo(106.3016, 29.3650);
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         //获取当前可用的位置控制器
         List<String> list = locationManager.getProviders(true);
@@ -591,16 +654,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        Location location = locationManager.getLastKnownLocation(provider);
-        if (location != null) {
-            //获取当前位置，这里只用到了经纬度
-            String string = "纬度为：" + location.getLatitude() + ",经度为："
-                    + location.getLongitude();
-            Log.d(TAG, string);
-        } else {
-
-            Log.d(TAG, "location为空");
-        }
         LocationListener locationListener = new LocationListener() {
 
             @Override
@@ -608,6 +661,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //位置信息变化时触发
                 uploadLocationInfo(location.getLongitude(), location.getLatitude());
                 Log.d(TAG, "坐标信息:" + location.getLongitude() + "/" + location.getLatitude());
+//                ToastUtils.showShort(context, "位置更新了：经度(" + location.getLongitude() + ")\n纬度(" + location.getLatitude() + ")");
             }
 
             @Override
@@ -634,7 +688,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          * 参数4，监听
          * 备注：参数2和3，如果参数3不为0，则以参数3为准；参数3为0，则通过时间来定时更新；两者为0，则随时刷新
          */
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10 * 60 * 1000, 0, locationListener);
+        locationManager.requestLocationUpdates(provider, 0, 10, locationListener);
     }
 
     private void uploadLocationInfo(double longitude, double latitude) {
@@ -692,25 +746,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }, 500);
     }
 
-    private PermissionUtils.PermissionGrant mPermissionGrant = new PermissionUtils.PermissionGrant() {
-        @Override
-        public void onPermissionGranted(int requestCode) {
-            switch (requestCode) {
-                case PermissionUtils.CODE_CAMERA:
-                    break;
-                case PermissionUtils.CODE_RECORD_AUDIO:
-                    break;
-                case PermissionUtils.CODE_READ_EXTERNAL_STORAGE:
-                    break;
-            }
-        }
-    };
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        PermissionUtils.requestPermissionsResult(this, requestCode, permissions, grantResults, mPermissionGrant);
-    }
 
     private void setPieChartData(String text, String desText) {
         pieChart.setVisibility(View.VISIBLE);
@@ -829,8 +864,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void initStaData() {
+        String level = (String) SharedUtils.getShare(context, "loginlevel", "");
+        String areaCode = (String) SharedUtils.getShare(context, "areacode", "");
+        Log.d(TAG, "登录级别：" + level + "区域Id:" + areaCode);
         waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.base_http) + "statistic/totalNum/3/" + areaCode)
+        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url) + "Count/totalNumAllData/" + level + "/" + areaCode)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -843,15 +881,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onResponse(String response, int id) {
                         WaitingDialog.closeDialog(waitingDialog);
                         try {
+                            Log.d(TAG, "统计信息：" + response);
                             JSONObject object = new JSONObject(response);
                             JSONObject oj = object.getJSONObject("data");
-                            tvDisasterNumber.setText(oj.getString("disasterNum"));
-                            tvEquipmentNumber.setText(oj.getString("deviceNum"));
-                            tvZhushouNumber.setText(oj.getString("areaProfessorNum"));
-                            tvJianceNumber.setText(oj.getString("projectNum"));
-                            tvPianquNumber.setText(oj.getString("areaAdminNum"));
-                            tvDhzNumber.setText(oj.getString("dihuanzhanNum"));
-                            tvQcqfNumber.setText(oj.getString("humanNum"));
+                            tvXcNumber.setText(oj.getString("newData"));
+                            tvDisasterNumber.setText(oj.getString("disater"));
+                            tvJianceNumber.setText(oj.getString("deviceOfDisaste"));
+                            tvJczNumber.setText(oj.getString("device01"));
+                            tvQcqfNumber.setText(oj.getString("human"));
+                            tvPqfzNumber.setText(oj.getString("areaAdmin"));
+                            tvZsNumber.setText(oj.getString("areaProfessor"));
+                            tvDhzNumber.setText(oj.getString("dihuanzhan"));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -860,14 +900,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setListeners() {
-        ivEnlarge.setOnClickListener(this);
-        ivNarrow.setOnClickListener(this);
+        llEnlarge.setOnClickListener(this);
+        llNarrow.setOnClickListener(this);
+        llCompass.setOnClickListener(this);
         btnUtilDetail.setOnClickListener(this);
         ivLocation.setOnClickListener(this);
         ivSearchMain.setOnClickListener(this);
         btnUtil.setOnClickListener(this);
         llXingzheng.setOnClickListener(this);
-        ivLuopan.setOnClickListener(this);
         ivAreaBack.setOnClickListener(this);
         ivDataBack.setOnClickListener(this);
         llRainfall.setOnClickListener(this);
@@ -1092,14 +1132,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             try {
                                 IdentifyGraphicsOverlayResult identifyGraphicsOverlayResult = locationIdentifyGraphic.get();
                                 if (identifyGraphicsOverlayResult.getGraphics().size() > 0) {
-                                    int i = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
-                                    String s = String.valueOf(i);
-                                    String id = s.substring(0, s.length() - 1);
-                                    String type = String.valueOf(s.charAt(s.length() - 1));
-                                    Log.d(TAG, "zIndex:" + i);
-                                    if (i != 0) {
-                                        showPersonLocation(Integer.valueOf(id), type);
-                                    }
+//                                    int i = identifyGraphicsOverlayResult.getGraphics().get(0).getZIndex();
+//                                    String s = String.valueOf(i);
+//                                    String id = s.substring(0, s.length() - 1);
+//                                    String type = String.valueOf(s.charAt(s.length() - 1));
+//                                    Log.d(TAG, "zIndex:" + i);
+//                                    if (i != 0) {
+//                                        showPersonLocation(Integer.valueOf(id), type);
+//                                    }
+                                    showPersonLocation();
                                 }
                             } catch (InterruptedException | ExecutionException e1) {
                                 e1.printStackTrace();
@@ -1246,10 +1287,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void loadStatusChanged(LoadStatusChangedEvent loadStatusChangedEvent) {
                 String name = loadStatusChangedEvent.getNewLoadStatus().name();
                 if ("LOADED".equals(name)) {
-                    layers.add(gzDianZhiLayer);
+                    if (!layers.contains(gzDianZhiLayer)) {
+                        layers.add(gzDianZhiLayer);
 //                    elevationSources.add(gzElevationSource);
-                    Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
-                    sceneView.setViewpointCamera(camera);
+                        Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+                        sceneView.setViewpointCamera(camera);
+                    }
                 }
             }
         });
@@ -1326,7 +1369,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .show();
     }
 
-    private void showPersonLocation(int zIndex, String type) {
+    private void showPersonLocation() {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_location_person_info, null);
         TextView tvName = (TextView) view.findViewById(R.id.tv_name);
         TextView tvMobile = (TextView) view.findViewById(R.id.tv_mobile);
@@ -1335,32 +1378,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView tvTime = (TextView) view.findViewById(R.id.tv_time);
         Button btnCall = (Button) view.findViewById(R.id.btn_call);
         LinearLayout llCall = (LinearLayout) view.findViewById(R.id.ll_shipin);
-        if ("0".equals(type)) {
-            llCall.setVisibility(View.VISIBLE);
-        } else {
-            llCall.setVisibility(View.GONE);
-        }
-        for (final personLocationInfo.DataBean dataBean : personLocationData) {
-            if (zIndex == dataBean.getId()) {
-                tvName.setText(dataBean.getName());
-                tvMobile.setText(dataBean.getTel());
-                tvLon.setText(dataBean.getLon() + "");
-                tvLat.setText(dataBean.getLat() + "");
-                tvTime.setText(dataBean.getTime());
-                btnCall.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(MainActivity.this, VideoCallActivity.class);
-                        intent.putExtra("PHONE_NUMBER", dataBean.getTel());
-                        startActivity(intent);
-                    }
-                });
-                new AlertDialog.Builder(context)
-                        .setView(view)
-                        .show();
+//        if ("0".equals(type)) {
+        llCall.setVisibility(View.VISIBLE);
+//        } else {
+//            llCall.setVisibility(View.GONE);
+//        }
+//        for (final personLocationInfo.DataBean dataBean : personLocationData) {
+//            if (zIndex == dataBean.getId()) {
+//                tvName.setText(dataBean.getName());
+//                tvMobile.setText(dataBean.getTel());
+//                tvLon.setText(dataBean.getLon() + "");
+//                tvLat.setText(dataBean.getLat() + "");
+//                tvTime.setText(dataBean.getTime());
+        tvName.setText("张建伦");
+        tvMobile.setText("15730386281");
+        tvLat.setText("26.78348");
+        tvLon.setText("103.96987");
+        tvTime.setText("2017-9-12 10:16:44");
+        btnCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, VideoCallActivity.class);
+                intent.putExtra("PHONE_NUMBER", "15730386281");
+                startActivity(intent);
             }
+        });
+        new AlertDialog.Builder(context)
+                .setView(view)
+                .show();
+//            }
 
-        }
+//        }
     }
 
     private void setOkhttpKuangxuan(String http, final double area) {
@@ -2477,27 +2525,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.iv_enlarge:
+            case R.id.ll_enlarge:
                 setEnlarge();
                 break;
-            case R.id.iv_narrow:
+            case R.id.ll_narrow:
                 setNarrow();
                 break;
             case R.id.btn_util_detail:
-                setOkhttpKuangxuan(detailhttp, detailarea);
+//                setOkhttpKuangxuan(detailhttp, detailarea);
                 break;
             case R.id.iv_location:
-                if (personLocationGraphics.size() > 0) {
-                    personLocationGraphics.clear();
-                } else {
-                    personLocation();
-                    if (!layers.contains(chongqingLayer)) {
-                        layers.clear();
-                        elevationSources.clear();
-                        layers.add(chongqingLayer);
-                        clearAllGraphics();
-                    }
+                if (!layers.contains(gzDianZhiLayer)) {
+                    layers.clear();
+                    elevationSources.clear();
+                    layers.add(gzDianZhiLayer);
+                    Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+                    sceneView.setViewpointCameraAsync(camera, 2);
                 }
+                testLocation();
+//                if (personLocationGraphics.size() > 0) {
+//                    personLocationGraphics.clear();
+//                } else {
+//                    personLocation();
+//                    if (!layers.contains(chongqingLayer)) {
+//                        layers.clear();
+//                        elevationSources.clear();
+//                        layers.add(chongqingLayer);
+//                        clearAllGraphics();
+//                    }
+//                }
                 break;
             case R.id.iv_search_main:
                 if (!layers.contains(gzDianZhiLayer)) {
@@ -2509,7 +2565,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 SearchActivity.startIntent(context);
                 break;
-            case R.id.iv_luopan:
+            case R.id.ll_compass:
                 resetPosition();
                 break;
             case R.id.iv_area_back:
@@ -2523,29 +2579,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreState = 1;
                 setRainfallMore();
                 setDisasterLegend(R.layout.activity_rainfall_legend, 1);
-                if (llMoreStateBefore != 1 && !layers.contains(xingZhengLayer)) {
-                    //waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
+                if (!layers.contains(gzXingZhengLayer)) {
                     layers.clear();
                     elevationSources.clear();
-                    layers.add(xingZhengLayer);
-                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
-                    sceneView.setViewpointCamera(camera);
+                    layers.add(gzXingZhengLayer);
+                    Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+                    sceneView.setViewpointCameraAsync(camera, 2);
                 }
                 break;
             case R.id.ll_dangerpoint:
                 llMoreStateBefore = llMoreState;
                 llMoreState = 2;
                 setRainfallMore();
-                setDisasterLegend(R.layout.activity_disaster_legend, 2);
-                if (llMoreStateBefore != 2) {
-                    layers.clear();
-                    elevationSources.clear();
-                    layers.add(highImageLayer);
-                    layers.add(lowImageLayer);
-                    elevationSources.add(elevationSource);
-                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
-                    sceneView.setViewpointCamera(camera);
-                }
+//                setDisasterLegend(R.layout.activity_disaster_legend, 2);
+//                if (llMoreStateBefore != 2) {
+//                    layers.clear();
+//                    elevationSources.clear();
+//                    layers.add(highImageLayer);
+//                    layers.add(lowImageLayer);
+//                    elevationSources.add(elevationSource);
+//                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+//                    sceneView.setViewpointCamera(camera);
+//                }
+                ToastUtils.showShort(context, "显示隐患点信息");
                 break;
             case R.id.ll_staff:
                 llMoreStateBefore = llMoreState;
@@ -2554,12 +2610,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (view != null) {
                     rlMain.removeView(view);
                 }
-                if (llMoreStateBefore != 3) {
+                if (!layers.contains(gzDianZhiLayer)) {
                     layers.clear();
                     elevationSources.clear();
-                    layers.add(dianziLayer);
-                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
-                    sceneView.setViewpointCamera(camera);
+                    layers.add(gzDianZhiLayer);
+                    Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+                    sceneView.setViewpointCameraAsync(camera, 2);
                 }
                 break;
             case R.id.ll_equipment:
@@ -2569,15 +2625,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (view != null) {
                     rlMain.removeView(view);
                 }
-                if (llMoreStateBefore != 4) {
-                    layers.clear();
-                    elevationSources.clear();
-                    layers.add(lowImageLayer);
-                    layers.add(highImageLayer);
-                    elevationSources.add(elevationSource);
-                    Camera camera = new Camera(29.375, 107.58056, 50000.0, 0, 20, 0.0);
-                    sceneView.setViewpointCamera(camera);
-                }
+//                if (llMoreStateBefore != 4) {
+//                    layers.clear();
+//                    elevationSources.clear();
+//                    layers.add(lowImageLayer);
+//                    layers.add(highImageLayer);
+//                    elevationSources.add(elevationSource);
+//                    Camera camera = new Camera(29.375, 107.58056, 50000.0, 0, 20, 0.0);
+//                    sceneView.setViewpointCamera(camera);
+//                }
                 break;
             case R.id.ll_qxsy:
                 llMoreStateBefore = llMoreState;
@@ -2599,16 +2655,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreStateBefore = llMoreState;
                 llMoreState = 6;
                 setRainfallMore();
-                addWeather();
+//                addWeather();
                 if (view != null) {
                     rlMain.removeView(view);
                 }
-                if (llMoreStateBefore != 6 && !layers.contains(xingZhengLayer)) {
+                if (!layers.contains(gzXingZhengLayer)) {
                     layers.clear();
                     elevationSources.clear();
-                    layers.add(xingZhengLayer);
-                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
-                    sceneView.setViewpointCamera(camera);
+                    layers.add(gzXingZhengLayer);
+                    Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+                    sceneView.setViewpointCameraAsync(camera, 2);
                 }
                 break;
             case R.id.btn_util:
@@ -2617,17 +2673,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void testLocation() {
+//        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.person);
+        final PictureMarkerSymbol campsiteSymbol = new PictureMarkerSymbol("http://202.98.195.125:8082/gzcmdback/downloadImgOrVideo.do?type=14&path=online/default.png");
+        campsiteSymbol.setHeight(100);
+        campsiteSymbol.setWidth(80);
+        campsiteSymbol.loadAsync();
+        campsiteSymbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                Point campsitePoint = new Point(103.96987539727556, 26.783489429856587, SpatialReferences.getWgs84());
+                Graphic campsiteGraphic = new Graphic(campsitePoint, campsiteSymbol);
+                personLocationGraphics.add(campsiteGraphic);
+                Camera camara = new Camera(26.783489429856587, 103.96987539727556, 5000, 0, 0, 0.0);
+                sceneView.setViewpointCameraAsync(camara, 2);
+            }
+        });
+    }
+
 
     private void setNarrow() {
         Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
-        Camera elevate = currentViewpointCamera.elevate(4000);
+        Camera elevate;
+        if (layers.contains(gzDianZhiLayer) || layers.contains(gzXingZhengLayer)) {
+            elevate = currentViewpointCamera.elevate(100000);
+        } else {
+            elevate = currentViewpointCamera.elevate(100);
+        }
         sceneView.setViewpointCameraAsync(elevate, 1);
-
     }
 
     private void setEnlarge() {
         Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
-        Camera elevate = currentViewpointCamera.elevate(-4000);
+        Camera elevate;
+        if (layers.contains(gzDianZhiLayer) || layers.contains(gzXingZhengLayer)) {
+            elevate = currentViewpointCamera.elevate(-100000);
+        } else {
+            elevate = currentViewpointCamera.elevate(-100);
+        }
         sceneView.setViewpointCameraAsync(elevate, 1);
     }
 
@@ -2732,7 +2815,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     rbZsdz.setChecked(false);
                     rbPqfz.setChecked(false);
                     rbZhzx.setChecked(true);
-                    getPersonList(4, "500000");
                     break;
                 case R.id.tv_start_time:
                     new DateTimePickUtil(MainActivity.this, currentTime).dateTimePicKDialog(tvStart);
@@ -2956,11 +3038,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setUtilBack() {
         if (!llUtilState) {
-            btnUtil.setText("关闭工具");
+            btnUtil.setSelected(true);
             llUtil.setVisibility(View.VISIBLE);
             llUtilState = true;
         } else {
-            btnUtil.setText("打开工具");
+            btnUtil.setSelected(false);
             btnUtilDetail.setVisibility(View.GONE);
             clear();
             tvMeasureResult.setText("");
@@ -3388,7 +3470,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         lp.rightMargin = 100;
-        lp.bottomMargin = 30;
+        lp.bottomMargin = 35;
         if (view == null) {
             view = inflater.inflate(resource, null);
             view.setLayoutParams(lp);
@@ -3504,109 +3586,116 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id = compoundButton.getId();
         switch (id) {
             case R.id.rb_ssyl:
-                Log.d(TAG, "实时雨量打开了:" + b);
+//                Log.d(TAG, "实时雨量打开了:" + b);
                 if (b) {
-                    layers.add(ssYLLayer);
+//                    layers.add(ssYLLayer);
+                    ToastUtils.showShort(context, "打开了实时雨量");
                 } else {
-                    layers.remove(ssYLLayer);
+//                    layers.remove(ssYLLayer);
                 }
                 break;
             case R.id.rb_yldzx:
                 Log.d(TAG, "雨量等值线打开了:" + b);
                 if (b) {
-                    layers.add(dengZXLayer);
+//                    layers.add(dengZXLayer);
+
+                    ToastUtils.showShort(context, "打开了雨量等值线");
                 } else {
-                    layers.remove(dengZXLayer);
+//                    layers.remove(dengZXLayer);
                 }
                 break;
-            case R.id.rb_disaster_point:
-                if (b) {
-                    mDisasterType = "-1";
-                    Log.d("limeng", "mDisasterType=" + mDisasterType);
-                    initDisasterData(areaCode);
-                } else {
-                    clearAllGraphics();
-                }
-                break;
-            case R.id.rb_state_point_0://已销号
-                if (b) {
-                    mDisasterType = "0";
-                    Log.d("limeng", "mDisasterType=" + mDisasterType);
-                    initDisasterDataByState(areaCode, 0 + "");
-                } else {
-                    clearAllGraphics();
-                }
-                break;
-            case R.id.rb_state_point_2://已治理灾害点
-                if (b) {
-                    mDisasterType = "2";
-                    Log.d("limeng", "mDisasterType=" + mDisasterType);
-                    initDisasterDataByState(areaCode, 2 + "");
-                } else {
-                    clearAllGraphics();
-                }
-                break;
-            case R.id.rb_state_point_3://已搬迁灾害点
-                if (b) {
-                    mDisasterType = "3";
-                    Log.d("limeng", "mDisasterType=" + mDisasterType);
-                    initDisasterDataByState(areaCode, 3 + "");
-                } else {
-                    clearAllGraphics();
-                }
-                break;
-            case R.id.rb_state_point_1://库岸调查
-                if (b) {
-                    mDisasterType = "1";
-                    Log.d("limeng", "mDisasterType=" + mDisasterType);
-                    initDisasterDataByState(areaCode, 1 + "");
-                } else {
-                    clearAllGraphics();
-                }
-                break;
+//            case R.id.rb_disaster_point:
+//                if (b) {
+//                    mDisasterType = "-1";
+//                    Log.d("limeng", "mDisasterType=" + mDisasterType);
+//                    initDisasterData(areaCode);
+//                } else {
+//                    clearAllGraphics();
+//                }
+//                break;
+//            case R.id.rb_state_point_0://已销号
+//                if (b) {
+//                    mDisasterType = "0";
+//                    Log.d("limeng", "mDisasterType=" + mDisasterType);
+//                    initDisasterDataByState(areaCode, 0 + "");
+//                } else {
+//                    clearAllGraphics();
+//                }
+//                break;
+//            case R.id.rb_state_point_2://已治理灾害点
+//                if (b) {
+//                    mDisasterType = "2";
+//                    Log.d("limeng", "mDisasterType=" + mDisasterType);
+//                    initDisasterDataByState(areaCode, 2 + "");
+//                } else {
+//                    clearAllGraphics();
+//                }
+//                break;
+//            case R.id.rb_state_point_3://已搬迁灾害点
+//                if (b) {
+//                    mDisasterType = "3";
+//                    Log.d("limeng", "mDisasterType=" + mDisasterType);
+//                    initDisasterDataByState(areaCode, 3 + "");
+//                } else {
+//                    clearAllGraphics();
+//                }
+//                break;
+//            case R.id.rb_state_point_1://库岸调查
+//                if (b) {
+//                    mDisasterType = "1";
+//                    Log.d("limeng", "mDisasterType=" + mDisasterType);
+//                    initDisasterDataByState(areaCode, 1 + "");
+//                } else {
+//                    clearAllGraphics();
+//                }
+//                break;
             case R.id.rb_qcqf_person:
                 if (b) {
-                    personType = "1";
-                    initPersonData("1", getResources().getString(R.string.qcqf_man));
-                    setPieChartData("71", "在线率");
+//                    personType = "1";
+//                    initPersonData("1", getResources().getString(R.string.qcqf_man));
+//                    setPieChartData("71", "在线率");
+                    ToastUtils.showShort(context, "群测群防人员");
                 } else {
-                    clearAllGraphics();
+//                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_zs_person:
                 if (b) {
-                    personType = "2";
-                    initPersonData("2", getResources().getString(R.string.zs_man));
-                    setPieChartData("64", "在线率");
+//                    personType = "2";
+//                    initPersonData("2", getResources().getString(R.string.zs_man));
+//                    setPieChartData("64", "在线率");
+                    ToastUtils.showShort(context, "驻守人员");
                 } else {
-                    clearAllGraphics();
+//                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_pq_person:
                 if (b) {
-                    personType = "3";
-                    initPersonData("3", getResources().getString(R.string.fzr_man));
-                    setPieChartData("90", "在线率");
+//                    personType = "3";
+//                    initPersonData("3", getResources().getString(R.string.fzr_man));
+//                    setPieChartData("90", "在线率");
+                    ToastUtils.showShort(context, "片区负责人");
                 } else {
-                    clearAllGraphics();
+//                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_dhz_person:
                 if (b) {
-                    personType = "4";
-                    initPersonData("4", getResources().getString(R.string.dh_man));
-                    setPieChartData("95", "在线率");
+//                    personType = "4";
+//                    initPersonData("4", getResources().getString(R.string.dh_man));
+//                    setPieChartData("95", "在线率");
+                    ToastUtils.showShort(context, "地环站人员");
                 } else {
-                    clearAllGraphics();
+//                    clearAllGraphics();
                 }
                 break;
             case R.id.rb_equipment_jiance:
-                if (b) {
-                    EquipmentOkhttp.getAllEquipment(context, "500232", handler);
-                    setPieChartData("88", "在线率");
-                } else {
-                    clearAllGraphics();
-                }
+//                if (b) {
+//                    EquipmentOkhttp.getAllEquipment(context, "500232", handler);
+//                    setPieChartData("88", "在线率");
+//                } else {
+//                    clearAllGraphics();
+//                }
                 break;
 //            case R.id.rb_jinqiao:
 //                if (b) {
@@ -3638,17 +3727,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                break;
             case R.id.rb_qxyj:
                 if (b) {
-                    layers.add(xzFeatureLayer);
-                    changeRender();
+//                    layers.add(xzFeatureLayer);
+//                    changeRender();
+                    ToastUtils.showShort(context, "打开了气象预警");
                 } else {
-                    layers.remove(xzFeatureLayer);
+//                    layers.remove(xzFeatureLayer);
                 }
                 break;
             case R.id.rb_qxyb:
                 if (b) {
-                    updateWeather(weatherGraphics);
+                    ToastUtils.showShort(context, "打开了气象预报");
+//                    updateWeather(weatherGraphics);
                 } else {
-                    weathersGraphics.clear();
+//                    weathersGraphics.clear();
                 }
                 break;
         }
@@ -4369,7 +4460,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setAreaBack() {
         if (llAreaState) {
-            ObjectAnimator animator = ObjectAnimator.ofFloat(llArea, "x", 0, -(llArea.getWidth() - 70));
+            ObjectAnimator animator = ObjectAnimator.ofFloat(llArea, "x", 0, -(llArea.getWidth() - 50));
             animator.setDuration(1000);
             animator.start();
             ObjectAnimator animator1 = ObjectAnimator.ofFloat(ivAreaBack, "rotation", 0, 180);
@@ -4377,7 +4468,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             animator1.start();
             llAreaState = false;
         } else {
-            ObjectAnimator animator = ObjectAnimator.ofFloat(llArea, "x", -(llArea.getWidth() - 70), 0);
+            ObjectAnimator animator = ObjectAnimator.ofFloat(llArea, "x", -(llArea.getWidth() - 50), 0);
             animator.setDuration(1000);
             animator.start();
             ObjectAnimator animator1 = ObjectAnimator.ofFloat(ivAreaBack, "rotation", 180, 0);
@@ -4389,7 +4480,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setDataBack() {
         if (llDataState) {
-            ObjectAnimator animator = ObjectAnimator.ofFloat(llData, "x", 0, -(llData.getWidth() - 70));
+            ObjectAnimator animator = ObjectAnimator.ofFloat(llData, "x", 0, -(llData.getWidth() - 50));
             animator.setDuration(1000);
             animator.start();
             ObjectAnimator animator1 = ObjectAnimator.ofFloat(ivDataBack, "rotation", 0, 180);
@@ -4397,7 +4488,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             animator1.start();
             llDataState = false;
         } else {
-            ObjectAnimator animator = ObjectAnimator.ofFloat(llData, "x", -(llData.getWidth() - 70), 0);
+            ObjectAnimator animator = ObjectAnimator.ofFloat(llData, "x", -(llData.getWidth() - 50), 0);
             animator.setDuration(1000);
             animator.start();
             ObjectAnimator animator1 = ObjectAnimator.ofFloat(ivDataBack, "rotation", 180, 0);
@@ -5035,7 +5126,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         private void setQueryOverlay(double lon, double lat) {
             Log.d(TAG, "经度：" + lon + "纬度：" + lat);
             setGZOverlay(lon, lat);
-            Camera camera = new Camera(lat, lon, 1000, 0, 0, 0.0);
+            Camera camera = new Camera(lat, lon, 3000, 0, 0, 0.0);
             sceneView.setViewpointCameraAsync(camera, 2);
         }
     }
@@ -5074,5 +5165,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(context)
+                .setTitle("退出程序")
+                .setMessage("确定要退出吗？")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                }).show();
     }
 }

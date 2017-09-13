@@ -50,7 +50,7 @@ public class VideoActivity extends Activity implements AnyChatBaseEvent {
 		super.onCreate(savedInstanceState);
 
 		Intent intent = getIntent();
-		userID = intent.getIntExtra("USER_ID",0);
+		userID = intent.getIntExtra("UserID",0);
 		broadcastIntent=new Intent("stop_service");
 		InitSDK();
 		InitLayout();

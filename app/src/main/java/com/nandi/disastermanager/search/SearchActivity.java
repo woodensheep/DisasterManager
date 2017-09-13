@@ -24,6 +24,7 @@ import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.ListType;
 import com.nandi.disastermanager.search.entity.LoginInfo;
 import com.nandi.disastermanager.ui.WaitingDialog;
+import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -68,19 +69,20 @@ public class SearchActivity extends Activity {
      **/
     RcSearchAdapter rcSearchAdapter;
     private LoginInfo loginInfo;
-    private String disasterCode="";
-    private String city="";
+    private String disasterCode = "";
+    private String city = "";
     private int cityNum;
-    private String county="";
+    private String county = "";
     private int countyNum;
-    private String town="";
-    private String threatLevel="";
-    private String type="";
-    private String inducement="";
-    private String disasterName="";
-    private List<String> mItems4=new ArrayList<>();
-    private String[] mItems5=new String[10];
-    private List<String> mItems6=new ArrayList<>();;
+    private String town = "";
+    private String threatLevel = "";
+    private String type = "";
+    private String inducement = "";
+    private String disasterName = "";
+    private List<String> mItems4 = new ArrayList<>();
+    private String[] mItems5 = new String[10];
+    private List<String> mItems6 = new ArrayList<>();
+    ;
     private ListType listType;
 
     @Override
@@ -97,22 +99,22 @@ public class SearchActivity extends Activity {
         List<String> mItems1 = new ArrayList<>();
         final List<String> mItems2 = new ArrayList<>();
         final List<String> mItems3 = new ArrayList<>();
-         mItems5 = getResources().getStringArray(R.array.search_type_5);
-        cityNum=GreenDaoManager.queryAreaLevel(2).size();
-        countyNum=GreenDaoManager.queryAreaLevel(3).size();
+        mItems5 = getResources().getStringArray(R.array.search_type_5);
+        cityNum = GreenDaoManager.queryAreaLevel(2).size();
+        countyNum = GreenDaoManager.queryAreaLevel(3).size();
         GreenDaoManager.queryAreaLevel(2).size();
-        if(cityNum==1){
-            city=GreenDaoManager.queryAreaLevel(2).get(0).getName();
-        }else{
+        if (cityNum == 1) {
+            city = GreenDaoManager.queryAreaLevel(2).get(0).getName();
+        } else {
             mItems1.add("选择州市");
         }
         for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(2)) {
             mItems1.add(areaInfo.getName());
         }
-        Log.d("limeng","GreenDaoManager.queryAreaLevel(3).size()="+GreenDaoManager.queryAreaLevel(3).size());
-        if(countyNum==1){
-            county=GreenDaoManager.queryAreaLevel(3).get(0).getName();
-        }else{
+        Log.d("limeng", "GreenDaoManager.queryAreaLevel(3).size()=" + GreenDaoManager.queryAreaLevel(3).size());
+        if (countyNum == 1) {
+            county = GreenDaoManager.queryAreaLevel(3).get(0).getName();
+        } else {
             mItems2.add("选择区县");
         }
         for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(3)) {
@@ -144,14 +146,14 @@ public class SearchActivity extends Activity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (!"选择州市".equals(adapter1.getItem(position))) {
                     String name = adapter1.getItem(position);
-                    city= name;
-                    county="";
-                    town="";
+                    city = name;
+                    county = "";
+                    town = "";
                     int code = GreenDaoManager.queryArea2(name).get(0).getArea_id();
                     mItems2.clear();
-                    if(countyNum==1){
-                        county=GreenDaoManager.queryAreaLevel(3).get(0).getName();
-                    }else{
+                    if (countyNum == 1) {
+                        county = GreenDaoManager.queryAreaLevel(3).get(0).getName();
+                    } else {
                         mItems2.add("选择区县");
                     }
                     for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(3, code)) {
@@ -161,10 +163,10 @@ public class SearchActivity extends Activity {
                     mItems3.clear();
                     mItems3.add("选择乡镇");
                     adapter3.notifyDataSetChanged();
-                }else {
-                    city="";
-                    county="";
-                    town="";
+                } else {
+                    city = "";
+                    county = "";
+                    town = "";
                 }
 
             }
@@ -178,8 +180,8 @@ public class SearchActivity extends Activity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (!"选择区县".equals(adapter2.getItem(position))) {
                     String name = adapter2.getItem(position);
-                    county=name;
-                    town="";
+                    county = name;
+                    town = "";
                     int code = GreenDaoManager.queryArea3(name).get(0).getArea_id();
                     mItems3.clear();
                     mItems3.add("选择乡镇");
@@ -188,9 +190,9 @@ public class SearchActivity extends Activity {
                     }
                     adapter3.notifyDataSetChanged();
 
-                }else {
-                    county="";
-                    town="";
+                } else {
+                    county = "";
+                    town = "";
                 }
             }
 
@@ -203,11 +205,11 @@ public class SearchActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (!"选择乡镇".equals(adapter3.getItem(position))) {
-                     town = adapter3.getItem(position);
-                }else {
-                    town="";
+                    town = adapter3.getItem(position);
+                } else {
+                    town = "";
                 }
-                }
+            }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -218,9 +220,9 @@ public class SearchActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (!"选择等级".equals(adapter4.getItem(position))) {
-                    threatLevel=adapter4.getItem(position) ;
-                }else {
-                    threatLevel="";
+                    threatLevel = adapter4.getItem(position);
+                } else {
+                    threatLevel = "";
                 }
             }
 
@@ -231,10 +233,10 @@ public class SearchActivity extends Activity {
         sp5.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!"选择灾害类型".equals(adapter5.getItem(position))) {
-                    type=adapter5.getItem(position);
-                }else {
-                    type="";
+                if (!"选择类型".equals(adapter5.getItem(position))) {
+                    type = adapter5.getItem(position);
+                } else {
+                    type = "";
                 }
             }
 
@@ -246,10 +248,10 @@ public class SearchActivity extends Activity {
         sp6.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!"选择诱发因素".equals(adapter6.getItem(position))) {
-                    inducement=adapter6.getItem(position);
-                }else {
-                    inducement="";
+                if (!"选择诱因".equals(adapter6.getItem(position))) {
+                    inducement = adapter6.getItem(position);
+                } else {
+                    inducement = "";
                 }
             }
 
@@ -265,7 +267,7 @@ public class SearchActivity extends Activity {
             @Override
             public void onItemClick(View view) {
                 Long id = (Long) view.getTag();
-                if (id==-1){
+                if (id == -1) {
                     return;
                 }
 //                Intent intent=new Intent("POINT_INFO");
@@ -278,10 +280,10 @@ public class SearchActivity extends Activity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                disasterName=etSearch.getText().toString().trim();
+                disasterName = etSearch.getText().toString().trim();
                 mDisasterPoints.clear();
                 List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterList(city, county, town, threatLevel, type, inducement, disasterName);
-                Log.d("limeng", "onClick"+disasterPoints.size());
+                Log.d("limeng", "onClick" + disasterPoints.size());
                 mDisasterPoints.addAll(disasterPoints);
                 rcSearchAdapter.notifyDataSetChanged();
             }
@@ -289,8 +291,8 @@ public class SearchActivity extends Activity {
     }
 
     private void getlistType() {
-        WaitingDialog.createLoadingDialog(context,"");
-        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/appdocking/listType")
+        WaitingDialog.createLoadingDialog(context, "");
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listType")
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -303,19 +305,25 @@ public class SearchActivity extends Activity {
                     @Override
                     public void onResponse(String response, int id) {
                         WaitingDialog.closeDialog();
-                        Gson gson=new Gson();
-                        listType=gson.fromJson(response, ListType.class);
-                        if (listType.getData()==null){
+                        Gson gson = new Gson();
+                        try {
+                            listType = gson.fromJson(response, ListType.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            ToastUtils.showShort(context,"数据请求错误！");
+                            return;
+                        }
+                        if (listType.getData() == null) {
                             return;
                         }
                         mItems4.clear();
                         mItems4.add("选择等级");
-                        for (int i=0;i<listType.getData().getXqdj().size();i++) {
+                        for (int i = 0; i < listType.getData().getXqdj().size(); i++) {
                             mItems4.add(listType.getData().getXqdj().get(i));
                         }
                         mItems6.clear();
-                        mItems6.add("选择诱发因素");
-                        for (int i=0;i<listType.getData().getYfys().size();i++) {
+                        mItems6.add("选择诱因");
+                        for (int i = 0; i < listType.getData().getYfys().size(); i++) {
                             mItems6.add(listType.getData().getYfys().get(i));
                         }
                         initViews();

@@ -58,7 +58,7 @@
     </string-array>
     <!--01滑坡 02地面塌陷 03泥石流 05地裂缝 06不稳定斜坡 07崩塌-->
     <string-array name="search_type_5">
-        <item>选择灾害类型</item>
+        <item>选择类型</item>
         <item>滑坡 </item>
         <item>地面塌陷</item>
         <item>泥石流</item>

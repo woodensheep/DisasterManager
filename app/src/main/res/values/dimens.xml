@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="leirong_text_size">17sp</dimen>
+    <dimen name="leirong_text_size">13sp</dimen>
     <dimen name="data_text_size_2">15sp</dimen>
     <dimen name="margin_neirong">4dp</dimen>
     <dimen name="margin_neirong_2">2dp</dimen>

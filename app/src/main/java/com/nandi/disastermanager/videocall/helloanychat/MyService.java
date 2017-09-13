@@ -119,7 +119,7 @@ public class MyService extends Service implements AnyChatBaseEvent {
         }
         if (isOnline){
             Intent intent=new Intent();
-            intent.putExtra("USER_ID",targetid);
+            intent.putExtra("UserID",targetid);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setClass(this,VideoActivity.class);
             startActivity(intent);

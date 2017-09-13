@@ -27,6 +27,7 @@ import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -119,7 +120,7 @@ public class VideoCallActivity extends Activity implements AnyChatBaseEvent {
     @Override
     public void OnAnyChatLoginMessage(int dwUserId, int dwErrorCode) {
         if (dwErrorCode == 0) {
-            int roomId = 1122;
+            int roomId = 1000+new Random().nextInt(999);
             anyChatSDK.EnterRoom(roomId, "");
             myUserId = dwUserId;
             setRequest(myUserId, roomId);
@@ -156,6 +157,10 @@ public class VideoCallActivity extends Activity implements AnyChatBaseEvent {
                                         @Override
                                         public void run() {
                                             if (!success) {
+                                                anyChatSDK.removeEvent(this);
+                                                anyChatSDK.LeaveRoom(-1);
+                                                anyChatSDK.Logout();
+                                                anyChatSDK.Release();
                                                 Toast.makeText(VideoCallActivity.this, "对方无应答！", Toast.LENGTH_SHORT).show();
                                                 VideoCallActivity.this.finish();
                                             }
@@ -193,7 +198,7 @@ public class VideoCallActivity extends Activity implements AnyChatBaseEvent {
         if (bEnter) {
             if (dwUserId != myUserId) {
                 Intent intent = new Intent();
-                intent.putExtra("UserID", dwUserId + "");
+                intent.putExtra("UserID", dwUserId);
                 intent.setClass(this, VideoActivity.class);
                 startActivity(intent);
                 success = true;

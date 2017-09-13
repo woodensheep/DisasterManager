@@ -101,7 +101,9 @@
             android:name=".videocall.helloanychat.MyService"
             android:enabled="true" />
         <service android:name="com.alibaba.sdk.android.push.AliyunPushIntentService" />
-
+        <service android:name=".http.UpdataService"
+            android:enabled="true"
+            android:exported="true"/>
         <receiver
             android:name=".videocall.helloanychat.MyReceiver"
             android:exported="false">

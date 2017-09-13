@@ -46,15 +46,15 @@ public class DetailDataActivity extends Activity {
         ButterKnife.bind(this);
         mContext = this;
         mDetailData = new DetailData();
-        Long id = getIntent().getLongExtra("id",0);
+        Long id = getIntent().getLongExtra("id", 0);
         DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(id + "");
-        Log.i("Tag",disasterPoint.getDisasterCode());
+        Log.i("Tag", disasterPoint.getDisasterCode());
         monitorListRequest(disasterPoint.getDisasterCode());
     }
 
     private void monitorListRequest(String code) {
 
-        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/disaterpoint/findByDisaterCode/"+code)
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/disaterpoint/findByDisaterCode/" + code)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -94,21 +94,21 @@ public class DetailDataActivity extends Activity {
         } else if ("07".equals(mDetailData.getData().get(0).getType())) {
             array[1] = "崩塌";
         }
-        array[2] = mDetailData.getData().get(0).getDisNum();
-        array[3] = mDetailData.getData().get(0).getVillages();
+        array[2] = "null".equals(mDetailData.getData().get(0).getDisNum()) ? "" : mDetailData.getData().get(0).getDisNum();
+        array[3] = "null".equals(mDetailData.getData().get(0).getVillages()) ? "" : mDetailData.getData().get(0).getVillages();
         array[4] = mDetailData.getData().get(0).getLon() + "";
         array[5] = mDetailData.getData().get(0).getLat() + "";
-        array[6] = mDetailData.getData().get(0).getSite();
-        array[7] = mDetailData.getData().get(0).getInducement();
-        array[8] = mDetailData.getData().get(0).getThreatLevel();
-        array[9] = mDetailData.getData().get(0).getThreatNum();
-        array[10] = mDetailData.getData().get(0).getThreatMoney();
-        array[11] = mDetailData.getData().get(0).getWxqt();
-        array[12] = mDetailData.getData().get(0).getSbsj();
-        array[13] = mDetailData.getData().get(0).getFxsj();
-        array[14] = mDetailData.getData().get(0).getPreparer();
-        array[15] = mDetailData.getData().get(0).getAuditor();
-        array[16] = mDetailData.getData().get(0).getFzzrdw();
+        array[6] = "null".equals(mDetailData.getData().get(0).getSite()) ? "" : mDetailData.getData().get(0).getSite();
+        array[7] = "null".equals(mDetailData.getData().get(0).getInducement()) ? "" : mDetailData.getData().get(0).getInducement();
+        array[8] = "null".equals(mDetailData.getData().get(0).getThreatLevel()) ? "" : mDetailData.getData().get(0).getThreatLevel();
+        array[9] = "null".equals(mDetailData.getData().get(0).getThreatNum()) ? "" : mDetailData.getData().get(0).getThreatNum();
+        array[10] = "null".equals(mDetailData.getData().get(0).getThreatMoney()) ? "" : mDetailData.getData().get(0).getThreatMoney();
+        array[11] = "null".equals(mDetailData.getData().get(0).getWxqt()) ? "" : mDetailData.getData().get(0).getWxqt();
+        array[12] = "null".equals(mDetailData.getData().get(0).getSbsj()) ? "" : mDetailData.getData().get(0).getSbsj();
+        array[13] = "null".equals(mDetailData.getData().get(0).getFxsj()) ? "" : mDetailData.getData().get(0).getFxsj();
+        array[14] = "null".equals(mDetailData.getData().get(0).getPreparer()) ? "" : mDetailData.getData().get(0).getPreparer();
+        array[15] = "null".equals(mDetailData.getData().get(0).getAuditor()) ? "" : mDetailData.getData().get(0).getAuditor();
+        array[16] = "null".equals(mDetailData.getData().get(0).getFzzrdw()) ? "" : mDetailData.getData().get(0).getFzzrdw();
         array[17] = " ";
 
     }

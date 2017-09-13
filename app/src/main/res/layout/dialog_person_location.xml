@@ -105,7 +105,7 @@
                 android:button="@null"
                 android:layout_marginLeft="20dp"
                 android:gravity="center"
-                android:text="指挥中心人员"
+                android:text="巡查人员"
                 android:layout_weight="1"
                 android:textColor="@color/white"
                 android:textSize="20sp" />

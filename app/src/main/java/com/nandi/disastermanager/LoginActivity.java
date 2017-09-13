@@ -3,6 +3,7 @@ package com.nandi.disastermanager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -18,7 +19,9 @@ import com.nandi.disastermanager.search.entity.DisasterData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.LoginInfo;
 import com.nandi.disastermanager.ui.WaitingDialog;
+import com.nandi.disastermanager.utils.PermissionUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
+import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 import com.zhy.http.okhttp.request.RequestCall;
@@ -53,11 +56,30 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
         mContext = this;
-        userName.setText((String)SharedUtils.getShare(mContext,"loginname",""));
+        PermissionUtils.requestMultiPermissions(LoginActivity.this, mPermissionGrant);
+        userName.setText((String) SharedUtils.getShare(mContext, "loginname", ""));
         initEvent();
     }
+    private PermissionUtils.PermissionGrant mPermissionGrant = new PermissionUtils.PermissionGrant() {
+        @Override
+        public void onPermissionGranted(int requestCode) {
+            switch (requestCode) {
+                case PermissionUtils.CODE_CAMERA:
+                    break;
+                case PermissionUtils.CODE_RECORD_AUDIO:
+                    break;
+                case PermissionUtils.CODE_READ_EXTERNAL_STORAGE:
+                    break;
+            }
+        }
+    };
 
-    private void initEvent(){
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermissionUtils.requestPermissionsResult(this, requestCode, permissions, grantResults, mPermissionGrant);
+    }
+    private void initEvent() {
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,12 +87,12 @@ public class LoginActivity extends AppCompatActivity {
                 name = userName.getText().toString();
                 pswd = userPwd.getText().toString();
 
-                if (TextUtils.isEmpty(name)){
+                if (TextUtils.isEmpty(name)) {
                     initSnackbar(userName, "账号不能为空!");
-                } else if (TextUtils.isEmpty(pswd)){
+                } else if (TextUtils.isEmpty(pswd)) {
                     initSnackbar(userPwd, "密码不能为空!");
                 } else {
-                    loginPost(name,pswd);
+                    loginPost(name, pswd);
                 }
 
             }
@@ -80,101 +102,11 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * 登录请求
      */
-    private void loginPost(String userNumber,String password){
-            WaitingDialog.createLoadingDialog(mContext,"正在登录。。。");
-            OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/appdocking/login/"+userNumber+"/"+password)
-                    .build()
-                    .execute(new StringCallback() {
-                        @Override
-                        public void onError(Call call, Exception e, int id) {
-                            WaitingDialog.closeDialog();
-                            Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onResponse(final String response, int id) {
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    GreenDaoManager.deleteAll();
-                                    Gson gson = new Gson();
-                                    loginInfo=gson.fromJson(response, LoginInfo.class);
-                                    if (loginInfo.getMeta().isSuccess()==false){
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(mContext,loginInfo.getMeta().getMessage() , Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                        WaitingDialog.closeDialog();
-                                        return;
-                                    }
-                                    saveArea();
-                                    SharedUtils.putShare(mContext,"loginname",name);
-                                    SharedUtils.putShare(mContext,"loginpswd",pswd);
-                                    Intent intent=new Intent(mContext,MainActivity.class);
-                                    startActivity(intent);
-                                    WaitingDialog.closeDialog();
-                                    finish();
-                                }
-                            }).start();
-
-                        }
-                    });
-
-    }
-
-    private void saveArea() {
-
-
-        SharedUtils.putShare(mContext,"loginlevel",loginInfo.getData().get(0).getLevel()+"");
-        for (int i=0;i<loginInfo.getData().get(2).getCitymap().size();i++) {
-            AreaInfo areaInfo=new AreaInfo(null,
-                    loginInfo.getData().get(2).getCitymap().get(i).getLevel(),
-                    loginInfo.getData().get(2).getCitymap().get(i).getArea_name(),
-                    loginInfo.getData().get(2).getCitymap().get(i).getArea_code(),
-                    loginInfo.getData().get(2).getCitymap().get(i).getArea_parent(),
-                    loginInfo.getData().get(2).getCitymap().get(i).getId());
-            GreenDaoManager.insertArea(areaInfo);
-        }
-        for (int i=0;i<loginInfo.getData().get(3).getCountymap().size();i++) {
-            AreaInfo areaInfo=new AreaInfo(null,
-                    loginInfo.getData().get(3).getCountymap().get(i).getLevel(),
-                    loginInfo.getData().get(3).getCountymap().get(i).getArea_name(),
-                    loginInfo.getData().get(3).getCountymap().get(i).getArea_code(),
-                    loginInfo.getData().get(3).getCountymap().get(i).getArea_parent(),
-                    loginInfo.getData().get(3).getCountymap().get(i).getId());
-            GreenDaoManager.insertArea(areaInfo);
-        }
-        for (int i=0;i<loginInfo.getData().get(4).getTownmap().size();i++) {
-            AreaInfo areaInfo=new AreaInfo(null,
-                    loginInfo.getData().get(4).getTownmap().get(i).getLevel(),
-                    loginInfo.getData().get(4).getTownmap().get(i).getArea_name(),
-                    loginInfo.getData().get(4).getTownmap().get(i).getId(),
-                    loginInfo.getData().get(4).getTownmap().get(i).getArea_parent(),
-                    loginInfo.getData().get(4).getTownmap().get(i).getId());
-            GreenDaoManager.insertArea(areaInfo);
-        }
-        int id = -1;
-        if (1==loginInfo.getData().get(0).getLevel()){
-            id=loginInfo.getData().get(1).getProvince().get(0).getId();
-        }else if(2==loginInfo.getData().get(0).getLevel()){
-            id=loginInfo.getData().get(2).getCitymap().get(0).getId();
-        }else if(3==loginInfo.getData().get(0).getLevel()){
-            id=loginInfo.getData().get(3).getCountymap().get(0).getId();
-        }else if(4==loginInfo.getData().get(0).getLevel()){
-            id=loginInfo.getData().get(4).getCountymap().get(0).getId();
-        }
-        loginDisaster(id+"",loginInfo.getData().get(0).getLevel()+"");
-    }
-
-    /**
-     * 请求所有灾害点
-     */
-    private void loginDisaster(String id,String level){
-        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/appdocking/listDisaster/" + id + "/" + level)
-                .build();
-        build.execute(new StringCallback() {
+    private void loginPost(String userNumber, String password) {
+        WaitingDialog.createLoadingDialog(mContext, "正在登录。。。");
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + userNumber + "/" + password)
+                .build()
+                .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
                         WaitingDialog.closeDialog();
@@ -186,37 +118,33 @@ public class LoginActivity extends AppCompatActivity {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                Gson gson=new Gson();
-                                DisasterData disasterData=gson.fromJson(response, DisasterData.class);
-                                for (DisasterData.DataBean dataBean:disasterData.getData()) {
-                                    String type="";
-                                    switch (dataBean.getZhzl()){
-                                        case "01":type="滑坡";break;
-                                        case "02":type="地面塌陷"; break;
-                                        case "03":type="泥石流";break;
-                                        case "04":break;
-                                        case "05":type="地裂缝";break;
-                                        case "06":type="不稳定斜坡";break;
-                                        case "07":type="崩塌";break;
-                                    }
-                                    DisasterPoint disasterPoint=new DisasterPoint(null,
-                                            dataBean.getDzbh(),
-                                            dataBean.getJd()+"",
-                                            dataBean.getWd()+"",
-                                            dataBean.getCity(),
-                                            null,
-                                            dataBean.getCounty(),
-                                            dataBean.getTown(),
-                                            dataBean.getXqdj()+"",
-                                            type,
-                                            dataBean.getYfys(),
-                                            dataBean.getDzmc(),
-                                            dataBean.getLATITUDE()+"",
-                                            dataBean.getLONGITUDE()+"");
-                                    GreenDaoManager.insertDisasterPoint(disasterPoint);
+                                GreenDaoManager.deleteAll();
+                                Gson gson = new Gson();
+                                try {
+                                    loginInfo = gson.fromJson(response, LoginInfo.class);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    ToastUtils.showLong(mContext,"请求数据错误！");
+                                    WaitingDialog.closeDialog();
+                                    return;
                                 }
-
-
+                                if (loginInfo.getMeta().isSuccess() == false) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(mContext, loginInfo.getMeta().getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                    WaitingDialog.closeDialog();
+                                    return;
+                                }
+                                saveArea();
+                                SharedUtils.putShare(mContext, "loginname", name);
+                                SharedUtils.putShare(mContext, "loginpswd", pswd);
+                                Intent intent = new Intent(mContext, MainActivity.class);
+                                startActivity(intent);
+                                WaitingDialog.closeDialog();
+                                finish();
                             }
                         }).start();
 
@@ -225,9 +153,136 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    private void saveArea() {
+
+        int level = loginInfo.getData().get(0).getLevel();
+        SharedUtils.putShare(mContext, "loginlevel",level + "");
+        int area_code = 0;
+        switch (level){
+            case 1:
+                area_code = loginInfo.getData().get(1).getProvince().get(0).getArea_code();
+                break;
+            case 2:
+                area_code=loginInfo.getData().get(2).getCitymap().get(0).getArea_code();
+                break;
+            case 3:
+                area_code=loginInfo.getData().get(3).getCountymap().get(0).getArea_code();
+        }
+        SharedUtils.putShare(mContext,"areacode",area_code+"");
+        for (int i = 0; i < loginInfo.getData().get(2).getCitymap().size(); i++) {
+            AreaInfo areaInfo = new AreaInfo(null,
+                    loginInfo.getData().get(2).getCitymap().get(i).getLevel(),
+                    loginInfo.getData().get(2).getCitymap().get(i).getArea_name(),
+                    loginInfo.getData().get(2).getCitymap().get(i).getArea_code(),
+                    loginInfo.getData().get(2).getCitymap().get(i).getArea_parent(),
+                    loginInfo.getData().get(2).getCitymap().get(i).getId());
+            GreenDaoManager.insertArea(areaInfo);
+        }
+        for (int i = 0; i < loginInfo.getData().get(3).getCountymap().size(); i++) {
+            AreaInfo areaInfo = new AreaInfo(null,
+                    loginInfo.getData().get(3).getCountymap().get(i).getLevel(),
+                    loginInfo.getData().get(3).getCountymap().get(i).getArea_name(),
+                    loginInfo.getData().get(3).getCountymap().get(i).getArea_code(),
+                    loginInfo.getData().get(3).getCountymap().get(i).getArea_parent(),
+                    loginInfo.getData().get(3).getCountymap().get(i).getId());
+            GreenDaoManager.insertArea(areaInfo);
+        }
+        for (int i = 0; i < loginInfo.getData().get(4).getTownmap().size(); i++) {
+            AreaInfo areaInfo = new AreaInfo(null,
+                    loginInfo.getData().get(4).getTownmap().get(i).getLevel(),
+                    loginInfo.getData().get(4).getTownmap().get(i).getArea_name(),
+                    loginInfo.getData().get(4).getTownmap().get(i).getId(),
+                    loginInfo.getData().get(4).getTownmap().get(i).getArea_parent(),
+                    loginInfo.getData().get(4).getTownmap().get(i).getId());
+            GreenDaoManager.insertArea(areaInfo);
+        }
+        int id = -1;
+        if (1 == loginInfo.getData().get(0).getLevel()) {
+            id = loginInfo.getData().get(1).getProvince().get(0).getId();
+        } else if (2 == loginInfo.getData().get(0).getLevel()) {
+            id = loginInfo.getData().get(2).getCitymap().get(0).getId();
+        } else if (3 == loginInfo.getData().get(0).getLevel()) {
+            id = loginInfo.getData().get(3).getCountymap().get(0).getId();
+        } else if (4 == loginInfo.getData().get(0).getLevel()) {
+            id = loginInfo.getData().get(4).getCountymap().get(0).getId();
+        }
+        loginDisaster(id + "", loginInfo.getData().get(0).getLevel() + "");
+    }
+
+    /**
+     * 请求所有灾害点
+     */
+    private void loginDisaster(String id, String level) {
+        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
+                .build();
+        build.execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                WaitingDialog.closeDialog();
+                Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(final String response, int id) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Gson gson = new Gson();
+                        DisasterData disasterData = gson.fromJson(response, DisasterData.class);
+                        for (DisasterData.DataBean dataBean : disasterData.getData()) {
+                            String type = "";
+                            switch (dataBean.getZhzl()) {
+                                case "01":
+                                    type = "滑坡";
+                                    break;
+                                case "02":
+                                    type = "地面塌陷";
+                                    break;
+                                case "03":
+                                    type = "泥石流";
+                                    break;
+                                case "04":
+                                    break;
+                                case "05":
+                                    type = "地裂缝";
+                                    break;
+                                case "06":
+                                    type = "不稳定斜坡";
+                                    break;
+                                case "07":
+                                    type = "崩塌";
+                                    break;
+                            }
+                            DisasterPoint disasterPoint = new DisasterPoint(null,
+                                    dataBean.getDzbh(),
+                                    dataBean.getJd() + "",
+                                    dataBean.getWd() + "",
+                                    dataBean.getCity(),
+                                    null,
+                                    dataBean.getCounty(),
+                                    dataBean.getTown(),
+                                    "null".equals(dataBean.getXqdj())?"":dataBean.getXqdj() + "",
+                                    type,
+                                    "null".equals(dataBean.getYfys())?"":dataBean.getYfys(),
+                                    "null".equals(dataBean.getDzmc())?"":dataBean.getDzmc(),
+                                    dataBean.getLATITUDE() + "",
+                                    dataBean.getLONGITUDE() + "");
+                            GreenDaoManager.insertDisasterPoint(disasterPoint);
+                        }
+
+
+                    }
+                }).start();
+
+            }
+        });
+
+    }
+
 
     /**
      * Snackbar提示栏
+     *
      * @param editText
      * @param msg
      */
