@@ -70,7 +70,9 @@ public class SearchActivity extends Activity {
     private LoginInfo loginInfo;
     private String disasterCode="";
     private String city="";
+    private int cityNum;
     private String county="";
+    private int countyNum;
     private String town="";
     private String threatLevel="";
     private String type="";
@@ -96,12 +98,27 @@ public class SearchActivity extends Activity {
         final List<String> mItems2 = new ArrayList<>();
         final List<String> mItems3 = new ArrayList<>();
          mItems5 = getResources().getStringArray(R.array.search_type_5);
-        mItems1.add("筛查州市");
+        cityNum=GreenDaoManager.queryAreaLevel(2).size();
+        countyNum=GreenDaoManager.queryAreaLevel(3).size();
+        GreenDaoManager.queryAreaLevel(2).size();
+        if(cityNum==1){
+            city=GreenDaoManager.queryAreaLevel(2).get(0).getName();
+        }else{
+            mItems1.add("选择州市");
+        }
         for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(2)) {
             mItems1.add(areaInfo.getName());
         }
-        mItems2.add("筛查区县");
-        mItems3.add("筛查乡镇");
+        Log.d("limeng","GreenDaoManager.queryAreaLevel(3).size()="+GreenDaoManager.queryAreaLevel(3).size());
+        if(countyNum==1){
+            county=GreenDaoManager.queryAreaLevel(3).get(0).getName();
+        }else{
+            mItems2.add("选择区县");
+        }
+        for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(3)) {
+            mItems2.add(areaInfo.getName());
+        }
+        mItems3.add("选择乡镇");
         // 建立Adapter并且绑定数据源
         final ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems1);
         final ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems2);
@@ -125,20 +142,24 @@ public class SearchActivity extends Activity {
         sp1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!"筛查州市".equals(adapter1.getItem(position))) {
+                if (!"选择州市".equals(adapter1.getItem(position))) {
                     String name = adapter1.getItem(position);
                     city= name;
                     county="";
                     town="";
                     int code = GreenDaoManager.queryArea2(name).get(0).getArea_id();
                     mItems2.clear();
-                    mItems2.add("筛查区县");
+                    if(countyNum==1){
+                        county=GreenDaoManager.queryAreaLevel(3).get(0).getName();
+                    }else{
+                        mItems2.add("选择区县");
+                    }
                     for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(3, code)) {
                         mItems2.add(areaInfo.getName());
                     }
                     adapter2.notifyDataSetChanged();
                     mItems3.clear();
-                    mItems3.add("筛查乡镇");
+                    mItems3.add("选择乡镇");
                     adapter3.notifyDataSetChanged();
                 }else {
                     city="";
@@ -155,13 +176,13 @@ public class SearchActivity extends Activity {
         sp2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!"筛查区县".equals(adapter2.getItem(position))) {
+                if (!"选择区县".equals(adapter2.getItem(position))) {
                     String name = adapter2.getItem(position);
                     county=name;
                     town="";
                     int code = GreenDaoManager.queryArea3(name).get(0).getArea_id();
                     mItems3.clear();
-                    mItems3.add("筛查乡镇");
+                    mItems3.add("选择乡镇");
                     for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(4, code)) {
                         mItems3.add(areaInfo.getName());
                     }
@@ -181,7 +202,7 @@ public class SearchActivity extends Activity {
         sp3.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!"筛查乡镇".equals(adapter3.getItem(position))) {
+                if (!"选择乡镇".equals(adapter3.getItem(position))) {
                      town = adapter3.getItem(position);
                 }else {
                     town="";
@@ -196,7 +217,7 @@ public class SearchActivity extends Activity {
         sp4.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!"等级".equals(adapter4.getItem(position))) {
+                if (!"选择等级".equals(adapter4.getItem(position))) {
                     threatLevel=adapter4.getItem(position) ;
                 }else {
                     threatLevel="";
@@ -210,7 +231,7 @@ public class SearchActivity extends Activity {
         sp5.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!"灾害类型".equals(adapter5.getItem(position))) {
+                if (!"选择灾害类型".equals(adapter5.getItem(position))) {
                     type=adapter5.getItem(position);
                 }else {
                     type="";
@@ -225,7 +246,7 @@ public class SearchActivity extends Activity {
         sp6.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!"诱发因素".equals(adapter6.getItem(position))) {
+                if (!"选择诱发因素".equals(adapter6.getItem(position))) {
                     inducement=adapter6.getItem(position);
                 }else {
                     inducement="";
@@ -288,12 +309,12 @@ public class SearchActivity extends Activity {
                             return;
                         }
                         mItems4.clear();
-                        mItems4.add("等级");
+                        mItems4.add("选择等级");
                         for (int i=0;i<listType.getData().getXqdj().size();i++) {
                             mItems4.add(listType.getData().getXqdj().get(i));
                         }
                         mItems6.clear();
-                        mItems6.add("诱发因素");
+                        mItems6.add("选择诱发因素");
                         for (int i=0;i<listType.getData().getYfys().size();i++) {
                             mItems6.add(listType.getData().getYfys().get(i));
                         }
