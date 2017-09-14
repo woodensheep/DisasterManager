@@ -6,6 +6,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
 
 import butterknife.BindView;
@@ -25,6 +26,7 @@ public class EnlargePhotoActivity extends Activity {
         lp.height = WindowManager.LayoutParams.MATCH_PARENT;
         getWindow().setAttributes(lp);
         ButterKnife.bind(this);
+        MyApplication.getActivities().add(this);
         String photo_url = getIntent().getStringExtra("PHOTO_URL");
         Glide.with(this)
                 .load(photo_url)

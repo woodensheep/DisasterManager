@@ -93,8 +93,6 @@ public class DisasterData {
         private String city;
         private String county;
         private String town;
-        private double LATITUDE;
-        private double LONGITUDE;
 
         public String getDzbh() {
             return dzbh;
@@ -208,20 +206,25 @@ public class DisasterData {
             this.town = town;
         }
 
-        public double getLATITUDE() {
-            return LATITUDE;
-        }
 
-        public void setLATITUDE(int LATITUDE) {
-            this.LATITUDE = LATITUDE;
-        }
-
-        public double getLONGITUDE() {
-            return LONGITUDE;
-        }
-
-        public void setLONGITUDE(int LONGITUDE) {
-            this.LONGITUDE = LONGITUDE;
+        @Override
+        public String toString() {
+            return "DataBean{" +
+                    "dzbh='" + dzbh + '\'' +
+                    ", jd=" + jd +
+                    ", wd=" + wd +
+                    ", xqdj='" + xqdj + '\'' +
+                    ", dzmc='" + dzmc + '\'' +
+                    ", zhzl='" + zhzl + '\'' +
+                    ", yfys='" + yfys + '\'' +
+                    ", yhdbh='" + yhdbh + '\'' +
+                    ", id=" + id +
+                    ", level=" + level +
+                    ", province='" + province + '\'' +
+                    ", city='" + city + '\'' +
+                    ", county='" + county + '\'' +
+                    ", town='" + town + '\'' +
+                    '}';
         }
     }
 }

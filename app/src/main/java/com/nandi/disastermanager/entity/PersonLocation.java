@@ -5,8 +5,17 @@ package com.nandi.disastermanager.entity;
  */
 
 public class PersonLocation {
+    /**
+     * 纬度
+     */
     private String lat;
+    /**
+     * 经度
+     */
     private String lon;
+    /**
+     * id
+     */
     private int id;
     //四重人员 type 1:群测群防 2：驻守 3:负责人 4：地环站
     private String type;

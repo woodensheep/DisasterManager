@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.nandi.disastermanager">
 
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
@@ -16,10 +17,11 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <application
+        tools:replace="android:label"
         android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/icon"
-        android:label="@string/app_name"
+        android:label="@string/app_name1"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data
@@ -28,10 +30,23 @@
         <meta-data
             android:name="com.alibaba.app.appsecret"
             android:value="d751a1236a17e4f10ac8ddbc72634531" />
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.nandi.disastermanager.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <!--元数据-->
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
+        作者：于连林520wcf
+        链接：http://www.jianshu.com/p/577816c3ce93
+        來源：简书
+        著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
         <activity
             android:name=".LoginActivity"
-            android:launchMode="singleTask"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -69,6 +84,7 @@
         <activity
             android:name=".search.SearchActivity"
             android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden"
             android:theme="@style/TipDialog" />
         <activity
             android:name=".search.DetailDataActivity"

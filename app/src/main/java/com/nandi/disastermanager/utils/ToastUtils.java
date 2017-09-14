@@ -1,6 +1,7 @@
 package com.nandi.disastermanager.utils;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.widget.Toast;
 
 /**
@@ -17,7 +18,9 @@ public class ToastUtils {
     }
 
     public static void showShort(Context context, CharSequence text) {
-        if(isShow) Toast.makeText(context,text,Toast.LENGTH_SHORT).show();
+        Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL,0,100);
+        toast.show();
     }
 
     public static void showLong(Context context,CharSequence text) {

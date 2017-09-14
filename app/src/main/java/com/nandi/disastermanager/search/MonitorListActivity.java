@@ -46,25 +46,27 @@ public class MonitorListActivity extends Activity {
     }
 
     private void monitorListRequest(String code) {
-
+        WaitingDialog.createLoadingDialog(mContext,"正在加载...");
         OkHttpUtils.get().url(getString(R.string.base_gz_url)+"/detection/findMonitorAll/"+code+"/1/10000")
                 .build()
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
+                        ToastUtils.showShort(mContext,"请求失败");
+                        WaitingDialog.closeDialog();
+                        finish();
                     }
 
                     @Override
                     public void onResponse(String response, int id) {
                         Log.i("TAG", response);
-
                         Gson gson = new Gson();
                         monitorListData = gson.fromJson(response, MonitorListData.class);
-                        if (monitorListData.getMeta().isSuccess()){
                             setAdapter();
-                        }else{
-                            ToastUtils.showShort(mContext,monitorListData.getMeta().getMessage());
+                        WaitingDialog.closeDialog();
+                        int size = monitorListData.getData().getResult().size();
+                        if (size==0){
+                            ToastUtils.showShort(mContext,"当前没有监测点信息");
                         }
                     }
                 });

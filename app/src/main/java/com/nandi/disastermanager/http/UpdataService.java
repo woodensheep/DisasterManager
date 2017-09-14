@@ -8,11 +8,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.v4.content.FileProvider;
 import android.webkit.MimeTypeMap;
 
 import com.nandi.disastermanager.utils.ToastUtils;
+import com.taobao.accs.client.AccsConfig;
 
 import java.io.File;
 
@@ -21,57 +24,62 @@ import java.io.File;
  * 检测安装更新文件的助手服务
  *
  * @author qingsong
- *
  */
 
 public class UpdataService extends Service {
-    String url = "http://shouji.360tpcdn.com/150527/c90d7a6a8cded5b5da95ae1ee6382875/com.tencent.mm_561.apk" ;
+    String url;
 
-    private long  mReference = 0 ;
-    private DownloadManager downloadManager ;
+    private long mReference = 0;
+    private DownloadManager downloadManager;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        IntentFilter filter = new IntentFilter( DownloadManager.ACTION_DOWNLOAD_COMPLETE ) ;
-        registerReceiver( receiver , filter ) ;
-        url ="";//// TODO: 2017/9/13
+        IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        registerReceiver(receiver, filter);
+        url = "http://202.98.195.125:8082/gzcmdback/downloadApk.do";
         // 调用下载
+        File file = new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                , "app-release.apk");
+        if (file.exists()){
+            boolean delete = file.delete();
+        }
         initDownManager();
         return super.onStartCommand(intent, flags, startId);
     }
 
     private void initDownManager() {
-        DownloadManager.Request request = new DownloadManager.Request( Uri.parse( url ) );
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 
         //下载网络需求  手机数据流量、wifi
-        request.setAllowedNetworkTypes( DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI ) ;
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
 
         //设置是否允许漫游网络 建立请求 默认true
-        request.setAllowedOverRoaming( true ) ;
+        request.setAllowedOverRoaming(true);
 
         //设置通知类型
-        setNotification( request ) ;
+        setNotification(request);
 
         //设置下载路径
-        setDownloadFilePath( request ) ;
+        setDownloadFilePath(request);
 
 		/*在默认的情况下，通过Download Manager下载的文件是不能被Media Scanner扫描到的 。
-		进而这些下载的文件（音乐、视频等）就不会在Gallery 和  Music Player这样的应用中看到。
+        进而这些下载的文件（音乐、视频等）就不会在Gallery 和  Music Player这样的应用中看到。
 		为了让下载的音乐文件可以被其他应用扫描到，我们需要调用Request对象的
 		 */
-        request.allowScanningByMediaScanner() ;
+        request.allowScanningByMediaScanner();
 
 		/*如果我们希望下载的文件可以被系统的Downloads应用扫描到并管理，
 		我们需要调用Request对象的setVisibleInDownloadsUi方法，传递参数true。*/
-        request.setVisibleInDownloadsUi( true ) ;
+        request.setVisibleInDownloadsUi(true);
 
         //设置请求的Mime
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         request.setMimeType(mimeTypeMap.getMimeTypeFromExtension(url));
 
         //开始下载
-        downloadManager = (DownloadManager)getSystemService(DOWNLOAD_SERVICE) ;
-        mReference = downloadManager.enqueue( request ) ;
+        downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        mReference = downloadManager.enqueue(request);
 
 		/*
 		下载管理器中有很多下载项，怎么知道一个资源已经下载过，避免重复下载呢？
@@ -79,10 +87,10 @@ public class UpdataService extends Service {
 		后面如果用户连续点击更新确定按钮，就不要重复下载了。
 		可以看出来查询和操作数据库查询一样的
 		 */
-        DownloadManager.Query query = new DownloadManager.Query() ;
-        query.setFilterById( mReference );
-        Cursor cursor = downloadManager.query( query ) ;
-        if ( !cursor.moveToFirst() ) {// 没有记录
+        DownloadManager.Query query = new DownloadManager.Query();
+        query.setFilterById(mReference);
+        Cursor cursor = downloadManager.query(query);
+        if (!cursor.moveToFirst()) {// 没有记录
 
         } else {
             //有记录
@@ -95,19 +103,20 @@ public class UpdataService extends Service {
 
         return null;
     }
+
     /**
      * 设置状态栏中显示Notification
      */
-    void setNotification(DownloadManager.Request request ) {
+    void setNotification(DownloadManager.Request request) {
         //设置Notification的标题
-        request.setTitle( "下载" ) ;
+        request.setTitle("下载");
 
         //设置描述
-        request.setDescription( "2.0" ) ;
+        request.setDescription("2.0");
 
         //request.setNotificationVisibility( Request.VISIBILITY_VISIBLE ) ;
 
-        request.setNotificationVisibility( DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED ) ;
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
         //request.setNotificationVisibility( Request.VISIBILITY_VISIBLE_NOTIFY_ONLY_COMPLETION ) ;
 
@@ -117,7 +126,7 @@ public class UpdataService extends Service {
     /**
      * 设置下载文件存储目录
      */
-    void setDownloadFilePath( DownloadManager.Request request ){
+    void setDownloadFilePath(DownloadManager.Request request) {
         /**
          * 方法1:
          * 目录: Android -> data -> com.app -> files -> Download -> .apk
@@ -148,10 +157,10 @@ public class UpdataService extends Service {
          * 系统有个下载文件夹，比如小米手机系统下载文件夹  SD卡--> Download文件夹
          */
         //创建目录
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdir() ;
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdir();
 
         //设置文件存放路径
-        request.setDestinationInExternalPublicDir(  Environment.DIRECTORY_DOWNLOADS  , "app-release.apk" ) ;
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "app-release.apk");
     }
 
     /**
@@ -160,26 +169,43 @@ public class UpdataService extends Service {
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction() ;
-            if( action.equals( DownloadManager.ACTION_DOWNLOAD_COMPLETE  )){
+            String action = intent.getAction();
+            if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
                 //下载完成了
                 //获取当前完成任务的ID
-                long  reference = intent.getLongExtra( DownloadManager.EXTRA_DOWNLOAD_ID , -1 );
-                ToastUtils.showShort(context,"安装包下载完成！");
+                long reference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                ToastUtils.showShort(context, "安装包下载完成！");
                 //自动安装应用
-                Intent i = new Intent();
-                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                i.setAction(android.content.Intent.ACTION_VIEW);
-                Uri uri = Uri.fromFile( new File("/sdcard/Download/app-release.apk")); //这里是APK路径
-                i.setDataAndType( uri , "application/vnd.android.package-archive" ) ;
-                context.startActivity(i);
+                installApk(context);
             }
 
-            if( action.equals( DownloadManager.ACTION_NOTIFICATION_CLICKED )){
+            if (action.equals(DownloadManager.ACTION_NOTIFICATION_CLICKED)) {
                 //广播被点击了
+                 installApk(context);
             }
         }
     };
+
+    private void installApk(Context context) {
+        File file = new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                , "app-release.apk");
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        // 由于没有在Activity环境下启动Activity,设置下面的标签
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if(Build.VERSION.SDK_INT>=24) { //判读版本是否在7.0以上
+            //参数1 上下文, 参数2 Provider主机地址 和配置文件中保持一致   参数3  共享的文件
+            Uri apkUri =
+                    FileProvider.getUriForFile(context, "com.nandi.disastermanager.fileprovider", file);
+            //添加这一句表示对目标应用临时授权该Uri所代表的文件
+            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            i.setDataAndType(apkUri, "application/vnd.android.package-archive");
+        }else{
+            i.setDataAndType(Uri.fromFile(file),
+                    "application/vnd.android.package-archive");
+        }
+        context.startActivity(i);
+    }
 
     @Override
     public void onDestroy() {

@@ -115,14 +115,15 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
         public void onClick(View view) {
             switch (view.getId()){
                 case tv_search_5:
-                    Intent intent =  new Intent(mContext,MonitorListActivity.class);
-                    intent.putExtra("id", (Long)view.getTag());
-                    mContext.startActivity(intent);
-                    break;
-                case tv_search_6:
+
                     Intent intent1 =  new Intent(mContext,DetailDataActivity.class);
                     intent1.putExtra("id", (Long)view.getTag());
                     mContext.startActivity(intent1);
+                    break;
+                case tv_search_6:
+                    Intent intent =  new Intent(mContext,MonitorListActivity.class);
+                    intent.putExtra("id", (Long)view.getTag());
+                    mContext.startActivity(intent);
                     break;
                 case tv_search_7:
                     Intent intent2 =  new Intent(mContext,NavigationActivity.class);

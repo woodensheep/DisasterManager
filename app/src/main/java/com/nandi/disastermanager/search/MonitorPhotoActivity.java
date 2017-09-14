@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.MonitorPhoto;
 import com.nandi.disastermanager.ui.WaitingDialog;
@@ -34,6 +35,7 @@ public class MonitorPhotoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor_photo);
         ButterKnife.bind(this);
+        MyApplication.getActivities().add(this);
         monitorPhoto = (MonitorPhoto) getIntent().getSerializableExtra("MONITOR_PHOTO");
         dateShow.setLayoutManager(new LinearLayoutManager(this));
         monitorPhotoAdapter = new MonitorPhotoAdapter(this, monitorPhoto);

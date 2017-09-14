@@ -28,7 +28,7 @@ public class WaitingDialog {
         TextView tipTextView = (TextView) v.findViewById(R.id.tipTextView);// 提示文字
         tipTextView.setText(msg);// 设置加载信息
         ImageView ivWaiting= (ImageView) v.findViewById(R.id.img);
-        Glide.with(context).load(R.mipmap.waiting_logo).asGif().into(ivWaiting);;
+        Glide.with(context).load(R.drawable.waiting_logo).asGif().into(ivWaiting);;
         Dialog loadingDialog = new Dialog(context, R.style.MyDialogStyle);// 创建自定义样式dialog
         loadingDialog.setCancelable(true); // 是否可以按“返回键”消失
         loadingDialog.setCanceledOnTouchOutside(false); // 点击加载框以外的区域

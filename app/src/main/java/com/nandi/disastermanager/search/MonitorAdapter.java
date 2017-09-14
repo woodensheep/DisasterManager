@@ -113,14 +113,15 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
                     int position = (int) v.getTag();
                     double lon = mMonitorData.getData().getResult().get(position - 1).getLon();
                     double lat = mMonitorData.getData().getResult().get(position - 1).getLat();
-                    Intent intent = new Intent("POINT_INFO");
-                    intent.putExtra("LON", lon);
-                    intent.putExtra("LAT",lat);
-                    mContext.sendBroadcast(intent);
-                    List<Activity> activities = MyApplication.getActivities();
-                    for (Activity activity : activities) {
-                        activity.finish();
-                    }
+                    ToastUtils.showShort(v.getContext(),"暂无数据展示");
+//                    Intent intent = new Intent("POINT_INFO");
+//                    intent.putExtra("LON", lon);
+//                    intent.putExtra("LAT",lat);
+//                    mContext.sendBroadcast(intent);
+//                    List<Activity> activities = MyApplication.getActivities();
+//                    for (Activity activity : activities) {
+//                        activity.finish();
+//                    }
                 }
             });
         }

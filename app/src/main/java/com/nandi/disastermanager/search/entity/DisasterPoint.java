@@ -34,16 +34,11 @@ public class DisasterPoint {
     private String inducement;
     /**名称**/
     private String disasterName;
-    /**导航纬度**/
-    private String LATITUDE;
-    /**导航经度**/
-    private String LONGITUDE;
-
-    @Generated(hash = 265713837)
+    @Generated(hash = 897634231)
     public DisasterPoint(Long id, String disasterCode, String lon, String lat,
             String city, String areaCode, String county, String town,
-            String threatLevel, String type, String inducement, String disasterName,
-            String LATITUDE, String LONGITUDE) {
+            String threatLevel, String type, String inducement,
+            String disasterName) {
         this.id = id;
         this.disasterCode = disasterCode;
         this.lon = lon;
@@ -56,8 +51,6 @@ public class DisasterPoint {
         this.type = type;
         this.inducement = inducement;
         this.disasterName = disasterName;
-        this.LATITUDE = LATITUDE;
-        this.LONGITUDE = LONGITUDE;
     }
     @Generated(hash = 410069605)
     public DisasterPoint() {
@@ -68,29 +61,17 @@ public class DisasterPoint {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getLon() {
-        return this.lon;
-    }
-    public void setLon(String lon) {
-        this.lon = lon;
-    }
-    public String getAreaCode() {
-        return this.areaCode;
-    }
-    public void setAreaCode(String areaCode) {
-        this.areaCode = areaCode;
-    }
     public String getDisasterCode() {
         return this.disasterCode;
     }
     public void setDisasterCode(String disasterCode) {
         this.disasterCode = disasterCode;
     }
-    public String getType() {
-        return this.type;
+    public String getLon() {
+        return this.lon;
     }
-    public void setType(String type) {
-        this.type = type;
+    public void setLon(String lon) {
+        this.lon = lon;
     }
     public String getLat() {
         return this.lat;
@@ -98,42 +79,17 @@ public class DisasterPoint {
     public void setLat(String lat) {
         this.lat = lat;
     }
-    public String getDisasterName() {
-        return this.disasterName;
-    }
-    public void setDisasterName(String disasterName) {
-        this.disasterName = disasterName;
-    }
     public String getCity() {
         return this.city;
     }
     public void setCity(String city) {
         this.city = city;
     }
-
-    public String getThreatLevel() {
-        return this.threatLevel;
+    public String getAreaCode() {
+        return this.areaCode;
     }
-    public void setThreatLevel(String threatLevel) {
-        this.threatLevel = threatLevel;
-    }
-    public String getInducement() {
-        return this.inducement;
-    }
-    public void setInducement(String inducement) {
-        this.inducement = inducement;
-    }
-    public String getLATITUDE() {
-        return this.LATITUDE;
-    }
-    public void setLATITUDE(String LATITUDE) {
-        this.LATITUDE = LATITUDE;
-    }
-    public String getLONGITUDE() {
-        return this.LONGITUDE;
-    }
-    public void setLONGITUDE(String LONGITUDE) {
-        this.LONGITUDE = LONGITUDE;
+    public void setAreaCode(String areaCode) {
+        this.areaCode = areaCode;
     }
     public String getCounty() {
         return this.county;
@@ -146,6 +102,30 @@ public class DisasterPoint {
     }
     public void setTown(String town) {
         this.town = town;
+    }
+    public String getThreatLevel() {
+        return this.threatLevel;
+    }
+    public void setThreatLevel(String threatLevel) {
+        this.threatLevel = threatLevel;
+    }
+    public String getType() {
+        return this.type;
+    }
+    public void setType(String type) {
+        this.type = type;
+    }
+    public String getInducement() {
+        return this.inducement;
+    }
+    public void setInducement(String inducement) {
+        this.inducement = inducement;
+    }
+    public String getDisasterName() {
+        return this.disasterName;
+    }
+    public void setDisasterName(String disasterName) {
+        this.disasterName = disasterName;
     }
 
 }

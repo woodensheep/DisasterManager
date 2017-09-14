@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.DetailData;
@@ -44,6 +45,7 @@ public class DetailDataActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deail);
         ButterKnife.bind(this);
+        MyApplication.getActivities().add(this);
         mContext = this;
         mDetailData = new DetailData();
         Long id = getIntent().getLongExtra("id", 0);
@@ -53,7 +55,7 @@ public class DetailDataActivity extends Activity {
     }
 
     private void monitorListRequest(String code) {
-
+        WaitingDialog.createLoadingDialog(mContext,"正在加载...");
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/disaterpoint/findByDisaterCode/" + code)
                 .build()
                 .execute(new StringCallback() {
@@ -61,6 +63,7 @@ public class DetailDataActivity extends Activity {
                     public void onError(Call call, Exception e, int id) {
                         WaitingDialog.closeDialog();
                         Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
+                        finish();
                     }
 
                     @Override

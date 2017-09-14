@@ -84,6 +84,7 @@ public class SearchActivity extends Activity {
     private List<String> mItems6 = new ArrayList<>();
     ;
     private ListType listType;
+    private String id, level;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +92,9 @@ public class SearchActivity extends Activity {
         setContentView(R.layout.activity_search_gz);
         ButterKnife.bind(this);
         context = this;
-        getlistType();
+        id = getIntent().getStringExtra("ID");
+        level = getIntent().getStringExtra("LEVEL");
+        getlistType(id, level);
         MyApplication.getActivities().add(this);
     }
 
@@ -151,22 +154,28 @@ public class SearchActivity extends Activity {
                     town = "";
                     int code = GreenDaoManager.queryArea2(name).get(0).getArea_id();
                     mItems2.clear();
-                    if (countyNum == 1) {
-                        county = GreenDaoManager.queryAreaLevel(3).get(0).getName();
-                    } else {
-                        mItems2.add("选择区县");
-                    }
+                    mItems2.add("选择区县");
                     for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(3, code)) {
                         mItems2.add(areaInfo.getName());
                     }
                     adapter2.notifyDataSetChanged();
+                    int code1 = GreenDaoManager.queryArea3(name).get(0).getArea_id();
                     mItems3.clear();
                     mItems3.add("选择乡镇");
+                    for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(4, code1)) {
+                        mItems3.add(areaInfo.getName());
+                    }
                     adapter3.notifyDataSetChanged();
                 } else {
                     city = "";
                     county = "";
                     town = "";
+                    mItems2.clear();
+                    mItems2.add("选择区县");
+                    mItems3.clear();
+                    mItems3.add("选择乡镇");
+                    adapter2.notifyDataSetChanged();
+                    adapter3.notifyDataSetChanged();
                 }
 
             }
@@ -193,6 +202,9 @@ public class SearchActivity extends Activity {
                 } else {
                     county = "";
                     town = "";
+                    mItems3.clear();
+                    mItems3.add("选择乡镇");
+                    adapter3.notifyDataSetChanged();
                 }
             }
 
@@ -270,9 +282,6 @@ public class SearchActivity extends Activity {
                 if (id == -1) {
                     return;
                 }
-//                Intent intent=new Intent("POINT_INFO");
-//                intent.putExtra("ID",id);
-//                sendBroadcast(intent);
             }
         });
         dateShow.setAdapter(rcSearchAdapter);
@@ -284,22 +293,25 @@ public class SearchActivity extends Activity {
                 mDisasterPoints.clear();
                 List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterList(city, county, town, threatLevel, type, inducement, disasterName);
                 Log.d("limeng", "onClick" + disasterPoints.size());
+                if (disasterPoints.size() == 0) {
+                    ToastUtils.showShort(context, "无符合条件数据");
+                }
                 mDisasterPoints.addAll(disasterPoints);
                 rcSearchAdapter.notifyDataSetChanged();
             }
         });
     }
 
-    private void getlistType() {
-        WaitingDialog.createLoadingDialog(context, "");
-        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listType")
+    private void getlistType(String id, String level) {
+        WaitingDialog.createLoadingDialog(context, "正在加载...");
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listType/" + id + "/" + level)
                 .build()
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
                         WaitingDialog.closeDialog();
-
                         Toast.makeText(context, "请求失败", Toast.LENGTH_SHORT).show();
+                        finish();
                     }
 
                     @Override
@@ -310,7 +322,7 @@ public class SearchActivity extends Activity {
                             listType = gson.fromJson(response, ListType.class);
                         } catch (Exception e) {
                             e.printStackTrace();
-                            ToastUtils.showShort(context,"数据请求错误！");
+                            ToastUtils.showShort(context, "数据请求错误！");
                             return;
                         }
                         if (listType.getData() == null) {
@@ -332,13 +344,4 @@ public class SearchActivity extends Activity {
 
     }
 
-    /**
-     * 启动activity
-     *
-     * @param context 启动的activity
-     */
-    public static void startIntent(Context context) {
-        Intent intent = new Intent(context, SearchActivity.class);
-        context.startActivity(intent);
-    }
 }

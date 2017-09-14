@@ -61,6 +61,9 @@ public class GreenDaoManager {
         GreenDaoManager.getInstance().getSession().getDisasterPointDao().deleteAll();
         GreenDaoManager.getInstance().getSession().getAreaInfoDao().deleteAll();
     }
+    public static  void deleteDisaster(){
+        GreenDaoManager.getInstance().getSession().getDisasterPointDao().deleteAll();
+    }
 
 
     /**

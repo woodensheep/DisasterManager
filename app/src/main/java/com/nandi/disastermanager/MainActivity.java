@@ -2,6 +2,7 @@ package com.nandi.disastermanager;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -104,6 +105,7 @@ import com.nandi.disastermanager.adapter.RcPersonAdapter;
 import com.nandi.disastermanager.adapter.RcPhotoAdapter;
 import com.nandi.disastermanager.adapter.RcSearchPersonAdapter;
 import com.nandi.disastermanager.adapter.RcSearchPlaceAdapter;
+import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.entity.DetailBaseInfo;
 import com.nandi.disastermanager.entity.DetailDisCard;
 import com.nandi.disastermanager.entity.DetailHeCard;
@@ -139,6 +141,7 @@ import com.nandi.disastermanager.entity.personLocationInfo;
 import com.nandi.disastermanager.http.EquipmentOkhttp;
 import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.SearchActivity;
+import com.nandi.disastermanager.search.entity.DisasterData;
 import com.nandi.disastermanager.ui.CircleBar;
 import com.nandi.disastermanager.ui.MyRadioGroup;
 import com.nandi.disastermanager.ui.WaitingDialog;
@@ -151,6 +154,7 @@ import com.nandi.disastermanager.videocall.helloanychat.VideoCallActivity;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.Callback;
 import com.zhy.http.okhttp.callback.StringCallback;
+import com.zhy.http.okhttp.request.RequestCall;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -287,8 +291,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @BindView(R.id.iv_location)
     ImageView ivLocation;
-    @BindView(R.id.btn_util_detail)
-    Button btnUtilDetail;
     @BindView(R.id.tv_scale)
     TextView tvScale;
     @BindView(R.id.ll_qxsy)
@@ -479,15 +481,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     });
     private MyBroadcastReceiver receiver;
     public CloudPushService cloudPushService;
+    private String id;
+    private String level;
+    private boolean downloadSuccess = false;
+    private boolean qxsy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        MyApplication.getActivities().add(this);
         context = this;
         areaCode = "500110";
-//        checkUpdate();
+        checkUpdate();
+        id = getIntent().getIntExtra("ID", 0) + "";
+        level = getIntent().getIntExtra("LEVEL", 0) + "";
         uploadLocation();
         setAnimator();
         bindAccount();
@@ -565,24 +574,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mClearButton.setClickable(false);
         mClearButton.setEnabled(false);
         setListeners();
-        setlogin("", "");
+        initStaData();
+        loginDisaster(id, level);
     }
 
     private void checkUpdate() {
-        OkHttpUtils.get().url("")//// TODO: 2017/9/13
-                .addParams("versionNumber", getVerCode(this))
+        OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")//// TODO: 2017/9/13
+                .addParams("version", getVerCode(this))
                 .build()
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        ToastUtils.showShort(context, "网络故障，请检查网路！");
+
                     }
 
                     @Override
                     public void onResponse(String response, int id) {
-                        Log.d(TAG, "返回的数据：" + response);
+                        Log.d(TAG, "是否有更新：" + response);
                         try {
                             JSONObject object = new JSONObject(response);
+                            String aStatic = object.optString("static");
+                            if ("1".equals(aStatic)) {
+                                showNoticeDialog();
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -601,10 +615,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(DialogInterface dialog, int which) {
                 Intent service = new Intent(MainActivity.this, UpdataService.class);
                 startService(service);
-//                Intent intent = new Intent(MainActivity.this,SettingsActivity.class);
-//                intent.putExtra("settings_type","8");
-//                intent.putExtra("settings", "系统信息");
-//                startActivity(intent);
                 dialog.dismiss();
 
             }
@@ -903,7 +913,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         llEnlarge.setOnClickListener(this);
         llNarrow.setOnClickListener(this);
         llCompass.setOnClickListener(this);
-        btnUtilDetail.setOnClickListener(this);
         ivLocation.setOnClickListener(this);
         ivSearchMain.setOnClickListener(this);
         btnUtil.setOnClickListener(this);
@@ -1051,9 +1060,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
                 if (!mPolylineButton.isSelected() && !mPolygonButton.isSelected() && !mPointButton.isSelected()) {
 
-                    ListenableFuture<Point> pointListenableFuture = sceneView.screenToLocationAsync(screenPoint);
-                    if (layers.contains(xingZhengLayer)) {
-                        try {
+                    try {
+                        ListenableFuture<Point> pointListenableFuture = sceneView.screenToLocationAsync(screenPoint);
+                        if (layers.contains(xingZhengLayer)) {
                             Point point = pointListenableFuture.get();
                             QueryParameters query = new QueryParameters();
                             query.setGeometry(point);
@@ -1071,9 +1080,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         .setView(view)
                                         .show();
                             }
-                        } catch (InterruptedException | ExecutionException e1) {
-                            e1.printStackTrace();
                         }
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
                     }
                     final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic1 = sceneView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 10.0, false, 2);
                     final ListenableFuture<IdentifyGraphicsOverlayResult> personIdentifyGraphic = sceneView.identifyGraphicsOverlayAsync(personGraphicsOverlay, screenPoint, 10.0, false, 2);
@@ -1290,7 +1299,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (!layers.contains(gzDianZhiLayer)) {
                         layers.add(gzDianZhiLayer);
 //                    elevationSources.add(gzElevationSource);
-                        Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+                        Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
                         sceneView.setViewpointCamera(camera);
                     }
                 }
@@ -1390,8 +1399,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                tvLon.setText(dataBean.getLon() + "");
 //                tvLat.setText(dataBean.getLat() + "");
 //                tvTime.setText(dataBean.getTime());
-        tvName.setText("张建伦");
-        tvMobile.setText("15730386281");
+        tvName.setText("姚鑫");
+        tvMobile.setText("13350348410");
         tvLat.setText("26.78348");
         tvLon.setText("103.96987");
         tvTime.setText("2017-9-12 10:16:44");
@@ -1399,7 +1408,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, VideoCallActivity.class);
-                intent.putExtra("PHONE_NUMBER", "15730386281");
+                intent.putExtra("PHONE_NUMBER", "13350348410");
                 startActivity(intent);
             }
         });
@@ -1988,35 +1997,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * 伪登录
-     *
-     * @param str1
-     * @param str2
-     */
-    private void setlogin(String str1, String str2) {
-        Log.d("limeng", "请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.login))
-                .build()
-                .execute(new Callback() {
-                    @Override
-                    public Object parseNetworkResponse(Response response, int id) throws Exception {
-                        Log.d("limeng", "response.headers()_" + response.headers());
-                        return null;
-                    }
-
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-
-                    }
-
-                    @Override
-                    public void onResponse(Object response, int id) {
-                        initStaData();
-                    }
-                });
-    }
-
-    /**
      * type不同的详细信息
      *
      * @param id
@@ -2531,18 +2511,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.ll_narrow:
                 setNarrow();
                 break;
-            case R.id.btn_util_detail:
+//            case R.id.btn_util_detail:
 //                setOkhttpKuangxuan(detailhttp, detailarea);
-                break;
+//                break;
             case R.id.iv_location:
                 if (!layers.contains(gzDianZhiLayer)) {
                     layers.clear();
                     elevationSources.clear();
                     layers.add(gzDianZhiLayer);
-                    Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+                    Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
                     sceneView.setViewpointCameraAsync(camera, 2);
                 }
-                testLocation();
+                if (personLocationGraphics.size() == 0) {
+
+                    testLocation();
+                } else {
+                    personLocationGraphics.clear();
+                }
 //                if (personLocationGraphics.size() > 0) {
 //                    personLocationGraphics.clear();
 //                } else {
@@ -2560,10 +2545,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     layers.clear();
                     elevationSources.clear();
                     layers.add(gzDianZhiLayer);
-                    Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+                    Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
                     sceneView.setViewpointCameraAsync(camera, 2);
                 }
-                SearchActivity.startIntent(context);
+                List<com.nandi.disastermanager.search.entity.DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
+
+                if (disasterPoints.size() == 0) {
+                    if (downloadSuccess) {
+                        ToastUtils.showShort(context, "正在加载请稍候...");
+                    } else {
+                        loginDisaster(id, level);
+                        ToastUtils.showShort(context, "重新加载数据");
+                    }
+                } else {
+                    Intent intent = new Intent(context, SearchActivity.class);
+                    intent.putExtra("ID", id);
+                    intent.putExtra("LEVEL", level);
+                    startActivity(intent);
+                }
                 break;
             case R.id.ll_compass:
                 resetPosition();
@@ -2578,43 +2577,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreStateBefore = llMoreState;
                 llMoreState = 1;
                 setRainfallMore();
-                setDisasterLegend(R.layout.activity_rainfall_legend, 1);
-                if (!layers.contains(gzXingZhengLayer)) {
+//                setDisasterLegend(R.layout.activity_rainfall_legend, 1);
+                if (rgRainfall.getVisibility()==View.VISIBLE) {
                     layers.clear();
                     elevationSources.clear();
                     layers.add(gzXingZhengLayer);
                     Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
                     sceneView.setViewpointCameraAsync(camera, 2);
+                }else {
+                    layers.clear();
+                    elevationSources.clear();
                 }
                 break;
             case R.id.ll_dangerpoint:
                 llMoreStateBefore = llMoreState;
                 llMoreState = 2;
                 setRainfallMore();
-//                setDisasterLegend(R.layout.activity_disaster_legend, 2);
-//                if (llMoreStateBefore != 2) {
-//                    layers.clear();
-//                    elevationSources.clear();
-//                    layers.add(highImageLayer);
-//                    layers.add(lowImageLayer);
-//                    elevationSources.add(elevationSource);
-//                    Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
-//                    sceneView.setViewpointCamera(camera);
-//                }
+                if (rgDangerpoint.getVisibility()!=View.VISIBLE) {
+                    layers.clear();
+                    elevationSources.clear();
+                }else {
+                    layers.clear();
+                    layers.add(gzYingXiangLayerHigh);
+                    layers.add(gzYingXiangLayer);
+                    elevationSources.add(elevationSource);
+                    Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+                    sceneView.setViewpointCamera(camera);
+                }
                 ToastUtils.showShort(context, "显示隐患点信息");
                 break;
             case R.id.ll_staff:
                 llMoreStateBefore = llMoreState;
                 llMoreState = 3;
                 setRainfallMore();
-                if (view != null) {
-                    rlMain.removeView(view);
-                }
-                if (!layers.contains(gzDianZhiLayer)) {
+                if (rgStaff.getVisibility()!=View.VISIBLE) {
+                    layers.clear();
+                    elevationSources.clear();
+                }else {
                     layers.clear();
                     elevationSources.clear();
                     layers.add(gzDianZhiLayer);
-                    Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+                    Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
                     sceneView.setViewpointCameraAsync(camera, 2);
                 }
                 break;
@@ -2622,9 +2625,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreStateBefore = llMoreState;
                 llMoreState = 4;
                 setRainfallMore();
-                if (view != null) {
-                    rlMain.removeView(view);
-                }
 //                if (llMoreStateBefore != 4) {
 //                    layers.clear();
 //                    elevationSources.clear();
@@ -2639,27 +2639,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 llMoreStateBefore = llMoreState;
                 llMoreState = 5;
                 setRainfallMore();
-                if (view != null) {
-                    rlMain.removeView(view);
-                }
-                if (llMoreStateBefore != 5) {
+                if (qxsy) {
+                    layers.clear();
+                    elevationSources.clear();
+                    qxsy=false;
+                }else {
                     layers.clear();
                     elevationSources.clear();
                     layers.add(gzQxsyLayer);
                     elevationSources.add(new ArcGISTiledElevationSource(getResources().getString(R.string.guizhou_qxsy_gc_url)));
                     Camera camera = new Camera(26.696073, 104.727771, 3000.0, 0, 0, 0.0);
                     sceneView.setViewpointCamera(camera);
+                    qxsy=true;
                 }
                 break;
             case R.id.ll_xingzheng:
                 llMoreStateBefore = llMoreState;
                 llMoreState = 6;
                 setRainfallMore();
-//                addWeather();
-                if (view != null) {
-                    rlMain.removeView(view);
-                }
-                if (!layers.contains(gzXingZhengLayer)) {
+                if (rgXingzheng.getVisibility()!=View.VISIBLE) {
+                    layers.clear();
+                    elevationSources.clear();
+                }else {
                     layers.clear();
                     elevationSources.clear();
                     layers.add(gzXingZhengLayer);
@@ -2673,22 +2674,116 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * 请求所有灾害点
+     */
+    private void loginDisaster(String id, String level) {
+        downloadSuccess = true;
+        GreenDaoManager.deleteDisaster();
+        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
+                .build();
+        build.execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                ToastUtils.showShort(context, "请求失败,点击搜索重新加载");
+                downloadSuccess = false;
+            }
+
+            @Override
+            public void onResponse(final String response, int id) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Gson gson = new Gson();
+                        try {
+                            DisasterData disasterData = gson.fromJson(response, DisasterData.class);
+                            for (DisasterData.DataBean dataBean : disasterData.getData()) {
+                                Log.d("=====", dataBean.toString());
+                                String type = "";
+                                switch (dataBean.getZhzl()) {
+                                    case "01":
+                                        type = "滑坡";
+                                        break;
+                                    case "02":
+                                        type = "地面塌陷";
+                                        break;
+                                    case "03":
+                                        type = "泥石流";
+                                        break;
+                                    case "04":
+                                        break;
+                                    case "05":
+                                        type = "地裂缝";
+                                        break;
+                                    case "06":
+                                        type = "不稳定斜坡";
+                                        break;
+                                    case "07":
+                                        type = "崩塌";
+                                        break;
+                                }
+                                com.nandi.disastermanager.search.entity.DisasterPoint disasterPoint = new com.nandi.disastermanager.search.entity.DisasterPoint(
+                                        null,
+                                        dataBean.getDzbh(),
+                                        dataBean.getJd() + "",
+                                        dataBean.getWd() + "",
+                                        dataBean.getCity(),
+                                        null,
+                                        dataBean.getCounty(),
+                                        dataBean.getTown(),
+                                        "null".equals(dataBean.getXqdj()) ? "" : dataBean.getXqdj() + "",
+                                        type,
+                                        "null".equals(dataBean.getYfys()) ? "" : dataBean.getYfys(),
+                                        "null".equals(dataBean.getDzmc()) ? "" : dataBean.getDzmc());
+                                GreenDaoManager.insertDisasterPoint(disasterPoint);
+                            }
+                            downloadSuccess = false;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ToastUtils.showShort(context, "数据加载完成！");
+                                }
+                            });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+
+            }
+        });
+
+    }
+
     private void testLocation() {
+        final List<PersonLocation> list = getPersonData();
 //        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.person);
         final PictureMarkerSymbol campsiteSymbol = new PictureMarkerSymbol("http://202.98.195.125:8082/gzcmdback/downloadImgOrVideo.do?type=14&path=online/default.png");
-        campsiteSymbol.setHeight(100);
+        campsiteSymbol.setHeight(120);
         campsiteSymbol.setWidth(80);
         campsiteSymbol.loadAsync();
         campsiteSymbol.addDoneLoadingListener(new Runnable() {
             @Override
             public void run() {
-                Point campsitePoint = new Point(103.96987539727556, 26.783489429856587, SpatialReferences.getWgs84());
-                Graphic campsiteGraphic = new Graphic(campsitePoint, campsiteSymbol);
-                personLocationGraphics.add(campsiteGraphic);
-                Camera camara = new Camera(26.783489429856587, 103.96987539727556, 5000, 0, 0, 0.0);
+                for (PersonLocation location : list) {
+                    Point campsitePoint = new Point(Double.parseDouble(location.getLon()), Double.parseDouble(location.getLat()), SpatialReferences.getWgs84());
+                    Graphic campsiteGraphic = new Graphic(campsitePoint, campsiteSymbol);
+                    personLocationGraphics.add(campsiteGraphic);
+                }
+                Camera camara = new Camera(26.74, 103.94, 30000, 0, 0, 0.0);
                 sceneView.setViewpointCameraAsync(camara, 2);
             }
         });
+    }
+
+    private List<PersonLocation> getPersonData() {
+        List<PersonLocation> list = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+
+            PersonLocation l1 = new PersonLocation("26.7" + new Random().nextInt(10), "103.9" + new Random().nextInt(20), i);
+            list.add(l1);
+        }
+        return list;
     }
 
 
@@ -2696,7 +2791,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
         Camera elevate;
         if (layers.contains(gzDianZhiLayer) || layers.contains(gzXingZhengLayer)) {
-            elevate = currentViewpointCamera.elevate(100000);
+            elevate = currentViewpointCamera.elevate(20000);
         } else {
             elevate = currentViewpointCamera.elevate(100);
         }
@@ -2707,7 +2802,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
         Camera elevate;
         if (layers.contains(gzDianZhiLayer) || layers.contains(gzXingZhengLayer)) {
-            elevate = currentViewpointCamera.elevate(-100000);
+            elevate = currentViewpointCamera.elevate(-20000);
         } else {
             elevate = currentViewpointCamera.elevate(-100);
         }
@@ -3043,7 +3138,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             llUtilState = true;
         } else {
             btnUtil.setSelected(false);
-            btnUtilDetail.setVisibility(View.GONE);
             clear();
             tvMeasureResult.setText("");
             llUtil.setVisibility(View.INVISIBLE);
@@ -3329,10 +3423,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Camera camera = new Camera(26.696073, 104.727771, 3000, 0, 0, 0.0);
             sceneView.setViewpointCameraAsync(camera, 2);
         } else if (layers.contains(gzDianZhiLayer)) {
-            Camera camera = new Camera(26.913526, 106.759177, 500000.0, 0, 0, 0.0);
+            Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
             sceneView.setViewpointCameraAsync(camera, 2);
         } else {
-            Camera camera = new Camera(28.769167, 106.910399, 50000.0, 0, 20, 0.0);
+            Camera camera = new Camera(26.713526, 106.759177, 700000.0, 0, 0, 0.0);
             sceneView.setViewpointCameraAsync(camera, 2);
         }
     }
@@ -4346,116 +4440,96 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setRainfallMore() {
         switch (llMoreState) {
             case 1:
-                rgRainfall.setVisibility(View.VISIBLE);
-                rgDangerpoint.setVisibility(View.GONE);
-                rgStaff.setVisibility(View.GONE);
-                rgEquipment.setVisibility(View.GONE);
-//                rgQxsy.setVisibility(View.GONE);
-                rgXingzheng.setVisibility(View.GONE);
+                if (rgRainfall.getVisibility() == View.VISIBLE) {
+                    rgRainfall.setVisibility(View.GONE);
+                    rgDangerpoint.setVisibility(View.GONE);
+                    rgStaff.setVisibility(View.GONE);
+                    rgEquipment.setVisibility(View.GONE);
+                    rgXingzheng.setVisibility(View.GONE);
+                } else {
+                    rgRainfall.setVisibility(View.VISIBLE);
+                    rgDangerpoint.setVisibility(View.GONE);
+                    rgStaff.setVisibility(View.GONE);
+                    rgEquipment.setVisibility(View.GONE);
+                    rgXingzheng.setVisibility(View.GONE);
+                }
                 break;
             case 2:
-                rgRainfall.setVisibility(View.GONE);
-                rgDangerpoint.setVisibility(View.VISIBLE);
-                rgStaff.setVisibility(View.GONE);
-                rgEquipment.setVisibility(View.GONE);
-//                rgQxsy.setVisibility(View.GONE);
-                rgXingzheng.setVisibility(View.GONE);
+                if (rgDangerpoint.getVisibility() == View.VISIBLE) {
+                    rgRainfall.setVisibility(View.GONE);
+                    rgDangerpoint.setVisibility(View.GONE);
+                    rgStaff.setVisibility(View.GONE);
+                    rgEquipment.setVisibility(View.GONE);
+                    rgXingzheng.setVisibility(View.GONE);
+                } else {
+                    rgRainfall.setVisibility(View.GONE);
+                    rgDangerpoint.setVisibility(View.VISIBLE);
+                    rgStaff.setVisibility(View.GONE);
+                    rgEquipment.setVisibility(View.GONE);
+                    rgXingzheng.setVisibility(View.GONE);
+                }
                 break;
             case 3:
-                rgRainfall.setVisibility(View.GONE);
-                rgDangerpoint.setVisibility(View.GONE);
-                rgStaff.setVisibility(View.VISIBLE);
-                rgEquipment.setVisibility(View.GONE);
-//                rgQxsy.setVisibility(View.GONE);
-                rgXingzheng.setVisibility(View.GONE);
+                if (rgStaff.getVisibility() == View.VISIBLE) {
+                    rgRainfall.setVisibility(View.GONE);
+                    rgDangerpoint.setVisibility(View.GONE);
+                    rgStaff.setVisibility(View.GONE);
+                    rgEquipment.setVisibility(View.GONE);
+                    rgXingzheng.setVisibility(View.GONE);
+                } else {
+                    rgRainfall.setVisibility(View.GONE);
+                    rgDangerpoint.setVisibility(View.GONE);
+                    rgStaff.setVisibility(View.VISIBLE);
+                    rgEquipment.setVisibility(View.GONE);
+                    rgXingzheng.setVisibility(View.GONE);
+                }
                 break;
             case 4:
-                rgRainfall.setVisibility(View.GONE);
-                rgDangerpoint.setVisibility(View.GONE);
-                rgStaff.setVisibility(View.GONE);
-                rgEquipment.setVisibility(View.VISIBLE);
-//                rgQxsy.setVisibility(View.GONE);
-                rgXingzheng.setVisibility(View.GONE);
+                if (rgEquipment.getVisibility() == View.VISIBLE) {
+
+                    rgRainfall.setVisibility(View.GONE);
+                    rgDangerpoint.setVisibility(View.GONE);
+                    rgStaff.setVisibility(View.GONE);
+                    rgEquipment.setVisibility(View.GONE);
+                    rgXingzheng.setVisibility(View.GONE);
+                } else {
+                    rgRainfall.setVisibility(View.GONE);
+                    rgDangerpoint.setVisibility(View.GONE);
+                    rgStaff.setVisibility(View.GONE);
+                    rgEquipment.setVisibility(View.VISIBLE);
+                    rgXingzheng.setVisibility(View.GONE);
+                }
                 break;
             case 5:
                 rgRainfall.setVisibility(View.GONE);
                 rgDangerpoint.setVisibility(View.GONE);
                 rgStaff.setVisibility(View.GONE);
                 rgEquipment.setVisibility(View.GONE);
-//                rgQxsy.setVisibility(View.VISIBLE);
                 rgXingzheng.setVisibility(View.GONE);
                 break;
             case 6:
-                rgRainfall.setVisibility(View.GONE);
-                rgDangerpoint.setVisibility(View.GONE);
-                rgStaff.setVisibility(View.GONE);
-                rgEquipment.setVisibility(View.GONE);
-//                rgQxsy.setVisibility(View.GONE);
-                rgXingzheng.setVisibility(View.VISIBLE);
+                if (rgXingzheng.getVisibility() == View.VISIBLE) {
+                    rgRainfall.setVisibility(View.GONE);
+                    rgDangerpoint.setVisibility(View.GONE);
+                    rgStaff.setVisibility(View.GONE);
+                    rgEquipment.setVisibility(View.GONE);
+                    rgXingzheng.setVisibility(View.GONE);
+                } else {
+
+                    rgRainfall.setVisibility(View.GONE);
+                    rgDangerpoint.setVisibility(View.GONE);
+                    rgStaff.setVisibility(View.GONE);
+                    rgEquipment.setVisibility(View.GONE);
+                    rgXingzheng.setVisibility(View.VISIBLE);
+                }
                 break;
         }
-
-
-        if (llMoreState != llMoreStateBefore) {
-            rgRainfall.clearCheck();
-            rgDangerpoint.clearCheck();
-            rgStaff.clearCheck();
-            rgEquipment.clearCheck();
-//            rgQxsy.clearCheck();
-            rgXingzheng.clearCheck();
-            pieChart.setVisibility(View.GONE);
-            Log.d("limeng", "llMoreState:" + llMoreState + "\n" + "llMoreStateBefore:" + llMoreStateBefore);
-            ObjectAnimator animator3 = null;
-            ObjectAnimator animator4 = null;
-            switch (llMoreState) {
-                case 1:
-                    animator3 = ObjectAnimator.ofFloat(ivRainfallMore, "rotation", 0, 90);
-                    break;
-                case 2:
-                    animator3 = ObjectAnimator.ofFloat(ivDangerpointMore, "rotation", 0, 90);
-                    break;
-                case 3:
-                    animator3 = ObjectAnimator.ofFloat(ivStaffMore, "rotation", 0, 90);
-                    break;
-                case 4:
-                    animator3 = ObjectAnimator.ofFloat(ivEquipmentMore, "rotation", 0, 90);
-                    break;
-                case 5:
-                    animator3 = ObjectAnimator.ofFloat(ivQxsy, "rotation", 0, 90);
-                    break;
-                case 6:
-                    animator3 = ObjectAnimator.ofFloat(ivXzMore, "rotation", 0, 90);
-            }
-            if (animator3 != null) {
-                animator3.setDuration(100);
-                animator3.start();
-            }
-            switch (llMoreStateBefore) {
-                case 1:
-                    animator4 = ObjectAnimator.ofFloat(ivRainfallMore, "rotation", 90, 0);
-                    break;
-                case 2:
-                    animator4 = ObjectAnimator.ofFloat(ivDangerpointMore, "rotation", 90, 0);
-                    break;
-                case 3:
-                    animator4 = ObjectAnimator.ofFloat(ivStaffMore, "rotation", 90, 0);
-                    break;
-                case 4:
-                    animator4 = ObjectAnimator.ofFloat(ivEquipmentMore, "rotation", 90, 0);
-                    break;
-                case 5:
-                    animator4 = ObjectAnimator.ofFloat(ivQxsy, "rotation", 90, 0);
-                    break;
-                case 6:
-                    animator4 = ObjectAnimator.ofFloat(ivXzMore, "rotation", 90, 0);
-                    break;
-            }
-            if (animator4 != null) {
-                animator4.setDuration(100);
-                animator4.start();
-            }
-        }
-
+        rgRainfall.clearCheck();
+        rgDangerpoint.clearCheck();
+        rgStaff.clearCheck();
+        rgEquipment.clearCheck();
+        rgXingzheng.clearCheck();
+        pieChart.setVisibility(View.GONE);
     }
 
     private void setAreaBack() {
@@ -4929,7 +5003,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * the listener that the drawing has finished.
      */
     private void finishDrawing() {
-        btnUtilDetail.setVisibility(View.GONE);
         // If current point is null then there is no drawing to finish
         if (mCurrentPoint != null) {
             switch (mDrawingMode) {
@@ -4945,7 +5018,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     break;
                 case POLYGON:
-                    btnUtilDetail.setVisibility(View.VISIBLE);
                     // If we're drawing a polygon, logic is similar to finishing a polyline, but additionally need
                     // to remove the final midpoint
                     if (mGraphics.size() > 0) {
@@ -5126,7 +5198,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         private void setQueryOverlay(double lon, double lat) {
             Log.d(TAG, "经度：" + lon + "纬度：" + lat);
             setGZOverlay(lon, lat);
-            Camera camera = new Camera(lat, lon, 3000, 0, 0, 0.0);
+            Camera camera = new Camera(lat, lon, 5000, 0, 0, 0.0);
             sceneView.setViewpointCameraAsync(camera, 2);
         }
     }
@@ -5175,7 +5247,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        finish();
+                        for (Activity activity : MyApplication.getActivities()) {
+                            if (!activity.isFinishing()) {
+                                activity.finish();
+                            }
+
+                        }
                     }
                 })
                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {

@@ -42,6 +42,7 @@ import com.zhy.http.okhttp.callback.StringCallback;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -211,6 +212,8 @@ public class MonitorDataActivity extends Activity {
                 dataMonitor.setTextColor(Color.WHITE);
                 break;
             case R.id.data_curve:
+                Log.d("cp","开始时间："+getStartTime()+"结束时间："+getTime(new Date()));
+                monitorCurveRequest(ID, getStartTime(), getTime(new Date()));
                 dateShow.setVisibility(View.GONE);
                 llChart.setVisibility(View.VISIBLE);
                 mLineChart.setNoDataText("请选择时间");
@@ -249,10 +252,20 @@ public class MonitorDataActivity extends Activity {
                 if ("".equals(startTime) && "".equals(endTime)) {
                     Toast.makeText(mContext, "请选择时间", Toast.LENGTH_SHORT).show();
                 } else {
+                    Log.d("cp","start:"+startTime+"end:"+endTime);
                     monitorCurveRequest(ID, startTime, endTime);
                 }
                 break;
         }
+    }
+
+    private String getStartTime() {
+        Date date = new Date();//获取当前时间
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.YEAR, -1);//当前时间减去一年，即一年前的时间
+        Date time = calendar.getTime();
+        return getTime(time);
     }
 
     private String getTime(Date date) {//可根据需要自行截取数据显示
