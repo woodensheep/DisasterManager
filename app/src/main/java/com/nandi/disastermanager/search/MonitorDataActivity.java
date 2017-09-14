@@ -6,11 +6,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -71,6 +69,8 @@ public class MonitorDataActivity extends Activity {
     Button btnChart;
     @BindView(chart)
     LineChart mLineChart;
+    @BindView(R.id.monitor_data1)
+    LinearLayout monitorData1;
     private MonitorAdapter monitorAdapter;
     /**
      * 数据
@@ -112,6 +112,7 @@ public class MonitorDataActivity extends Activity {
                         mMonitorData = gson.fromJson(response, MonitorData.class);
                         if (mMonitorData.getMeta().isSuccess()) {
                             if (mMonitorData.getData().getResult().size() == 0) {
+                                Log.i("Monitor", mMonitorData.getData().getResult().size() + "");
                                 ToastUtils.showLong(mContext, "当前监测点没有监测数据");
                                 finish();
                             }
@@ -151,15 +152,15 @@ public class MonitorDataActivity extends Activity {
     }
 
     private void setAdapter() {
-
+        Log.i("Monitor", "setAdapter");
         dateShow.setLayoutManager(new LinearLayoutManager(mContext));
         monitorAdapter = new MonitorAdapter(mContext, mMonitorData);
         monitorAdapter.setOnItemClickListener(new MonitorAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
 //                Intent intent = new Intent(mContext, MonitorPhotoActivity.class);
-                String id = mMonitorData.getData().getResult().get(position - 1).getID();
-                String time = mMonitorData.getData().getResult().get(position - 1).getTime();
+                String id = mMonitorData.getData().getResult().get(position).getID();
+                String time = mMonitorData.getData().getResult().get(position).getTime();
 //                startActivity(intent);
                 downloadPhoto(id, time);
             }
@@ -189,8 +190,8 @@ public class MonitorDataActivity extends Activity {
                                 return;
                             }
                             Log.i("qingsong", response);
-                            Intent intent=new Intent(mContext,MonitorPhotoActivity.class);
-                            intent.putExtra("MONITOR_PHOTO",monitorPhoto);
+                            Intent intent = new Intent(mContext, MonitorPhotoActivity.class);
+                            intent.putExtra("MONITOR_PHOTO", monitorPhoto);
                             startActivity(intent);
                         } else {
                             ToastUtils.showShort(mContext, monitorPhoto.getMeta().getMessage());
@@ -206,15 +207,15 @@ public class MonitorDataActivity extends Activity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.data_monitor:
-                dateShow.setVisibility(View.VISIBLE);
+                monitorData1.setVisibility(View.VISIBLE);
                 llChart.setVisibility(View.GONE);
                 dataCurve.setTextColor(Color.GRAY);
                 dataMonitor.setTextColor(Color.WHITE);
                 break;
             case R.id.data_curve:
-                Log.d("cp","开始时间："+getStartTime()+"结束时间："+getTime(new Date()));
+                Log.d("cp", "开始时间：" + getStartTime() + "结束时间：" + getTime(new Date()));
                 monitorCurveRequest(ID, getStartTime(), getTime(new Date()));
-                dateShow.setVisibility(View.GONE);
+                monitorData1.setVisibility(View.GONE);
                 llChart.setVisibility(View.VISIBLE);
                 mLineChart.setNoDataText("请选择时间");
                 dataCurve.setTextColor(Color.WHITE);
@@ -252,7 +253,7 @@ public class MonitorDataActivity extends Activity {
                 if ("".equals(startTime) && "".equals(endTime)) {
                     Toast.makeText(mContext, "请选择时间", Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.d("cp","start:"+startTime+"end:"+endTime);
+                    Log.d("cp", "start:" + startTime + "end:" + endTime);
                     monitorCurveRequest(ID, startTime, endTime);
                 }
                 break;

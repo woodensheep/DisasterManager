@@ -20,6 +20,7 @@ import static com.nandi.disastermanager.R.id.tv_monitor_9;
 
 /**
  * Created by qingsong on 2017/9/8.
+ * 隐患点信息适配器
  */
 
 public class DetailDataAdapter extends RecyclerView.Adapter<DetailDataAdapter.ViewHolderA>{

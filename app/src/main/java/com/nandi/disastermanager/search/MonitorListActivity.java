@@ -23,7 +23,10 @@ import com.zhy.http.okhttp.callback.StringCallback;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
-
+/**
+ * Created by qingsong on 2017/9/8.
+ * 监测点列表
+ */
 public class MonitorListActivity extends Activity {
     @BindView(R.id.date_show)
     RecyclerView dateShow;
@@ -81,7 +84,7 @@ public class MonitorListActivity extends Activity {
             public void onClick(int position) {
 
                 Intent intent = new Intent(mContext, MonitorDataActivity.class);
-                intent.putExtra("ID", monitorListData.getData().getResult().get(position - 1).getID());
+                intent.putExtra("ID", monitorListData.getData().getResult().get(position).getID());
                 startActivity(intent);
             }
         });

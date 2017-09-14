@@ -16,13 +16,17 @@ import java.util.List;
 
 /**
  * Created by qingsong on 2017/9/8.
+ * 打开导航工具类
  */
 
 public class AMapUtil {
+    /*意图对象*/
     private static Intent intent;
-    public static double pi = 3.1415926535897932384626;
-    public static double a = 6378245.0;
-    public static double ee = 0.00669342162296594323;
+    /**
+     *  获取手机所有APP包名
+     * @param context
+     * @return
+     */
     public static String getAllApp(Context context) {
         String packageName = "";
         PackageManager pm = context.getPackageManager();

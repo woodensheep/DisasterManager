@@ -45,21 +45,13 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
 
     @Override
     public void onBindViewHolder(MonitorListAdapter.ViewHolderA holder, final int position) {
-        if(position==0){
-            holder.tv_1.setText("监测点编号");
-            holder.tv_2.setText("监测点名称");
-            holder.tv_4.setBackground(null);
-            holder.tv_4.setText(" ");
-            holder.tv_4.setEnabled(false);
-            holder.view_line.setVisibility(View.VISIBLE);
-        }else{
-            holder.tv_1.setText(mMonitorListData.getData().getResult().get(position-1).getID());
-            holder.tv_2.setText(mMonitorListData.getData().getResult().get(position-1).getNAME());
+
+            holder.tv_1.setText(mMonitorListData.getData().getResult().get(position).getID());
+            holder.tv_2.setText(mMonitorListData.getData().getResult().get(position).getNAME());
             holder.tv_4.setText("查看详情");
             holder.tv_4.setEnabled(true);
             holder.tv_4.setTag(position);
 
-        }
         if (mOnItemClickListener != null) {
             holder.tv_4.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -73,7 +65,7 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
     @Override
     public int getItemCount() {
         //生成的item的数量
-        return mMonitorListData.getData().getResult().size()+1;
+        return mMonitorListData.getData().getResult().size();
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定

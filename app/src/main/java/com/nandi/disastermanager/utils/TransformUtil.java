@@ -2,15 +2,16 @@ package com.nandi.disastermanager.utils;
 
 /**
  * Created by qingsong on 2017/9/12.
+ * 坐标系转换工具类
  */
 
 public class TransformUtil {
     static double x_pi = 3.14159265358979324 * 3000.0 / 180.0;
-    // π
+     /*π*/
     static double pi = 3.1415926535897932384626;
-    // 长半轴
+    /* 长半轴*/
     static double a = 6378245.0;
-    // 扁率
+    /* 扁率*/
     static double ee = 0.00669342162296594323;
 
     /**

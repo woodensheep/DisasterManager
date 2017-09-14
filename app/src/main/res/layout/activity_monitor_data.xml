@@ -37,13 +37,120 @@
         android:background="@color/colorPrimary"
         />
 </LinearLayout>
+    <LinearLayout
+        android:background="@color/white"
+        android:id="@+id/monitor_data1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:layout_margin="3dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_margin="3dp"
+        android:orientation="horizontal">
 
+        <TextView
+            android:id="@+id/tv_monitor_1"
+            android:layout_weight="4"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:text="监测点编号" />
+
+        <View
+            android:layout_width="1dp"
+            android:background="@color/button_color_gz_gray"
+            android:layout_height="45dp"/>
+
+        <TextView
+            android:textColor="@color/button_color_gz_dark"
+            android:layout_weight="2.5"
+            android:id="@+id/tv_monitor_2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:text="监测点名称" />
+
+        <View
+            android:layout_width="1dp"
+            android:background="@color/button_color_gz_gray"
+            android:layout_height="45dp"/>
+
+        <TextView
+            android:textColor="@color/button_color_gz_dark"
+            android:layout_weight="2.5"
+            android:id="@+id/tv_monitor_3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:text="监测时间" />
+        <View
+            android:layout_width="1dp"
+            android:background="@color/button_color_gz_gray"
+            android:layout_height="45dp"/>
+        <TextView
+            android:id="@+id/tv_monitor_5"
+            android:layout_weight="2.5"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:text="实测数据" />
+
+
+        <View
+            android:layout_width="1dp"
+            android:background="@color/button_color_gz_gray"
+            android:layout_height="45dp"/>
+
+        <TextView
+            android:textColor="@color/button_color_gz_dark"
+            android:layout_weight="2.5"
+            android:id="@+id/tv_monitor_8"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:layout_marginRight="10dp"
+            android:text="查看图片" />
+
+
+        <TextView
+            android:textColor="@color/button_color_gz_dark"
+            android:layout_weight="2.5"
+            android:id="@+id/tv_monitor_9"
+            android:layout_marginLeft="10dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:text="查看上报" />
+    </LinearLayout>
+        <View
+            android:id="@+id/view_line"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_width="match_parent"
+            android:background="@color/button_color_gz_dark"
+            android:layout_height="1dp"/>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/date_show"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
     </android.support.v7.widget.RecyclerView>
-
+    </LinearLayout>
     <LinearLayout
         android:visibility="gone"
         android:background="@color/white"

@@ -27,11 +27,15 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
-
+/**
+ * Created by qingsong on 2017/9/8.
+ * 隐患点详细信息页面
+ */
 public class DetailDataActivity extends Activity {
 
     @BindView(R.id.date_show)
     RecyclerView dateShow;
+    /*适配器*/
     private DetailDataAdapter detailAdapter;
     /**
      * 数据
@@ -54,6 +58,10 @@ public class DetailDataActivity extends Activity {
         monitorListRequest(disasterPoint.getDisasterCode());
     }
 
+    /**
+     * 网络请求隐患点信息
+     * @param code
+     */
     private void monitorListRequest(String code) {
         WaitingDialog.createLoadingDialog(mContext,"正在加载...");
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/disaterpoint/findByDisaterCode/" + code)
@@ -81,6 +89,9 @@ public class DetailDataActivity extends Activity {
 
     }
 
+    /**
+     * 加入信息
+     */
     private void addArray() {
         array = new String[18];
         array[0] = mDetailData.getData().get(0).getName();

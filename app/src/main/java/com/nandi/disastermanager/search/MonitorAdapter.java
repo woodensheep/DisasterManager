@@ -48,29 +48,14 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(MonitorAdapter.ViewHolderA holder, final int position) {
-        if (position == 0) {
-            holder.tv_1.setText("监测点编号");
-            holder.tv_2.setText("监测点名称");
-            holder.tv_3.setText("监测时间");
-            holder.tv_5.setText("实测数据");
-            holder.tv_8.setText("查看图片");
-            holder.tv_9.setText("查看上报");
-            holder.tv_8.setBackground(null);
-            holder.tv_9.setBackground(null);
-            holder.tv_8.setEnabled(false);
-            holder.tv_9.setEnabled(false);
-            holder.view_lin.setVisibility(View.VISIBLE);
-        } else {
-            holder.tv_1.setText(mMonitorData.getData().getResult().get(position - 1).getID());
-            holder.tv_2.setText(mMonitorData.getData().getResult().get(position - 1).getNAME());
-            holder.tv_3.setText(mMonitorData.getData().getResult().get(position - 1).getTime());
-            holder.tv_5.setText(mMonitorData.getData().getResult().get(position - 1).getMONITORDATA() + "");
+            holder.tv_1.setText(mMonitorData.getData().getResult().get(position).getID());
+            holder.tv_2.setText(mMonitorData.getData().getResult().get(position).getNAME());
+            holder.tv_3.setText(mMonitorData.getData().getResult().get(position).getTime());
+            holder.tv_5.setText(mMonitorData.getData().getResult().get(position).getMONITORDATA() + "");
             holder.tv_8.setText("查看图片");
             holder.tv_9.setText("查看");
-            holder.tv_8.setEnabled(true);
-            holder.tv_9.setEnabled(true);
             holder.tv_9.setTag(position);
-        }
+
         if (mOnItemClickListener != null) {
             holder.tv_8.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -84,7 +69,7 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
     @Override
     public int getItemCount() {
         //生成的item的数量
-        return mMonitorData.getData().getResult().size() + 1;
+        return mMonitorData.getData().getResult().size();
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定
