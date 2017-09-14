@@ -26,10 +26,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 
-import okhttp3.Call;
-
-import static com.nandi.disastermanager.R.id.tv_monitor_8;
-import static com.nandi.disastermanager.R.id.tv_monitor_9;
 
 
 /**

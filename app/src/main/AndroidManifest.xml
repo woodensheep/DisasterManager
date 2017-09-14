@@ -41,10 +41,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        作者：于连林520wcf
-        链接：http://www.jianshu.com/p/577816c3ce93
-        來源：简书
-        著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="landscape">
@@ -85,7 +81,7 @@
             android:name=".search.SearchActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden"
-            android:theme="@style/TipDialog" />
+            android:theme="@style/TipDialog1" />
         <activity
             android:name=".search.DetailDataActivity"
             android:screenOrientation="landscape"

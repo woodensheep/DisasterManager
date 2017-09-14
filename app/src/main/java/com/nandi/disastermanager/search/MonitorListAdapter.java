@@ -15,9 +15,7 @@ import com.nandi.disastermanager.search.entity.MonitorListData;
 
 import java.util.List;
 
-import static com.nandi.disastermanager.R.id.tv_monitor_4;
-import static com.nandi.disastermanager.R.id.tv_monitor_8;
-import static com.nandi.disastermanager.R.id.tv_monitor_9;
+
 
 /**
  * Created by qingsong on 2017/9/8.
