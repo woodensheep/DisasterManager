@@ -27,44 +27,30 @@
         android:id="@+id/ll_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_area">
+        android:layout_below="@+id/ll_area"
+        android:visibility="gone">
 
         <include layout="@layout/activity_data_manage" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_control"
-        android:layout_width="80dp"
+        android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_above="@+id/map_control"
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"
-        android:background="@drawable/icon_background"
         android:layout_marginTop="5dp"
-      >
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/icon_background">
 
         <ImageView
             android:id="@+id/iv_search_main"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:layout_margin="5dp"
+            android:layout_weight="1"
             android:background="@drawable/search_bar_selector" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_height="match_parent"
-            android:background="@color/button_color_dark" />
-
-        <ImageView
-            android:id="@+id/iv_location"
-            android:layout_width="0dp"
-            android:layout_margin="5dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/location_bar_selector" />
-
     </LinearLayout>
 
     <Button
@@ -72,7 +58,6 @@
         android:layout_width="80dp"
         android:layout_height="40dp"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/ll_control"
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/util_selector" />
@@ -93,7 +78,8 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:background="@drawable/point_selector"
-            android:onClick="pointClick" />
+            android:onClick="pointClick"
+            android:visibility="gone" />
 
         <ImageButton
             android:id="@+id/polylineButton"
@@ -135,19 +121,19 @@
         android:id="@+id/btn_util_detail"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:layout_toLeftOf="@+id/btn_util"
         android:layout_alignTop="@+id/btn_util"
+        android:layout_toLeftOf="@+id/btn_util"
         android:text="显示详情"
-        android:visibility="invisible" />
+        android:visibility="gone" />
 
 
     <TextView
         android:id="@+id/tv_measure_result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/color_title"
-        android:layout_toLeftOf="@+id/ll_control"
         android:layout_margin="10dp"
+        android:layout_toLeftOf="@+id/ll_util"
+        android:textColor="@color/color_title"
         android:textSize="20sp" />
 
 
@@ -164,20 +150,19 @@
         android:id="@+id/map_control"
         android:layout_width="40dp"
         android:layout_height="100dp"
-        android:layout_marginRight="10dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:background="@drawable/icon_background"
         android:layout_marginBottom="30dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/icon_background"
         android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/ll_enlarge"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_weight="1"
             android:layout_margin="5dp"
-            >
+            android:layout_weight="1">
 
             <ImageView
                 android:id="@+id/imageView"
@@ -197,8 +182,8 @@
             android:id="@+id/ll_compass"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_weight="1"
             android:layout_margin="5dp"
+            android:layout_weight="1"
             android:orientation="horizontal">
 
             <ImageView
@@ -219,8 +204,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            >
+            android:layout_weight="1">
 
             <ImageView
                 android:id="@+id/imageView2"
@@ -234,9 +218,9 @@
         android:id="@+id/tv_scale"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="50dp"
         android:layout_marginLeft="10dp"
         android:textColor="@color/color_title"
-        android:layout_alignParentBottom="true"
         android:textSize="20sp" />
 </RelativeLayout>

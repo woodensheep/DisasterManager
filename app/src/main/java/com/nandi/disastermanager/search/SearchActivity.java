@@ -106,7 +106,6 @@ public class SearchActivity extends Activity {
         mItems5 = getResources().getStringArray(R.array.search_type_5);
         cityNum = GreenDaoManager.queryAreaLevel(2).size();
         countyNum = GreenDaoManager.queryAreaLevel(3).size();
-        GreenDaoManager.queryAreaLevel(2).size();
         if (cityNum == 1) {
             city = GreenDaoManager.queryAreaLevel(2).get(0).getName();
         } else {
@@ -126,6 +125,7 @@ public class SearchActivity extends Activity {
         }
         mItems3.add("选择乡镇");
         // 建立Adapter并且绑定数据源
+        Log.d("cp1", mItems1.toString() + "/" + mItems2.toString() + "/" + mItems3.toString());
         final ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems1);
         final ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems2);
         final ArrayAdapter<String> adapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems3);
@@ -145,6 +145,7 @@ public class SearchActivity extends Activity {
         sp4.setAdapter(adapter4);
         sp5.setAdapter(adapter5);
         sp6.setAdapter(adapter6);
+        Log.d("cp2", mItems1.toString() + "/" + mItems2.toString() + "/" + mItems3.toString());
         sp1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -156,16 +157,16 @@ public class SearchActivity extends Activity {
                     int code = GreenDaoManager.queryArea2(name).get(0).getArea_id();
                     mItems2.clear();
                     mItems2.add("选择区县");
+                    if (countyNum==1){
+                        mItems2.remove("选择区县");
+                    }
                     for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(3, code)) {
                         mItems2.add(areaInfo.getName());
                     }
                     adapter2.notifyDataSetChanged();
-                    int code1 = GreenDaoManager.queryArea3(name).get(0).getArea_id();
+                    sp2.setSelection(0);
                     mItems3.clear();
                     mItems3.add("选择乡镇");
-                    for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(4, code1)) {
-                        mItems3.add(areaInfo.getName());
-                    }
                     adapter3.notifyDataSetChanged();
                 } else {
                     city = "";
@@ -199,7 +200,7 @@ public class SearchActivity extends Activity {
                         mItems3.add(areaInfo.getName());
                     }
                     adapter3.notifyDataSetChanged();
-
+                    sp3.setSelection(0);
                 } else {
                     county = "";
                     town = "";

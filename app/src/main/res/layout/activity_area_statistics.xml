@@ -55,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="2012年详查隐患点总数："
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -63,7 +63,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
 
@@ -79,7 +79,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="现有隐患点台帐总数："
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -87,7 +87,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
 
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
@@ -104,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="专业监测点总数："
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -113,7 +113,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
 
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
@@ -130,7 +130,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="自动化监测站总数："
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -139,7 +139,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
 
@@ -155,7 +155,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="群测群防人总数："
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -164,7 +164,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
 
@@ -180,7 +180,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="片区负责人总数："
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -190,7 +190,7 @@
                     android:layout_weight="1"
                     android:gravity="left|center"
                     android:text="@string/ceshi"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
 
@@ -207,7 +207,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="驻守人员总数："
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -216,7 +216,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
             <LinearLayout
@@ -232,7 +232,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="地环站人总数："
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -241,7 +241,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
 

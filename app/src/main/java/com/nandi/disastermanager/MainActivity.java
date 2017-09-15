@@ -289,8 +289,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @BindView(R.id.btn_util)
     Button btnUtil;
 
-    @BindView(R.id.iv_location)
-    ImageView ivLocation;
+//    @BindView(R.id.iv_location)
+//    ImageView ivLocation;
     @BindView(R.id.tv_scale)
     TextView tvScale;
     @BindView(R.id.ll_qxsy)
@@ -565,7 +565,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         graphicsOverlays.add(searchPersonGraphicOverlay);
         graphicsOverlays.add(gzPointGraphicOverlay);
         elevationSources = scene.getBaseSurface().getElevationSources();
-        scene.setBasemap(Basemap.createImagery());
+        scene.setBasemap(new Basemap(new ArcGISMapImageLayer("http://183.230.182.149:6080/arcgis/rest/services/diqiu/MapServer")));
         sceneView.setScene(scene);
         mUndoButton.setClickable(false);
         mUndoButton.setEnabled(false);
@@ -913,7 +913,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         llEnlarge.setOnClickListener(this);
         llNarrow.setOnClickListener(this);
         llCompass.setOnClickListener(this);
-        ivLocation.setOnClickListener(this);
+//        ivLocation.setOnClickListener(this);
         ivSearchMain.setOnClickListener(this);
         btnUtil.setOnClickListener(this);
         llXingzheng.setOnClickListener(this);
@@ -2512,34 +2512,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setNarrow();
                 break;
 //            case R.id.btn_util_detail:
-//                setOkhttpKuangxuan(detailhttp, detailarea);
+//                setOkhttpKuangxuan(detail http, detailarea);
 //                break;
-            case R.id.iv_location:
-                if (!layers.contains(gzDianZhiLayer)) {
-                    layers.clear();
-                    elevationSources.clear();
-                    layers.add(gzDianZhiLayer);
-                    Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
-                    sceneView.setViewpointCameraAsync(camera, 2);
-                }
-                if (personLocationGraphics.size() == 0) {
-
-                    testLocation();
-                } else {
-                    personLocationGraphics.clear();
-                }
-//                if (personLocationGraphics.size() > 0) {
-//                    personLocationGraphics.clear();
-//                } else {
-//                    personLocation();
-//                    if (!layers.contains(chongqingLayer)) {
-//                        layers.clear();
-//                        elevationSources.clear();
-//                        layers.add(chongqingLayer);
-//                        clearAllGraphics();
-//                    }
+//            case R.id.iv_location:
+//                if (!layers.contains(gzDianZhiLayer)) {
+//                    layers.clear();
+//                    elevationSources.clear();
+//                    layers.add(gzDianZhiLayer);
+//                    Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
+//                    sceneView.setViewpointCameraAsync(camera, 2);
 //                }
-                break;
+//                if (personLocationGraphics.size() == 0) {
+//
+//                    testLocation();
+//                } else {
+//                    personLocationGraphics.clear();
+//                }
+////                if (personLocationGraphics.size() > 0) {
+////                    personLocationGraphics.clear();
+////                } else {
+////                    personLocation();
+////                    if (!layers.contains(chongqingLayer)) {
+////                        layers.clear();
+////                        elevationSources.clear();
+////                        layers.add(chongqingLayer);
+////                        clearAllGraphics();
+////                    }
+////                }
+//                break;
             case R.id.iv_search_main:
                 if (!layers.contains(gzDianZhiLayer)) {
                     layers.clear();
@@ -2698,7 +2698,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         try {
                             DisasterData disasterData = gson.fromJson(response, DisasterData.class);
                             for (DisasterData.DataBean dataBean : disasterData.getData()) {
-                                Log.d("=====", dataBean.toString());
                                 String type = "";
                                 switch (dataBean.getZhzl()) {
                                     case "01":

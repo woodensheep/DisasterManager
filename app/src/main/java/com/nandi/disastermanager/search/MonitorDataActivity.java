@@ -182,6 +182,7 @@ public class MonitorDataActivity extends Activity {
 
                     @Override
                     public void onResponse(String response, int id) {
+                            Log.i("qingsong", response);
                         Gson gson = new Gson();
                         monitorPhoto = gson.fromJson(response, MonitorPhoto.class);
                         if (monitorPhoto.getMeta().isSuccess()) {
@@ -189,7 +190,6 @@ public class MonitorDataActivity extends Activity {
                                 ToastUtils.showLong(mContext, "当前监测点没有图片");
                                 return;
                             }
-                            Log.i("qingsong", response);
                             Intent intent = new Intent(mContext, MonitorPhotoActivity.class);
                             intent.putExtra("MONITOR_PHOTO", monitorPhoto);
                             startActivity(intent);
@@ -281,14 +281,14 @@ public class MonitorDataActivity extends Activity {
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
         for (List<Float> lists : chartData.getData().getMONITORDATA()) {
             Log.d("limeng", lists.get(0) + "-" + lists.get(1));
-            Entry pointEntry = new Entry(lists.get(0), lists.get(1));
+            Entry pointEntry = new Entry(lists.get(0)/1000, lists.get(1));
             values.add(pointEntry);
         }
         LineDataSet set1;
         set1 = new LineDataSet(values, "监测数据(mm)");
         set1.setCircleColor(Color.GREEN);
         set1.setLineWidth(2f);
-        set1.setDrawCircles(false);
+        set1.setDrawCircles(true);
         set1.setColor(Color.GREEN);
         set1.setDrawCircleHole(false);
         set1.setValueTextSize(9f);
@@ -323,11 +323,12 @@ public class MonitorDataActivity extends Activity {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);//设置x轴的显示位置
         xAxis.setAvoidFirstLastClipping(true);//图表将避免第一个和最后一个标签条目被减掉在图表或屏幕的边缘
         //设置x轴显示标签数量  还有一个重载方法第二个参数为布尔值强制设置数量 如果启用会导致绘制点出现偏差
-        xAxis.setLabelCount(10);
+        //xAxis.setLabelCount(10);
+
         xAxis.setTextColor(Color.BLACK);//设置轴标签的颜色
         xAxis.setTextSize(16f);//设置轴标签的大小
         xAxis.setAxisLineWidth(3f);//设置x轴线宽度
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd");
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
         final Date date = new Date();
         //设置x轴标签格式化显示数据
         xAxis.setValueFormatter(new IAxisValueFormatter() {
@@ -335,6 +336,7 @@ public class MonitorDataActivity extends Activity {
             public String getFormattedValue(float value, AxisBase axis) {
                 date.setTime(Long.parseLong(new BigDecimal(value).toPlainString()));
                 String s = simpleDateFormat.format(date);
+                Log.d("limeng",Long.parseLong(new BigDecimal(value).toPlainString())+"-"+s);
                 return s;
             }
         });
@@ -343,7 +345,7 @@ public class MonitorDataActivity extends Activity {
         leftAxis.setDrawAxisLine(true);
         leftAxis.setDrawLabels(true);
         leftAxis.setTextColor(Color.BLACK);//设置轴标签的颜色
-        leftAxis.setTextSize(18f);//设置轴标签的大小
+        leftAxis.setTextSize(13f);//设置轴标签的大小
         leftAxis.setAxisLineWidth(3f);//设置x轴线宽度
         leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
         leftAxis.setDrawZeroLine(false);
