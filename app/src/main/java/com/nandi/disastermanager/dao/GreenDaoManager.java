@@ -57,8 +57,7 @@ public class GreenDaoManager {
     /**
      * 关闭数据连接
      */
-    public static  void deleteAll() {
-        GreenDaoManager.getInstance().getSession().getDisasterPointDao().deleteAll();
+    public static  void deleteArea() {
         GreenDaoManager.getInstance().getSession().getAreaInfoDao().deleteAll();
     }
     public static  void deleteDisaster(){

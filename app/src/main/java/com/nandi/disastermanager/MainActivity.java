@@ -156,6 +156,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView tvScale;
     @BindView(R.id.rl_main)
     RelativeLayout rlMain;
+    @BindView(R.id.iv_change_map)
+    Button ivChangeMap;
 
     private boolean llAreaState = true;
     private boolean llUtilState = false;
@@ -199,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SimpleLineSymbol mPolylinePlacedSymbol;
     private SimpleMarkerSymbol mPolylineMidpointSymbol;
     private SimpleFillSymbol mPolygonFillSymbol;
+    private int baseMap = 0;//0代表电子地图，1代表影像图
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -550,6 +553,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setListeners() {
+        ivChangeMap.setOnClickListener(this);
         llEnlarge.setOnClickListener(this);
         llNarrow.setOnClickListener(this);
         llCompass.setOnClickListener(this);
@@ -836,6 +840,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.iv_change_map:
+                changeBaseMap();
+                break;
             case R.id.ll_enlarge:
                 setEnlarge();
                 break;
@@ -875,6 +882,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_util:
                 setUtilBack();
                 break;
+        }
+    }
+
+    private void changeBaseMap() {
+        if (baseMap == 0) {
+            layers.clear();
+            layers.add(gzYingXiangLayerHigh);
+            layers.add(gzYingXiangLayer);
+            elevationSources.add(gzElevationSource);
+            Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
+            sceneView.setViewpointCameraAsync(camera, 1);
+            baseMap = 1;
+            ivChangeMap.setSelected(true);
+        } else if (baseMap == 1) {
+            layers.clear();
+            elevationSources.clear();
+            layers.add(gzDianZhiLayer);
+            Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
+            sceneView.setViewpointCameraAsync(camera, 1);
+            baseMap = 0;
+            ivChangeMap.setSelected(false);
         }
     }
 
@@ -981,23 +1009,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setNarrow() {
         Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
-        Camera elevate;
-        if (layers.contains(gzDianZhiLayer) || layers.contains(gzXingZhengLayer)) {
-            elevate = currentViewpointCamera.elevate(20000);
-        } else {
-            elevate = currentViewpointCamera.elevate(100);
-        }
+        Camera elevate = currentViewpointCamera.elevate(20000);
         sceneView.setViewpointCameraAsync(elevate, 1);
     }
 
     private void setEnlarge() {
         Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
-        Camera elevate;
-        if (layers.contains(gzDianZhiLayer) || layers.contains(gzXingZhengLayer)) {
-            elevate = currentViewpointCamera.elevate(-20000);
-        } else {
-            elevate = currentViewpointCamera.elevate(-100);
-        }
+        Camera elevate = currentViewpointCamera.elevate(-20000);
         sceneView.setViewpointCameraAsync(elevate, 1);
     }
 
@@ -1018,16 +1036,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void resetPosition() {
-        if (layers.contains(gzQxsyLayer)) {
-            Camera camera = new Camera(26.696073, 104.727771, 3000, 0, 0, 0.0);
-            sceneView.setViewpointCameraAsync(camera, 2);
-        } else if (layers.contains(gzDianZhiLayer)) {
-            Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
-            sceneView.setViewpointCameraAsync(camera, 2);
-        } else {
-            Camera camera = new Camera(26.713526, 106.759177, 700000.0, 0, 0, 0.0);
-            sceneView.setViewpointCameraAsync(camera, 2);
-        }
+        Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
+        sceneView.setViewpointCameraAsync(camera, 2);
     }
 
 

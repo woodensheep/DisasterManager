@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.nandi.disastermanager"
         minSdkVersion 16
-        versionCode 4
+        versionCode 5
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         //加上这句话

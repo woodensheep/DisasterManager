@@ -109,7 +109,8 @@ public class DetailData {
         private String threatLevel;
         private String zlqk;
         private double lat;
-
+        private String GATHER;
+        private String PHONE;
         public String getSite() {
             return site;
         }
@@ -292,6 +293,22 @@ public class DetailData {
 
         public void setLat(double lat) {
             this.lat = lat;
+        }
+
+        public String getGATHER() {
+            return GATHER;
+        }
+
+        public void setGATHER(String GATHER) {
+            this.GATHER = GATHER;
+        }
+
+        public String getPHONE() {
+            return PHONE;
+        }
+
+        public void setPHONE(String PHONE) {
+            this.PHONE = PHONE;
         }
     }
 }

@@ -27,6 +27,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
+
 /**
  * Created by qingsong on 2017/9/8.
  * 隐患点详细信息页面
@@ -60,10 +61,11 @@ public class DetailDataActivity extends Activity {
 
     /**
      * 网络请求隐患点信息
+     *
      * @param code
      */
     private void monitorListRequest(String code) {
-        WaitingDialog.createLoadingDialog(mContext,"正在加载...");
+        WaitingDialog.createLoadingDialog(mContext, "正在加载...");
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/disaterpoint/findByDisaterCode/" + code)
                 .build()
                 .execute(new StringCallback() {
@@ -120,10 +122,9 @@ public class DetailDataActivity extends Activity {
         array[11] = "null".equals(mDetailData.getData().get(0).getWxqt()) ? "" : mDetailData.getData().get(0).getWxqt();
         array[12] = "null".equals(mDetailData.getData().get(0).getSbsj()) ? "" : mDetailData.getData().get(0).getSbsj();
         array[13] = "null".equals(mDetailData.getData().get(0).getFxsj()) ? "" : mDetailData.getData().get(0).getFxsj();
-//        array[14] = "null".equals(mDetailData.getData().get(0).getPreparer()) ? "" : mDetailData.getData().get(0).getPreparer();
-//        array[15] = "null".equals(mDetailData.getData().get(0).getAuditor()) ? "" : mDetailData.getData().get(0).getAuditor();
         array[14] = "null".equals(mDetailData.getData().get(0).getFzzrdw()) ? "" : mDetailData.getData().get(0).getFzzrdw();
-        array[15] = "null".equals(mDetailData.getData().get(0).getZlqk())?"":mDetailData.getData().get(0).getZlqk();
-
+        array[15] = "null".equals(mDetailData.getData().get(0).getZlqk()) ? "" : mDetailData.getData().get(0).getZlqk();
+        array[16] = "null".equals(mDetailData.getData().get(0).getGATHER()) ? "" : mDetailData.getData().get(0).getGATHER();
+        array[17] = "null".equals(mDetailData.getData().get(0).getPHONE()) ? "" : mDetailData.getData().get(0).getPHONE();
     }
 }

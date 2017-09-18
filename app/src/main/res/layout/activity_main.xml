@@ -28,7 +28,7 @@
         android:id="@+id/ll_control"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_above="@+id/map_control"
+        android:layout_above="@+id/ll_change_map"
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"
         android:layout_marginTop="5dp"
@@ -43,7 +43,23 @@
             android:layout_weight="1"
             android:background="@drawable/search_bar_selector" />
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_change_map"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_above="@+id/map_control"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/icon_background">
 
+        <Button
+            android:id="@+id/iv_change_map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:background="@drawable/change_bar_selector" />
+    </LinearLayout>
     <Button
         android:id="@+id/btn_util"
         android:layout_width="80dp"

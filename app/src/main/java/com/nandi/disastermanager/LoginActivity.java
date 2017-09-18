@@ -27,6 +27,8 @@ import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 import com.zhy.http.okhttp.request.RequestCall;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
@@ -130,43 +132,42 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(final String response, int id) {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                GreenDaoManager.deleteAll();
-                                Gson gson = new Gson();
-                                try {
-                                    loginInfo = gson.fromJson(response, LoginInfo.class);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    WaitingDialog.closeDialog();
-                                    return;
+                        Gson gson = new Gson();
+                        try {
+                            loginInfo = gson.fromJson(response, LoginInfo.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            WaitingDialog.closeDialog();
+                            return;
+                        }
+                        if (!loginInfo.getMeta().isSuccess()) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(mContext, loginInfo.getMeta().getMessage(), Toast.LENGTH_SHORT).show();
                                 }
-                                if (!loginInfo.getMeta().isSuccess()) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(mContext, loginInfo.getMeta().getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                    WaitingDialog.closeDialog();
-                                    return;
-                                }
-                                if (loginInfo.getData().get(1).getProvince().size()!=0) {
-                                    saveArea();
-                                }
-                                SharedUtils.putShare(mContext, "loginname", name);
-                                SharedUtils.putShare(mContext, "loginpswd", pswd);
-                            }
-                        }).start();
-
+                            });
+                            WaitingDialog.closeDialog();
+                            return;
+                        }
+                        int level = loginInfo.getData().get(0).getLevel();
+                        if (loginInfo.getData().get(1).getProvince().size() != 0) {
+                            saveArea();
+                        } else {
+                            List<AreaInfo> areaInfos = GreenDaoManager.queryAreaLevel(level);
+                            int areaId=areaInfos.get(0).getArea_id();
+                            ToastUtils.showShort(mContext, "登录成功！");
+                            skipActivity(level, areaId);
+                        }
+                        SharedUtils.putShare(mContext, "loginname", name);
+                        SharedUtils.putShare(mContext, "loginpswd", pswd);
                     }
                 });
 
     }
 
     private void saveArea() {
-
+        GreenDaoManager.deleteArea();
         int level = loginInfo.getData().get(0).getLevel();
         SharedUtils.putShare(mContext, "loginlevel", level + "");
         int area_code = 0;
@@ -181,6 +182,15 @@ public class LoginActivity extends AppCompatActivity {
                 area_code = loginInfo.getData().get(3).getCountymap().get(0).getArea_code();
         }
         SharedUtils.putShare(mContext, "areacode", area_code + "");
+        for (int i=0;i<loginInfo.getData().get(1).getProvince().size();i++){
+            AreaInfo areaInfo = new AreaInfo(null,
+                    loginInfo.getData().get(1).getProvince().get(i).getLevel(),
+                    loginInfo.getData().get(1).getProvince().get(i).getArea_name(),
+                    loginInfo.getData().get(1).getProvince().get(i).getArea_code(),
+                    loginInfo.getData().get(1).getProvince().get(i).getArea_parent(),
+                    loginInfo.getData().get(1).getProvince().get(i).getId());
+            GreenDaoManager.insertArea(areaInfo);
+        }
         for (int i = 0; i < loginInfo.getData().get(2).getCitymap().size(); i++) {
             AreaInfo areaInfo = new AreaInfo(null,
                     loginInfo.getData().get(2).getCitymap().get(i).getLevel(),
@@ -224,6 +234,10 @@ public class LoginActivity extends AppCompatActivity {
                 ToastUtils.showShort(mContext, "登录成功！");
             }
         });
+        skipActivity(level, id);
+    }
+
+    private void skipActivity(int level, int id) {
         Intent intent = new Intent(mContext, MainActivity.class);
         intent.putExtra("ID", id);
         intent.putExtra("LEVEL", level);
