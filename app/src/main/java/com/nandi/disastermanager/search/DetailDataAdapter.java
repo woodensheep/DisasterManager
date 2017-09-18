@@ -24,8 +24,10 @@ public class DetailDataAdapter extends RecyclerView.Adapter<DetailDataAdapter.Vi
             ,"所在地：" ,"所在地经度：","所在地纬度："
             ,"详细地址：" ,"主要诱因：","灾情等级："
             ,"受威胁人数：","受威胁财产：","受威胁对象："
-            ,"形成时间：","填表时间：","填表人："
-            ,"审核人：","调查单位：","防治建议："
+            ,"形成时间：","填表时间："
+//            ,"监测员："
+//            ,"审核人："
+            ,"调查单位：","防治建议："
     };
 
 
@@ -46,7 +48,10 @@ public class DetailDataAdapter extends RecyclerView.Adapter<DetailDataAdapter.Vi
     public void onBindViewHolder(DetailDataAdapter.ViewHolderA holder, int position) {
         holder.tv_1.setText(arrayLable[position]);
         holder.tv_2.setText(mArray[position]);
-
+        if ("".equals(mArray[position])){
+            holder.tv_1.setVisibility(View.GONE);
+            holder.tv_2.setVisibility(View.GONE);
+        }
     }
 
     @Override

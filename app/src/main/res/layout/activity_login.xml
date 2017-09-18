@@ -16,7 +16,14 @@
         android:paddingLeft="50dp"
         android:paddingRight="50dp"
         android:paddingTop="50dp">
-
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:text="贵州省地质灾害巡查终端"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@color/color_white"/>
         <EditText
             android:id="@+id/loginName"
             android:layout_width="match_parent"

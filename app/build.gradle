@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.nandi.disastermanager"
         minSdkVersion 16
-        versionCode 3
+        versionCode 4
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         //加上这句话
@@ -69,6 +69,7 @@ dependencies {
     compile 'com.aliyun.ams:alicloud-android-utdid:1.1.5.3'
     compile 'com.aliyun.ams:alicloud-android-ut:5.1.0'
     compile 'com.contrarywind:Android-PickerView:3.2.6'
+    compile 'com.blankj:utilcode:1.9.0'
     testCompile 'junit:junit:4.12'
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
 }

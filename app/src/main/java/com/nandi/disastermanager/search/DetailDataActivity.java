@@ -120,10 +120,10 @@ public class DetailDataActivity extends Activity {
         array[11] = "null".equals(mDetailData.getData().get(0).getWxqt()) ? "" : mDetailData.getData().get(0).getWxqt();
         array[12] = "null".equals(mDetailData.getData().get(0).getSbsj()) ? "" : mDetailData.getData().get(0).getSbsj();
         array[13] = "null".equals(mDetailData.getData().get(0).getFxsj()) ? "" : mDetailData.getData().get(0).getFxsj();
-        array[14] = "null".equals(mDetailData.getData().get(0).getPreparer()) ? "" : mDetailData.getData().get(0).getPreparer();
-        array[15] = "null".equals(mDetailData.getData().get(0).getAuditor()) ? "" : mDetailData.getData().get(0).getAuditor();
-        array[16] = "null".equals(mDetailData.getData().get(0).getFzzrdw()) ? "" : mDetailData.getData().get(0).getFzzrdw();
-        array[17] = " ";
+//        array[14] = "null".equals(mDetailData.getData().get(0).getPreparer()) ? "" : mDetailData.getData().get(0).getPreparer();
+//        array[15] = "null".equals(mDetailData.getData().get(0).getAuditor()) ? "" : mDetailData.getData().get(0).getAuditor();
+        array[14] = "null".equals(mDetailData.getData().get(0).getFzzrdw()) ? "" : mDetailData.getData().get(0).getFzzrdw();
+        array[15] = "null".equals(mDetailData.getData().get(0).getZlqk())?"":mDetailData.getData().get(0).getZlqk();
 
     }
 }

@@ -50,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
     private String name;
     private String pswd;
     private LoginInfo loginInfo;
+    private int isReturn = -1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -95,19 +96,30 @@ public class LoginActivity extends AppCompatActivity {
                 } else if (TextUtils.isEmpty(pswd)) {
                     initSnackbar(userPwd, "密码不能为空!");
                 } else {
-                    loginPost(name, pswd);
+                    loginPost(name, pswd, checkAreaData(name));
                 }
 
             }
         });
     }
 
+    private String checkAreaData(String name) {
+        String s = "";
+        String loginname = (String) SharedUtils.getShare(mContext, "loginname", "");
+        if (name.equals(loginname)) {
+            s = "2";
+        } else {
+            s = "1";
+        }
+        return s;
+    }
+
     /**
      * 登录请求
      */
-    private void loginPost(String userNumber, String password) {
+    private void loginPost(String userNumber, String password, String s) {
         WaitingDialog.createLoadingDialog(mContext, "正在登录...");
-        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + userNumber + "/" + password)
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + userNumber + "/" + password + "/" + s)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -127,7 +139,6 @@ public class LoginActivity extends AppCompatActivity {
                                     loginInfo = gson.fromJson(response, LoginInfo.class);
                                 } catch (Exception e) {
                                     e.printStackTrace();
-//                                    ToastUtils.showLong(mContext,"请求数据错误！");
                                     WaitingDialog.closeDialog();
                                     return;
                                 }
@@ -141,7 +152,9 @@ public class LoginActivity extends AppCompatActivity {
                                     WaitingDialog.closeDialog();
                                     return;
                                 }
-                                saveArea();
+                                if (loginInfo.getData().size() != 0) {
+                                    saveArea();
+                                }
                                 SharedUtils.putShare(mContext, "loginname", name);
                                 SharedUtils.putShare(mContext, "loginpswd", pswd);
                             }
