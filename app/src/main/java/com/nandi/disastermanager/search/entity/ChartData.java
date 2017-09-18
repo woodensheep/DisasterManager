@@ -59,13 +59,13 @@ public class ChartData {
     }
 
     public static class DataBean {
-        private List<List<Float>> MONITORDATA;
+        private List<List<Double>> MONITORDATA;
 
-        public List<List<Float>> getMONITORDATA() {
+        public List<List<Double>> getMONITORDATA() {
             return MONITORDATA;
         }
 
-        public void setMONITORDATA(List<List<Float>> MONITORDATA) {
+        public void setMONITORDATA(List<List<Double>> MONITORDATA) {
             this.MONITORDATA = MONITORDATA;
         }
     }

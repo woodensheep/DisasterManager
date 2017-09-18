@@ -26,7 +26,9 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.google.gson.Gson;
 import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
@@ -81,7 +83,8 @@ public class MonitorDataActivity extends Activity {
     private String startTime = "";
     private String endTime = "";
     private MonitorPhoto monitorPhoto;
-
+    //点的数据
+    private List<List<Double>> lists=new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -275,19 +278,34 @@ public class MonitorDataActivity extends Activity {
     }
 
     public void setChartlines(ChartData chartData) {
-        setLineChartStyle("监测数据(mm)", mLineChart);
+
         //设置数据
         ArrayList<Entry> values = new ArrayList<>();
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-        for (List<Float> lists : chartData.getData().getMONITORDATA()) {
-            Log.d("limeng", lists.get(0) + "-" + lists.get(1));
-            Entry pointEntry = new Entry(lists.get(0)/1000, lists.get(1));
+//        for (List<Double> lists : chartData.getData().getMONITORDATA()) {
+//            Log.d("limeng", lists.get(0) + "-" + lists.get(1));
+//            Entry pointEntry = new Entry(lists.get(0)/1000, lists.get(1));
+//
+//            values.add(pointEntry);
+//        }
+        lists.clear();
+        lists=chartData.getData().getMONITORDATA();
+        for (int i=0;i<chartData.getData().getMONITORDATA().size();i++){
+            Entry pointEntry = new Entry((float) i, Float.parseFloat(lists.get(i).get(1).toString()));
+            Log.i("qingsong", pointEntry.getX() + "-" + pointEntry.getY() );
             values.add(pointEntry);
         }
+        setLineChartStyle("监测数据(mm)", mLineChart);
+        // create a custom MarkerView (extend MarkerView) and specify the layout
+        // to use for it
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view,lists);
+        mv.setChartView(mLineChart); // For bounds control
+        mLineChart.setMarker(mv); // Set the marker to the chart
         LineDataSet set1;
         set1 = new LineDataSet(values, "监测数据(mm)");
         set1.setCircleColor(Color.GREEN);
-        set1.setLineWidth(2f);
+        set1.setLineWidth(1.5f);
+        set1.setCircleRadius(2.5f);
         set1.setDrawCircles(true);
         set1.setColor(Color.GREEN);
         set1.setDrawCircleHole(false);
@@ -296,6 +314,7 @@ public class MonitorDataActivity extends Activity {
         dataSets.add(set1);
         LineData data = new LineData(dataSets);
         Log.d("limeng", values.size() + "-" + dataSets.size());
+        mLineChart.clear();
         mLineChart.setData(data);
 
     }
@@ -323,23 +342,45 @@ public class MonitorDataActivity extends Activity {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);//设置x轴的显示位置
         xAxis.setAvoidFirstLastClipping(true);//图表将避免第一个和最后一个标签条目被减掉在图表或屏幕的边缘
         //设置x轴显示标签数量  还有一个重载方法第二个参数为布尔值强制设置数量 如果启用会导致绘制点出现偏差
-        //xAxis.setLabelCount(10);
-
+        if (lists.size()>=6){
+            xAxis.setLabelCount(6);
+        }else {
+            xAxis.setLabelCount(lists.size());
+        }
         xAxis.setTextColor(Color.BLACK);//设置轴标签的颜色
         xAxis.setTextSize(16f);//设置轴标签的大小
         xAxis.setAxisLineWidth(3f);//设置x轴线宽度
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         final Date date = new Date();
         //设置x轴标签格式化显示数据
         xAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                date.setTime(Long.parseLong(new BigDecimal(value).toPlainString()));
+                Log.i("limeng",lists.size()+"-value:"+value);
+                if (value<0||value>=lists.size()){
+                    return "";
+                }
+                double time=lists.get((int)value).get(0);
+                date.setTime(Long.parseLong(new BigDecimal(time).toPlainString()));
                 String s = simpleDateFormat.format(date);
-                Log.d("limeng",Long.parseLong(new BigDecimal(value).toPlainString())+"-"+s);
+                //Log.d("limeng",Long.parseLong(new BigDecimal(value).toPlainString())+"-"+s);
                 return s;
             }
+
         });
+        //点击点监听
+        mLineChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+
+            }
+
+            @Override
+            public void onNothingSelected() {
+
+            }
+        });
+
         //Y轴设置
         YAxis leftAxis = mLineChart.getAxisLeft();
         leftAxis.setDrawAxisLine(true);
