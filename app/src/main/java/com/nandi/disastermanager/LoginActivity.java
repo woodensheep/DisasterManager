@@ -152,7 +152,7 @@ public class LoginActivity extends AppCompatActivity {
                                     WaitingDialog.closeDialog();
                                     return;
                                 }
-                                if (loginInfo.getData().size() != 0) {
+                                if (loginInfo.getData().get(1).getProvince().size()!=0) {
                                     saveArea();
                                 }
                                 SharedUtils.putShare(mContext, "loginname", name);
