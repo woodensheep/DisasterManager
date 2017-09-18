@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void checkUpdate() {
-        OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")//// TODO: 2017/9/13
+        OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")
                 .addParams("version", getVerCode(this))
                 .build()
                 .execute(new StringCallback() {
@@ -853,13 +853,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setAreaBack();
                 break;
             case R.id.iv_search_main:
-                if (!layers.contains(gzDianZhiLayer)) {
-                    layers.clear();
-                    elevationSources.clear();
-                    layers.add(gzDianZhiLayer);
-                    Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
-                    sceneView.setViewpointCameraAsync(camera, 2);
-                }
                 List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
 
                 if (disasterPoints.size() == 0) {

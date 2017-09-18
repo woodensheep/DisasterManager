@@ -25,7 +25,7 @@ public class DetailDataAdapter extends RecyclerView.Adapter<DetailDataAdapter.Vi
             ,"详细地址：" ,"主要诱因：","灾情等级："
             ,"受威胁人数：","受威胁财产：","受威胁对象："
             ,"形成时间：","填表时间："
-            ,"调查单位：","防治建议：","监测员：","监测人电话："
+            ,"调查单位：","治理情况：","监测员：","监测人电话："
     };
 
 
