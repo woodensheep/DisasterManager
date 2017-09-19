@@ -3,6 +3,7 @@ package com.nandi.disastermanager;
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -80,6 +81,7 @@ import com.nandi.disastermanager.search.entity.DisasterData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.LogUtils;
+import com.nandi.disastermanager.utils.ServiceUtil;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -242,8 +244,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setListeners();
         initStaData();
         loginDisaster(id, level);
+        openAlarmManager();
     }
 
+
+    /**
+     * 启动闹钟服务
+     */
+    public void openAlarmManager(){
+        System.out.println("开始判断service有没有在运行");
+        if(!ServiceUtil.isServiceRunning(this, ServiceUtil.POI_SERVICE)){
+            ServiceUtil.invokeTimerPOIService(getApplicationContext());//启动定时器
+        }else{
+            System.out.println("service正在在运行...");
+        }
+    }
     private void checkUpdate() {
         OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")
                 .addParams("version", getVerCode(this))

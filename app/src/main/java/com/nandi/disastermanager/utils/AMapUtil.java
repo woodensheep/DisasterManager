@@ -70,7 +70,8 @@ public class AMapUtil {
      */
     public static void goToBaidu(Context context, String sourceApplication, String lat, String lon) {
         intent = new Intent();
-        intent.setData(Uri.parse("baidumap://map/direction?destination="+lat+","+lon+"&mode=driving"));
+//        intent.setData(Uri.parse("baidumap://map/direction?destination="+lat+","+lon+"&mode=driving"));
+        intent.setData(Uri.parse("baidumap://map/navi?location="+lat+","+lon));
         context.startActivity(intent);
     }
     /**
