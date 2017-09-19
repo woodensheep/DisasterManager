@@ -32,7 +32,9 @@ android {
         cruncherEnabled = false
         useNewCruncher = false
     }
-
+    greendao{
+        schemaVersion 1
+    }
 }
 
 

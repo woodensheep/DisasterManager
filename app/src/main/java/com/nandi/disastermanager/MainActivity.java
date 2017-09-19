@@ -210,9 +210,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ButterKnife.bind(this);
         MyApplication.getActivities().add(this);
         context = this;
+        id= (String) SharedUtils.getShare(context,"ID","");
+        level= (String) SharedUtils.getShare(context,"loginlevel","");
         checkUpdate();
-        id = getIntent().getIntExtra("ID", 0) + "";
-        level = getIntent().getIntExtra("LEVEL", 0) + "";
         uploadLocation();
         bindAccount();
         initUtilData();
@@ -1667,7 +1667,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sceneView.pause();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sceneView.resume();
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();

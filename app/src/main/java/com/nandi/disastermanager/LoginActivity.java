@@ -52,7 +52,6 @@ public class LoginActivity extends AppCompatActivity {
     private String name;
     private String pswd;
     private LoginInfo loginInfo;
-    private int isReturn = -1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -150,17 +149,16 @@ public class LoginActivity extends AppCompatActivity {
                             WaitingDialog.closeDialog();
                             return;
                         }
-                        int level = loginInfo.getData().get(0).getLevel();
                         if (loginInfo.getData().get(1).getProvince().size() != 0) {
                             saveArea();
                         } else {
-                            List<AreaInfo> areaInfos = GreenDaoManager.queryAreaLevel(level);
-                            int areaId=areaInfos.get(0).getArea_id();
                             ToastUtils.showShort(mContext, "登录成功！");
-                            skipActivity(level, areaId);
+                            skipActivity();
                         }
                         SharedUtils.putShare(mContext, "loginname", name);
                         SharedUtils.putShare(mContext, "loginpswd", pswd);
+                        SharedUtils.putShare(mContext,"isLogin",true);
+                        SharedUtils.putShare(mContext,"versionCode",Integer.parseInt(MainActivity.getVerCode(mContext)));
                     }
                 });
 
@@ -234,13 +232,12 @@ public class LoginActivity extends AppCompatActivity {
                 ToastUtils.showShort(mContext, "登录成功！");
             }
         });
-        skipActivity(level, id);
+        SharedUtils.putShare(mContext,"ID",id+"");
+        skipActivity();
     }
 
-    private void skipActivity(int level, int id) {
+    private void skipActivity() {
         Intent intent = new Intent(mContext, MainActivity.class);
-        intent.putExtra("ID", id);
-        intent.putExtra("LEVEL", level);
         startActivity(intent);
         WaitingDialog.closeDialog();
         finish();
