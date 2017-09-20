@@ -127,8 +127,9 @@
         <service android:name=".http.ReplaceService"
             android:enabled="true"
             android:exported="true"/>
-        <receiver android:name=".http.AlarmReceiver">
-        </receiver>
+        <service android:name=".http.LocationService"
+            android:enabled="true"
+            android:exported="true"/>
         <receiver
             android:name=".videocall.helloanychat.MyReceiver"
             android:exported="false">
