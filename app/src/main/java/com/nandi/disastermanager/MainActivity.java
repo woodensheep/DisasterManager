@@ -163,8 +163,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageView ivLocation;
     @BindView(R.id.ll_location)
     LinearLayout llLocation;
-//    @BindView(R.id.ll_userMessage)
-//    LinearLayout llUserMessage;
+    @BindView(R.id.ll_userMessage)
+    LinearLayout llUserMessage;
 
 
     private boolean llAreaState = true;
@@ -295,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
         builder.setTitle("版本更新");
         builder.setMessage("发现新版本,是否立即下载？");
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent service = new Intent(MainActivity.this, UpdataService.class);
@@ -304,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-        builder.setNegativeButton("下次再说", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -496,7 +496,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivSearchMain.setOnClickListener(this);
         btnUtil.setOnClickListener(this);
         ivAreaBack.setOnClickListener(this);
-//        llUserMessage.setOnClickListener(this);
+        llUserMessage.setOnClickListener(this);
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -793,7 +793,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setAreaBack();
                 break;
             case R.id.iv_search_main:
-
                 List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
                 if (disasterPoints.size() == 0) {
                     ToastUtils.showShort(context, "正在加载请稍候...");
@@ -804,10 +803,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     startActivity(intent);
                 }
                 break;
-//            case R.id.ll_userMessage:
-//                Intent intent = new Intent(context, SettingActivity.class);
-//                startActivity(intent);
-//                break;
+            case R.id.ll_userMessage:
+                Intent intent = new Intent(context, SettingActivity.class);
+                startActivity(intent);
+                break;
             case R.id.ll_compass:
                 resetPosition();
                 break;
