@@ -11,7 +11,7 @@ public class DisasterData {
 
     /**
      * meta : {"success":true,"message":"ok"}
-     * data : [{"dzbh":"522327010005","jd":105.923889,"wd":24.863056,"xqdj":"小型","dzmc":"弼佑四组","zhzl":"01","yfys":"自然","yhdbh":"369","id":889,"level":4,"province":"贵州省","city":"黔西南布依族苗族自治州","county":"册亨县","town":"弼佑镇","LATITUDE":27,"LONGITUDE":107}]
+     * data : [{"threatObject":"村民及房屋","threatMoney":"190","disasterNum":"520402070031","disasterSite":"贬王村翁庆组","userid":1426,"adminid":301,"monitorPersonnel":"王朝学","threatNum":"75","city":"安顺市","formationTime":"","phoneNum":"13508532917","level":4,"county":"安顺市西秀区","majorIncentives":"自然","area_name":"杨武乡","disasterLat":25.983889,"province":"贵州省","tableTime":"","disasterType":"07","disasterLon":106.159722,"investigationUnit":"112地质队","town":"杨武乡","disasterGrade":"小型","disasterAdress":"安顺市西秀区杨武乡贬王村翁庆组","disasterName":"翁庆崩塌"}]
      */
 
     private MetaBean meta;
@@ -61,125 +61,121 @@ public class DisasterData {
 
     public static class DataBean {
         /**
-         * dzbh : 522327010005
-         * jd : 105.923889
-         * wd : 24.863056
-         * xqdj : 小型
-         * dzmc : 弼佑四组
-         * zhzl : 01
-         * yfys : 自然
-         * yhdbh : 369
-         * id : 889
+         * threatObject : 村民及房屋
+         * threatMoney : 190
+         * disasterNum : 520402070031
+         * disasterSite : 贬王村翁庆组
+         * userid : 1426
+         * adminid : 301
+         * monitorPersonnel : 王朝学
+         * threatNum : 75
+         * city : 安顺市
+         * formationTime :
+         * phoneNum : 13508532917
          * level : 4
+         * county : 安顺市西秀区
+         * majorIncentives : 自然
+         * area_name : 杨武乡
+         * disasterLat : 25.983889
          * province : 贵州省
-         * city : 黔西南布依族苗族自治州
-         * county : 册亨县
-         * town : 弼佑镇
-         * LATITUDE : 27
-         * LONGITUDE : 107
+         * tableTime :
+         * disasterType : 07
+         * disasterLon : 106.159722
+         * investigationUnit : 112地质队
+         * town : 杨武乡
+         * disasterGrade : 小型
+         * disasterAdress : 安顺市西秀区杨武乡贬王村翁庆组
+         * disasterName : 翁庆崩塌
          */
 
-        private String dzbh;
-        private double jd;
-        private double wd;
-        private String xqdj;
-        private String dzmc;
-        private String zhzl;
-        private String yfys;
-        private String yhdbh;
-        private int id;
-        private int level;
-        private String province;
+        private String threatObject;
+        private String threatMoney;
+        private String disasterNum;
+        private String disasterSite;
+        private int userid;
+        private int adminid;
+        private String monitorPersonnel;
+        private String threatNum;
         private String city;
+        private String formationTime;
+        private String phoneNum;
+        private int level;
         private String county;
+        private String majorIncentives;
+        private String area_name;
+        private double disasterLat;
+        private String province;
+        private String tableTime;
+        private String disasterType;
+        private double disasterLon;
+        private String investigationUnit;
         private String town;
+        private String disasterGrade;
+        private String disasterAdress;
+        private String disasterName;
 
-        public String getDzbh() {
-            return dzbh;
+        public String getThreatObject() {
+            return threatObject;
         }
 
-        public void setDzbh(String dzbh) {
-            this.dzbh = dzbh;
+        public void setThreatObject(String threatObject) {
+            this.threatObject = threatObject;
         }
 
-        public double getJd() {
-            return jd;
+        public String getThreatMoney() {
+            return threatMoney;
         }
 
-        public void setJd(double jd) {
-            this.jd = jd;
+        public void setThreatMoney(String threatMoney) {
+            this.threatMoney = threatMoney;
         }
 
-        public double getWd() {
-            return wd;
+        public String getDisasterNum() {
+            return disasterNum;
         }
 
-        public void setWd(double wd) {
-            this.wd = wd;
+        public void setDisasterNum(String disasterNum) {
+            this.disasterNum = disasterNum;
         }
 
-        public String getXqdj() {
-            return xqdj;
+        public String getDisasterSite() {
+            return disasterSite;
         }
 
-        public void setXqdj(String xqdj) {
-            this.xqdj = xqdj;
+        public void setDisasterSite(String disasterSite) {
+            this.disasterSite = disasterSite;
         }
 
-        public String getDzmc() {
-            return dzmc;
+        public int getUserid() {
+            return userid;
         }
 
-        public void setDzmc(String dzmc) {
-            this.dzmc = dzmc;
+        public void setUserid(int userid) {
+            this.userid = userid;
         }
 
-        public String getZhzl() {
-            return zhzl;
+        public int getAdminid() {
+            return adminid;
         }
 
-        public void setZhzl(String zhzl) {
-            this.zhzl = zhzl;
+        public void setAdminid(int adminid) {
+            this.adminid = adminid;
         }
 
-        public String getYfys() {
-            return yfys;
+        public String getMonitorPersonnel() {
+            return monitorPersonnel;
         }
 
-        public void setYfys(String yfys) {
-            this.yfys = yfys;
+        public void setMonitorPersonnel(String monitorPersonnel) {
+            this.monitorPersonnel = monitorPersonnel;
         }
 
-        public String getYhdbh() {
-            return yhdbh;
+        public String getThreatNum() {
+            return threatNum;
         }
 
-        public void setYhdbh(String yhdbh) {
-            this.yhdbh = yhdbh;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public int getLevel() {
-            return level;
-        }
-
-        public void setLevel(int level) {
-            this.level = level;
-        }
-
-        public String getProvince() {
-            return province;
-        }
-
-        public void setProvince(String province) {
-            this.province = province;
+        public void setThreatNum(String threatNum) {
+            this.threatNum = threatNum;
         }
 
         public String getCity() {
@@ -190,12 +186,100 @@ public class DisasterData {
             this.city = city;
         }
 
+        public String getFormationTime() {
+            return formationTime;
+        }
+
+        public void setFormationTime(String formationTime) {
+            this.formationTime = formationTime;
+        }
+
+        public String getPhoneNum() {
+            return phoneNum;
+        }
+
+        public void setPhoneNum(String phoneNum) {
+            this.phoneNum = phoneNum;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        public void setLevel(int level) {
+            this.level = level;
+        }
+
         public String getCounty() {
             return county;
         }
 
         public void setCounty(String county) {
             this.county = county;
+        }
+
+        public String getMajorIncentives() {
+            return majorIncentives;
+        }
+
+        public void setMajorIncentives(String majorIncentives) {
+            this.majorIncentives = majorIncentives;
+        }
+
+        public String getArea_name() {
+            return area_name;
+        }
+
+        public void setArea_name(String area_name) {
+            this.area_name = area_name;
+        }
+
+        public double getDisasterLat() {
+            return disasterLat;
+        }
+
+        public void setDisasterLat(double disasterLat) {
+            this.disasterLat = disasterLat;
+        }
+
+        public String getProvince() {
+            return province;
+        }
+
+        public void setProvince(String province) {
+            this.province = province;
+        }
+
+        public String getTableTime() {
+            return tableTime;
+        }
+
+        public void setTableTime(String tableTime) {
+            this.tableTime = tableTime;
+        }
+
+        public String getDisasterType() {
+            return disasterType;
+        }
+
+        public void setDisasterType(String disasterType) {
+            this.disasterType = disasterType;
+        }
+
+        public double getDisasterLon() {
+            return disasterLon;
+        }
+
+        public void setDisasterLon(double disasterLon) {
+            this.disasterLon = disasterLon;
+        }
+
+        public String getInvestigationUnit() {
+            return investigationUnit;
+        }
+
+        public void setInvestigationUnit(String investigationUnit) {
+            this.investigationUnit = investigationUnit;
         }
 
         public String getTown() {
@@ -206,25 +290,28 @@ public class DisasterData {
             this.town = town;
         }
 
+        public String getDisasterGrade() {
+            return disasterGrade;
+        }
 
-        @Override
-        public String toString() {
-            return "DataBean{" +
-                    "dzbh='" + dzbh + '\'' +
-                    ", jd=" + jd +
-                    ", wd=" + wd +
-                    ", xqdj='" + xqdj + '\'' +
-                    ", dzmc='" + dzmc + '\'' +
-                    ", zhzl='" + zhzl + '\'' +
-                    ", yfys='" + yfys + '\'' +
-                    ", yhdbh='" + yhdbh + '\'' +
-                    ", id=" + id +
-                    ", level=" + level +
-                    ", province='" + province + '\'' +
-                    ", city='" + city + '\'' +
-                    ", county='" + county + '\'' +
-                    ", town='" + town + '\'' +
-                    '}';
+        public void setDisasterGrade(String disasterGrade) {
+            this.disasterGrade = disasterGrade;
+        }
+
+        public String getDisasterAdress() {
+            return disasterAdress;
+        }
+
+        public void setDisasterAdress(String disasterAdress) {
+            this.disasterAdress = disasterAdress;
+        }
+
+        public String getDisasterName() {
+            return disasterName;
+        }
+
+        public void setDisasterName(String disasterName) {
+            this.disasterName = disasterName;
         }
     }
 }

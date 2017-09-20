@@ -3,7 +3,6 @@ package com.nandi.disastermanager;
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -73,21 +72,20 @@ import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.esri.arcgisruntime.util.ListenableList;
-import com.google.gson.Gson;
 import com.nandi.disastermanager.dao.GreenDaoManager;
+import com.nandi.disastermanager.entity.LocationInfo;
+import com.nandi.disastermanager.http.LocationService;
+import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.SearchActivity;
-import com.nandi.disastermanager.search.entity.DisasterData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.LogUtils;
-import com.nandi.disastermanager.utils.ServiceUtil;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
 import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
-import com.zhy.http.okhttp.request.RequestCall;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -160,6 +158,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RelativeLayout rlMain;
     @BindView(R.id.iv_change_map)
     Button ivChangeMap;
+    @BindView(R.id.iv_location)
+    ImageView ivLocation;
+    @BindView(R.id.ll_location)
+    LinearLayout llLocation;
 
     private boolean llAreaState = true;
     private boolean llUtilState = false;
@@ -204,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SimpleMarkerSymbol mPolylineMidpointSymbol;
     private SimpleFillSymbol mPolygonFillSymbol;
     private int baseMap = 0;//0代表电子地图，1代表影像图
-
+    private int location = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,10 +214,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ButterKnife.bind(this);
         MyApplication.getActivities().add(this);
         context = this;
-        id= (String) SharedUtils.getShare(context,"ID","");
-        level= (String) SharedUtils.getShare(context,"loginlevel","");
+        setLine();
         checkUpdate();
-        uploadLocation();
         bindAccount();
         initUtilData();
         gzDianZhiLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_dianzi_url));
@@ -243,22 +243,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mClearButton.setEnabled(false);
         setListeners();
         initStaData();
-        loginDisaster(id, level);
-        openAlarmManager();
+        startUpdateService();
     }
-
-
-    /**
-     * 启动闹钟服务
-     */
-    public void openAlarmManager(){
-        System.out.println("开始判断service有没有在运行");
-        if(!ServiceUtil.isServiceRunning(this, ServiceUtil.POI_SERVICE)){
-            ServiceUtil.invokeTimerPOIService(getApplicationContext());//启动定时器
-        }else{
-            System.out.println("service正在在运行...");
+    private void setLine() {
+        if ("1".equals(level)) {
+            llLocation.setVisibility(View.VISIBLE);
         }
     }
+    /**
+     * 开启服务
+     */
+    private void startUpdateService() {
+        Intent intent = new Intent(this, ReplaceService.class);
+        startService(intent);
+    }
+
+
     private void checkUpdate() {
         OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")
                 .addParams("version", getVerCode(this))
@@ -322,80 +322,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return versionNumber + "";
     }
 
-    private void uploadLocation() {
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        //获取当前可用的位置控制器
-        List<String> list = locationManager.getProviders(true);
-        Log.d(TAG, "开始定位。。。。");
-        String provider;
-        if (list.contains(LocationManager.GPS_PROVIDER)) {
-            Log.d(TAG, "GPS定位。。。。");
-            //是否为GPS位置控制器
-            provider = LocationManager.GPS_PROVIDER;
-        } else if (list.contains(LocationManager.NETWORK_PROVIDER)) {
-            //是否为网络位置控制器
-            Log.d(TAG, "网络定位。。。。");
-            provider = LocationManager.NETWORK_PROVIDER;
-
-        } else {
-            Toast.makeText(this, "请检查网络或GPS是否打开",
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        LocationListener locationListener = new LocationListener() {
-
-            @Override
-            public void onLocationChanged(Location location) {
-                //位置信息变化时触发
-                uploadLocationInfo(location.getLongitude(), location.getLatitude());
-                Log.d(TAG, "坐标信息:" + location.getLongitude() + "/" + location.getLatitude());
-//                ToastUtils.showShort(context, "位置更新了：经度(" + location.getLongitude() + ")\n纬度(" + location.getLatitude() + ")");
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                //GPS状态变化时触发
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivityForResult(intent, 0);
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                //GPS开启时触发
-            }
-        };
-        /**
-         * 绑定监听
-         * 参数1，设备：有GPS_PROVIDER和NETWORK_PROVIDER两种，前者是GPS,后者是GPRS以及WIFI定位
-         * 参数2，位置信息更新周期.单位是毫秒
-         * 参数3，位置变化最小距离：当位置距离变化超过此值时，将更新位置信息
-         * 参数4，监听
-         * 备注：参数2和3，如果参数3不为0，则以参数3为准；参数3为0，则通过时间来定时更新；两者为0，则随时刷新
-         */
-        locationManager.requestLocationUpdates(provider, 0, 10, locationListener);
-    }
-
-    private void uploadLocationInfo(double longitude, double latitude) {
-        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url) + "location/addCoordinates/" + longitude + "/" + latitude + "/" + SharedUtils.getShare(context, "loginname", ""))
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                    }
-
-                    @Override
-                    public void onResponse(String response, int id) {
-                    }
-                });
-
-    }
 
     private void bindAccount() {
         cloudPushService = PushServiceFactory.getCloudPushService();
@@ -855,6 +781,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.iv_location:
+                setLocation();
+                break;
             case R.id.iv_change_map:
                 changeBaseMap();
                 break;
@@ -869,14 +798,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.iv_search_main:
                 List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
-
                 if (disasterPoints.size() == 0) {
-                    if (downloadSuccess) {
-                        ToastUtils.showShort(context, "正在加载请稍候...");
-                    } else {
-                        loginDisaster(id, level);
-                        ToastUtils.showShort(context, "重新加载数据");
-                    }
+                    ToastUtils.showShort(context, "正在加载请稍候...");
                 } else {
                     Intent intent = new Intent(context, SearchActivity.class);
                     intent.putExtra("ID", id);
@@ -892,7 +815,93 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+    private void setLocation() {
+        LocationInfo locationInfo = GreenDaoManager.queryLocation();
+        Intent intent = new Intent(context, LocationService.class);
+        if (location == 0) {
+            if (locationInfo != null) {
+                showLocationNotice(locationInfo);
+            } else {
+                startService(intent);
+                ToastUtils.showShort(context,"开启了定位");
+                ivLocation.setSelected(true);
+                location = 1;
+            }
+        } else if (location == 1) {
+            showUploadNotice(locationInfo);
+        }
+    }
+    private void showUploadNotice(final LocationInfo locationInfo) {
+        new AlertDialog.Builder(context)
+                .setTitle("提示")
+                .setMessage("是否停止定位并上传定位信息？")
+                .setPositiveButton("上传信息", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        stopService(new Intent(context, LocationService.class));
+                        ivLocation.setSelected(false);
+                        location = 0;
+                        uploadLocation(locationInfo);
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                }).show();
+    }
+    private void showLocationNotice(final LocationInfo locationInfo) {
+        new AlertDialog.Builder(context)
+                .setTitle("提示")
+                .setMessage("检测到上次有定位信息未上传，是否现在上传？")
+                .setPositiveButton("上传信息", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        uploadLocation(locationInfo);
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setNeutralButton("删除信息", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        GreenDaoManager.deleteAllLocation();
+                    }
+                }).show();
+    }
+    private void uploadLocation(LocationInfo locationInfo) {
+        if (locationInfo != null) {
+            String userName = locationInfo.getUserName();
+            String start = locationInfo.getStartTime();
+            String end = locationInfo.getEndTime();
+            String location = locationInfo.getLonAndLat();
+            OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url) + "appdocking/saveTrajectory/" + userName + "/" + location + "/" + start + "/" + end)
+                    .build()
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onError(Call call, Exception e, int id) {
+                            ToastUtils.showShort(context, "定位信息上传失败，点击按钮重新上传");
+                        }
 
+                        @Override
+                        public void onResponse(String response, int id) {
+                            try {
+                                JSONObject object = new JSONObject(response);
+                                String data = object.getString("data");
+                                ToastUtils.showShort(context, data);
+                                GreenDaoManager.deleteAllLocation();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+        }
+    }
     private void changeBaseMap() {
         if (baseMap == 0) {
             layers.clear();
@@ -932,86 +941,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             animator1.start();
             llAreaState = true;
         }
-    }
-
-    /**
-     * 请求所有灾害点
-     */
-    private void loginDisaster(String id, String level) {
-        downloadSuccess = true;
-        GreenDaoManager.deleteDisaster();
-        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
-                .build();
-        build.execute(new StringCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-                ToastUtils.showShort(context, "请求失败,点击搜索重新加载");
-                downloadSuccess = false;
-            }
-
-            @Override
-            public void onResponse(final String response, int id) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Gson gson = new Gson();
-                        try {
-                            DisasterData disasterData = gson.fromJson(response, DisasterData.class);
-                            for (DisasterData.DataBean dataBean : disasterData.getData()) {
-                                String type = "";
-                                switch (dataBean.getZhzl()) {
-                                    case "01":
-                                        type = "滑坡";
-                                        break;
-                                    case "02":
-                                        type = "地面塌陷";
-                                        break;
-                                    case "03":
-                                        type = "泥石流";
-                                        break;
-                                    case "04":
-                                        break;
-                                    case "05":
-                                        type = "地裂缝";
-                                        break;
-                                    case "06":
-                                        type = "不稳定斜坡";
-                                        break;
-                                    case "07":
-                                        type = "崩塌";
-                                        break;
-                                }
-                                DisasterPoint disasterPoint = new DisasterPoint(
-                                        null,
-                                        dataBean.getDzbh(),
-                                        dataBean.getJd() + "",
-                                        dataBean.getWd() + "",
-                                        dataBean.getCity(),
-                                        null,
-                                        dataBean.getCounty(),
-                                        dataBean.getTown(),
-                                        "null".equals(dataBean.getXqdj()) ? "" : dataBean.getXqdj() + "",
-                                        type,
-                                        "null".equals(dataBean.getYfys()) ? "" : dataBean.getYfys(),
-                                        "null".equals(dataBean.getDzmc()) ? "" : dataBean.getDzmc());
-                                GreenDaoManager.insertDisasterPoint(disasterPoint);
-                            }
-                            downloadSuccess = false;
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ToastUtils.showShort(context, "数据加载完成！");
-                                }
-                            });
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-
-            }
-        });
-
     }
 
 
@@ -1682,6 +1611,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -1693,6 +1623,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onResume();
         sceneView.resume();
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

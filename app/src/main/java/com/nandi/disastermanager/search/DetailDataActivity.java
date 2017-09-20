@@ -55,8 +55,8 @@ public class DetailDataActivity extends Activity {
         mDetailData = new DetailData();
         Long id = getIntent().getLongExtra("id", 0);
         DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(id + "");
-        Log.i("Tag", disasterPoint.getDisasterCode());
-        monitorListRequest(disasterPoint.getDisasterCode());
+        Log.i("Tag", disasterPoint.getDisasterNum());
+        monitorListRequest(disasterPoint.getDisasterNum());
     }
 
     /**

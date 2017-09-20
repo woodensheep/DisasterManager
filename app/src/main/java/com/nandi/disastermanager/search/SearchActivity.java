@@ -24,6 +24,7 @@ import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.ListType;
 import com.nandi.disastermanager.search.entity.LoginInfo;
 import com.nandi.disastermanager.ui.WaitingDialog;
+import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -93,8 +94,8 @@ public class SearchActivity extends Activity {
 
         ButterKnife.bind(this);
         context = this;
-        id = getIntent().getStringExtra("ID");
-        level = getIntent().getStringExtra("LEVEL");
+        id = (String) SharedUtils.getShare(context,"ID","");
+        level = (String) SharedUtils.getShare(context,"loginlevel","");
         getlistType(id, level);
         MyApplication.getActivities().add(this);
     }

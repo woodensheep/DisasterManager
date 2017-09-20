@@ -34,7 +34,6 @@ public class NavigationActivity extends Activity {
     Button baidu;
     @BindView(R.id.gaode)
     Button gaode;
-    private String disNo;
     private double lat;
     private double lon;
     private String name;
@@ -47,10 +46,10 @@ public class NavigationActivity extends Activity {
         MyApplication.getActivities().add(this);
         Long id = getIntent().getLongExtra("id",0);
         DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(id + "");
-        disNo = disasterPoint.getDisasterCode();
         Log.i("Tag","lon:"+lon+"---"+"lat:"+lat);
+        lon=disasterPoint.getDisasterLon();
+        lat=disasterPoint.getDisasterLat();
         name = disasterPoint.getDisasterName();
-        getLonAndLat(disNo);
         if (AMapUtil.isInstallByRead("com.baidu.BaiduMap")) {
         }else{
             baidu.setText("百度地图（未安装）");
@@ -61,33 +60,6 @@ public class NavigationActivity extends Activity {
             gaode.setText("高德地图（未安装）");
         }
     }
-
-    private void getLonAndLat(String disNo) {
-        WaitingDialog.createLoadingDialog(NavigationActivity.this,"正在加载...");
-        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url)+"appdocking/getDisaterPoint/"+disNo)
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        ToastUtils.showShort(NavigationActivity.this,"请求失败！");
-                        WaitingDialog.closeDialog();
-                    }
-
-                    @Override
-                    public void onResponse(String response, int id) {
-                        try {
-                            JSONObject object=new JSONObject(response);
-                            JSONObject data = object.getJSONObject("data");
-                            lon= Double.parseDouble(data.getString("longitude"));
-                            lat= Double.parseDouble(data.getString("latitude"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        WaitingDialog.closeDialog();
-                    }
-                });
-    }
-
     @OnClick({R.id.baidu, R.id.gaode})
     public void onViewClicked(View view) {
         switch (view.getId()) {

@@ -44,7 +44,7 @@ public class MonitorListActivity extends Activity {
         Long id = getIntent().getLongExtra("id",0);
         DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(id + "");
 
-        monitorListRequest(disasterPoint.getDisasterCode());
+        monitorListRequest(disasterPoint.getDisasterNum());
         MyApplication.getActivities().add(this);
     }
 

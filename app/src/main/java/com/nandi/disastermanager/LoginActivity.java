@@ -155,8 +155,8 @@ public class LoginActivity extends AppCompatActivity {
                             ToastUtils.showShort(mContext, "登录成功！");
                             skipActivity();
                         }
-                        SharedUtils.putShare(mContext, "loginname", name);
-                        SharedUtils.putShare(mContext, "loginpswd", pswd);
+                        SharedUtils.putShare(mContext, "loginname", name+"");
+                        SharedUtils.putShare(mContext, "loginpswd", pswd+"");
                         SharedUtils.putShare(mContext,"isLogin",true);
                         SharedUtils.putShare(mContext,"versionCode",Integer.parseInt(MainActivity.getVerCode(mContext)));
                     }

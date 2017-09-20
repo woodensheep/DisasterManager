@@ -2,6 +2,7 @@ package com.nandi.disastermanager.dao;
 
 
 import com.nandi.disastermanager.MyApplication;
+import com.nandi.disastermanager.entity.LocationInfo;
 import com.nandi.disastermanager.search.entity.AreaInfo;
 import com.nandi.disastermanager.search.entity.AreaInfoDao;
 import com.nandi.disastermanager.search.entity.DaoMaster;
@@ -63,7 +64,18 @@ public class GreenDaoManager {
     public static  void deleteDisaster(){
         GreenDaoManager.getInstance().getSession().getDisasterPointDao().deleteAll();
     }
-
+    public  static  void  insertLocation(LocationInfo locationInfo){
+        GreenDaoManager.getInstance().getSession().getLocationInfoDao().insert(locationInfo);
+    }
+    public static void updateLocation(LocationInfo locationInfo){
+        GreenDaoManager.getInstance().getSession().getLocationInfoDao().update(locationInfo);
+    }
+    public static LocationInfo queryLocation(){
+        return  GreenDaoManager.getInstance().getSession().getLocationInfoDao().queryBuilder().build().unique();
+    }
+    public static void deleteAllLocation(){
+        GreenDaoManager.getInstance().getSession().getLocationInfoDao().deleteAll();
+    }
 
     /**
      * 增加灾害点数据
@@ -109,7 +121,7 @@ public class GreenDaoManager {
     public  static List<DisasterPoint> queryDisasterType(String type) {
 
         List<DisasterPoint> disasterList = GreenDaoManager.getInstance().getSession().getDisasterPointDao().queryBuilder()
-                .where(DisasterPointDao.Properties.Type.eq(type))
+                .where(DisasterPointDao.Properties.DisasterType.eq(type))
                 .list();
         return disasterList;
     }
@@ -181,9 +193,9 @@ public class GreenDaoManager {
                 .where(DisasterPointDao.Properties.City.like("%"+city+"%"),
                         DisasterPointDao.Properties.County.like("%"+county+"%"),
                         DisasterPointDao.Properties.Town.like("%"+town+"%"),
-                        DisasterPointDao.Properties.ThreatLevel.like("%"+threatLevel+"%"),
-                        DisasterPointDao.Properties.Type.like("%"+type+"%"),
-                        DisasterPointDao.Properties.Inducement.like("%"+inducement+"%"),
+                        DisasterPointDao.Properties.DisasterGrade.like("%"+threatLevel+"%"),
+                        DisasterPointDao.Properties.DisasterType.like("%"+type+"%"),
+                        DisasterPointDao.Properties.MajorIncentives.like("%"+inducement+"%"),
                         DisasterPointDao.Properties.DisasterName.like("%"+disasterName+"%"))
                 .list();
 

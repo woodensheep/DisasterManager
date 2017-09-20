@@ -26,6 +26,7 @@ public class WelconmeActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     startActivity(new Intent(context, MainActivity.class));
+                    finish();
                 }
             }, 2000);
         } else {
@@ -33,6 +34,7 @@ public class WelconmeActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     startActivity(new Intent(context, LoginActivity.class));
+                    finish();
                 }
             }, 2000);
         }

@@ -58,7 +58,8 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".videocall.helloanychat.VideoActivity"
             android:configChanges="orientation|keyboardHidden|navigation"
@@ -123,7 +124,11 @@
             android:name=".http.UpdataService"
             android:enabled="true"
             android:exported="true" />
-
+        <service android:name=".http.ReplaceService"
+            android:enabled="true"
+            android:exported="true"/>
+        <receiver android:name=".http.AlarmReceiver">
+        </receiver>
         <receiver
             android:name=".videocall.helloanychat.MyReceiver"
             android:exported="false">
