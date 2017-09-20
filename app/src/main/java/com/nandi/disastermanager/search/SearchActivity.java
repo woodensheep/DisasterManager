@@ -21,6 +21,7 @@ import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.AreaInfo;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
+import com.nandi.disastermanager.search.entity.DisasterPointDao;
 import com.nandi.disastermanager.search.entity.ListType;
 import com.nandi.disastermanager.search.entity.LoginInfo;
 import com.nandi.disastermanager.ui.WaitingDialog;
@@ -83,9 +84,7 @@ public class SearchActivity extends Activity {
     private List<String> mItems4 = new ArrayList<>();
     private String[] mItems5 = new String[10];
     private List<String> mItems6 = new ArrayList<>();
-    ;
-    private ListType listType;
-    private String id, level;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,10 +93,9 @@ public class SearchActivity extends Activity {
 
         ButterKnife.bind(this);
         context = this;
-        id = (String) SharedUtils.getShare(context,"ID","");
-        level = (String) SharedUtils.getShare(context,"loginlevel","");
-        getlistType(id, level);
         MyApplication.getActivities().add(this);
+        initViews();
+        getListType();
     }
 
     private void initViews() {
@@ -158,7 +156,7 @@ public class SearchActivity extends Activity {
                     int code = GreenDaoManager.queryArea2(name).get(0).getArea_id();
                     mItems2.clear();
                     mItems2.add("选择区县");
-                    if (countyNum==1){
+                    if (countyNum == 1) {
                         mItems2.remove("选择区县");
                     }
                     for (AreaInfo areaInfo : GreenDaoManager.queryAreaLevel(3, code)) {
@@ -305,46 +303,19 @@ public class SearchActivity extends Activity {
         });
     }
 
-    private void getlistType(String id, String level) {
-        WaitingDialog.createLoadingDialog(context, "正在加载...");
-        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listType/" + id + "/" + level)
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        WaitingDialog.closeDialog();
-                        Toast.makeText(context, "请求失败", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
+    private void getListType() {
 
-                    @Override
-                    public void onResponse(String response, int id) {
-                        WaitingDialog.closeDialog();
-                        Gson gson = new Gson();
-                        try {
-                            listType = gson.fromJson(response, ListType.class);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            ToastUtils.showShort(context, "数据请求错误！");
-                            return;
-                        }
-                        if (listType.getData() == null) {
-                            return;
-                        }
-                        mItems4.clear();
-                        mItems4.add("选择等级");
-                        for (int i = 0; i < listType.getData().getXqdj().size(); i++) {
-                            mItems4.add(listType.getData().getXqdj().get(i));
-                        }
-                        mItems6.clear();
-                        mItems6.add("选择诱因");
-                        for (int i = 0; i < listType.getData().getYfys().size(); i++) {
-                            mItems6.add(listType.getData().getYfys().get(i));
-                        }
-                        initViews();
-                    }
-                });
-
+        mItems4.clear();
+        mItems4.add("选择等级");
+        for (int i = 0; i < GreenDaoManager.getDistinct(1).size(); i++) {
+            mItems4.add(GreenDaoManager.getDistinct(1).get(i));
+        }
+        mItems6.clear();
+        mItems6.add("选择诱因");
+        for (int i = 0; i < GreenDaoManager.getDistinct(0).size(); i++) {
+            mItems6.add(GreenDaoManager.getDistinct(0).get(i));
+        }
+        initViews();
     }
 
 }

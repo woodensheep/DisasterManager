@@ -44,6 +44,7 @@ public class DetailDataActivity extends Activity {
     private DetailData mDetailData;
     private Context mContext;
     private String[] array;
+    private DisasterPoint disasterPoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,41 +55,12 @@ public class DetailDataActivity extends Activity {
         mContext = this;
         mDetailData = new DetailData();
         Long id = getIntent().getLongExtra("id", 0);
-        DisasterPoint disasterPoint = GreenDaoManager.queryDisasterById(id + "");
-        Log.i("Tag", disasterPoint.getDisasterNum());
-        monitorListRequest(disasterPoint.getDisasterNum());
-    }
-
-    /**
-     * 网络请求隐患点信息
-     *
-     * @param code
-     */
-    private void monitorListRequest(String code) {
-        WaitingDialog.createLoadingDialog(mContext, "正在加载...");
-        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/disaterpoint/findByDisaterCode/" + code)
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        WaitingDialog.closeDialog();
-                        Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-
-                    @Override
-                    public void onResponse(String response, int id) {
-                        WaitingDialog.closeDialog();
-                        Log.i("qingsong", response);
-                        Gson gson = new Gson();
-                        mDetailData = gson.fromJson(response, DetailData.class);
-                        dateShow.setLayoutManager(new LinearLayoutManager(mContext));
-                        addArray();
-                        detailAdapter = new DetailDataAdapter(mContext, array);
-                        dateShow.setAdapter(detailAdapter);
-                    }
-                });
-
+        disasterPoint = GreenDaoManager.queryDisasterById(id + "");
+        Log.i("Tag", disasterPoint.getDisasterType());
+        dateShow.setLayoutManager(new LinearLayoutManager(mContext));
+        addArray();
+        detailAdapter = new DetailDataAdapter(mContext, array);
+        dateShow.setAdapter(detailAdapter);
     }
 
     /**
@@ -96,35 +68,39 @@ public class DetailDataActivity extends Activity {
      */
     private void addArray() {
         array = new String[18];
-        array[0] = mDetailData.getData().get(0).getName();
-        if ("01".equals(mDetailData.getData().get(0).getType())) {
-            array[1] = "滑坡";
-        } else if ("02".equals(mDetailData.getData().get(0).getType())) {
-            array[1] = "地面塌陷";
-        } else if ("03".equals(mDetailData.getData().get(0).getType())) {
-            array[1] = "泥石流";
-        } else if ("05".equals(mDetailData.getData().get(0).getType())) {
-            array[1] = "地裂缝";
-        } else if ("06".equals(mDetailData.getData().get(0).getType())) {
-            array[1] = "不稳定斜坡";
-        } else if ("07".equals(mDetailData.getData().get(0).getType())) {
-            array[1] = "崩塌";
-        }
-        array[2] = "null".equals(mDetailData.getData().get(0).getDisNum()) ? "" : mDetailData.getData().get(0).getDisNum();
-        array[3] = "null".equals(mDetailData.getData().get(0).getVillages()) ? "" : mDetailData.getData().get(0).getVillages();
-        array[4] = mDetailData.getData().get(0).getLon() + "";
-        array[5] = mDetailData.getData().get(0).getLat() + "";
-        array[6] = "null".equals(mDetailData.getData().get(0).getSite()) ? "" : mDetailData.getData().get(0).getSite();
-        array[7] = "null".equals(mDetailData.getData().get(0).getInducement()) ? "" : mDetailData.getData().get(0).getInducement();
-        array[8] = "null".equals(mDetailData.getData().get(0).getThreatLevel()) ? "" : mDetailData.getData().get(0).getThreatLevel();
-        array[9] = "null".equals(mDetailData.getData().get(0).getThreatNum()) ? "" : mDetailData.getData().get(0).getThreatNum();
-        array[10] = "null".equals(mDetailData.getData().get(0).getThreatMoney()) ? "" : mDetailData.getData().get(0).getThreatMoney();
-        array[11] = "null".equals(mDetailData.getData().get(0).getWxqt()) ? "" : mDetailData.getData().get(0).getWxqt();
-        array[12] = "null".equals(mDetailData.getData().get(0).getSbsj()) ? "" : mDetailData.getData().get(0).getSbsj();
-        array[13] = "null".equals(mDetailData.getData().get(0).getFxsj()) ? "" : mDetailData.getData().get(0).getFxsj();
-        array[14] = "null".equals(mDetailData.getData().get(0).getFzzrdw()) ? "" : mDetailData.getData().get(0).getFzzrdw();
-        array[15] = "null".equals(mDetailData.getData().get(0).getZlqk()) ? "" : mDetailData.getData().get(0).getZlqk();
-        array[16] = "null".equals(mDetailData.getData().get(0).getGATHER()) ? "" : mDetailData.getData().get(0).getGATHER();
-        array[17] = "null".equals(mDetailData.getData().get(0).getPHONE()) ? "" : mDetailData.getData().get(0).getPHONE();
+        /*隐患点名称*/
+        array[0] = disasterPoint.getDisasterName();
+        /*隐患点类型*/
+        array[1] = disasterPoint.getDisasterType();
+        /*隐患点编号*/
+        array[2] = "null".equals(disasterPoint.getDisasterNum()) ? "" : disasterPoint.getDisasterNum();
+        /*所在地*/
+        array[3] = "null".equals(disasterPoint.getTown()) ? "" : disasterPoint.getTown();
+        /*灾害点经度*/
+        array[4] = disasterPoint.getDisasterLon() + "";
+          /*灾害点纬度*/
+        array[5] = disasterPoint.getDisasterLat() + "";
+          /*详细地址*/
+        array[6] = "null".equals(disasterPoint.getDisasterSite()) ? "" : disasterPoint.getDisasterSite();
+          /*主要诱因*/
+        array[7] = "null".equals(disasterPoint.getMajorIncentives()) ? "" : disasterPoint.getMajorIncentives();
+          /*灾害等级*/
+        array[8] = "null".equals(disasterPoint.getDisasterGrade()) ? "" : disasterPoint.getDisasterGrade();
+        /*受威胁人数*/
+        array[9] = "null".equals(disasterPoint.getThreatNum()) ? "" : disasterPoint.getThreatNum();
+        /*受威胁财产*/
+        array[10] = "null".equals(disasterPoint.getThreatMoney()) ? "" : disasterPoint.getThreatMoney();
+        /*受威胁对象*/
+        array[11] = "null".equals(disasterPoint.getThreatObject()) ? "" : disasterPoint.getThreatObject();
+        /*发现时间*/
+        array[12] = "null".equals(disasterPoint.getFormationTime()) ? "" : disasterPoint.getFormationTime();
+        /*上报时间*/
+        array[13] = "null".equals(disasterPoint.getTableTime()) ? "" : disasterPoint.getTableTime();
+        /*防灾责任单位*/
+        array[14] = "null".equals(disasterPoint.getInvestigationUnit()) ? "" : disasterPoint.getInvestigationUnit();
+        /*监测人*/
+        array[15] = "null".equals(disasterPoint.getMonitorPersonnel()) ? "" : disasterPoint.getMonitorPersonnel();
+        /*监测号码*/
+        array[16] = "null".equals(disasterPoint.getPhoneNum()) ? "" : disasterPoint.getPhoneNum();
     }
 }

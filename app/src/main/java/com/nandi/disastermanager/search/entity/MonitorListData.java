@@ -7,13 +7,14 @@ import java.util.List;
  */
 
 public class MonitorListData {
+
     /**
      * meta : {"success":true,"message":"ok"}
-     * data : {"pageNo":1,"pageSize":10,"totalCount":1,"totalPages":1,"result":[{"time":"2017-09-08 19:55:34","lon":107,"NAME":"轿子山镇厦耳村前寨滑坡_02","disName":"嘎哩滑坡","disnNum":"520402010001","ID":"520402010003_02","lat":27,"REGIONID":1136}],"offset":0,"limit":10,"length":8,"funcName":"page","prev":1,"next":1}
+     * data : [{"NAME":"轿子山镇厦耳村前寨滑坡_01","ID":"520402010003_01","LONGITUDE":106.689,"HTPID":"520402010003","LATITUDE":26.591171,"REGIONID":2151},{"NAME":"老林寨地裂缝_01","ID":"520402050003_01","LONGITUDE":106.0425,"HTPID":"520402050003","LATITUDE":26.388889,"REGIONID":2180},{"NAME":"老林寨地裂缝_02","ID":"520402050003_02","LONGITUDE":106.0425,"HTPID":"520402050003","LATITUDE":26.388889,"REGIONID":2180},{"NAME":"胡家岩崩塌（危岩体）_01","ID":"520403070043_01","LONGITUDE":106.388889,"HTPID":"520403070043","LATITUDE":26.361667,"REGIONID":2193},{"NAME":"湖坝冲滑坡_01","ID":"520425010021_01","LONGITUDE":106.697646,"HTPID":"520425010021","LATITUDE":26.59777,"REGIONID":2620}]
      */
 
     private MetaBean meta;
-    private DataBean data;
+    private List<DataBean> data;
 
     public MetaBean getMeta() {
         return meta;
@@ -23,11 +24,11 @@ public class MonitorListData {
         this.meta = meta;
     }
 
-    public DataBean getData() {
+    public List<DataBean> getData() {
         return data;
     }
 
-    public void setData(DataBean data) {
+    public void setData(List<DataBean> data) {
         this.data = data;
     }
 
@@ -59,204 +60,67 @@ public class MonitorListData {
 
     public static class DataBean {
         /**
-         * pageNo : 1
-         * pageSize : 10
-         * totalCount : 1
-         * totalPages : 1
-         * result : [{"time":"2017-09-08 19:55:34","lon":107,"NAME":"轿子山镇厦耳村前寨滑坡_02","disName":"嘎哩滑坡","disnNum":"520402010001","ID":"520402010003_02","lat":27,"REGIONID":1136}]
-         * offset : 0
-         * limit : 10
-         * length : 8
-         * funcName : page
-         * prev : 1
-         * next : 1
+         * NAME : 轿子山镇厦耳村前寨滑坡_01
+         * ID : 520402010003_01
+         * LONGITUDE : 106.689
+         * HTPID : 520402010003
+         * LATITUDE : 26.591171
+         * REGIONID : 2151
          */
 
-        private int pageNo;
-        private int pageSize;
-        private int totalCount;
-        private int totalPages;
-        private int offset;
-        private int limit;
-        private int length;
-        private String funcName;
-        private int prev;
-        private int next;
-        private List<ResultBean> result;
+        private String NAME;
+        private String ID;
+        private double LONGITUDE;
+        private String HTPID;
+        private double LATITUDE;
+        private int REGIONID;
 
-        public int getPageNo() {
-            return pageNo;
+        public String getNAME() {
+            return NAME;
         }
 
-        public void setPageNo(int pageNo) {
-            this.pageNo = pageNo;
+        public void setNAME(String NAME) {
+            this.NAME = NAME;
         }
 
-        public int getPageSize() {
-            return pageSize;
+        public String getID() {
+            return ID;
         }
 
-        public void setPageSize(int pageSize) {
-            this.pageSize = pageSize;
+        public void setID(String ID) {
+            this.ID = ID;
         }
 
-        public int getTotalCount() {
-            return totalCount;
+        public double getLONGITUDE() {
+            return LONGITUDE;
         }
 
-        public void setTotalCount(int totalCount) {
-            this.totalCount = totalCount;
+        public void setLONGITUDE(double LONGITUDE) {
+            this.LONGITUDE = LONGITUDE;
         }
 
-        public int getTotalPages() {
-            return totalPages;
+        public String getHTPID() {
+            return HTPID;
         }
 
-        public void setTotalPages(int totalPages) {
-            this.totalPages = totalPages;
+        public void setHTPID(String HTPID) {
+            this.HTPID = HTPID;
         }
 
-        public int getOffset() {
-            return offset;
+        public double getLATITUDE() {
+            return LATITUDE;
         }
 
-        public void setOffset(int offset) {
-            this.offset = offset;
+        public void setLATITUDE(double LATITUDE) {
+            this.LATITUDE = LATITUDE;
         }
 
-        public int getLimit() {
-            return limit;
+        public int getREGIONID() {
+            return REGIONID;
         }
 
-        public void setLimit(int limit) {
-            this.limit = limit;
-        }
-
-        public int getLength() {
-            return length;
-        }
-
-        public void setLength(int length) {
-            this.length = length;
-        }
-
-        public String getFuncName() {
-            return funcName;
-        }
-
-        public void setFuncName(String funcName) {
-            this.funcName = funcName;
-        }
-
-        public int getPrev() {
-            return prev;
-        }
-
-        public void setPrev(int prev) {
-            this.prev = prev;
-        }
-
-        public int getNext() {
-            return next;
-        }
-
-        public void setNext(int next) {
-            this.next = next;
-        }
-
-        public List<ResultBean> getResult() {
-            return result;
-        }
-
-        public void setResult(List<ResultBean> result) {
-            this.result = result;
-        }
-
-        public static class ResultBean {
-            /**
-             * time : 2017-09-08 19:55:34
-             * lon : 107
-             * NAME : 轿子山镇厦耳村前寨滑坡_02
-             * disName : 嘎哩滑坡
-             * disnNum : 520402010001
-             * ID : 520402010003_02
-             * lat : 27
-             * REGIONID : 1136
-             */
-
-            private String time;
-            private double lon;
-            private String NAME;
-            private String disName;
-            private String disnNum;
-            private String ID;
-            private double lat;
-            private int REGIONID;
-
-            public String getTime() {
-                return time;
-            }
-
-            public void setTime(String time) {
-                this.time = time;
-            }
-
-            public double getLon() {
-                return lon;
-            }
-
-            public void setLon(double lon) {
-                this.lon = lon;
-            }
-
-            public String getNAME() {
-                return NAME;
-            }
-
-            public void setNAME(String NAME) {
-                this.NAME = NAME;
-            }
-
-            public String getDisName() {
-                return disName;
-            }
-
-            public void setDisName(String disName) {
-                this.disName = disName;
-            }
-
-            public String getDisnNum() {
-                return disnNum;
-            }
-
-            public void setDisnNum(String disnNum) {
-                this.disnNum = disnNum;
-            }
-
-            public String getID() {
-                return ID;
-            }
-
-            public void setID(String ID) {
-                this.ID = ID;
-            }
-
-            public double getLat() {
-                return lat;
-            }
-
-            public void setLat(double lat) {
-                this.lat = lat;
-            }
-
-            public int getREGIONID() {
-                return REGIONID;
-            }
-
-            public void setREGIONID(int REGIONID) {
-                this.REGIONID = REGIONID;
-            }
+        public void setREGIONID(int REGIONID) {
+            this.REGIONID = REGIONID;
         }
     }
-
 }

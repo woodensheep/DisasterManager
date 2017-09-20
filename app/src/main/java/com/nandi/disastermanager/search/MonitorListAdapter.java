@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.MonitorData;
 import com.nandi.disastermanager.search.entity.MonitorListData;
+import com.nandi.disastermanager.search.entity.MonitorListPoint;
 
 import java.util.List;
 
@@ -26,9 +27,10 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
     private Context mContext;
     private MonitorListData mMonitorListData;
     public MonitorListAdapter.OnItemClickListener mOnItemClickListener;
-    public MonitorListAdapter(Context context,MonitorListData mMonitorListData) {
+    private List<MonitorListPoint> monitorListPoints;
+    public MonitorListAdapter(Context context,List monitorListPoints) {
         mContext = context;
-        this.mMonitorListData =  mMonitorListData;
+        this.monitorListPoints =  monitorListPoints;
     }
 
 
@@ -44,8 +46,8 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
     @Override
     public void onBindViewHolder(MonitorListAdapter.ViewHolderA holder, final int position) {
 
-            holder.tv_1.setText(mMonitorListData.getData().getResult().get(position).getID());
-            holder.tv_2.setText(mMonitorListData.getData().getResult().get(position).getNAME());
+            holder.tv_1.setText(monitorListPoints.get(position).getMonitorId());
+            holder.tv_2.setText(monitorListPoints.get(position).getName());
             holder.tv_4.setText("查看详情");
             holder.tv_4.setEnabled(true);
             holder.tv_4.setTag(position);
@@ -63,7 +65,7 @@ public class MonitorListAdapter extends RecyclerView.Adapter<MonitorListAdapter.
     @Override
     public int getItemCount() {
         //生成的item的数量
-        return mMonitorListData.getData().getResult().size();
+        return monitorListPoints.size();
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定

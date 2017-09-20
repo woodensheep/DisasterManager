@@ -16,7 +16,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.nandi.disastermanager.dao.GreenDaoManager;
+import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
@@ -89,6 +91,7 @@ public class SettingActivity extends Activity {
         setContentView(R.layout.activity_setting);
         ButterKnife.bind(this);
         mContext = this;
+        MyApplication.getActivities().add(this);
         initView();
     }
 
@@ -172,14 +175,18 @@ public class SettingActivity extends Activity {
             case R.id.downloadMonDate:
                 break;
             case R.id.logOut:
-                GreenDaoManager.deleteArea();
+//                GreenDaoManager.deleteArea();
                 GreenDaoManager.deleteDisaster();
-                SharedUtils.clearShare(mContext);
+                SharedUtils.removeShare(mContext, "saveTime");
+                getApplicationContext().stopService(new Intent(SettingActivity.this, ReplaceService.class));
+//                getApplicationContext().unbindService(serviceConnection);
                 for (Activity activity : MyApplication.getActivities()) {
                     if (!activity.isFinishing()) {
                         activity.finish();
                     }
                 }
+                Intent intent1 = new Intent(this, LoginActivity.class);
+                startActivity(intent1);
                 break;
         }
     }

@@ -18,6 +18,8 @@ import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.DisasterData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
+import com.nandi.disastermanager.search.entity.MonitorListData;
+import com.nandi.disastermanager.search.entity.MonitorListPoint;
 import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -37,6 +39,8 @@ import okhttp3.Call;
 public class ReplaceService extends Service {
     private static final String TAG = "ReplaceService";
     private Context context;
+    private String id;
+    private String level;
 
     @Override
     public void onCreate() {
@@ -49,9 +53,16 @@ public class ReplaceService extends Service {
                 super.run();
                 while (true) {
                     try {
-                        if (isRequest()) {
-                            NetworkUtils.isConnected();
-                            updateData();
+                        if (isDisRequest()) {
+                            if (NetworkUtils.isConnected()) {
+                                upDisData();
+                            }
+                            Log.d(TAG, "开始请求数据");
+                        }
+                        if (isMonRequest()) {
+                            if (NetworkUtils.isConnected()) {
+                                upMonData();
+                            }
                             Log.d(TAG, "开始请求数据");
                         }
                         Thread.sleep(5 * 60 * 1000);
@@ -87,28 +98,34 @@ public class ReplaceService extends Service {
         return START_STICKY;
     }
 
-    private boolean isRequest() {
+    private boolean isDisRequest() {
         long currentTime = new Date().getTime();
-        long lastTime = (long) SharedUtils.getShare(context, "saveTime", 0L);
+        long lastTime = (long) SharedUtils.getShare(context, "saveDisTime", 0L);
+
+        return currentTime - lastTime > 24 * 60 * 60 * 1000;
+    }
+    private boolean isMonRequest() {
+        long currentTime = new Date().getTime();
+        long lastTime = (long) SharedUtils.getShare(context, "saveMonTime", 0L);
 
         return currentTime - lastTime > 24 * 60 * 60 * 1000;
     }
 
-    private void updateData() {
-        String id = (String) SharedUtils.getShare(this, "ID", "");
-        String level = (String) SharedUtils.getShare(this, "loginlevel", "");
+    private void upDisData() {
+         id = (String) SharedUtils.getShare(this, "ID", "");
+        level = (String) SharedUtils.getShare(this, "loginlevel", "");
 
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
                 .build();
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                updateData();
+                upDisData();
             }
 
             @Override
             public void onResponse(final String response, int id) {
-                SharedUtils.putShare(context, "saveTime", new Date().getTime());
+                SharedUtils.putShare(context, "saveDisTime", new Date().getTime());
                 GreenDaoManager.deleteDisaster();
                 Gson gson = new Gson();
                 try {
@@ -175,6 +192,50 @@ public class ReplaceService extends Service {
         });
 
     }
+    private void upMonData() {
+        id = (String) SharedUtils.getShare(this, "ID", "");
+        level = (String) SharedUtils.getShare(this, "loginlevel", "");
+        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level)
+                .build();
+        build.execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+
+                upMonData();
+            }
+
+            @Override
+            public void onResponse(final String response, int id) {
+                SharedUtils.putShare(context, "saveMonTime", new Date().getTime());
+                Log.i("qingsong",response);
+                GreenDaoManager.deleteAllMonitor();
+                Gson gson = new Gson();
+                try {
+                    final MonitorListData monitorListData = gson.fromJson(response, MonitorListData.class);
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            for (MonitorListData.DataBean dataBean : monitorListData.getData()) {
+                                MonitorListPoint monitorListPoint = new MonitorListPoint();
+                                monitorListPoint.setMonitorId(dataBean.getID());
+                                monitorListPoint.setName(dataBean.getNAME());
+                                monitorListPoint.setDisNum(dataBean.getHTPID());
+                                monitorListPoint.setLat(dataBean.getLATITUDE());
+                                monitorListPoint.setLon(dataBean.getLONGITUDE());
+                                monitorListPoint.setReginId(dataBean.getREGIONID());
+                                GreenDaoManager.insertMonitorListPoint(monitorListPoint);
+                            }
+                        }
+                    }.start();
+                    LogUtils.d(TAG, "监测数据保存结束");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -184,5 +245,6 @@ public class ReplaceService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i("123","onDestroy被执行了");
     }
 }
