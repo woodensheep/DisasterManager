@@ -20,6 +20,7 @@ import com.nandi.disastermanager.search.entity.DisasterData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.LoginInfo;
 import com.nandi.disastermanager.ui.WaitingDialog;
+import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.PermissionUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -158,7 +159,7 @@ public class LoginActivity extends AppCompatActivity {
                         SharedUtils.putShare(mContext, "loginname", name+"");
                         SharedUtils.putShare(mContext, "loginpswd", pswd+"");
                         SharedUtils.putShare(mContext,"isLogin",true);
-                        SharedUtils.putShare(mContext,"versionCode",Integer.parseInt(MainActivity.getVerCode(mContext)));
+                        SharedUtils.putShare(mContext,"versionCode",Integer.parseInt(AppUtils.getVerCode(mContext)));
                     }
                 });
 

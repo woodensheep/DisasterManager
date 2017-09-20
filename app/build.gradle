@@ -16,6 +16,7 @@ android {
             //选择要添加的对应cpu类型的.so库。
             abiFilters 'armeabi', 'armeabi-v7a', 'x86'
         }
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -32,7 +33,7 @@ android {
         cruncherEnabled = false
         useNewCruncher = false
     }
-    greendao{
+    greendao {
         schemaVersion 1
     }
 }
@@ -44,14 +45,6 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
-
-
-
-
-
-
-
 
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:appcompat-v7:25.3.1'
@@ -72,6 +65,8 @@ dependencies {
     compile 'com.aliyun.ams:alicloud-android-ut:5.1.0'
     compile 'com.contrarywind:Android-PickerView:3.2.6'
     compile 'com.blankj:utilcode:1.9.0'
+    compile 'com.android.support:support-vector-drawable:25.3.1'
     testCompile 'junit:junit:4.12'
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
+
 }

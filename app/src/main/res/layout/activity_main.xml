@@ -43,6 +43,26 @@
             android:background="@drawable/location_bar_selector" />
     </LinearLayout>
 
+    <!--<LinearLayout-->
+        <!--android:id="@+id/ll_userMessage"-->
+        <!--android:layout_width="40dp"-->
+        <!--android:layout_height="40dp"-->
+        <!--android:layout_above="@+id/ll_control"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_marginRight="10dp"-->
+        <!--android:layout_marginTop="5dp"-->
+        <!--android:layout_marginBottom="20dp"-->
+        <!--android:background="@drawable/icon_background">-->
+
+        <!--<ImageView-->
+            <!--android:id="@+id/iv_userMessage"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_margin="5dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:background="@drawable/user" />-->
+    <!--</LinearLayout>-->
+
     <LinearLayout
         android:id="@+id/ll_control"
         android:layout_width="40dp"

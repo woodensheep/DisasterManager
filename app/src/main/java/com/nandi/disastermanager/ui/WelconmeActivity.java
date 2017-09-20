@@ -9,6 +9,7 @@ import android.os.Bundle;
 import com.nandi.disastermanager.LoginActivity;
 import com.nandi.disastermanager.MainActivity;
 import com.nandi.disastermanager.R;
+import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 
 public class WelconmeActivity extends AppCompatActivity {
@@ -40,7 +41,7 @@ public class WelconmeActivity extends AppCompatActivity {
         }
     }
     private void clearShared() {
-        int currentCode= Integer.parseInt(MainActivity.getVerCode(context));
+        int currentCode= Integer.parseInt(AppUtils.getVerCode(context));
         int oldCode= (int) SharedUtils.getShare(context,"versionCode",0);
         if (currentCode>oldCode){
             SharedUtils.clearShare(context);

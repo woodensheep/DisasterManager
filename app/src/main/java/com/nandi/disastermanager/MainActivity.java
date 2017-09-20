@@ -80,6 +80,7 @@ import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.SearchActivity;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.ui.WaitingDialog;
+import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
@@ -162,6 +163,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageView ivLocation;
     @BindView(R.id.ll_location)
     LinearLayout llLocation;
+    @BindView(R.id.ll_userMessage)
+    LinearLayout llUserMessage;
+
 
     private boolean llAreaState = true;
     private boolean llUtilState = false;
@@ -215,6 +219,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MyApplication.getActivities().add(this);
         context = this;
         setLine();
+        id = (String) SharedUtils.getShare(context, "ID", "");
+        level = (String) SharedUtils.getShare(context, "loginlevel", "");
         checkUpdate();
         bindAccount();
         initUtilData();
@@ -257,11 +263,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = new Intent(this, ReplaceService.class);
         startService(intent);
     }
-
-
     private void checkUpdate() {
         OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")
-                .addParams("version", getVerCode(this))
+                .addParams("version", AppUtils.getVerCode(this))
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -311,16 +315,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.setCanceledOnTouchOutside(false);
     }
 
-    public static String getVerCode(Context context) {
-        int versionNumber = -1;
-        try {
-            versionNumber = context.getPackageManager().getPackageInfo("com.nandi.disastermanager", 0).versionCode;
-            System.out.println("当前版本" + versionNumber);
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e("version", e.getMessage());
-        }
-        return versionNumber + "";
-    }
 
 
     private void bindAccount() {
@@ -501,6 +495,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivSearchMain.setOnClickListener(this);
         btnUtil.setOnClickListener(this);
         ivAreaBack.setOnClickListener(this);
+        llUserMessage.setOnClickListener(this);
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -797,6 +792,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setAreaBack();
                 break;
             case R.id.iv_search_main:
+
                 List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
                 if (disasterPoints.size() == 0) {
                     ToastUtils.showShort(context, "正在加载请稍候...");
@@ -806,6 +802,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     intent.putExtra("LEVEL", level);
                     startActivity(intent);
                 }
+                break;
+            case R.id.ll_userMessage:
+                Intent intent = new Intent(context, SettingActivity.class);
+                startActivity(intent);
                 break;
             case R.id.ll_compass:
                 resetPosition();
