@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.google.gson.Gson;
 import com.nandi.disastermanager.MainActivity;
 import com.nandi.disastermanager.R;
@@ -35,7 +36,6 @@ import okhttp3.Call;
  */
 public class ReplaceService extends Service {
     private static final String TAG = "ReplaceService";
-    private String id, level;
     private Context context;
 
     @Override
@@ -50,11 +50,12 @@ public class ReplaceService extends Service {
                 while (true) {
                     try {
                         if (isRequest()) {
+                            NetworkUtils.isConnected();
                             updateData();
                             Log.d(TAG, "开始请求数据");
                         }
-                        Thread.sleep(30*60 * 1000);
-                    } catch (InterruptedException e) {
+                        Thread.sleep(5 * 60 * 1000);
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -89,75 +90,83 @@ public class ReplaceService extends Service {
     private boolean isRequest() {
         long currentTime = new Date().getTime();
         long lastTime = (long) SharedUtils.getShare(context, "saveTime", 0L);
-        return currentTime - lastTime > 24*60*60 * 1000;
+
+        return currentTime - lastTime > 24 * 60 * 60 * 1000;
     }
 
     private void updateData() {
-        id = (String) SharedUtils.getShare(this, "ID", "");
-        level = (String) SharedUtils.getShare(this, "loginlevel", "");
-        GreenDaoManager.deleteDisaster();
+        String id = (String) SharedUtils.getShare(this, "ID", "");
+        String level = (String) SharedUtils.getShare(this, "loginlevel", "");
+
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
                 .build();
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                Log.d(TAG, "请求失败");
+                updateData();
             }
 
             @Override
             public void onResponse(final String response, int id) {
+                SharedUtils.putShare(context, "saveTime", new Date().getTime());
+                GreenDaoManager.deleteDisaster();
                 Gson gson = new Gson();
                 try {
-                    DisasterData disasterData = gson.fromJson(response, DisasterData.class);
-                    for (DisasterData.DataBean dataBean : disasterData.getData()) {
-                        String type = "";
-                        switch (dataBean.getDisasterType()) {
-                            case "01":
-                                type = "滑坡";
-                                break;
-                            case "02":
-                                type = "地面塌陷";
-                                break;
-                            case "03":
-                                type = "泥石流";
-                                break;
-                            case "04":
-                                break;
-                            case "05":
-                                type = "地裂缝";
-                                break;
-                            case "06":
-                                type = "不稳定斜坡";
-                                break;
-                            case "07":
-                                type = "崩塌";
-                                break;
+                    final DisasterData disasterData = gson.fromJson(response, DisasterData.class);
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            super.run();
+                            for (DisasterData.DataBean dataBean : disasterData.getData()) {
+                                String type = "";
+                                switch (dataBean.getDisasterType()) {
+                                    case "01":
+                                        type = "滑坡";
+                                        break;
+                                    case "02":
+                                        type = "地面塌陷";
+                                        break;
+                                    case "03":
+                                        type = "泥石流";
+                                        break;
+                                    case "04":
+                                        break;
+                                    case "05":
+                                        type = "地裂缝";
+                                        break;
+                                    case "06":
+                                        type = "不稳定斜坡";
+                                        break;
+                                    case "07":
+                                        type = "崩塌";
+                                        break;
+                                }
+                                DisasterPoint disasterPoint = new DisasterPoint();
+                                disasterPoint.setDisasterNum(dataBean.getDisasterNum());
+                                disasterPoint.setDisasterName(dataBean.getDisasterName());
+                                disasterPoint.setDisasterType(type);
+                                disasterPoint.setDisasterSite(dataBean.getDisasterSite());
+                                disasterPoint.setDisasterLon(dataBean.getDisasterLon());
+                                disasterPoint.setDisasterLat(dataBean.getDisasterLat());
+                                disasterPoint.setDisasterAdress(dataBean.getDisasterAdress());
+                                disasterPoint.setMajorIncentives(dataBean.getMajorIncentives());
+                                disasterPoint.setDisasterGrade(dataBean.getDisasterGrade());
+                                disasterPoint.setThreatNum(dataBean.getThreatNum());
+                                disasterPoint.setThreatObject(dataBean.getThreatObject());
+                                disasterPoint.setThreatMoney(dataBean.getThreatMoney());
+                                disasterPoint.setFormationTime(dataBean.getFormationTime());
+                                disasterPoint.setTableTime(dataBean.getTableTime());
+                                disasterPoint.setInvestigationUnit(dataBean.getInvestigationUnit());
+                                disasterPoint.setMonitorPersonnel(dataBean.getMonitorPersonnel());
+                                disasterPoint.setPhoneNum(dataBean.getPhoneNum());
+                                disasterPoint.setCity(dataBean.getCity());
+                                disasterPoint.setCounty(dataBean.getCounty());
+                                disasterPoint.setTown(dataBean.getTown());
+                                GreenDaoManager.insertDisasterPoint(disasterPoint);
+                            }
                         }
-                        DisasterPoint disasterPoint = new DisasterPoint();
-                        disasterPoint.setDisasterNum(dataBean.getDisasterNum());
-                        disasterPoint.setDisasterName(dataBean.getDisasterName());
-                        disasterPoint.setDisasterType(type);
-                        disasterPoint.setDisasterSite(dataBean.getDisasterSite());
-                        disasterPoint.setDisasterLon(dataBean.getDisasterLon());
-                        disasterPoint.setDisasterLat(dataBean.getDisasterLat());
-                        disasterPoint.setDisasterAdress(dataBean.getDisasterAdress());
-                        disasterPoint.setMajorIncentives(dataBean.getMajorIncentives());
-                        disasterPoint.setDisasterGrade(dataBean.getDisasterGrade());
-                        disasterPoint.setThreatNum(dataBean.getThreatNum());
-                        disasterPoint.setThreatObject(dataBean.getThreatObject());
-                        disasterPoint.setThreatMoney(dataBean.getThreatMoney());
-                        disasterPoint.setFormationTime(dataBean.getFormationTime());
-                        disasterPoint.setTableTime(dataBean.getTableTime());
-                        disasterPoint.setInvestigationUnit(dataBean.getInvestigationUnit());
-                        disasterPoint.setMonitorPersonnel(dataBean.getMonitorPersonnel());
-                        disasterPoint.setPhoneNum(dataBean.getPhoneNum());
-                        disasterPoint.setCity(dataBean.getCity());
-                        disasterPoint.setCounty(dataBean.getCounty());
-                        disasterPoint.setTown(dataBean.getTown());
-                        GreenDaoManager.insertDisasterPoint(disasterPoint);
-                    }
+                    }.start();
                     LogUtils.d(TAG, "数据保存结束");
-                    SharedUtils.putShare(context, "saveTime", new Date().getTime());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

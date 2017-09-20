@@ -211,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SimpleFillSymbol mPolygonFillSymbol;
     private int baseMap = 0;//0代表电子地图，1代表影像图
     private int location = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -251,11 +252,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initStaData();
         startUpdateService();
     }
+
     private void setLine() {
         if ("1".equals(level)) {
             llLocation.setVisibility(View.VISIBLE);
         }
     }
+
     /**
      * 开启服务
      */
@@ -263,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = new Intent(this, ReplaceService.class);
         startService(intent);
     }
+
     private void checkUpdate() {
         OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")
                 .addParams("version", AppUtils.getVerCode(this))
@@ -314,7 +318,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
     }
-
 
 
     private void bindAccount() {
@@ -795,7 +798,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.iv_search_main:
                 List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
                 if (disasterPoints.size() == 0) {
-                    ToastUtils.showShort(context, "正在加载请稍候...");
+                    if (downloadSuccess) {
+                        //// TODO: 2017/9/20
+                    } else {
+                        ToastUtils.showShort(context, "正在加载请稍候...");
+                    }
                 } else {
                     Intent intent = new Intent(context, SearchActivity.class);
                     intent.putExtra("ID", id);
@@ -815,6 +822,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
     private void setLocation() {
         LocationInfo locationInfo = GreenDaoManager.queryLocation();
         Intent intent = new Intent(context, LocationService.class);
@@ -823,7 +831,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showLocationNotice(locationInfo);
             } else {
                 startService(intent);
-                ToastUtils.showShort(context,"开启了定位");
+                ToastUtils.showShort(context, "开启了定位");
                 ivLocation.setSelected(true);
                 location = 1;
             }
@@ -831,6 +839,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             showUploadNotice(locationInfo);
         }
     }
+
     private void showUploadNotice(final LocationInfo locationInfo) {
         new AlertDialog.Builder(context)
                 .setTitle("提示")
@@ -851,6 +860,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }).show();
     }
+
     private void showLocationNotice(final LocationInfo locationInfo) {
         new AlertDialog.Builder(context)
                 .setTitle("提示")
@@ -874,6 +884,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }).show();
     }
+
     private void uploadLocation(LocationInfo locationInfo) {
         if (locationInfo != null) {
             String userName = locationInfo.getUserName();
@@ -902,6 +913,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     });
         }
     }
+
     private void changeBaseMap() {
         if (baseMap == 0) {
             layers.clear();
