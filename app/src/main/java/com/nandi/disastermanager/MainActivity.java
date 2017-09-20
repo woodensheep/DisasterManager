@@ -163,8 +163,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageView ivLocation;
     @BindView(R.id.ll_location)
     LinearLayout llLocation;
-    @BindView(R.id.ll_userMessage)
-    LinearLayout llUserMessage;
+//    @BindView(R.id.ll_userMessage)
+//    LinearLayout llUserMessage;
 
 
     private boolean llAreaState = true;
@@ -488,6 +488,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setListeners() {
+        ivLocation.setOnClickListener(this);
         ivChangeMap.setOnClickListener(this);
         llEnlarge.setOnClickListener(this);
         llNarrow.setOnClickListener(this);
@@ -495,7 +496,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivSearchMain.setOnClickListener(this);
         btnUtil.setOnClickListener(this);
         ivAreaBack.setOnClickListener(this);
-        llUserMessage.setOnClickListener(this);
+//        llUserMessage.setOnClickListener(this);
         sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -803,10 +804,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     startActivity(intent);
                 }
                 break;
-            case R.id.ll_userMessage:
-                Intent intent = new Intent(context, SettingActivity.class);
-                startActivity(intent);
-                break;
+//            case R.id.ll_userMessage:
+//                Intent intent = new Intent(context, SettingActivity.class);
+//                startActivity(intent);
+//                break;
             case R.id.ll_compass:
                 resetPosition();
                 break;
