@@ -188,7 +188,24 @@ public class GreenDaoManager {
                 .list();
         return disasterList;
     }
+    /**
+     * 根据隐患点类型查询
+     */
+    public  static List<DisasterPoint> queryDisasterByType(String type) {
 
+        return GreenDaoManager.getInstance().getSession().getDisasterPointDao().queryBuilder()
+                .where(DisasterPointDao.Properties.DisasterType.eq(type))
+                .list();
+    }
+    /**
+     * 根据隐患点等级查询
+     */
+    public  static List<DisasterPoint> queryDisasterByLevel(String level) {
+
+        return GreenDaoManager.getInstance().getSession().getDisasterPointDao().queryBuilder()
+                .where(DisasterPointDao.Properties.DisasterGrade.eq(level))
+                .list();
+    }
 
     /**
      * 增加区域数据

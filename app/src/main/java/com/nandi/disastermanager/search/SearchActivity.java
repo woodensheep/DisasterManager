@@ -2,7 +2,6 @@ package com.nandi.disastermanager.search;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,30 +11,23 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.AreaInfo;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
-import com.nandi.disastermanager.search.entity.DisasterPointDao;
-import com.nandi.disastermanager.search.entity.ListType;
 import com.nandi.disastermanager.search.entity.LoginInfo;
-import com.nandi.disastermanager.ui.WaitingDialog;
-import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
-import com.zhy.http.okhttp.OkHttpUtils;
-import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.Call;
 
 import static com.nandi.disastermanager.R.id.date_show;
 
@@ -60,6 +52,30 @@ public class SearchActivity extends Activity {
     Button btnSearch;
     @BindView(date_show)
     RecyclerView dateShow;
+    @BindView(R.id.tv_total_number)
+    TextView tvTotalNumber;
+    @BindView(R.id.tv_huapo_number)
+    TextView tvHuapoNumber;
+    @BindView(R.id.tv_bengta_number)
+    TextView tvBengtaNumber;
+    @BindView(R.id.tv_taxian_number)
+    TextView tvTaxianNumber;
+    @BindView(R.id.tv_nishiliu_number)
+    TextView tvNishiliuNumber;
+    @BindView(R.id.tv_diliefeng_number)
+    TextView tvDiliefengNumber;
+    @BindView(R.id.tv_xiepo_number)
+    TextView tvXiepoNumber;
+    @BindView(R.id.tv_teda_number)
+    TextView tvTedaNumber;
+    @BindView(R.id.tv_da_number)
+    TextView tvDaNumber;
+    @BindView(R.id.tv_zhong_number)
+    TextView tvZhongNumber;
+    @BindView(R.id.tv_xiao_number)
+    TextView tvXiaoNumber;
+    @BindView(R.id.ll_statics)
+    LinearLayout llStatics;
 
     private Context context;
     /**
@@ -94,8 +110,8 @@ public class SearchActivity extends Activity {
         ButterKnife.bind(this);
         context = this;
         MyApplication.getActivities().add(this);
-        initViews();
         getListType();
+        initViews();
     }
 
     private void initViews() {
@@ -296,13 +312,55 @@ public class SearchActivity extends Activity {
                 Log.d("limeng", "onClick" + disasterPoints.size());
                 if (disasterPoints.size() == 0) {
                     ToastUtils.showShort(context, "无符合条件数据");
+                    llStatics.setVisibility(View.GONE);
+                    return;
                 }
+                llStatics.setVisibility(View.VISIBLE);
+                setStatics(disasterPoints);
                 mDisasterPoints.addAll(disasterPoints);
                 rcSearchAdapter.notifyDataSetChanged();
             }
         });
     }
 
+    private void setStatics(List<DisasterPoint> disasterPoints) {
+        int total=disasterPoints.size(), huapo = 0, bengta = 0, nishiliu = 0, diliefeng = 0, xiepo = 0, teda = 0, da = 0, zhong = 0, xiao = 0, taxian = 0;
+        for (DisasterPoint disasterPoint : disasterPoints) {
+            if ("滑坡".equals(disasterPoint.getDisasterType())) {
+                huapo++;
+            } else if ("地面塌陷".equals(disasterPoint.getDisasterType())) {
+                taxian++;
+            } else if ("泥石流".equals(disasterPoint.getDisasterType())) {
+                nishiliu++;
+            } else if ("地裂缝".equals(disasterPoint.getDisasterType())) {
+                diliefeng++;
+            } else if ("不稳定斜坡".equals(disasterPoint.getDisasterType())) {
+                xiepo++;
+            } else if ("崩塌".equals(disasterPoint.getDisasterType())) {
+                bengta++;
+            }
+            if ("特大型".equals(disasterPoint.getDisasterGrade())) {
+                teda++;
+            } else if ("大型".equals(disasterPoint.getDisasterGrade())) {
+                da++;
+            } else if ("中型".equals(disasterPoint.getDisasterGrade())) {
+                zhong++;
+            } else if ("小型".equals(disasterPoint.getDisasterGrade())) {
+                xiao++;
+            }
+        }
+        tvTotalNumber.setText(total+"");
+        tvHuapoNumber.setText(huapo+"");
+        tvTaxianNumber.setText(taxian+"");
+        tvNishiliuNumber.setText(nishiliu+"");
+        tvDiliefengNumber.setText(diliefeng+"");
+        tvXiepoNumber.setText(xiepo+"");
+        tvBengtaNumber.setText(bengta+"");
+        tvTedaNumber.setText(teda+"");
+        tvDaNumber.setText(da+"");
+        tvZhongNumber.setText(zhong+"");
+        tvXiaoNumber.setText(xiao+"");
+    }
     private void getListType() {
 
         mItems4.clear();

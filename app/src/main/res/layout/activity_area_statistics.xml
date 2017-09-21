@@ -6,8 +6,8 @@
     android:layout_marginTop="20dp">
 
     <LinearLayout
-        android:layout_width="250dp"
-        android:layout_height="150dp"
+        android:layout_width="220dp"
+        android:layout_height="300dp"
         android:alpha="1"
         android:background="@drawable/shape_ll_background"
         android:orientation="vertical">
@@ -43,29 +43,6 @@
             android:padding="5dp"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="@dimen/margin_neirong"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="3"
-                    android:text="2012年详查隐患点总数："
-                    android:textColor="@color/dark_blue"
-                    android:textSize="@dimen/leirong_text_size" />
-
-                <TextView
-                    android:id="@+id/tv_xc_number"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@color/dark_blue"
-                    android:textSize="@dimen/leirong_text_size" />
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -103,12 +80,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
-                    android:text="专业监测点总数："
+                    android:text="滑坡隐患点："
                     android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
-                    android:id="@+id/tv_jiance_number"
+                    android:id="@+id/tv_huapo_number"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -129,12 +106,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
-                    android:text="自动化监测站总数："
+                    android:text="崩塌隐患点："
                     android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
-                    android:id="@+id/tv_jcz_number"
+                    android:id="@+id/tv_bengta_number"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -142,8 +119,198 @@
                     android:textColor="@color/dark_blue"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_weight="1"
+                android:orientation="horizontal">
 
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="塌陷隐患点："
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
 
+                <TextView
+                    android:id="@+id/tv_taxian_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="泥石流隐患点："
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+
+                <TextView
+                    android:id="@+id/tv_nishiliu_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="地裂缝隐患点："
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+
+                <TextView
+                    android:id="@+id/tv_diliefeng_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="不稳定斜坡隐患点："
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+
+                <TextView
+                    android:id="@+id/tv_xiepo_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="特大型："
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+
+                <TextView
+                    android:id="@+id/tv_teda_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="大型："
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+
+                <TextView
+                    android:id="@+id/tv_daxing_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="中型："
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+
+                <TextView
+                    android:id="@+id/tv_zhong_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/margin_neirong"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="小型："
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+
+                <TextView
+                    android:id="@+id/tv_xioxing_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ceshi"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="@dimen/leirong_text_size" />
+            </LinearLayout>
         </LinearLayout>
 
 

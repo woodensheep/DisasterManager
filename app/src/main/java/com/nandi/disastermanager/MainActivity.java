@@ -1,21 +1,14 @@
 package com.nandi.disastermanager;
 
-import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +22,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
@@ -72,6 +64,7 @@ import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.esri.arcgisruntime.util.ListenableList;
+import com.google.gson.Gson;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.entity.LocationInfo;
 import com.nandi.disastermanager.http.LocationService;
@@ -79,7 +72,7 @@ import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.SearchActivity;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
-import com.nandi.disastermanager.ui.WaitingDialog;
+import com.nandi.disastermanager.search.entity.StaticsInfo;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
@@ -109,14 +102,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     SceneView sceneView;
     @BindView(R.id.iv_area_back)
     ImageView ivAreaBack;
-    @BindView(R.id.tv_xc_number)
-    TextView tvXcNumber;
-    @BindView(R.id.tv_disaster_number)
-    TextView tvDisasterNumber;
-    @BindView(R.id.tv_jiance_number)
-    TextView tvJianceNumber;
-    @BindView(R.id.tv_jcz_number)
-    TextView tvJczNumber;
     @BindView(R.id.ll_area)
     LinearLayout llArea;
     @BindView(R.id.iv_search_main)
@@ -165,6 +150,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayout llLocation;
     @BindView(R.id.ll_userMessage)
     LinearLayout llUserMessage;
+    @BindView(R.id.tv_disaster_number)
+    TextView tvDisasterNumber;
+    @BindView(R.id.tv_huapo_number)
+    TextView tvHuapoNumber;
+    @BindView(R.id.tv_bengta_number)
+    TextView tvBengtaNumber;
+    @BindView(R.id.tv_taxian_number)
+    TextView tvTaxianNumber;
+    @BindView(R.id.tv_nishiliu_number)
+    TextView tvNishiliuNumber;
+    @BindView(R.id.tv_diliefeng_number)
+    TextView tvDiliefengNumber;
+    @BindView(R.id.tv_xiepo_number)
+    TextView tvXiepoNumber;
+    @BindView(R.id.tv_teda_number)
+    TextView tvTedaNumber;
+    @BindView(R.id.tv_daxing_number)
+    TextView tvDaxingNumber;
+    @BindView(R.id.tv_zhong_number)
+    TextView tvZhongNumber;
+    @BindView(R.id.tv_xioxing_number)
+    TextView tvXioxingNumber;
 
 
     private boolean llAreaState = true;
@@ -249,16 +256,118 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mClearButton.setClickable(false);
         mClearButton.setEnabled(false);
         setListeners();
-        initStaData();
+        if (!checkDownload()) {
+            setStatics();
+        } else {
+            initStaData();
+        }
         startUpdateService();
     }
-
+    private boolean checkDownload() {
+        List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
+        boolean isChangeUser = (boolean) SharedUtils.getShare(context, "isChangeUser", false);
+        return disasterPoints.size() > 0 && isChangeUser;
+    }
     private void setLine() {
         if ("1".equals(level)) {
             llLocation.setVisibility(View.VISIBLE);
         }
     }
+    private void setStatics() {
+        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url) + "appdocking/countDisaterPoint/" + id + "/" + level)
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        ToastUtils.showShort(context, "统计信息获取失败");
+                    }
 
+                    @Override
+                    public void onResponse(String response, int id) {
+                        Gson gson = new Gson();
+                        StaticsInfo staticsInfo = gson.fromJson(response, StaticsInfo.class);
+                        tvDisasterNumber.setText(staticsInfo.getData().getZs().get(0).getCount()+"");
+                        String huapo="0",taxian="0",nishiliu="0",dilie="0",xiepo="0",bengta="0",teda="0",
+                                da="",zhong="",xiao="" ;
+                        List<StaticsInfo.DataBean.ZhzlBean> zhzl = staticsInfo.getData().getZhzl();
+                        for (StaticsInfo.DataBean.ZhzlBean zhzlBean : zhzl) {
+                            switch (zhzlBean.getXqdj()){
+                                case "01":
+                                    huapo= String.valueOf(zhzlBean.getCount());
+                                    break;
+                                case "02":
+                                    taxian= String.valueOf(zhzlBean.getCount());
+                                    break;
+                                case "03":
+                                    nishiliu= String.valueOf(zhzlBean.getCount());
+                                    break;
+                                case "05":
+                                    dilie= String.valueOf(zhzlBean.getCount());
+                                    break;
+                                case "06":
+                                    xiepo= String.valueOf(zhzlBean.getCount());
+                                    break;
+                                case "07":
+                                    bengta= String.valueOf(zhzlBean.getCount());
+                                    break;
+                            }
+                        }
+                        List<StaticsInfo.DataBean.DjBean> dj = staticsInfo.getData().getDj();
+                        for (StaticsInfo.DataBean.DjBean djBean : dj) {
+                            switch (djBean.getXqdj()){
+                                case "特大型":
+                                    teda= String.valueOf(djBean.getCount());
+                                    break;
+                                case "大型":
+                                    da= String.valueOf(djBean.getCount());
+                                    break;
+                                case "中型":
+                                    zhong= String.valueOf(djBean.getCount());
+                                    break;
+                                case "小型":
+                                    xiao= String.valueOf(djBean.getCount());
+                                    break;
+                            }
+                        }
+                        tvHuapoNumber.setText(huapo);
+                        tvTaxianNumber.setText(taxian);
+                        tvNishiliuNumber.setText(nishiliu);
+                        tvDiliefengNumber.setText(dilie);
+                        tvXiepoNumber.setText(xiepo);
+                        tvBengtaNumber.setText(bengta);
+                        tvTedaNumber.setText(teda);
+                        tvDaxingNumber.setText(da);
+                        tvZhongNumber.setText(zhong);
+                        tvXioxingNumber.setText(xiao);
+                    }
+                });
+    }
+    private void initStaData() {
+        List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
+        if (disasterPoints.size() > 0) {
+            List<DisasterPoint> huapo = GreenDaoManager.queryDisasterByType("滑坡");
+            List<DisasterPoint> taxian = GreenDaoManager.queryDisasterByType("地面塌陷");
+            List<DisasterPoint> nishiliu = GreenDaoManager.queryDisasterByType("泥石流");
+            List<DisasterPoint> diliefeng = GreenDaoManager.queryDisasterByType("地裂缝");
+            List<DisasterPoint> xiepo = GreenDaoManager.queryDisasterByType("不稳定斜坡");
+            List<DisasterPoint> bengta = GreenDaoManager.queryDisasterByType("崩塌");
+            List<DisasterPoint> teda = GreenDaoManager.queryDisasterByLevel("特大型");
+            List<DisasterPoint> da = GreenDaoManager.queryDisasterByLevel("大型");
+            List<DisasterPoint> zhong = GreenDaoManager.queryDisasterByLevel("中型");
+            List<DisasterPoint> xiao = GreenDaoManager.queryDisasterByLevel("小型");
+            tvDisasterNumber.setText(disasterPoints.size() + "");
+            tvHuapoNumber.setText(huapo.size() + "");
+            tvTaxianNumber.setText(taxian.size() + "");
+            tvNishiliuNumber.setText(nishiliu.size() + "");
+            tvDiliefengNumber.setText(diliefeng.size() + "");
+            tvXiepoNumber.setText(xiepo.size() + "");
+            tvBengtaNumber.setText(bengta.size() + "");
+            tvTedaNumber.setText(teda.size() + "");
+            tvDaxingNumber.setText(da.size() + "");
+            tvZhongNumber.setText(zhong.size() + "");
+            tvXioxingNumber.setText(xiao.size() + "");
+        }
+    }
     /**
      * 开启服务
      */
@@ -457,38 +566,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-
-    private void initStaData() {
-        String level = (String) SharedUtils.getShare(context, "loginlevel", "");
-        String areaCode = (String) SharedUtils.getShare(context, "areacode", "");
-        Log.d(TAG, "登录级别：" + level + "区域Id:" + areaCode);
-        waitingDialog = WaitingDialog.createLoadingDialog(this, "正在请求中...");
-        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url) + "Count/totalNumAllData/" + level + "/" + areaCode)
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        WaitingDialog.closeDialog(waitingDialog);
-                        Toast.makeText(getApplicationContext(), "统计信息获取失败，请检查网路！", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onResponse(String response, int id) {
-                        WaitingDialog.closeDialog(waitingDialog);
-                        try {
-                            Log.d(TAG, "统计信息：" + response);
-                            JSONObject object = new JSONObject(response);
-                            JSONObject oj = object.getJSONObject("data");
-                            tvXcNumber.setText(oj.getString("newData"));
-                            tvDisasterNumber.setText(oj.getString("disater"));
-                            tvJianceNumber.setText(oj.getString("deviceOfDisaste"));
-                            tvJczNumber.setText(oj.getString("device01"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-    }
 
     private void setListeners() {
         ivLocation.setOnClickListener(this);
