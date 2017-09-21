@@ -45,7 +45,7 @@
 
         <activity
             android:name=".ui.WelconmeActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,11 +55,11 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:screenOrientation="landscape" />
         <activity
             android:name=".MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:screenOrientation="landscape"
             android:launchMode="singleTask"/>
         <activity
@@ -90,40 +90,40 @@
             android:name=".search.SearchActivity"
             android:screenOrientation="landscape"
             android:theme="@style/TipDialog1"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".search.DetailDataActivity"
             android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:theme="@style/TipDialog" />
         <activity
             android:name=".search.MonitorDataActivity"
             android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:theme="@style/TipDialog" />
         <activity
             android:name=".search.MonitorListActivity"
             android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:theme="@style/TipDialog" />
         <activity
             android:name=".search.MonitorPhotoActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:screenOrientation="landscape"
             android:theme="@style/TipDialog" />
         <activity
             android:name=".search.NavigationActivity"
             android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:theme="@style/TipDialog" />
         <activity
             android:name=".videocall.helloanychat.ProgressActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:screenOrientation="landscape" />
         <activity
             android:name=".videocall.helloanychat.ReceiveVideoActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:screenOrientation="landscape" />
 
         <service
@@ -159,11 +159,11 @@
         <activity
             android:name=".search.EnlargePhotoActivity"
             android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:theme="@style/TipDialog" />
         <activity android:name=".SettingActivity"
             android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:theme="@style/TipDialog1"/>
     </application>
 

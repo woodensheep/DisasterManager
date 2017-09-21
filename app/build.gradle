@@ -6,8 +6,8 @@ android {
     buildToolsVersion "26.0.0"
     defaultConfig {
         applicationId "com.nandi.disastermanager"
-        minSdkVersion 16
-        versionCode 6
+        minSdkVersion 19
+        versionCode 7
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         //加上这句话
@@ -34,7 +34,7 @@ android {
         useNewCruncher = false
     }
     greendao {
-        schemaVersion 3
+        schemaVersion 4
     }
 }
 

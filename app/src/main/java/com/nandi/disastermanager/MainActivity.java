@@ -84,6 +84,7 @@ import com.zhy.http.okhttp.callback.StringCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -426,6 +427,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog = builder.create();
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
+        try {
+            Field mAlert = AlertDialog.class.getDeclaredField("mAlert");
+            mAlert.setAccessible(true);
+            Object mAlertController = mAlert.get(dialog);
+            Field mMessage = mAlertController.getClass().getDeclaredField("mMessageView");
+            Field mButtonPositive = mAlertController.getClass().getDeclaredField("mButtonPositive");
+            Field mButtonNegative = mAlertController.getClass().getDeclaredField("mButtonNegative");
+            mMessage.setAccessible(true);
+            mButtonPositive.setAccessible(true);
+            mButtonNegative.setAccessible(true);
+            TextView mMessageView = (TextView) mMessage.get(mAlertController);
+            Button positiveButton = (Button) mButtonPositive.get(mAlertController);
+            Button negativeButton = (Button) mButtonNegative.get(mAlertController);
+            mMessageView.setTextSize(20);
+            positiveButton.setTextSize(25);
+            negativeButton.setTextSize(25);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            e.printStackTrace();
+        }
     }
 
 
