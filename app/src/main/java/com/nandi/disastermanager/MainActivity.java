@@ -27,6 +27,11 @@ import android.widget.Toast;
 import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
 import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.BDLocation;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.blankj.utilcode.util.TimeUtils;
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.geometry.AreaUnit;
 import com.esri.arcgisruntime.geometry.AreaUnitId;
@@ -89,6 +94,7 @@ import org.json.JSONObject;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -218,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SimpleFillSymbol mPolygonFillSymbol;
     private int baseMap = 0;//0代表电子地图，1代表影像图
     private int location = 0;
+    private LocationClient locationClient = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -226,13 +233,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ButterKnife.bind(this);
         MyApplication.getActivities().add(this);
         context = this;
-        setLine();
         id = (String) SharedUtils.getShare(context, Constant.AREA_ID, "");
         level = (String) SharedUtils.getShare(context, Constant.LEVEL, "");
+        setLine();
         checkUpdate();
-//        bindAccount();
+//        bindAccount();//绑定推送账号，暂时不用
         initUtilData();
-        loginPost((String) SharedUtils.getShare(context,Constant.USER_NAME,""), (String)SharedUtils.getShare(context,Constant.PASSWORD,""));
+        loginPost((String) SharedUtils.getShare(context, Constant.USER_NAME, ""), (String) SharedUtils.getShare(context, Constant.PASSWORD, ""));
         gzDianZhiLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_dianzi_url));
         gzYingXiangLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url));
         gzYingXiangLayerHigh = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url_1));
@@ -256,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRedoButton.setEnabled(false);
         mClearButton.setClickable(false);
         mClearButton.setEnabled(false);
+        locationClient=new LocationClient(getApplicationContext());
         setListeners();
         if (!checkDownload()) {
             setStatics();
@@ -264,11 +272,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         startUpdateService();
     }
+
     /**
      * 登录请求
      */
     private void loginPost(String userNumber, String password) {
-        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + userNumber + "/" + password + "/2" )
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + userNumber + "/" + password + "/2")
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -393,6 +402,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tvXioxingNumber.setText(xiao.size() + "");
         }
     }
+
     /**
      * 开启服务
      */
@@ -947,12 +957,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setLocation() {
         LocationInfo locationInfo = GreenDaoManager.queryLocation();
-        Intent intent = new Intent(context, LocationService.class);
         if (location == 0) {
             if (locationInfo != null) {
                 showLocationNotice(locationInfo);
             } else {
-                startService(intent);
+                startLocation();
                 ToastUtils.showShort(context, "开启了定位");
                 ivLocation.setSelected(true);
                 location = 1;
@@ -962,6 +971,69 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void startLocation() {
+        GreenDaoManager.deleteAllLocation();
+        LocationInfo locationInfo = new LocationInfo();
+        locationInfo.setStartTime(TimeUtils.millis2String(new Date().getTime()));
+        locationInfo.setUserName((String) SharedUtils.getShare(context, Constant.USER_NAME, ""));
+        GreenDaoManager.insertLocation(locationInfo);
+        LocationClientOption option = new LocationClientOption();
+        option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
+        option.setCoorType("bd09ll");
+        int span=1000;
+        option.setScanSpan(span);
+        //可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
+        option.setOpenGps(true);
+        //可选，默认false,设置是否使用gps
+        option.setIgnoreKillProcess(false);
+        //可选，默认true，定位SDK内部是一个SERVICE，并放到了独立进程，设置是否在stop的时候杀死这个进程，默认不杀死
+        locationClient.setLocOption(option);
+        locationClient.registerLocationListener(new MyLocationListener());
+        locationClient.start();
+    }
+    private class MyLocationListener extends BDAbstractLocationListener{
+
+        @Override
+        public void onReceiveLocation(BDLocation bdLocation) {
+            double currentLon = bdLocation.getLongitude();
+            double currentLat = bdLocation.getLatitude();
+            double lastLon= (double) SharedUtils.getShare(context,Constant.SAVE_LON,0L);
+            double lastLat= (double) SharedUtils.getShare(context,Constant.SAVE_LAT,0L);
+            double distance = AppUtils.getDistance(currentLon, currentLat, lastLon, lastLat);
+            if (distance>10.0){
+            String longitude = String.valueOf(bdLocation.getLongitude());
+            String latitude = String.valueOf(bdLocation.getLatitude());
+            Log.d(TAG, "jd:" + longitude + "/wd:" + latitude);
+            LocationInfo locationInfo = GreenDaoManager.queryLocation();
+            String userName = locationInfo.getUserName();
+            String startTime = locationInfo.getStartTime();
+            Long id = locationInfo.getId();
+            String lonAndLat = locationInfo.getLonAndLat();
+            LocationInfo l = new LocationInfo();
+            l.setId(id);
+            l.setUserName(userName);
+            l.setStartTime(startTime);
+            l.setEndTime(TimeUtils.millis2String(new Date().getTime()));
+            if (lonAndLat == null || "".equals(lonAndLat)) {
+                l.setLonAndLat(longitude + "," + latitude);
+            } else {
+                l.setLonAndLat(lonAndLat + "|" + longitude + "," + latitude);
+            }
+            GreenDaoManager.updateLocation(l);
+            }
+            SharedUtils.putShare(context,Constant.SAVE_LON,bdLocation.getLongitude());
+            SharedUtils.putShare(context,Constant.SAVE_LAT,bdLocation.getLatitude());
+        }
+
+        @Override
+        public void onLocDiagnosticMessage(int locType, int diagnosticType, String diagnosticMessage) {
+            if (diagnosticType == LocationClient.LOC_DIAGNOSTIC_TYPE_BETTER_OPEN_GPS) {
+                ToastUtils.showShort(context,"请打开GPS");
+            } else if (diagnosticType == LocationClient.LOC_DIAGNOSTIC_TYPE_BETTER_OPEN_WIFI) {
+                ToastUtils.showShort(context,"建议打开WIFI提高定位经度");
+            }
+        }
+    }
     private void showUploadNotice(final LocationInfo locationInfo) {
         new AlertDialog.Builder(context)
                 .setTitle("提示")
@@ -969,7 +1041,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setPositiveButton("上传信息", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        stopService(new Intent(context, LocationService.class));
+                        locationClient.stop();
                         ivLocation.setSelected(false);
                         location = 0;
                         uploadLocation(locationInfo);
@@ -979,6 +1051,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
+                    }
+                })
+                .setNeutralButton("删除信息", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        GreenDaoManager.deleteAllLocation();
+                        locationClient.stop();
+                        ivLocation.setSelected(false);
+                        location = 0;
                     }
                 }).show();
     }
