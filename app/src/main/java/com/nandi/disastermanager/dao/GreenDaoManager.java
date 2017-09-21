@@ -16,6 +16,8 @@ import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.DisasterPointDao;
 import com.nandi.disastermanager.search.entity.MonitorListPoint;
 import com.nandi.disastermanager.search.entity.MonitorListPointDao;
+import com.nandi.disastermanager.search.entity.MonitorPoint;
+import com.nandi.disastermanager.search.entity.MonitorPointDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,8 +103,9 @@ public class GreenDaoManager {
         DisasterPointDao disasterPointDao = GreenDaoManager.getInstance().getSession().getDisasterPointDao();
         disasterPointDao.insert(disasterPoint);
     }
+
     /**
-     * 增加监测点数据
+     * 增加监测点
      *
      * @param monitorListPoint
      */
@@ -110,12 +113,31 @@ public class GreenDaoManager {
         MonitorListPointDao monitorListPointDao = GreenDaoManager.getInstance().getSession().getMonitorListPointDao();
         monitorListPointDao.insert(monitorListPoint);
     }
+
+    /**
+     * 增加监测点数据
+     *
+     * @param monitorPoint
+     */
+    public static void insertMonitorPoint(MonitorPoint monitorPoint) {
+        MonitorPointDao monitorPointDao = GreenDaoManager.getInstance().getSession().getMonitorPointDao();
+        monitorPointDao.insert(monitorPoint);
+    }
+
     /**
      * 删除监测点数据
      */
     public static void deleteAllMonitor() {
         GreenDaoManager.getInstance().getSession().getMonitorListPointDao().deleteAll();
     }
+
+    /**
+     * 删除监测点数据
+     */
+    public static void deleteAllMonitorData() {
+        GreenDaoManager.getInstance().getSession().getMonitorPointDao().deleteAll();
+    }
+
     /**
      * 根据隐患点编号查询监测点
      */
@@ -127,6 +149,18 @@ public class GreenDaoManager {
         return monitorList;
     }
 
+    /**
+     * 根据监测点编号查询监测点数据
+     */
+    public static List<MonitorPoint> queryMonitorData(String monitorNum) {
+
+        List<MonitorPoint> monitorData = GreenDaoManager.getInstance().getSession().getMonitorPointDao().queryBuilder()
+                .where(MonitorPointDao.Properties.MonitorId.eq(monitorNum))
+                .list();
+        return monitorData;
+    }
+
+    /*灾害点去重*/
     public static List<String> getDistinct(int id) {
         String sql;
         if (id == 1) {
@@ -188,19 +222,21 @@ public class GreenDaoManager {
                 .list();
         return disasterList;
     }
+
     /**
      * 根据隐患点类型查询
      */
-    public  static List<DisasterPoint> queryDisasterByType(String type) {
+    public static List<DisasterPoint> queryDisasterByType(String type) {
 
         return GreenDaoManager.getInstance().getSession().getDisasterPointDao().queryBuilder()
                 .where(DisasterPointDao.Properties.DisasterType.eq(type))
                 .list();
     }
+
     /**
      * 根据隐患点等级查询
      */
-    public  static List<DisasterPoint> queryDisasterByLevel(String level) {
+    public static List<DisasterPoint> queryDisasterByLevel(String level) {
 
         return GreenDaoManager.getInstance().getSession().getDisasterPointDao().queryBuilder()
                 .where(DisasterPointDao.Properties.DisasterGrade.eq(level))

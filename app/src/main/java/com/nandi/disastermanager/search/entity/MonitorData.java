@@ -11,11 +11,11 @@ public class MonitorData {
 
     /**
      * meta : {"success":true,"message":"ok"}
-     * data : {"pageNo":1,"pageSize":10000,"totalCount":1,"totalPages":1,"result":[{"PHONE":"13885272488","GATHER":"蒋方明","MONITORDATA":200,"time":"2017-09-11 11:15:07","lon":106,"NAME":"轿子山镇厦耳村前寨滑坡_02","WEATHER":"晴天","IS_DANGER":0,"ID":"520402010003_02","lat":28}],"offset":0,"limit":10000,"length":8,"funcName":"page","prev":1,"next":1}
+     * data : [{"time":"2017-09-10 15:51:54","monitorId":"520402010003_01","name":"轿子山镇厦耳村前寨滑坡_01","monitorData":1852},{"time":"2017-09-10 18:41:16","monitorId":"520425010021_01","name":"湖坝冲滑坡_01","monitorData":200},{"time":"2017-09-18 13:24:28","monitorId":"520402010003_01","name":"轿子山镇厦耳村前寨滑坡_01","monitorData":250},{"time":"2017-09-11 12:36:29","monitorId":"520402050003_01","name":"老林寨地裂缝_01","monitorData":55},{"time":"2017-09-10 12:36:29","monitorId":"520402050003_02","name":"老林寨地裂缝_02","monitorData":50},{"time":"2017-09-08 12:36:29","monitorId":"520402050003_01","name":"老林寨地裂缝_01","monitorData":57},{"time":"2017-09-02 12:36:29","monitorId":"520402050003_01","name":"老林寨地裂缝_01","monitorData":58},{"time":"2017-09-06 12:36:29","monitorId":"520402050003_02","name":"老林寨地裂缝_02","monitorData":48},{"time":"2017-09-01 12:36:29","monitorId":"520402050003_02","name":"老林寨地裂缝_02","monitorData":56},{"time":"2017-09-12 11:36:29","monitorId":"520402050003_01","name":"老林寨地裂缝_01","monitorData":55},{"time":"2017-09-12 12:36:29","monitorId":"520402050003_01","name":"老林寨地裂缝_01","monitorData":55},{"time":"2017-09-12 14:36:29","monitorId":"520402050003_01","name":"老林寨地裂缝_01","monitorData":55},{"time":"2017-09-13 15:23:02","monitorId":"520403070043_01","name":"胡家岩崩塌（危岩体）_01","monitorData":35}]
      */
 
     private MetaBean meta;
-    private DataBean data;
+    private List<DataBean> data;
 
     public MetaBean getMeta() {
         return meta;
@@ -25,11 +25,11 @@ public class MonitorData {
         this.meta = meta;
     }
 
-    public DataBean getData() {
+    public List<DataBean> getData() {
         return data;
     }
 
-    public void setData(DataBean data) {
+    public void setData(List<DataBean> data) {
         this.data = data;
     }
 
@@ -61,223 +61,47 @@ public class MonitorData {
 
     public static class DataBean {
         /**
-         * pageNo : 1
-         * pageSize : 10000
-         * totalCount : 1
-         * totalPages : 1
-         * result : [{"PHONE":"13885272488","GATHER":"蒋方明","MONITORDATA":200,"time":"2017-09-11 11:15:07","lon":106,"NAME":"轿子山镇厦耳村前寨滑坡_02","WEATHER":"晴天","IS_DANGER":0,"ID":"520402010003_02","lat":28}]
-         * offset : 0
-         * limit : 10000
-         * length : 8
-         * funcName : page
-         * prev : 1
-         * next : 1
+         * time : 2017-09-10 15:51:54
+         * monitorId : 520402010003_01
+         * name : 轿子山镇厦耳村前寨滑坡_01
+         * monitorData : 1852.0
          */
 
-        private int pageNo;
-        private int pageSize;
-        private int totalCount;
-        private int totalPages;
-        private int offset;
-        private int limit;
-        private int length;
-        private String funcName;
-        private int prev;
-        private int next;
-        private List<ResultBean> result;
+        private String time;
+        private String monitorId;
+        private String name;
+        private double monitorData;
 
-        public int getPageNo() {
-            return pageNo;
+        public String getTime() {
+            return time;
         }
 
-        public void setPageNo(int pageNo) {
-            this.pageNo = pageNo;
+        public void setTime(String time) {
+            this.time = time;
         }
 
-        public int getPageSize() {
-            return pageSize;
+        public String getMonitorId() {
+            return monitorId;
         }
 
-        public void setPageSize(int pageSize) {
-            this.pageSize = pageSize;
+        public void setMonitorId(String monitorId) {
+            this.monitorId = monitorId;
         }
 
-        public int getTotalCount() {
-            return totalCount;
+        public String getName() {
+            return name;
         }
 
-        public void setTotalCount(int totalCount) {
-            this.totalCount = totalCount;
+        public void setName(String name) {
+            this.name = name;
         }
 
-        public int getTotalPages() {
-            return totalPages;
+        public double getMonitorData() {
+            return monitorData;
         }
 
-        public void setTotalPages(int totalPages) {
-            this.totalPages = totalPages;
-        }
-
-        public int getOffset() {
-            return offset;
-        }
-
-        public void setOffset(int offset) {
-            this.offset = offset;
-        }
-
-        public int getLimit() {
-            return limit;
-        }
-
-        public void setLimit(int limit) {
-            this.limit = limit;
-        }
-
-        public int getLength() {
-            return length;
-        }
-
-        public void setLength(int length) {
-            this.length = length;
-        }
-
-        public String getFuncName() {
-            return funcName;
-        }
-
-        public void setFuncName(String funcName) {
-            this.funcName = funcName;
-        }
-
-        public int getPrev() {
-            return prev;
-        }
-
-        public void setPrev(int prev) {
-            this.prev = prev;
-        }
-
-        public int getNext() {
-            return next;
-        }
-
-        public void setNext(int next) {
-            this.next = next;
-        }
-
-        public List<ResultBean> getResult() {
-            return result;
-        }
-
-        public void setResult(List<ResultBean> result) {
-            this.result = result;
-        }
-
-        public static class ResultBean {
-            /**
-             * PHONE : 13885272488
-             * GATHER : 蒋方明
-             * MONITORDATA : 200.0
-             * time : 2017-09-11 11:15:07
-             * lon : 106.0
-             * NAME : 轿子山镇厦耳村前寨滑坡_02
-             * WEATHER : 晴天
-             * IS_DANGER : 0
-             * ID : 520402010003_02
-             * lat : 28.0
-             */
-
-            private String PHONE;
-            private String GATHER;
-            private double MONITORDATA;
-            private String time;
-            private double lon;
-            private String NAME;
-            private String WEATHER;
-            private int IS_DANGER;
-            private String ID;
-            private double lat;
-
-            public String getPHONE() {
-                return PHONE;
-            }
-
-            public void setPHONE(String PHONE) {
-                this.PHONE = PHONE;
-            }
-
-            public String getGATHER() {
-                return GATHER;
-            }
-
-            public void setGATHER(String GATHER) {
-                this.GATHER = GATHER;
-            }
-
-            public double getMONITORDATA() {
-                return MONITORDATA;
-            }
-
-            public void setMONITORDATA(double MONITORDATA) {
-                this.MONITORDATA = MONITORDATA;
-            }
-
-            public String getTime() {
-                return time;
-            }
-
-            public void setTime(String time) {
-                this.time = time;
-            }
-
-            public double getLon() {
-                return lon;
-            }
-
-            public void setLon(double lon) {
-                this.lon = lon;
-            }
-
-            public String getNAME() {
-                return NAME;
-            }
-
-            public void setNAME(String NAME) {
-                this.NAME = NAME;
-            }
-
-            public String getWEATHER() {
-                return WEATHER;
-            }
-
-            public void setWEATHER(String WEATHER) {
-                this.WEATHER = WEATHER;
-            }
-
-            public int getIS_DANGER() {
-                return IS_DANGER;
-            }
-
-            public void setIS_DANGER(int IS_DANGER) {
-                this.IS_DANGER = IS_DANGER;
-            }
-
-            public String getID() {
-                return ID;
-            }
-
-            public void setID(String ID) {
-                this.ID = ID;
-            }
-
-            public double getLat() {
-                return lat;
-            }
-
-            public void setLat(double lat) {
-                this.lat = lat;
-            }
+        public void setMonitorData(double monitorData) {
+            this.monitorData = monitorData;
         }
     }
 }

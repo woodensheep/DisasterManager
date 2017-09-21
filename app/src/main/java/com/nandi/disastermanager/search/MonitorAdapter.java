@@ -14,7 +14,9 @@ import android.widget.TextView;
 import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.MonitorData;
+import com.nandi.disastermanager.search.entity.MonitorPoint;
 
+import java.util.List;
 
 
 /**
@@ -26,10 +28,10 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
     private MonitorData mMonitorData;
     public MonitorAdapter.OnItemClickListener mOnItemClickListener;
     private int count;
-
-    public MonitorAdapter(Context context, MonitorData mMonitorData) {
+    private List<MonitorPoint> monitorPoints;
+    public MonitorAdapter(Context context, List monitorPoints) {
         mContext = context;
-        this.mMonitorData = mMonitorData;
+        this.monitorPoints = monitorPoints;
     }
 
 
@@ -43,10 +45,10 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(MonitorAdapter.ViewHolderA holder, final int position) {
-            holder.tv_1.setText(mMonitorData.getData().getResult().get(position).getID());
-            holder.tv_2.setText(mMonitorData.getData().getResult().get(position).getNAME());
-            holder.tv_3.setText(mMonitorData.getData().getResult().get(position).getTime());
-            holder.tv_5.setText(mMonitorData.getData().getResult().get(position).getMONITORDATA() + "");
+            holder.tv_1.setText(monitorPoints.get(position).getMonitorId());
+            holder.tv_2.setText(monitorPoints.get(position).getName());
+            holder.tv_3.setText(monitorPoints.get(position).getTime());
+            holder.tv_5.setText(monitorPoints.get(position).getMonitorData()+"");
             holder.tv_8.setText("查看图片");
 
         if (mOnItemClickListener != null) {
@@ -62,7 +64,7 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
     @Override
     public int getItemCount() {
         //生成的item的数量
-        return mMonitorData.getData().getResult().size();
+        return monitorPoints.size();
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定

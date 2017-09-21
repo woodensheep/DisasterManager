@@ -18,8 +18,10 @@ import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.DisasterData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
+import com.nandi.disastermanager.search.entity.MonitorData;
 import com.nandi.disastermanager.search.entity.MonitorListData;
 import com.nandi.disastermanager.search.entity.MonitorListPoint;
+import com.nandi.disastermanager.search.entity.MonitorPoint;
 import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
@@ -57,12 +59,18 @@ public class ReplaceService extends Service {
                         if (isDisRequest()) {
                             if (NetworkUtils.isWifiConnected()) {
                                 upDisData();
+
                             }
                             Log.d(TAG, "开始请求数据");
                         }
                         if (isMonRequest()) {
                             if (NetworkUtils.isWifiConnected()) {
                                 upMonData();
+                            }
+                            Log.d(TAG, "开始请求数据");
+                        }if (isMonDataRequest()) {
+                            if (NetworkUtils.isConnected()) {
+                                upMonDatas();
                             }
                             Log.d(TAG, "开始请求数据");
                         }
@@ -110,6 +118,12 @@ public class ReplaceService extends Service {
         long lastTime = (long) SharedUtils.getShare(context, Constant.SAVE_MON_TIME, 0L);
 
         return currentTime - lastTime > 24 * 60 * 60 * 1000;
+    }
+    private boolean isMonDataRequest() {
+        long currentTime = new Date().getTime();
+        long lastTime = (long) SharedUtils.getShare(context, Constant.SAVE_MONDATA_TIME, 0L);
+
+        return currentTime - lastTime > 60 * 60 * 1000;
     }
 
     private void upDisData() {
@@ -224,6 +238,51 @@ public class ReplaceService extends Service {
                                 monitorListPoint.setLon(dataBean.getLONGITUDE());
                                 monitorListPoint.setReginId(dataBean.getREGIONID());
                                 GreenDaoManager.insertMonitorListPoint(monitorListPoint);
+                            }
+                        }
+                    }.start();
+                    LogUtils.d(TAG, "监测数据保存结束");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+    }
+    private void upMonDatas() {
+        id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
+        level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
+//        String url =getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level;
+        String url ="http://192.168.10.195:8080/gzcmd/appdocking/listMonitor/"+ id + "/" + level;
+                RequestCall build = OkHttpUtils.get().url(url)
+                .build();
+        build.execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+
+                upMonDatas();
+            }
+
+            @Override
+            public void onResponse(final String response, int id) {
+                SharedUtils.putShare(context, Constant.SAVE_MONDATA_TIME, new Date().getTime());
+                Log.i("qingsong",response);
+                System.out.println(response);
+                GreenDaoManager.deleteAllMonitorData();
+                Gson gson = new Gson();
+                try {
+                    final MonitorData monitorData = gson.fromJson(response, MonitorData.class);
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            for (MonitorData.DataBean dataBean : monitorData.getData()) {
+                                MonitorPoint monitorPoint = new MonitorPoint();
+                                monitorPoint.setMonitorId(dataBean.getMonitorId());
+                                monitorPoint.setName(dataBean.getName());
+                                monitorPoint.setTime(dataBean.getTime());
+                                monitorPoint.setMonitorData(dataBean.getMonitorData());
+                                GreenDaoManager.insertMonitorPoint(monitorPoint);
                             }
                         }
                     }.start();

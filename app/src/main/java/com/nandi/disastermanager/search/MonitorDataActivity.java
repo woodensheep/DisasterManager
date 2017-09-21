@@ -32,9 +32,12 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.google.gson.Gson;
 import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
+import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.ChartData;
+import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.MonitorData;
 import com.nandi.disastermanager.search.entity.MonitorPhoto;
+import com.nandi.disastermanager.search.entity.MonitorPoint;
 import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -73,61 +76,48 @@ public class MonitorDataActivity extends Activity {
     LineChart mLineChart;
     @BindView(R.id.monitor_data1)
     LinearLayout monitorData1;
-    private MonitorAdapter monitorAdapter;
-    /**
-     * 数据
-     **/
-    private MonitorData mMonitorData;
     private Context mContext;
     private String ID;
     private String startTime = "";
     private String endTime = "";
     private MonitorPhoto monitorPhoto;
     //点的数据
-    private List<List<Double>> lists=new ArrayList<>();
+    private List<List<Double>> lists = new ArrayList<>();
+    private MonitorAdapter monitorAdapter;
+    private List<MonitorPoint> monitorPoints;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor_data);
         ButterKnife.bind(this);
         mContext = this;
-        mMonitorData = new MonitorData();
-        ID = getIntent().getStringExtra("ID");
-        Log.i("TAG", getIntent().getStringExtra("ID"));
-        monitorListRequest(getIntent().getStringExtra("ID"));
         MyApplication.getActivities().add(this);
+        setAdapter();
     }
 
-    private void monitorListRequest(String id) {
+    private void setAdapter() {
+        ID = getIntent().getStringExtra("ID");
 
-        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/detection/findMonitorData/" + id + "/1/10000")
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        Toast.makeText(mContext, "请求失败", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onResponse(String response, int id) {
-                        Log.i("qingsong", response);
-                        Gson gson = new Gson();
-                        mMonitorData = gson.fromJson(response, MonitorData.class);
-                        if (mMonitorData.getMeta().isSuccess()) {
-                            if (mMonitorData.getData().getResult().size() == 0) {
-                                Log.i("Monitor", mMonitorData.getData().getResult().size() + "");
-                                ToastUtils.showLong(mContext, "当前监测点没有监测数据");
-                                finish();
-                            }
-                            setAdapter();
-                        } else {
-                            ToastUtils.showShort(mContext, mMonitorData.getMeta().getMessage());
-                        }
-
-                    }
-                });
+        monitorPoints = GreenDaoManager.queryMonitorData(ID);
+        if (monitorPoints.size() == 0) {
+            ToastUtils.showShort(mContext, "当前没有监测点数据");
+        } else {
+            dateShow.setLayoutManager(new LinearLayoutManager(mContext));
+            monitorAdapter = new MonitorAdapter(mContext, monitorPoints);
+            monitorAdapter.setOnItemClickListener(new MonitorAdapter.OnItemClickListener() {
+                @Override
+                public void onClick(int position) {
+                    String id = monitorPoints.get(position).getMonitorId();
+                    String time = monitorPoints.get(position).getTime();
+                    downloadPhoto(id, time);
+                }
+            });
+            dateShow.setAdapter(monitorAdapter);
+        }
 
     }
+
 
     private void monitorCurveRequest(String id, String startTime, String endTime) {
 
@@ -154,24 +144,6 @@ public class MonitorDataActivity extends Activity {
 
     }
 
-    private void setAdapter() {
-        Log.i("Monitor", "setAdapter");
-        dateShow.setLayoutManager(new LinearLayoutManager(mContext));
-        monitorAdapter = new MonitorAdapter(mContext, mMonitorData);
-        monitorAdapter.setOnItemClickListener(new MonitorAdapter.OnItemClickListener() {
-            @Override
-            public void onClick(int position) {
-//                Intent intent = new Intent(mContext, MonitorPhotoActivity.class);
-                String id = mMonitorData.getData().getResult().get(position).getID();
-                String time = mMonitorData.getData().getResult().get(position).getTime();
-//                startActivity(intent);
-                downloadPhoto(id, time);
-            }
-        });
-        dateShow.setAdapter(monitorAdapter);
-
-    }
-
     private void downloadPhoto(String id, String time) {
 
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/detection/findPhoto/" + id + "/" + time)
@@ -185,7 +157,7 @@ public class MonitorDataActivity extends Activity {
 
                     @Override
                     public void onResponse(String response, int id) {
-                            Log.i("qingsong", response);
+                        Log.i("qingsong", response);
                         Gson gson = new Gson();
                         monitorPhoto = gson.fromJson(response, MonitorPhoto.class);
                         if (monitorPhoto.getMeta().isSuccess()) {
@@ -289,16 +261,16 @@ public class MonitorDataActivity extends Activity {
 //            values.add(pointEntry);
 //        }
         lists.clear();
-        lists=chartData.getData().getMONITORDATA();
-        for (int i=0;i<chartData.getData().getMONITORDATA().size();i++){
+        lists = chartData.getData().getMONITORDATA();
+        for (int i = 0; i < chartData.getData().getMONITORDATA().size(); i++) {
             Entry pointEntry = new Entry((float) i, Float.parseFloat(lists.get(i).get(1).toString()));
-            Log.i("qingsong", pointEntry.getX() + "-" + pointEntry.getY() );
+            Log.i("qingsong", pointEntry.getX() + "-" + pointEntry.getY());
             values.add(pointEntry);
         }
         setLineChartStyle("监测数据(mm)", mLineChart);
         // create a custom MarkerView (extend MarkerView) and specify the layout
         // to use for it
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view,lists);
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view, lists);
         mv.setChartView(mLineChart); // For bounds control
         mLineChart.setMarker(mv); // Set the marker to the chart
         LineDataSet set1;
@@ -342,9 +314,9 @@ public class MonitorDataActivity extends Activity {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);//设置x轴的显示位置
         xAxis.setAvoidFirstLastClipping(true);//图表将避免第一个和最后一个标签条目被减掉在图表或屏幕的边缘
         //设置x轴显示标签数量  还有一个重载方法第二个参数为布尔值强制设置数量 如果启用会导致绘制点出现偏差
-        if (lists.size()>=6){
+        if (lists.size() >= 6) {
             xAxis.setLabelCount(6);
-        }else {
+        } else {
             xAxis.setLabelCount(lists.size());
         }
         xAxis.setTextColor(Color.BLACK);//设置轴标签的颜色
@@ -356,11 +328,11 @@ public class MonitorDataActivity extends Activity {
         xAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                Log.i("limeng",lists.size()+"-value:"+value);
-                if (value<0||value>=lists.size()){
+                Log.i("limeng", lists.size() + "-value:" + value);
+                if (value < 0 || value >= lists.size()) {
                     return "";
                 }
-                double time=lists.get((int)value).get(0);
+                double time = lists.get((int) value).get(0);
                 date.setTime(Long.parseLong(new BigDecimal(time).toPlainString()));
                 String s = simpleDateFormat.format(date);
                 //Log.d("limeng",Long.parseLong(new BigDecimal(value).toPlainString())+"-"+s);

@@ -184,7 +184,8 @@ public class SettingActivity extends Activity {
                 GreenDaoManager.deleteDisaster();
                 SharedUtils.removeShare(mContext, Constant.SAVE_DIS_TIME);
                 SharedUtils.removeShare(mContext, Constant.SAVE_MON_TIME);
-                SharedUtils.removeShare(mContext,"isLogin");
+                SharedUtils.removeShare(mContext, Constant.SAVE_MONDATA_TIME);
+                SharedUtils.removeShare(mContext, Constant.IS_LOGIN);
 
                 PushServiceFactory.getCloudPushService().turnOffPushChannel(new CommonCallback() {
                     @Override

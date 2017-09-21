@@ -14,5 +14,6 @@ public class Constant {
     public static final String CHANGE_USER="changeUser";
     public static final String SAVE_DIS_TIME="saveDisTime";
     public static final String SAVE_MON_TIME="saveMonTime";
+    public static final String SAVE_MONDATA_TIME="saveMonDataTime";
 
 }

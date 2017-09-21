@@ -73,9 +73,7 @@ import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.SearchActivity;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
-import com.nandi.disastermanager.search.entity.LoginInfo;
 import com.nandi.disastermanager.search.entity.StaticsInfo;
-import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.LogUtils;
@@ -177,11 +175,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView tvZhongNumber;
     @BindView(R.id.tv_xioxing_number)
     TextView tvXioxingNumber;
-
-
     private boolean llAreaState = true;
     private boolean llUtilState = false;
-
     ArcGISMapImageLayer gzYingXiangLayer;
     ArcGISMapImageLayer gzYingXiangLayerHigh;
     ArcGISMapImageLayer gzDianZhiLayer;
@@ -286,16 +281,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
 
     }
+
+    /*开启下载*/
     private boolean checkDownload() {
         List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
         boolean isChangeUser = (boolean) SharedUtils.getShare(context, Constant.CHANGE_USER, false);
         return disasterPoints.size() > 0 && isChangeUser;
     }
+
     private void setLine() {
         if ("1".equals(level)) {
             llLocation.setVisibility(View.VISIBLE);
         }
     }
+
+    /*获取统计信息*/
     private void setStatics() {
         OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url) + "appdocking/countDisaterPoint/" + id + "/" + level)
                 .build()
@@ -309,46 +309,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onResponse(String response, int id) {
                         Gson gson = new Gson();
                         StaticsInfo staticsInfo = gson.fromJson(response, StaticsInfo.class);
-                        tvDisasterNumber.setText(staticsInfo.getData().getZs().get(0).getCount()+"");
-                        String huapo="0",taxian="0",nishiliu="0",dilie="0",xiepo="0",bengta="0",teda="0",
-                                da="",zhong="",xiao="" ;
+                        tvDisasterNumber.setText(staticsInfo.getData().getZs().get(0).getCount() + "");
+                        String huapo = "0", taxian = "0", nishiliu = "0", dilie = "0", xiepo = "0", bengta = "0", teda = "0",
+                                da = "", zhong = "", xiao = "";
                         List<StaticsInfo.DataBean.ZhzlBean> zhzl = staticsInfo.getData().getZhzl();
                         for (StaticsInfo.DataBean.ZhzlBean zhzlBean : zhzl) {
-                            switch (zhzlBean.getXqdj()){
+                            switch (zhzlBean.getXqdj()) {
                                 case "01":
-                                    huapo= String.valueOf(zhzlBean.getCount());
+                                    huapo = String.valueOf(zhzlBean.getCount());
                                     break;
                                 case "02":
-                                    taxian= String.valueOf(zhzlBean.getCount());
+                                    taxian = String.valueOf(zhzlBean.getCount());
                                     break;
                                 case "03":
-                                    nishiliu= String.valueOf(zhzlBean.getCount());
+                                    nishiliu = String.valueOf(zhzlBean.getCount());
                                     break;
                                 case "05":
-                                    dilie= String.valueOf(zhzlBean.getCount());
+                                    dilie = String.valueOf(zhzlBean.getCount());
                                     break;
                                 case "06":
-                                    xiepo= String.valueOf(zhzlBean.getCount());
+                                    xiepo = String.valueOf(zhzlBean.getCount());
                                     break;
                                 case "07":
-                                    bengta= String.valueOf(zhzlBean.getCount());
+                                    bengta = String.valueOf(zhzlBean.getCount());
                                     break;
                             }
                         }
                         List<StaticsInfo.DataBean.DjBean> dj = staticsInfo.getData().getDj();
                         for (StaticsInfo.DataBean.DjBean djBean : dj) {
-                            switch (djBean.getXqdj()){
+                            switch (djBean.getXqdj()) {
                                 case "特大型":
-                                    teda= String.valueOf(djBean.getCount());
+                                    teda = String.valueOf(djBean.getCount());
                                     break;
                                 case "大型":
-                                    da= String.valueOf(djBean.getCount());
+                                    da = String.valueOf(djBean.getCount());
                                     break;
                                 case "中型":
-                                    zhong= String.valueOf(djBean.getCount());
+                                    zhong = String.valueOf(djBean.getCount());
                                     break;
                                 case "小型":
-                                    xiao= String.valueOf(djBean.getCount());
+                                    xiao = String.valueOf(djBean.getCount());
                                     break;
                             }
                         }
@@ -365,6 +365,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
     }
+
+    /*展示统计信息*/
     private void initStaData() {
         List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
         if (disasterPoints.size() > 0) {
@@ -426,6 +428,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    /*下载APK*/
     private void showNoticeDialog() {
         Dialog dialog;
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
@@ -1758,7 +1761,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        cloudPushService.turnOffPushChannel(new CommonCallback() {
+            @Override
+            public void onSuccess(String s) {
+                LogUtils.d(TAG, "推送通道关闭成功！");
+            }
 
+            @Override
+            public void onFailed(String s, String s1) {
+                LogUtils.d(TAG, "推送通道关闭失败！");
+
+            }
+        });
     }
 
     @Override
