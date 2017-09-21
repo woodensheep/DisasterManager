@@ -83,7 +83,7 @@ public class NavigationActivity extends Activity {
                 if (lat !=0&&lon !=0){
                     if (AMapUtil.isInstallByRead("com.autonavi.minimap")) {
                         double[] togcj02 = TransformUtil.wgs84togcj02(lon, lat);
-                        AMapUtil.goToGaoDe(NavigationActivity.this, name,togcj02[1]+"" , togcj02[0]+"", "1");
+                        AMapUtil.goToGaoDe(NavigationActivity.this, name,togcj02[1]+"" , togcj02[0]+"", "0");
                     }else{
                         ToastUtils.showShort(this,"您尚未安装高德地图");
                     }

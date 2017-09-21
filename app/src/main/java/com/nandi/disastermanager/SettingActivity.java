@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -19,9 +20,16 @@ import android.widget.TextView;
 import com.alibaba.sdk.android.push.CommonCallback;
 import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.google.gson.Gson;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
+import com.nandi.disastermanager.search.entity.DisasterData;
+import com.nandi.disastermanager.search.entity.DisasterPoint;
+import com.nandi.disastermanager.search.entity.MonitorData;
+import com.nandi.disastermanager.search.entity.MonitorListData;
+import com.nandi.disastermanager.search.entity.MonitorListPoint;
+import com.nandi.disastermanager.search.entity.MonitorPoint;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.LogUtils;
@@ -29,9 +37,13 @@ import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
+import com.zhy.http.okhttp.https.HttpsUtils;
+import com.zhy.http.okhttp.request.RequestCall;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -89,6 +101,10 @@ public class SettingActivity extends Activity {
     TextView downloadMonDate;
 
     private Context mContext;
+    private String id;
+    private String level;
+    private String password;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,10 +117,33 @@ public class SettingActivity extends Activity {
     }
 
     private void initView() {
-        userName.setText((String) SharedUtils.getShare(this, "loginname", ""));
-        userLevel.setText((String) SharedUtils.getShare(this, "loginlevel", ""));
+        name =(String) SharedUtils.getShare(this, Constant.USER_NAME, "");
+        id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
+        level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
+        password = (String) SharedUtils.getShare(this, Constant.PASSWORD, "");
+        userName.setText(name);
+        userLevel.setText(level);
+        etUserName.setText(name);
+        etUserName.setEnabled(false);
+            loginPost();
     }
+    /**
+     * 登录请求
+     */
+    private void loginPost() {
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + name + "/" + password + "/2" )
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                    }
 
+                    @Override
+                    public void onResponse(final String response, int id) {
+                    }
+                });
+
+    }
     private void checkUpdate() {
         OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")
                 .addParams("version", AppUtils.getVerCode(mContext))
@@ -135,6 +174,171 @@ public class SettingActivity extends Activity {
 
     }
 
+    private void upDisData() {
+        message.setText("正在更新灾害点信息");
+        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
+                .build();
+        build.execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                upDisData();
+            }
+
+            @Override
+            public void onResponse(final String response, int id) {
+
+                SharedUtils.putShare(mContext, Constant.SAVE_DIS_TIME, new Date().getTime());
+                GreenDaoManager.deleteDisaster();
+                Gson gson = new Gson();
+                try {
+                    final DisasterData disasterData = gson.fromJson(response, DisasterData.class);
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            super.run();
+                            for (DisasterData.DataBean dataBean : disasterData.getData()) {
+                                String type = "";
+                                switch (dataBean.getDisasterType()) {
+                                    case "01":
+                                        type = "滑坡";
+                                        break;
+                                    case "02":
+                                        type = "地面塌陷";
+                                        break;
+                                    case "03":
+                                        type = "泥石流";
+                                        break;
+                                    case "04":
+                                        break;
+                                    case "05":
+                                        type = "地裂缝";
+                                        break;
+                                    case "06":
+                                        type = "不稳定斜坡";
+                                        break;
+                                    case "07":
+                                        type = "崩塌";
+                                        break;
+                                }
+                                DisasterPoint disasterPoint = new DisasterPoint();
+                                disasterPoint.setDisasterNum(dataBean.getDisasterNum());
+                                disasterPoint.setDisasterName(dataBean.getDisasterName());
+                                disasterPoint.setDisasterType(type);
+                                disasterPoint.setDisasterSite(dataBean.getDisasterSite());
+                                disasterPoint.setDisasterLon(dataBean.getDisasterLon());
+                                disasterPoint.setDisasterLat(dataBean.getDisasterLat());
+                                disasterPoint.setDisasterAdress(dataBean.getDisasterAdress());
+                                disasterPoint.setMajorIncentives(dataBean.getMajorIncentives());
+                                disasterPoint.setDisasterGrade(dataBean.getDisasterGrade());
+                                disasterPoint.setThreatNum(dataBean.getThreatNum());
+                                disasterPoint.setThreatObject(dataBean.getThreatObject());
+                                disasterPoint.setThreatMoney(dataBean.getThreatMoney());
+                                disasterPoint.setFormationTime(dataBean.getFormationTime());
+                                disasterPoint.setTableTime(dataBean.getTableTime());
+                                disasterPoint.setInvestigationUnit(dataBean.getInvestigationUnit());
+                                disasterPoint.setMonitorPersonnel(dataBean.getMonitorPersonnel());
+                                disasterPoint.setPhoneNum(dataBean.getPhoneNum());
+                                disasterPoint.setCity(dataBean.getCity());
+                                disasterPoint.setCounty(dataBean.getCounty());
+                                disasterPoint.setTown(dataBean.getTown());
+                                GreenDaoManager.insertDisasterPoint(disasterPoint);
+                            }
+                        }
+                    }.start();
+                    message.setText("更新灾害点信息成功");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+    }
+    private void upMonData() {
+        message.setText("正在更新监测点信息");
+        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level)
+                .build();
+        build.execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                upMonData();
+            }
+
+            @Override
+            public void onResponse(final String response, int id) {
+                SharedUtils.putShare(mContext, Constant.SAVE_MON_TIME, new Date().getTime());
+                GreenDaoManager.deleteAllMonitor();
+                Gson gson = new Gson();
+                try {
+                    final MonitorListData monitorListData = gson.fromJson(response, MonitorListData.class);
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            for (MonitorListData.DataBean dataBean : monitorListData.getData()) {
+                                MonitorListPoint monitorListPoint = new MonitorListPoint();
+                                monitorListPoint.setMonitorId(dataBean.getID());
+                                monitorListPoint.setName(dataBean.getNAME());
+                                monitorListPoint.setDisNum(dataBean.getHTPID());
+                                monitorListPoint.setLat(dataBean.getLATITUDE());
+                                monitorListPoint.setLon(dataBean.getLONGITUDE());
+                                monitorListPoint.setReginId(dataBean.getREGIONID());
+                                GreenDaoManager.insertMonitorListPoint(monitorListPoint);
+                            }
+                        }
+                    }.start();
+                    message.setText("更新灾害点信息成功");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+    }
+    private void upMonDatas() {
+        message.setText("正在更新灾害点数据信息");
+//        String url =getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level;
+        String url ="http://192.168.10.195:8080/gzcmd/appdocking/listMonitor/"+ id + "/" + level;
+        RequestCall build = OkHttpUtils.get().url(url)
+                .build();
+        build.execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+
+                upMonDatas();
+            }
+
+            @Override
+            public void onResponse(final String response, int id) {
+                SharedUtils.putShare(mContext, Constant.SAVE_MONDATA_TIME, new Date().getTime());
+                Log.i("qingsong",response);
+                System.out.println(response);
+                GreenDaoManager.deleteAllMonitorData();
+                Gson gson = new Gson();
+                try {
+                    final MonitorData monitorData = gson.fromJson(response, MonitorData.class);
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            for (MonitorData.DataBean dataBean : monitorData.getData()) {
+                                MonitorPoint monitorPoint = new MonitorPoint();
+                                monitorPoint.setMonitorId(dataBean.getMonitorId());
+                                monitorPoint.setName(dataBean.getName());
+                                monitorPoint.setTime(dataBean.getTime());
+                                monitorPoint.setMonitorData(dataBean.getMonitorData());
+                                GreenDaoManager.insertMonitorPoint(monitorPoint);
+                            }
+                        }
+                    }.start();
+                    message.setText("更新灾害点数据信息成功");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+    }
     @OnClick({R.id.download, R.id.changePassword, R.id.downloadMap,
             R.id.downloadApp, R.id.changeSure, R.id.downloadMonDate,
             R.id.changeStop, R.id.rl_back_1, R.id.rl_back_2, R.id.logOut,
@@ -155,7 +359,12 @@ public class SettingActivity extends Activity {
                 checkUpdate();
                 break;
             case R.id.changeSure:
-                isNotNull();
+                String nameStr = etUserName.getText().toString().trim();
+                String passwordStr = etPassword.getText().toString().trim();
+                String newPasswordStr = etNewPassword.getText().toString().trim();
+                if (isNotNull()){
+                    changeRquest(nameStr,passwordStr,newPasswordStr);
+                }
                 break;
             case R.id.changeStop:
                 clearAll();
@@ -166,6 +375,7 @@ public class SettingActivity extends Activity {
                 finish();
                 break;
             case R.id.rl_back_2:
+                clearAll();
                 userMessage.setVisibility(View.VISIBLE);
                 llDownload.setVisibility(View.GONE);
                 break;
@@ -174,18 +384,26 @@ public class SettingActivity extends Activity {
                 llChangePassword.setVisibility(View.GONE);
                 break;
             case R.id.downloadMonitor:
+                upMonData();
                 break;
             case R.id.downloadDisater:
+                upDisData();
                 break;
             case R.id.downloadMonDate:
+                upMonDatas();
                 break;
             case R.id.logOut:
-//                GreenDaoManager.deleteArea();
-                GreenDaoManager.deleteDisaster();
-                SharedUtils.removeShare(mContext, Constant.SAVE_DIS_TIME);
-                SharedUtils.removeShare(mContext, Constant.SAVE_MON_TIME);
-                SharedUtils.removeShare(mContext, Constant.SAVE_MONDATA_TIME);
-                SharedUtils.removeShare(mContext, Constant.IS_LOGIN);
+                outData();
+                break;
+        }
+    }
+
+    private void outData() {
+        GreenDaoManager.deleteDisaster();
+        SharedUtils.removeShare(mContext, Constant.SAVE_DIS_TIME);
+        SharedUtils.removeShare(mContext, Constant.SAVE_MON_TIME);
+        SharedUtils.removeShare(mContext, Constant.SAVE_MONDATA_TIME);
+        SharedUtils.removeShare(mContext, Constant.IS_LOGIN);
 
 //                PushServiceFactory.getCloudPushService().turnOffPushChannel(new CommonCallback() {
 //                    @Override
@@ -199,17 +417,50 @@ public class SettingActivity extends Activity {
 //
 //                    }
 //                });
-                getApplicationContext().stopService(new Intent(SettingActivity.this, ReplaceService.class));
-//                getApplicationContext().unbindService(serviceConnection);
-                for (Activity activity : MyApplication.getActivities()) {
-                    if (!activity.isFinishing()) {
-                        activity.finish();
-                    }
-                }
-                Intent intent1 = new Intent(this, LoginActivity.class);
-                startActivity(intent1);
-                break;
+        getApplicationContext().stopService(new Intent(SettingActivity.this, ReplaceService.class));
+        for (Activity activity : MyApplication.getActivities()) {
+            if (!activity.isFinishing()) {
+                activity.finish();
+            }
         }
+        Intent intent1 = new Intent(this, LoginActivity.class);
+        startActivity(intent1);
+    }
+
+    private void changeRquest(String nameStr,String passwordStr,String newPasswordStr) {
+        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"appdocking/updateAppUser/"+ nameStr+ "/" + passwordStr+ "/" + newPasswordStr)
+                .build().execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                ToastUtils.showShort(mContext,"修改密码失败");
+            }
+
+            @Override
+            public void onResponse(String response, int id) {
+                try {
+                    JSONObject j = new JSONObject(response);
+                    String meta = j.optString("meta");
+                    JSONObject jsonObject = new JSONObject(meta);
+                    boolean success = jsonObject.getBoolean("success");
+                    if (success){
+                        ToastUtils.showShort(mContext,"密码修改成功");
+                        SharedUtils.removeShare(mContext, Constant.IS_LOGIN);
+                        getApplicationContext().stopService(new Intent(SettingActivity.this, ReplaceService.class));
+                        for (Activity activity : MyApplication.getActivities()) {
+                            if (!activity.isFinishing()) {
+                                activity.finish();
+                            }
+                        }
+                        Intent intent1 = new Intent(mContext, LoginActivity.class);
+                        startActivity(intent1);
+                    }else{
+                        ToastUtils.showShort(mContext,"请输入正确的密码");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void clearAll() {
@@ -219,25 +470,28 @@ public class SettingActivity extends Activity {
         etNewPassword1.setText("");
     }
 
-    private void isNotNull() {
-        if (TextUtils.isEmpty(etUserName.getText().toString())) {
-            etUserName.setError("账户名不能为空");
-        }
-        if (TextUtils.isEmpty(etPassword.getText().toString())) {
+    private boolean isNotNull() {
+
+        if (TextUtils.isEmpty(this.etUserName.getText().toString())) {
+            this.etUserName.setError("账户名不能为空");
+            return false;
+        }else if (TextUtils.isEmpty(etPassword.getText().toString())) {
             etPassword.setError("原密码不能为空");
-        }
-        if (TextUtils.isEmpty(etNewPassword.getText().toString())) {
+            return false;
+        }else  if (TextUtils.isEmpty(etNewPassword.getText().toString())) {
             etNewPassword.setError("新密码不能为空");
-        }
-        if (TextUtils.isEmpty(etNewPassword1.getText().toString())) {
+            return false;
+        }else if (TextUtils.isEmpty(etNewPassword1.getText().toString())) {
             etNewPassword1.setError("再次输入新密码不能为空");
+            return false;
         } else {
             if (!etNewPassword.getText().toString().equals(etNewPassword1.getText().toString())) {
                 ToastUtils.showLong(mContext, "两次新密码输入不相同");
+                return false;
             } else {
+                return true;
             }
         }
-
 
     }
 }
