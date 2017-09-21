@@ -187,18 +187,18 @@ public class SettingActivity extends Activity {
                 SharedUtils.removeShare(mContext, Constant.SAVE_MONDATA_TIME);
                 SharedUtils.removeShare(mContext, Constant.IS_LOGIN);
 
-                PushServiceFactory.getCloudPushService().turnOffPushChannel(new CommonCallback() {
-                    @Override
-                    public void onSuccess(String s) {
-                        LogUtils.d(TAG, "推送通道关闭成功！");
-                    }
-
-                    @Override
-                    public void onFailed(String s, String s1) {
-                        LogUtils.d(TAG, "推送通道关闭失败！");
-
-                    }
-                });
+//                PushServiceFactory.getCloudPushService().turnOffPushChannel(new CommonCallback() {
+//                    @Override
+//                    public void onSuccess(String s) {
+//                        LogUtils.d(TAG, "推送通道关闭成功！");
+//                    }
+//
+//                    @Override
+//                    public void onFailed(String s, String s1) {
+//                        LogUtils.d(TAG, "推送通道关闭失败！");
+//
+//                    }
+//                });
                 getApplicationContext().stopService(new Intent(SettingActivity.this, ReplaceService.class));
 //                getApplicationContext().unbindService(serviceConnection);
                 for (Activity activity : MyApplication.getActivities()) {

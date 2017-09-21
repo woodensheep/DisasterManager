@@ -16,6 +16,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -30,7 +33,9 @@
         <meta-data
             android:name="com.alibaba.app.appsecret"
             android:value="d751a1236a17e4f10ac8ddbc72634531" />
-
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="xEkGjXRuw3y7IeswAZl6rEEi9Tp08hBM" />
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.nandi.disastermanager.fileprovider"
@@ -125,7 +130,15 @@
             android:name=".videocall.helloanychat.ReceiveVideoActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:screenOrientation="landscape" />
-
+        <activity
+            android:name=".search.EnlargePhotoActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
+            android:theme="@style/TipDialog" />
+        <activity android:name=".SettingActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
+            android:theme="@style/TipDialog1"/>
         <service
             android:name=".videocall.helloanychat.MyService"
             android:enabled="true" />
@@ -137,9 +150,8 @@
         <service android:name=".http.ReplaceService"
             android:enabled="true"
             android:exported="true"/>
-        <service android:name=".http.LocationService"
-            android:enabled="true"
-            android:exported="true"/>
+        <service android:name="com.baidu.location.f" android:enabled="true" android:process=":remote">
+        </service>
         <receiver
             android:name=".videocall.helloanychat.MyReceiver"
             android:exported="false">
@@ -156,15 +168,7 @@
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name=".search.EnlargePhotoActivity"
-            android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
-            android:theme="@style/TipDialog" />
-        <activity android:name=".SettingActivity"
-            android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
-            android:theme="@style/TipDialog1"/>
+        
     </application>
 
 </manifest>
