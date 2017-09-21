@@ -2,59 +2,60 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/loginbg">
+    android:background="@drawable/login_bg">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginLeft="240dp"
-        android:layout_marginRight="240dp"
-        android:background="@drawable/login_bg_shapes"
-        android:orientation="vertical"
-        android:paddingBottom="40dp"
-        android:paddingLeft="50dp"
-        android:paddingRight="50dp"
-        android:paddingTop="50dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="30sp"
-            android:text="贵州省地质灾害巡查终端"
-            android:layout_marginBottom="20dp"
-            android:layout_gravity="center_horizontal"
-            android:textColor="@color/color_white"/>
-        <EditText
-            android:id="@+id/loginName"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="25dp"
-            android:background="@drawable/edit_bg_shapes"
-            android:hint="请输入账号!"
-            android:padding="16dp"
-            android:textColor="#000000" />
+            android:layout_height="match_parent"
+            android:paddingLeft="400dp"
+            android:paddingRight="400dp"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/loginPwd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="25dp"
-            android:background="@drawable/edit_bg_shapes"
-            android:hint="请输入密码!"
-            android:inputType="textPassword"
-            android:padding="16dp"
-            android:textColor="#000000" />
+            <EditText
+                android:id="@+id/loginName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:background="@null"
+                android:drawableLeft="@drawable/username"
+                android:drawablePadding="6dp"
+                android:hint="请输入账号!"
+                android:textColorHint="#ffffff"
+                android:textColor="#ffffff" />
 
-        <Button
-            android:id="@+id/loginBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/login_botton"
-            android:text="登录"
-            android:textColor="#ffffff"
-            android:textSize="20sp" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="#00f3f4"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="18dp"/>
 
-    </LinearLayout>
+            <EditText
+                android:id="@+id/loginPwd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:drawableLeft="@drawable/pswd"
+                android:drawablePadding="6dp"
+                android:inputType="numberPassword"
+                android:hint="请输入密码!"
+                android:textColorHint="#ffffff"
+                android:textColor="#ffffff" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="#00f3f4"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="18dp"/>
+
+            <Button
+                android:id="@+id/loginBtn"
+                android:layout_width="40dp"
+                android:layout_height="50dp"
+                android:background="@drawable/login_btn" />
+
+        </LinearLayout>
 
 </RelativeLayout>

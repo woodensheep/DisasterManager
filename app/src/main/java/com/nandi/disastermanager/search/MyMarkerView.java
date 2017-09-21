@@ -34,7 +34,7 @@ public class MyMarkerView extends MarkerView {
     }
 
     // callbacks everytime the MarkerView is redrawn, can be used to update the
-    // content (user-interface)
+    // content (users-interface)
     @Override
     public void refreshContent(Entry e, Highlight highlight) {
 

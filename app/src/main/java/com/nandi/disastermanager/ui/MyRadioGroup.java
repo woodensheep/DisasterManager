@@ -38,7 +38,7 @@ public class MyRadioGroup extends LinearLayout {
   
     @Override  
     public void setOnHierarchyChangeListener(OnHierarchyChangeListener listener) {  
-        // the user listener is delegated to our pass-through listener  
+        // the users listener is delegated to our pass-through listener
         mPassThroughListener.mOnHierarchyChangeListener = listener;  
     }  
   
@@ -337,7 +337,7 @@ public class MyRadioGroup extends LinearLayout {
      * <p> 
      * A pass-through listener acts upon the events and dispatches them to 
      * another listener. This allows the table layout to set its own internal 
-     * hierarchy change listener without preventing the user to setup his. 
+     * hierarchy change listener without preventing the users to setup his.
      * </p> 
      */  
     private class PassThroughHierarchyChangeListener implements  

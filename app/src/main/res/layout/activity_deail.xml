@@ -4,24 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="400dp"
     android:layout_height="match_parent"
-    android:padding="5dp"
     android:orientation="vertical"
-    android:background="@drawable/linlear_background"
     tools:context="com.nandi.disastermanager.search.MonitorDataActivity">
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="50dp"
         android:text="隐患点详情"
         android:textSize="20sp"
         android:gravity="center"
-        android:textColor="@color/white"
-        android:background="@color/colorPrimary"
-        />
+        android:textColor="#00F3F3"
+        android:background="#112945" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/date_show"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/white">
 
     </android.support.v7.widget.RecyclerView>
 </LinearLayout>

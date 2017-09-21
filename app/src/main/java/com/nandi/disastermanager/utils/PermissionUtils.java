@@ -244,7 +244,7 @@ public class PermissionUtils {
             permissionGrant.onPermissionGranted(requestCode);
 
         } else {
-            //TODO hint user this permission function
+            //TODO hint users this permission function
             Log.i(TAG, "onRequestPermissionsResult PERMISSION NOT GRANTED");
             //TODO
             String[] permissionsHint = activity.getResources().getStringArray(R.array.permissions);
