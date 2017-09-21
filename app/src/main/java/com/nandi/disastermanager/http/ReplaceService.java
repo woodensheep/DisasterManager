@@ -20,6 +20,7 @@ import com.nandi.disastermanager.search.entity.DisasterData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.MonitorListData;
 import com.nandi.disastermanager.search.entity.MonitorListPoint;
+import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -54,13 +55,13 @@ public class ReplaceService extends Service {
                 while (true) {
                     try {
                         if (isDisRequest()) {
-                            if (NetworkUtils.isConnected()) {
+                            if (NetworkUtils.isWifiConnected()) {
                                 upDisData();
                             }
                             Log.d(TAG, "开始请求数据");
                         }
                         if (isMonRequest()) {
-                            if (NetworkUtils.isConnected()) {
+                            if (NetworkUtils.isWifiConnected()) {
                                 upMonData();
                             }
                             Log.d(TAG, "开始请求数据");
@@ -100,20 +101,20 @@ public class ReplaceService extends Service {
 
     private boolean isDisRequest() {
         long currentTime = new Date().getTime();
-        long lastTime = (long) SharedUtils.getShare(context, "saveDisTime", 0L);
+        long lastTime = (long) SharedUtils.getShare(context, Constant.SAVE_DIS_TIME, 0L);
 
         return currentTime - lastTime > 24 * 60 * 60 * 1000;
     }
     private boolean isMonRequest() {
         long currentTime = new Date().getTime();
-        long lastTime = (long) SharedUtils.getShare(context, "saveMonTime", 0L);
+        long lastTime = (long) SharedUtils.getShare(context, Constant.SAVE_MON_TIME, 0L);
 
         return currentTime - lastTime > 24 * 60 * 60 * 1000;
     }
 
     private void upDisData() {
-         id = (String) SharedUtils.getShare(this, "ID", "");
-        level = (String) SharedUtils.getShare(this, "loginlevel", "");
+         id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
+        level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
 
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
                 .build();
@@ -125,7 +126,7 @@ public class ReplaceService extends Service {
 
             @Override
             public void onResponse(final String response, int id) {
-                SharedUtils.putShare(context, "saveDisTime", new Date().getTime());
+                SharedUtils.putShare(context, Constant.SAVE_DIS_TIME, new Date().getTime());
                 GreenDaoManager.deleteDisaster();
                 Gson gson = new Gson();
                 try {
@@ -193,20 +194,19 @@ public class ReplaceService extends Service {
 
     }
     private void upMonData() {
-        id = (String) SharedUtils.getShare(this, "ID", "");
-        level = (String) SharedUtils.getShare(this, "loginlevel", "");
+        id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
+        level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level)
                 .build();
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-
                 upMonData();
             }
 
             @Override
             public void onResponse(final String response, int id) {
-                SharedUtils.putShare(context, "saveMonTime", new Date().getTime());
+                SharedUtils.putShare(context, Constant.SAVE_MON_TIME, new Date().getTime());
                 Log.i("qingsong",response);
                 GreenDaoManager.deleteAllMonitor();
                 Gson gson = new Gson();

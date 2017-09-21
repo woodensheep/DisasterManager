@@ -103,8 +103,8 @@
     <string name="permission_white_external_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_WRITE_EXTERNAL_STORAGE</string>
     <string name="permission_recode_audio_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_RECORD_AUDIO</string>
 
-    <string name="base_gz_url">http://202.98.195.125:8081/gzcmd/</string>
-    <!--<string name="base_gz_url">http://192.168.10.73:8080/gzcmd/</string>-->
+    <!--<string name="base_gz_url">http://202.98.195.125:8081/gzcmd/</string>-->
+    <string name="base_gz_url">http://192.168.10.77:8080/gzcmd/</string>
 
 
 </resources>

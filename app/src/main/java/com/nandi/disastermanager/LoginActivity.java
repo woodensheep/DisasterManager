@@ -21,6 +21,7 @@ import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.LoginInfo;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.AppUtils;
+import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.PermissionUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -61,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         mContext = this;
         PermissionUtils.requestMultiPermissions(LoginActivity.this, mPermissionGrant);
-        userName.setText((String) SharedUtils.getShare(mContext, "loginname", ""));
+        userName.setText((String) SharedUtils.getShare(mContext, Constant.USER_NAME, ""));
         initEvent();
     }
 
@@ -107,11 +108,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private String checkAreaData(String name) {
         String s = "";
-        String loginname = (String) SharedUtils.getShare(mContext, "loginname", "");
+        String loginname = (String) SharedUtils.getShare(mContext, Constant.USER_NAME, "");
         if (name.equals(loginname)) {
             s = "2";
+            SharedUtils.putShare(mContext,Constant.CHANGE_USER,true);
         } else {
             s = "1";
+            SharedUtils.putShare(mContext,Constant.CHANGE_USER,false);
         }
         return s;
     }
@@ -156,10 +159,10 @@ public class LoginActivity extends AppCompatActivity {
                             ToastUtils.showShort(mContext, "登录成功！");
                             skipActivity();
                         }
-                        SharedUtils.putShare(mContext, "loginname", name+"");
-                        SharedUtils.putShare(mContext, "loginpswd", pswd+"");
-                        SharedUtils.putShare(mContext,"isLogin",true);
-                        SharedUtils.putShare(mContext,"versionCode",Integer.parseInt(AppUtils.getVerCode(mContext)));
+                        SharedUtils.putShare(mContext, Constant.USER_NAME, name+"");
+                        SharedUtils.putShare(mContext, Constant.PASSWORD, pswd+"");
+                        SharedUtils.putShare(mContext,Constant.IS_LOGIN,true);
+                        SharedUtils.putShare(mContext,Constant.VERSION_CODE,Integer.parseInt(AppUtils.getVerCode(mContext)));
                     }
                 });
 
@@ -168,7 +171,7 @@ public class LoginActivity extends AppCompatActivity {
     private void saveArea() {
         GreenDaoManager.deleteArea();
         int level = loginInfo.getData().get(0).getLevel();
-        SharedUtils.putShare(mContext, "loginlevel", level + "");
+        SharedUtils.putShare(mContext, Constant.LEVEL, level + "");
         int area_code = 0;
         switch (level) {
             case 1:
@@ -233,7 +236,7 @@ public class LoginActivity extends AppCompatActivity {
                 ToastUtils.showShort(mContext, "登录成功！");
             }
         });
-        SharedUtils.putShare(mContext,"ID",id+"");
+        SharedUtils.putShare(mContext,Constant.AREA_ID,id+"");
         skipActivity();
     }
 

@@ -16,11 +16,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.alibaba.sdk.android.push.CommonCallback;
+import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.utils.AppUtils;
+import com.nandi.disastermanager.utils.Constant;
+import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -36,6 +40,7 @@ import okhttp3.Call;
 
 public class SettingActivity extends Activity {
 
+    private static final String TAG = "SettingActivity";
     @BindView(R.id.userName)
     TextView userName;
     @BindView(R.id.userLevel)
@@ -177,7 +182,22 @@ public class SettingActivity extends Activity {
             case R.id.logOut:
 //                GreenDaoManager.deleteArea();
                 GreenDaoManager.deleteDisaster();
-                SharedUtils.removeShare(mContext, "saveTime");
+                SharedUtils.removeShare(mContext, Constant.SAVE_DIS_TIME);
+                SharedUtils.removeShare(mContext, Constant.SAVE_MON_TIME);
+                SharedUtils.removeShare(mContext,"isLogin");
+
+                PushServiceFactory.getCloudPushService().turnOffPushChannel(new CommonCallback() {
+                    @Override
+                    public void onSuccess(String s) {
+                        LogUtils.d(TAG, "推送通道关闭成功！");
+                    }
+
+                    @Override
+                    public void onFailed(String s, String s1) {
+                        LogUtils.d(TAG, "推送通道关闭失败！");
+
+                    }
+                });
                 getApplicationContext().stopService(new Intent(SettingActivity.this, ReplaceService.class));
 //                getApplicationContext().unbindService(serviceConnection);
                 for (Activity activity : MyApplication.getActivities()) {

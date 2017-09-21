@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
@@ -72,8 +73,11 @@ import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.SearchActivity;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
+import com.nandi.disastermanager.search.entity.LoginInfo;
 import com.nandi.disastermanager.search.entity.StaticsInfo;
+import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.AppUtils;
+import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
@@ -228,11 +232,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MyApplication.getActivities().add(this);
         context = this;
         setLine();
-        id = (String) SharedUtils.getShare(context, "ID", "");
-        level = (String) SharedUtils.getShare(context, "loginlevel", "");
+        id = (String) SharedUtils.getShare(context, Constant.AREA_ID, "");
+        level = (String) SharedUtils.getShare(context, Constant.LEVEL, "");
         checkUpdate();
         bindAccount();
         initUtilData();
+        loginPost((String) SharedUtils.getShare(context,Constant.USER_NAME,""), (String)SharedUtils.getShare(context,Constant.PASSWORD,""));
         gzDianZhiLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_dianzi_url));
         gzYingXiangLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url));
         gzYingXiangLayerHigh = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url_1));
@@ -264,9 +269,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         startUpdateService();
     }
+    /**
+     * 登录请求
+     */
+    private void loginPost(String userNumber, String password) {
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + userNumber + "/" + password + "/2" )
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                    }
+
+                    @Override
+                    public void onResponse(final String response, int id) {
+                    }
+                });
+
+    }
     private boolean checkDownload() {
         List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
-        boolean isChangeUser = (boolean) SharedUtils.getShare(context, "isChangeUser", false);
+        boolean isChangeUser = (boolean) SharedUtils.getShare(context, Constant.CHANGE_USER, false);
         return disasterPoints.size() > 0 && isChangeUser;
     }
     private void setLine() {
@@ -1736,18 +1758,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        cloudPushService.turnOffPushChannel(new CommonCallback() {
-            @Override
-            public void onSuccess(String s) {
-                LogUtils.d(TAG, "推送通道关闭成功！");
-            }
 
-            @Override
-            public void onFailed(String s, String s1) {
-                LogUtils.d(TAG, "推送通道关闭失败！");
-
-            }
-        });
     }
 
     @Override

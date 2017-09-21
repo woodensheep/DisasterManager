@@ -10,6 +10,7 @@ import com.nandi.disastermanager.LoginActivity;
 import com.nandi.disastermanager.MainActivity;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.utils.AppUtils;
+import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.SharedUtils;
 
 public class WelconmeActivity extends AppCompatActivity {
@@ -20,7 +21,7 @@ public class WelconmeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_welconme);
         context=this;
         clearShared();
-        boolean isLogin = (boolean) SharedUtils.getShare(context, "isLogin", false);
+        boolean isLogin = (boolean) SharedUtils.getShare(context, Constant.IS_LOGIN, false);
         Handler handler = new Handler();
         if (isLogin) {
             handler.postDelayed(new Runnable() {
@@ -42,7 +43,7 @@ public class WelconmeActivity extends AppCompatActivity {
     }
     private void clearShared() {
         int currentCode= Integer.parseInt(AppUtils.getVerCode(context));
-        int oldCode= (int) SharedUtils.getShare(context,"versionCode",0);
+        int oldCode= (int) SharedUtils.getShare(context,Constant.VERSION_CODE,0);
         if (currentCode>oldCode){
             SharedUtils.clearShare(context);
         }

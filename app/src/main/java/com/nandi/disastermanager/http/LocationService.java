@@ -22,6 +22,7 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.entity.LocationInfo;
+import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.SharedUtils;
 
 import java.util.Date;
@@ -55,7 +56,7 @@ public class LocationService extends Service {
         GreenDaoManager.deleteAllLocation();
         LocationInfo locationInfo = new LocationInfo();
         locationInfo.setStartTime(TimeUtils.millis2String(new Date().getTime()));
-        locationInfo.setUserName((String) SharedUtils.getShare(context, "loginname", ""));
+        locationInfo.setUserName((String) SharedUtils.getShare(context, Constant.USER_NAME, ""));
         GreenDaoManager.insertLocation(locationInfo);
     }
 
