@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -22,6 +23,7 @@ import android.widget.ToggleButton;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.google.gson.Gson;
 import com.nandi.disastermanager.dao.GreenDaoManager;
+import com.nandi.disastermanager.http.DownloadMapService;
 import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.entity.DisasterData;
@@ -42,6 +44,7 @@ import com.zhy.http.okhttp.request.RequestCall;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.Date;
 
 import butterknife.BindView;
@@ -105,8 +108,7 @@ public class SettingActivity extends Activity {
     TextView downloadMonDate;
     @BindView(R.id.toggle_btn)
     ToggleButton toggleBtn;
-    @BindView(R.id.toggle_edt)
-    EditText toggleEdt;
+
     @BindView(R.id.showeyes_btn1)
     ImageView showeyesBtn1;
     @BindView(R.id.showeyes_btn2)
@@ -138,7 +140,6 @@ public class SettingActivity extends Activity {
         userLevel.setText(GreenDaoManager.queryAreaLevel(Integer.parseInt(level)).get(0).getName());
         password = (String) SharedUtils.getShare(this, Constant.PASSWORD, "");
         userName.setText(name);
-
         etUserName.setText(name);
         etUserName.setEnabled(false);
             /*设置初始化网络选择*/
@@ -305,10 +306,11 @@ public class SettingActivity extends Activity {
             public void onResponse(final String response, int id) {
 
                 SharedUtils.putShare(mContext, Constant.SAVE_DIS_TIME, new Date().getTime());
-                GreenDaoManager.deleteDisaster();
+
                 Gson gson = new Gson();
                 try {
                     final DisasterData disasterData = gson.fromJson(response, DisasterData.class);
+                    GreenDaoManager.deleteDisaster();
                     new Thread() {
                         @Override
                         public void run() {
@@ -386,10 +388,11 @@ public class SettingActivity extends Activity {
             @Override
             public void onResponse(final String response, int id) {
                 SharedUtils.putShare(mContext, Constant.SAVE_MON_TIME, new Date().getTime());
-                GreenDaoManager.deleteAllMonitor();
+
                 Gson gson = new Gson();
                 try {
                     final MonitorListData monitorListData = gson.fromJson(response, MonitorListData.class);
+                    GreenDaoManager.deleteAllMonitor();
                     new Thread() {
                         @Override
                         public void run() {
@@ -433,10 +436,11 @@ public class SettingActivity extends Activity {
                 SharedUtils.putShare(mContext, Constant.SAVE_MONDATA_TIME, new Date().getTime());
                 Log.i("qingsong", response);
                 System.out.println(response);
-                GreenDaoManager.deleteAllMonitorData();
+
                 Gson gson = new Gson();
                 try {
                     final MonitorData monitorData = gson.fromJson(response, MonitorData.class);
+                    GreenDaoManager.deleteAllMonitorData();
                     new Thread() {
                         @Override
                         public void run() {
@@ -476,6 +480,27 @@ public class SettingActivity extends Activity {
                 llChangePassword.setVisibility(View.VISIBLE);
                 break;
             case R.id.downloadMap:
+                File file = new File(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                        , "map.apk");
+                if (!file.exists()) {
+                    if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
+                        message.setText("正在下载离线地图");
+                        Intent intent = new Intent(mContext, DownloadMapService.class);
+                        startService(intent);
+                    } else {
+                        if (NetworkUtils.isWifiConnected()) {
+                            message.setText("正在下载离线地图");
+                            Intent intent = new Intent(mContext, DownloadMapService.class);
+                            startService(intent);
+                            Log.i(TAG, "不允许4G时更新");
+                        } else {
+                            message.setText("当前不是WIFI状态不能更新");
+                        }
+                    }
+                }else{
+                    message.setText("离线地图已经存在");
+                }
                 break;
             case R.id.downloadApp:
                 if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
@@ -666,10 +691,7 @@ public class SettingActivity extends Activity {
     /*修改密码状态*/
     private boolean isNotNull() {
 
-        if (TextUtils.isEmpty(this.etUserName.getText().toString())) {
-            this.etUserName.setError("账户名不能为空");
-            return false;
-        } else if (TextUtils.isEmpty(etPassword.getText().toString())) {
+       if (TextUtils.isEmpty(etPassword.getText().toString())) {
             etPassword.setError("原密码不能为空");
             return false;
         } else if (TextUtils.isEmpty(etNewPassword.getText().toString())) {

@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,6 +23,7 @@ import com.nandi.disastermanager.search.entity.LoginInfo;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.Constant;
+import com.nandi.disastermanager.utils.InputUtil;
 import com.nandi.disastermanager.utils.PermissionUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -84,6 +86,18 @@ public class LoginActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         PermissionUtils.requestPermissionsResult(this, requestCode, permissions, grantResults, mPermissionGrant);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            // 获得当前得到焦点的View，一般情况下就是EditText（特殊情况就是轨迹求或者实体案件会移动焦点）
+            View v = getCurrentFocus();
+            if (InputUtil.isShouldHideInput(v, ev)) {
+                InputUtil.hideSoftInput(v.getWindowToken(), mContext);
+            }
+        }
+        return super.dispatchTouchEvent(ev);
     }
 
     private void initEvent() {

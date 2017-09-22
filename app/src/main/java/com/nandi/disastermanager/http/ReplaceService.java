@@ -196,8 +196,8 @@ public class ReplaceService extends Service {
 
             @Override
             public void onResponse(final String response, int id) {
+                LogUtils.d(TAG, response);
                 SharedUtils.putShare(context, Constant.SAVE_DIS_TIME, new Date().getTime());
-                GreenDaoManager.deleteDisaster();
                 Gson gson = new Gson();
                 try {
                     final DisasterData disasterData = gson.fromJson(response, DisasterData.class);
@@ -205,6 +205,7 @@ public class ReplaceService extends Service {
                         @Override
                         public void run() {
                             super.run();
+                            GreenDaoManager.deleteDisaster();
                             for (DisasterData.DataBean dataBean : disasterData.getData()) {
                                 String type = "";
                                 switch (dataBean.getDisasterType()) {
@@ -278,10 +279,11 @@ public class ReplaceService extends Service {
             public void onResponse(final String response, int id) {
                 SharedUtils.putShare(context, Constant.SAVE_MON_TIME, new Date().getTime());
                 Log.i("qingsong", response);
-                GreenDaoManager.deleteAllMonitor();
+
                 Gson gson = new Gson();
                 try {
                     final MonitorListData monitorListData = gson.fromJson(response, MonitorListData.class);
+                    GreenDaoManager.deleteAllMonitor();
                     new Thread() {
                         @Override
                         public void run() {
@@ -324,10 +326,11 @@ public class ReplaceService extends Service {
                 SharedUtils.putShare(context, Constant.SAVE_MONDATA_TIME, new Date().getTime());
                 Log.i("qingsong", response);
                 System.out.println(response);
-                GreenDaoManager.deleteAllMonitorData();
+
                 Gson gson = new Gson();
                 try {
                     final MonitorData monitorData = gson.fromJson(response, MonitorData.class);
+                    GreenDaoManager.deleteAllMonitorData();
                     new Thread() {
                         @Override
                         public void run() {

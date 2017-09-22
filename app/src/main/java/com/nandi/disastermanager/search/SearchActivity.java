@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,6 +22,7 @@ import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.AreaInfo;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.LoginInfo;
+import com.nandi.disastermanager.utils.InputUtil;
 import com.nandi.disastermanager.utils.ToastUtils;
 
 import java.util.ArrayList;
@@ -372,5 +374,15 @@ public class SearchActivity extends Activity {
             mItems6.add(GreenDaoManager.getDistinct(0).get(i));
         }
     }
-
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            // 获得当前得到焦点的View，一般情况下就是EditText（特殊情况就是轨迹求或者实体案件会移动焦点）
+            View v = getCurrentFocus();
+            if (InputUtil.isShouldHideInput(v, ev)) {
+                InputUtil.hideSoftInput(v.getWindowToken(), context);
+            }
+        }
+        return super.dispatchTouchEvent(ev);
+    }
 }
