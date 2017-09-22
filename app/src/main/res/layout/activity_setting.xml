@@ -173,7 +173,7 @@
                 android:text=""
                 android:textOff=""
                 android:textOn=""
-                android:checked="false"
+                android:checked="true"
                 android:minWidth="25dp"/>
 
         </LinearLayout>

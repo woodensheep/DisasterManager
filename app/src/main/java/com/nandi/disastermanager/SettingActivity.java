@@ -1,24 +1,19 @@
 package com.nandi.disastermanager;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
-import android.view.WindowManager;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
-import com.alibaba.sdk.android.push.CommonCallback;
-import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.google.gson.Gson;
 import com.nandi.disastermanager.dao.GreenDaoManager;
@@ -32,23 +27,27 @@ import com.nandi.disastermanager.search.entity.MonitorListPoint;
 import com.nandi.disastermanager.search.entity.MonitorPoint;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.Constant;
-import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
-import com.zhy.http.okhttp.https.HttpsUtils;
 import com.zhy.http.okhttp.request.RequestCall;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Field;
 import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import okhttp3.Call;
+
+/**
+ * @author qingsong
+ * 个人信息页面
+ */
 
 public class SettingActivity extends Activity {
 
@@ -99,6 +98,8 @@ public class SettingActivity extends Activity {
     TextView downloadDisater;
     @BindView(R.id.downloadMonDate)
     TextView downloadMonDate;
+    @BindView(R.id.toggle_btn)
+    ToggleButton toggleBtn;
 
     private Context mContext;
     private String id;
@@ -116,22 +117,44 @@ public class SettingActivity extends Activity {
         initView();
     }
 
+    /*初始化数据*/
     private void initView() {
-        name =(String) SharedUtils.getShare(this, Constant.USER_NAME, "");
+        name = (String) SharedUtils.getShare(this, Constant.USER_NAME, "");
         id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
         level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
+        userLevel.setText(GreenDaoManager.queryAreaLevel(Integer.parseInt(level)).get(0).getName());
         password = (String) SharedUtils.getShare(this, Constant.PASSWORD, "");
         userName.setText(name);
-        userLevel.setText(level);
+
         etUserName.setText(name);
         etUserName.setEnabled(false);
-            loginPost();
+            /*设置初始化网络选择*/
+        if ((Boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
+            toggleBtn.setChecked(true);
+        } else {
+            toggleBtn.setChecked(false);
+        }
+        toggleBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+                // TODO Auto-generated method stub
+                if (isChecked) {
+                    Log.i(TAG, "选择允许");
+                    SharedUtils.putShare(mContext, Constant.isOpenGPRS, true);
+                } else {
+                    Log.i(TAG, "选择不允许");
+                    SharedUtils.putShare(mContext, Constant.isOpenGPRS, false);
+                }
+            }
+        });
+        loginPost();
     }
-    /**
-     * 登录请求
-     */
+
+    /*登录请求*/
     private void loginPost() {
-        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + name + "/" + password + "/2" )
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + name + "/" + password + "/2")
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -144,6 +167,8 @@ public class SettingActivity extends Activity {
                 });
 
     }
+
+    /*APP更新*/
     private void checkUpdate() {
         OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")
                 .addParams("version", AppUtils.getVerCode(mContext))
@@ -174,6 +199,7 @@ public class SettingActivity extends Activity {
 
     }
 
+    /*APP更新灾害点数据*/
     private void upDisData() {
         message.setText("正在更新灾害点信息");
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
@@ -192,7 +218,7 @@ public class SettingActivity extends Activity {
                 Gson gson = new Gson();
                 try {
                     final DisasterData disasterData = gson.fromJson(response, DisasterData.class);
-                    new Thread(){
+                    new Thread() {
                         @Override
                         public void run() {
                             super.run();
@@ -254,6 +280,8 @@ public class SettingActivity extends Activity {
         });
 
     }
+
+    /*APP更新监测点列表*/
     private void upMonData() {
         message.setText("正在更新监测点信息");
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level)
@@ -271,7 +299,7 @@ public class SettingActivity extends Activity {
                 Gson gson = new Gson();
                 try {
                     final MonitorListData monitorListData = gson.fromJson(response, MonitorListData.class);
-                    new Thread(){
+                    new Thread() {
                         @Override
                         public void run() {
                             for (MonitorListData.DataBean dataBean : monitorListData.getData()) {
@@ -295,10 +323,11 @@ public class SettingActivity extends Activity {
         });
 
     }
+
+    /*APP更新监测点数据*/
     private void upMonDatas() {
         message.setText("正在更新灾害点数据信息");
-//        String url =getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level;
-        String url ="http://192.168.10.195:8080/gzcmd/appdocking/listMonitor/"+ id + "/" + level;
+        String url = getString(R.string.base_gz_url) + "/appdocking/listMonitor/" + id + "/" + level;
         RequestCall build = OkHttpUtils.get().url(url)
                 .build();
         build.execute(new StringCallback() {
@@ -311,13 +340,13 @@ public class SettingActivity extends Activity {
             @Override
             public void onResponse(final String response, int id) {
                 SharedUtils.putShare(mContext, Constant.SAVE_MONDATA_TIME, new Date().getTime());
-                Log.i("qingsong",response);
+                Log.i("qingsong", response);
                 System.out.println(response);
                 GreenDaoManager.deleteAllMonitorData();
                 Gson gson = new Gson();
                 try {
                     final MonitorData monitorData = gson.fromJson(response, MonitorData.class);
-                    new Thread(){
+                    new Thread() {
                         @Override
                         public void run() {
                             for (MonitorData.DataBean dataBean : monitorData.getData()) {
@@ -339,6 +368,7 @@ public class SettingActivity extends Activity {
         });
 
     }
+
     @OnClick({R.id.download, R.id.changePassword, R.id.downloadMap,
             R.id.downloadApp, R.id.changeSure, R.id.downloadMonDate,
             R.id.changeStop, R.id.rl_back_1, R.id.rl_back_2, R.id.logOut,
@@ -356,14 +386,24 @@ public class SettingActivity extends Activity {
             case R.id.downloadMap:
                 break;
             case R.id.downloadApp:
-                checkUpdate();
+                if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
+                    checkUpdate();
+                } else {
+                    if (NetworkUtils.isWifiConnected()) {
+                        checkUpdate();
+                        Log.i(TAG, "不允许4G时更新");
+                    } else {
+                        message.setText("当前不是WIFI状态不能更新");
+                    }
+                }
+
                 break;
             case R.id.changeSure:
                 String nameStr = etUserName.getText().toString().trim();
                 String passwordStr = etPassword.getText().toString().trim();
                 String newPasswordStr = etNewPassword.getText().toString().trim();
-                if (isNotNull()){
-                    changeRquest(nameStr,passwordStr,newPasswordStr);
+                if (isNotNull()) {
+                    changeRquest(nameStr, passwordStr, newPasswordStr);
                 }
                 break;
             case R.id.changeStop:
@@ -384,20 +424,49 @@ public class SettingActivity extends Activity {
                 llChangePassword.setVisibility(View.GONE);
                 break;
             case R.id.downloadMonitor:
-                upMonData();
+                if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
+                    upMonData();
+                } else {
+                    if (NetworkUtils.isWifiConnected()) {
+                        upMonData();
+                        Log.i(TAG, "不允许4G时更新");
+                    } else {
+                        message.setText("当前不是WIFI状态不能更新");
+                    }
+                }
+
                 break;
             case R.id.downloadDisater:
-                upDisData();
+                if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
+                    upDisData();
+                } else {
+                    if (NetworkUtils.isWifiConnected()) {
+                        upDisData();
+                        Log.i(TAG, "不允许4G时更新");
+                    } else {
+                        message.setText("当前不是WIFI状态不能更新");
+                    }
+                }
+
                 break;
             case R.id.downloadMonDate:
-                upMonDatas();
+                if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
+                    upMonDatas();
+                } else {
+                    if (NetworkUtils.isWifiConnected()) {
+                        upMonDatas();
+                        Log.i(TAG, "不允许4G时更新");
+                    } else {
+                        message.setText("当前不是WIFI状态不能更新");
+                    }
+                }
                 break;
             case R.id.logOut:
                 outData();
                 break;
         }
     }
-
+    /*APP注销*/
     private void outData() {
         GreenDaoManager.deleteDisaster();
         SharedUtils.removeShare(mContext, Constant.SAVE_DIS_TIME);
@@ -426,13 +495,13 @@ public class SettingActivity extends Activity {
         Intent intent1 = new Intent(this, LoginActivity.class);
         startActivity(intent1);
     }
-
-    private void changeRquest(String nameStr,String passwordStr,String newPasswordStr) {
-        OkHttpUtils.get().url(getString(R.string.base_gz_url)+"appdocking/updateAppUser/"+ nameStr+ "/" + passwordStr+ "/" + newPasswordStr)
+    /*修改密码*/
+    private void changeRquest(String nameStr, String passwordStr, String newPasswordStr) {
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "appdocking/updateAppUser/" + nameStr + "/" + passwordStr + "/" + newPasswordStr)
                 .build().execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                ToastUtils.showShort(mContext,"修改密码失败");
+                ToastUtils.showShort(mContext, "修改密码失败");
             }
 
             @Override
@@ -442,8 +511,8 @@ public class SettingActivity extends Activity {
                     String meta = j.optString("meta");
                     JSONObject jsonObject = new JSONObject(meta);
                     boolean success = jsonObject.getBoolean("success");
-                    if (success){
-                        ToastUtils.showShort(mContext,"密码修改成功");
+                    if (success) {
+                        ToastUtils.showShort(mContext, "密码修改成功");
                         SharedUtils.removeShare(mContext, Constant.IS_LOGIN);
                         getApplicationContext().stopService(new Intent(SettingActivity.this, ReplaceService.class));
                         for (Activity activity : MyApplication.getActivities()) {
@@ -453,8 +522,8 @@ public class SettingActivity extends Activity {
                         }
                         Intent intent1 = new Intent(mContext, LoginActivity.class);
                         startActivity(intent1);
-                    }else{
-                        ToastUtils.showShort(mContext,"请输入正确的密码");
+                    } else {
+                        ToastUtils.showShort(mContext, "请输入正确的密码");
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -462,26 +531,26 @@ public class SettingActivity extends Activity {
             }
         });
     }
-
+    /*清空修改密码页面*/
     private void clearAll() {
         etUserName.setText("");
         etPassword.setText("");
         etNewPassword.setText("");
         etNewPassword1.setText("");
     }
-
+    /*修改密码状态*/
     private boolean isNotNull() {
 
         if (TextUtils.isEmpty(this.etUserName.getText().toString())) {
             this.etUserName.setError("账户名不能为空");
             return false;
-        }else if (TextUtils.isEmpty(etPassword.getText().toString())) {
+        } else if (TextUtils.isEmpty(etPassword.getText().toString())) {
             etPassword.setError("原密码不能为空");
             return false;
-        }else  if (TextUtils.isEmpty(etNewPassword.getText().toString())) {
+        } else if (TextUtils.isEmpty(etNewPassword.getText().toString())) {
             etNewPassword.setError("新密码不能为空");
             return false;
-        }else if (TextUtils.isEmpty(etNewPassword1.getText().toString())) {
+        } else if (TextUtils.isEmpty(etNewPassword1.getText().toString())) {
             etNewPassword1.setError("再次输入新密码不能为空");
             return false;
         } else {
