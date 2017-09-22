@@ -14,7 +14,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="44dp"
             android:background="@drawable/shape_ll_background1">
 
             <TextView
@@ -23,26 +23,24 @@
                 android:gravity="left|center"
                 android:paddingLeft="30dp"
                 android:text="数据统计"
-                android:textColor="@color/color_white"
+                android:textColor="#00f3f3"
                 android:textSize="20sp" />
 
             <ImageView
                 android:id="@+id/iv_area_back"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:padding="5dp"
-                android:src="@mipmap/backward" />
+                android:src="@drawable/total_right" />
         </RelativeLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="5dp"
             android:orientation="vertical">
-
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -55,8 +53,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
-                    android:text="现有隐患点台帐总数："
-                    android:textColor="@color/dark_blue"
+                    android:text="现有隐患点台帐总数"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -64,8 +62,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="@color/dark_blue"
-
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
 
@@ -81,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="滑坡隐患点："
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -90,7 +87,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
 
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
@@ -107,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="崩塌隐患点："
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -116,7 +113,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
             <LinearLayout
@@ -131,7 +128,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="塌陷隐患点："
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -140,7 +137,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
             <LinearLayout
@@ -155,7 +152,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="泥石流隐患点："
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -164,7 +161,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
             <LinearLayout
@@ -179,7 +176,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="地裂缝隐患点："
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -188,7 +185,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
             <LinearLayout
@@ -203,7 +200,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="不稳定斜坡隐患点："
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -212,7 +209,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
             <LinearLayout
@@ -227,7 +224,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="特大型："
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -236,7 +233,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
             <LinearLayout
@@ -251,7 +248,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="大型："
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -260,7 +257,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
             <LinearLayout
@@ -275,7 +272,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="中型："
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -284,7 +281,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
             <LinearLayout
@@ -299,7 +296,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="小型："
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
                 <TextView
@@ -308,11 +305,10 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/ceshi"
-                    android:textColor="@color/dark_blue"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
             </LinearLayout>
         </LinearLayout>
-
 
     </LinearLayout>
 
