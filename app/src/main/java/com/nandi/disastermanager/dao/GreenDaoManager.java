@@ -8,6 +8,7 @@ import android.support.annotation.RequiresApi;
 
 import com.nandi.disastermanager.MyApplication;
 
+
 import com.nandi.disastermanager.entity.DaoMaster;
 import com.nandi.disastermanager.entity.DaoSession;
 import com.nandi.disastermanager.entity.LocationInfo;

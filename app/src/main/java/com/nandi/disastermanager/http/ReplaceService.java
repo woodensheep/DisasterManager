@@ -44,12 +44,18 @@ public class ReplaceService extends Service {
     private Context context;
     private String id;
     private String level;
+    private String name;
+    private String password;
 
     @Override
     public void onCreate() {
         super.onCreate();
         context = this;
         sendToFace();
+        name = (String) SharedUtils.getShare(this, Constant.USER_NAME, "");
+        password = (String) SharedUtils.getShare(this, Constant.PASSWORD, "");
+        id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
+        level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
         new Thread() {
             @Override
             public void run() {
@@ -57,24 +63,47 @@ public class ReplaceService extends Service {
                 while (true) {
                     try {
                         if (isDisRequest()) {
-                            if (NetworkUtils.isWifiConnected()) {
+                            loginPost();
+                            if ((boolean) SharedUtils.getShare(context, Constant.isOpenGPRS, true)) {
                                 upDisData();
-
+                            } else {
+                                if (NetworkUtils.isWifiConnected()) {
+                                    upDisData();
+                                    Log.i(TAG, "不允许4G时更新");
+                                } else {
+                                    ToastUtils.showShort(context, "当前不是WIFI状态不能更新");
+                                }
                             }
                             Log.d(TAG, "开始请求数据");
                         }
                         if (isMonRequest()) {
-                            if (NetworkUtils.isWifiConnected()) {
+                            loginPost();
+                            if ((boolean) SharedUtils.getShare(context, Constant.isOpenGPRS, true)) {
                                 upMonData();
+                            } else {
+                                if (NetworkUtils.isWifiConnected()) {
+                                    upMonData();
+                                    Log.i(TAG, "不允许4G时更新");
+                                } else {
+                                    ToastUtils.showShort(context, "当前不是WIFI状态不能更新");
+                                }
                             }
-                            Log.d(TAG, "开始请求数据");
                         }
                         if (isMonDataRequest()) {
-                            if (NetworkUtils.isConnected()) {
+                            loginPost();
+                            if ((boolean) SharedUtils.getShare(context, Constant.isOpenGPRS, true)) {
                                 upMonDatas();
+                            } else {
+                                if (NetworkUtils.isWifiConnected()) {
+                                    upMonDatas();
+                                    Log.i(TAG, "不允许4G时更新");
+                                } else {
+                                    ToastUtils.showShort(context, "当前不是WIFI状态不能更新");
+                                }
                             }
                             Log.d(TAG, "开始请求数据");
                         }
+
                         Thread.sleep(5 * 60 * 1000);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -85,6 +114,28 @@ public class ReplaceService extends Service {
         Log.i(TAG, "onCreate");
     }
 
+    /**
+     * 登录请求
+     */
+
+    private void loginPost() {
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + name + "/" + password + "/2")
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        ToastUtils.showShort(context, "获取权限失败");
+                    }
+
+                    @Override
+                    public void onResponse(final String response, int id) {
+
+                    }
+                });
+
+    }
+
+    /*置前台*/
     private void sendToFace() {
         /**
          *创建Notification
@@ -108,6 +159,7 @@ public class ReplaceService extends Service {
         return START_STICKY;
     }
 
+    /*灾害点的请求时间*/
     private boolean isDisRequest() {
         long currentTime = new Date().getTime();
         long lastTime = (long) SharedUtils.getShare(context, Constant.SAVE_DIS_TIME, 0L);
@@ -115,6 +167,7 @@ public class ReplaceService extends Service {
         return currentTime - lastTime > 24 * 60 * 60 * 1000;
     }
 
+    /*监测点列表的请求时间*/
     private boolean isMonRequest() {
         long currentTime = new Date().getTime();
         long lastTime = (long) SharedUtils.getShare(context, Constant.SAVE_MON_TIME, 0L);
@@ -122,6 +175,7 @@ public class ReplaceService extends Service {
         return currentTime - lastTime > 24 * 60 * 60 * 1000;
     }
 
+    /*监测点数据的请求时间*/
     private boolean isMonDataRequest() {
         long currentTime = new Date().getTime();
         long lastTime = (long) SharedUtils.getShare(context, Constant.SAVE_MONDATA_TIME, 0L);
@@ -129,9 +183,8 @@ public class ReplaceService extends Service {
         return currentTime - lastTime > 60 * 60 * 1000;
     }
 
+    /*灾害点数据的请求*/
     private void upDisData() {
-        id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
-        level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
 
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
                 .build();
@@ -211,9 +264,8 @@ public class ReplaceService extends Service {
 
     }
 
+    /*监测点列表的请求*/
     private void upMonData() {
-        id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
-        level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level)
                 .build();
         build.execute(new StringCallback() {
@@ -255,9 +307,8 @@ public class ReplaceService extends Service {
 
     }
 
+    /*监测点数据的请求*/
     private void upMonDatas() {
-        id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
-        level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
         String url = getString(R.string.base_gz_url) + "/appdocking/listMonitor/" + id + "/" + level;
         RequestCall build = OkHttpUtils.get().url(url)
                 .build();

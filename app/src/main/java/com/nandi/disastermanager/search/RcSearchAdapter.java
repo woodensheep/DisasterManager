@@ -50,37 +50,24 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolderA holder, int position) {
-        if(position==0){
 
-            holder.tv_1.setText("隐患点编号");
-            holder.tv_2.setText("名称");
-            holder.tv_3.setText("等级");
-            holder.tv_4.setText("诱发因素");
-            holder.tv_5.setVisibility(View.INVISIBLE);
-            holder.tv_6.setVisibility(View.INVISIBLE);
-            holder.tv_7.setVisibility(View.INVISIBLE);
-            holder.view_line.setVisibility(View.VISIBLE);
-            holder.itemView.setTag(-1L);
-        }else{
-            holder.tv_1.setText(mdisasterPoints.get(position-1).getDisasterNum());
-            holder.tv_2.setText(mdisasterPoints.get(position-1).getDisasterName());
-            holder.tv_3.setText(mdisasterPoints.get(position-1).getDisasterGrade());
-            holder.tv_4.setText(mdisasterPoints.get(position-1).getMajorIncentives());
-            holder.tv_5.setVisibility(View.VISIBLE);
-            holder.tv_5.setTag(mdisasterPoints.get(position-1).getId());
-            holder.tv_6.setVisibility(View.VISIBLE);
-            holder.tv_6.setTag(mdisasterPoints.get(position-1).getId());
-            holder.tv_7.setVisibility(View.VISIBLE);
-            holder.tv_7.setTag(mdisasterPoints.get(position-1).getId());
-            holder.view_line.setVisibility(View.GONE);
-            holder.itemView.setTag(mdisasterPoints.get(position-1).getId());
-        }
+        holder.tv_1.setText(mdisasterPoints.get(position).getDisasterNum());
+        holder.tv_2.setText(mdisasterPoints.get(position).getDisasterName());
+        holder.tv_3.setText(mdisasterPoints.get(position).getDisasterGrade());
+        holder.tv_4.setText(mdisasterPoints.get(position).getMajorIncentives());
+        holder.tv_5.setVisibility(View.VISIBLE);
+        holder.tv_5.setTag(mdisasterPoints.get(position).getId());
+        holder.tv_6.setVisibility(View.VISIBLE);
+        holder.tv_6.setTag(mdisasterPoints.get(position).getId());
+        holder.tv_7.setVisibility(View.VISIBLE);
+        holder.tv_7.setTag(mdisasterPoints.get(position).getId());
+        holder.itemView.setTag(mdisasterPoints.get(position).getId());
     }
 
     @Override
     public int getItemCount() {
         //生成的item的数量
-        return mdisasterPoints.size()+1;
+        return mdisasterPoints.size();
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定

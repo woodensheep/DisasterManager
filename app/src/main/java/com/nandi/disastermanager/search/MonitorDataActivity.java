@@ -38,6 +38,8 @@ import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.MonitorData;
 import com.nandi.disastermanager.search.entity.MonitorPhoto;
 import com.nandi.disastermanager.search.entity.MonitorPoint;
+import com.nandi.disastermanager.utils.Constant;
+import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -85,6 +87,8 @@ public class MonitorDataActivity extends Activity {
     private List<List<Double>> lists = new ArrayList<>();
     private MonitorAdapter monitorAdapter;
     private List<MonitorPoint> monitorPoints;
+    private String name;
+    private String password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +97,8 @@ public class MonitorDataActivity extends Activity {
         ButterKnife.bind(this);
         mContext = this;
         MyApplication.getActivities().add(this);
+        name = (String) SharedUtils.getShare(this, Constant.USER_NAME, "");
+        password = (String) SharedUtils.getShare(this, Constant.PASSWORD, "");
         setAdapter();
     }
 
@@ -118,9 +124,29 @@ public class MonitorDataActivity extends Activity {
 
     }
 
+    /**
+     * 登录请求
+     */
+
+    private void loginPost() {
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + name + "/" + password + "/2")
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        ToastUtils.showShort(mContext, "获取权限失败");
+                    }
+
+                    @Override
+                    public void onResponse(final String response, int id) {
+
+                    }
+                });
+
+    }
 
     private void monitorCurveRequest(String id, String startTime, String endTime) {
-
+        loginPost();
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/tabcollect/findHighcharts/" + id + "/" + startTime + "/" + endTime)
                 .build()
                 .execute(new StringCallback() {
@@ -145,7 +171,7 @@ public class MonitorDataActivity extends Activity {
     }
 
     private void downloadPhoto(String id, String time) {
-
+        loginPost();
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/detection/findPhoto/" + id + "/" + time)
                 .build()
                 .execute(new StringCallback() {
@@ -184,8 +210,8 @@ public class MonitorDataActivity extends Activity {
             case R.id.data_monitor:
                 monitorData1.setVisibility(View.VISIBLE);
                 llChart.setVisibility(View.GONE);
-                dataCurve.setTextColor(Color.GRAY);
-                dataMonitor.setTextColor(Color.WHITE);
+                dataCurve.setTextColor(Color.WHITE);
+                dataMonitor.setTextColor(Color.parseColor("#00f3f3"));
                 break;
             case R.id.data_curve:
                 Log.d("cp", "开始时间：" + getStartTime() + "结束时间：" + getTime(new Date()));
@@ -193,8 +219,8 @@ public class MonitorDataActivity extends Activity {
                 monitorData1.setVisibility(View.GONE);
                 llChart.setVisibility(View.VISIBLE);
                 mLineChart.setNoDataText("请选择时间");
-                dataCurve.setTextColor(Color.WHITE);
-                dataMonitor.setTextColor(Color.GRAY);
+                dataCurve.setTextColor(Color.parseColor("#00f3f3"));
+                dataMonitor.setTextColor(Color.WHITE);
                 break;
             case R.id.tv_chart_start_time:
                 //时间选择器

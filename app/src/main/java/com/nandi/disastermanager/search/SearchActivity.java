@@ -106,12 +106,10 @@ public class SearchActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_gz);
-
         ButterKnife.bind(this);
         context = this;
         MyApplication.getActivities().add(this);
         getListType();
-        initViews();
     }
 
     private void initViews() {

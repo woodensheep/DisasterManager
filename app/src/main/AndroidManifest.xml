@@ -167,8 +167,6 @@
                 <action android:name="com.alibaba.sdk.android.push.RECEIVE" />
             </intent-filter>
         </receiver>
-
-        
     </application>
 
 </manifest>
