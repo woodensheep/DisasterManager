@@ -14,7 +14,7 @@
         android:layout_centerVertical="true"
         android:background="@drawable/button_background"
         android:gravity="center"
-        android:src="@drawable/goback" />
+        android:src="@drawable/icon_back" />
 
     <TextView
         android:id="@+id/titleName"

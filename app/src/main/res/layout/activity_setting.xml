@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="10dp"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -112,7 +112,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="12dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:background="#88b2b2b2"
@@ -145,36 +145,69 @@
                 android:textColor="@color/white" />
         </LinearLayout>
 
-        <!-- 移动网络下更新数据 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="12dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:background="#88b2b2b2"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_weight="2.5"
-                android:gravity="left|center"
-                android:text="移动网络下更新数据"
-                android:textColor="@color/white"/>
+            <!-- 移动网络下更新数据 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-            <ToggleButton
-                android:id="@+id/toggle_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="44dp"
-                android:layout_gravity="right|center"
-                android:background="@android:color/transparent"
-                android:button="@drawable/switch_btn"
-                android:text=""
-                android:textOff=""
-                android:textOn=""
-                android:checked="true"
-                android:minWidth="25dp"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="2.5"
+                    android:gravity="left|center"
+                    android:text="移动网络下更新数据"
+                    android:textColor="@color/white"/>
+
+                <ToggleButton
+                    android:id="@+id/toggle_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:layout_gravity="right|center"
+                    android:background="@android:color/transparent"
+                    android:button="@drawable/switch_btn"
+                    android:text=""
+                    android:textOff=""
+                    android:textOn=""
+                    android:checked="true"
+                    android:minWidth="25dp"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/button_color_gz_gray" />
+
+            <!-- 查找隐患点范围半径 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="3"
+                    android:gravity="left|center"
+                    android:text="查找隐患点范围半径"
+                    android:textColor="@color/white"/>
+
+                <EditText
+                    android:id="@+id/toggle_edt"
+                    android:layout_width="0dp"
+                    android:layout_height="20dp"
+                    android:layout_weight="2"
+                    android:layout_gravity="right|center"/>
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -350,7 +383,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="10dp"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -388,50 +421,92 @@
             android:textColor="#fff"
             android:inputType="text" />
 
-        <EditText
-            android:id="@+id/et_password"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="15dp"
-            android:paddingLeft="10dp"
-            android:background="#55b2b2b2"
-            android:drawableLeft="@drawable/pswd"
-            android:drawablePadding="16dp"
-            android:drawableRight="@mipmap/ic_uneye"
-            android:hint="原密码"
-            android:textColorHint="#b3b3b3"
-            android:textColor="#fff"
-            android:inputType="textPassword" />
-
-        <EditText
-            android:id="@+id/et_new_password"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="46dp"
             android:layout_marginTop="15dp"
-            android:paddingLeft="10dp"
             android:background="#55b2b2b2"
-            android:drawableLeft="@drawable/padlock"
-            android:drawablePadding="12dp"
-            android:drawableRight="@mipmap/ic_uneye"
-            android:hint="新密码"
-            android:textColorHint="#b3b3b3"
-            android:textColor="#fff"
-            android:inputType="textPassword" />
+            android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/et_new_password1"
+            <EditText
+                android:id="@+id/et_password"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:paddingLeft="10dp"
+                android:drawableLeft="@drawable/pswd"
+                android:drawablePadding="16dp"
+                android:background="@null"
+                android:hint="原密码"
+                android:textColorHint="#b3b3b3"
+                android:textColor="#fff"
+                android:inputType="textPassword" />
+
+            <Button
+                android:id="@+id/showeyes_btn1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@mipmap/ic_uneye"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="46dp"
             android:layout_marginTop="15dp"
-            android:paddingLeft="10dp"
             android:background="#55b2b2b2"
-            android:drawableLeft="@drawable/padlock"
-            android:drawablePadding="12dp"
-            android:drawableRight="@mipmap/ic_uneye"
-            android:hint="确认新密码"
-            android:textColorHint="#b3b3b3"
-            android:textColor="#fff"
-            android:inputType="textPassword" />
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/et_new_password"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:paddingLeft="10dp"
+                android:background="@null"
+                android:drawableLeft="@drawable/padlock"
+                android:drawablePadding="12dp"
+                android:hint="新密码"
+                android:textColorHint="#b3b3b3"
+                android:textColor="#fff"
+                android:inputType="textPassword" />
+
+            <Button
+                android:id="@+id/showeyes_btn2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@mipmap/ic_uneye"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="15dp"
+            android:background="#55b2b2b2"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/et_new_password1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:paddingLeft="10dp"
+                android:background="@null"
+                android:drawableLeft="@drawable/padlock"
+                android:drawablePadding="12dp"
+                android:hint="确认新密码"
+                android:textColorHint="#b3b3b3"
+                android:textColor="#fff"
+                android:inputType="textPassword" />
+
+            <Button
+                android:id="@+id/showeyes_btn3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@mipmap/ic_uneye"/>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
