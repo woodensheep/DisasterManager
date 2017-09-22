@@ -17,5 +17,6 @@ public class Constant {
     public static final String SAVE_MONDATA_TIME="saveMonDataTime";
     public static final String SAVE_LON="saveLon";
     public static final String SAVE_LAT="saveLat";
+    public static final String DISASTER_RANGE="disasterRange";
 
 }

@@ -7,12 +7,12 @@
     tools:context="com.nandi.disastermanager.MainActivity">
 
 
-    <com.esri.arcgisruntime.mapping.view.SceneView
-        android:id="@+id/sceneView"
+    <com.esri.arcgisruntime.mapping.view.MapView
+        android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </com.esri.arcgisruntime.mapping.view.SceneView>
+    </com.esri.arcgisruntime.mapping.view.MapView>
 
 
     <LinearLayout
@@ -47,10 +47,10 @@
         android:layout_height="40dp"
         android:layout_above="@+id/ll_change_map"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginRight="10dp"
         android:background="@drawable/icon_background"
-        android:visibility="invisible">
+        android:visibility="visible">
 
         <ImageView
             android:id="@+id/iv_location"
@@ -60,7 +60,25 @@
             android:layout_weight="1"
             android:background="@drawable/location_bar_selector" />
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_route"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_above="@+id/ll_location"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/icon_background"
+        android:visibility="invisible">
 
+        <ImageView
+            android:id="@+id/iv_route"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/route_bar_selector" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_control"

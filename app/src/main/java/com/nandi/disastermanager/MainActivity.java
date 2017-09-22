@@ -22,7 +22,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
@@ -48,21 +47,28 @@ import com.esri.arcgisruntime.geometry.PolygonBuilder;
 import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.ArcGISMapImageLayer;
+import com.esri.arcgisruntime.layers.ArcGISMapImageSublayer;
 import com.esri.arcgisruntime.layers.ArcGISSceneLayer;
+import com.esri.arcgisruntime.layers.ArcGISTiledLayer;
 import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent;
 import com.esri.arcgisruntime.loadable.LoadStatusChangedListener;
+import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.ArcGISScene;
 import com.esri.arcgisruntime.mapping.ArcGISTiledElevationSource;
 import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.LayerList;
 import com.esri.arcgisruntime.mapping.Surface;
+import com.esri.arcgisruntime.mapping.Viewpoint;
 import com.esri.arcgisruntime.mapping.view.Camera;
+import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.DefaultSceneViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
 import com.esri.arcgisruntime.mapping.view.LocationToScreenResult;
-import com.esri.arcgisruntime.mapping.view.SceneView;
+import com.esri.arcgisruntime.mapping.view.MapScaleChangedEvent;
+import com.esri.arcgisruntime.mapping.view.MapScaleChangedListener;
+import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.mapping.view.ViewpointChangedEvent;
 import com.esri.arcgisruntime.mapping.view.ViewpointChangedListener;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
@@ -73,7 +79,6 @@ import com.esri.arcgisruntime.util.ListenableList;
 import com.google.gson.Gson;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.entity.LocationInfo;
-import com.nandi.disastermanager.http.LocationService;
 import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.SearchActivity;
@@ -107,8 +112,6 @@ import okhttp3.Call;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
-    @BindView(R.id.sceneView)
-    SceneView sceneView;
     @BindView(R.id.iv_area_back)
     ImageView ivAreaBack;
     @BindView(R.id.ll_area)
@@ -181,18 +184,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView tvZhongNumber;
     @BindView(R.id.tv_xioxing_number)
     TextView tvXioxingNumber;
+    @BindView(R.id.iv_route)
+    ImageView ivRoute;
+    @BindView(R.id.ll_route)
+    LinearLayout llRoute;
+    @BindView(R.id.mapView)
+    MapView mapView;
     private boolean llAreaState = true;
     private boolean llUtilState = false;
-    ArcGISMapImageLayer gzYingXiangLayer;
-    ArcGISMapImageLayer gzYingXiangLayerHigh;
-    ArcGISMapImageLayer gzDianZhiLayer;
-    ArcGISMapImageLayer gzXingZhengLayer;
-    ArcGISSceneLayer gzQxsyLayer;
-    private ArcGISScene scene;
+    ArcGISTiledLayer gzYingXiangLayer;
+    ArcGISTiledLayer gzYingXiangLayerHigh;
+    ArcGISTiledLayer gzDianZhiLayer;
+    private ArcGISMap map;
     private LayerList layers;
-    private Surface.ElevationSourceList elevationSources;
     private GraphicsOverlay gzPointGraphicOverlay;
-    private Dialog waitingDialog;
+    private GraphicsOverlay meGraphicOverlay;
+    private ListenableList<Graphic> gzGraphics;
+    private List<Graphic> allGraphics = new ArrayList<>();
 
     private Context context;
     private Graphic mCurrentPoint;
@@ -224,7 +232,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SimpleFillSymbol mPolygonFillSymbol;
     private int baseMap = 0;//0代表电子地图，1代表影像图
     private int location = 0;
+    private int route = 0;
     private LocationClient locationClient = null;
+    private LocationClient routeClient = null;
+    private List<DisasterPoint> disasterOverlay = new ArrayList<>();
+    private LocationListener locationListener;
+    private double meLongitude = 0;
+    private double meLatitude = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -240,23 +254,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        bindAccount();//绑定推送账号，暂时不用
         initUtilData();
         loginPost((String) SharedUtils.getShare(context, Constant.USER_NAME, ""), (String) SharedUtils.getShare(context, Constant.PASSWORD, ""));
-        gzDianZhiLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_dianzi_url));
-        gzYingXiangLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url));
-        gzYingXiangLayerHigh = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_yingxiang_url_1));
-        gzXingZhengLayer = new ArcGISMapImageLayer(getResources().getString(R.string.guizhou_xingzheng_url));
-        gzElevationSource = new ArcGISTiledElevationSource(getResources().getString(R.string.guizhou_gaocheng_url));
-        gzQxsyLayer = new ArcGISSceneLayer(getResources().getString(R.string.guizhou_qxsy_url));
-        scene = new ArcGISScene();
-        layers = scene.getOperationalLayers();
+        gzDianZhiLayer = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_dianzi_url));
+        gzYingXiangLayer = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_yingxiang_url));
+        gzYingXiangLayerHigh = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_yingxiang_url_1));
+        map = new ArcGISMap();
+        layers=map.getOperationalLayers();
         gzPointGraphicOverlay = new GraphicsOverlay();
         mGraphicsOverlay = new GraphicsOverlay();
+        meGraphicOverlay = new GraphicsOverlay();
         mGraphics = mGraphicsOverlay.getGraphics();
-        ListenableList<GraphicsOverlay> graphicsOverlays = sceneView.getGraphicsOverlays();
+        gzGraphics = gzPointGraphicOverlay.getGraphics();
+        ListenableList<GraphicsOverlay> graphicsOverlays = mapView.getGraphicsOverlays();
         graphicsOverlays.add(mGraphicsOverlay);
         graphicsOverlays.add(gzPointGraphicOverlay);
-        elevationSources = scene.getBaseSurface().getElevationSources();
-        scene.setBasemap(new Basemap(new ArcGISMapImageLayer("http://183.230.182.149:6080/arcgis/rest/services/diqiu/MapServer")));
-        sceneView.setScene(scene);
+        graphicsOverlays.add(meGraphicOverlay);
+        mapView.setMap(map);
+        layers.add(gzDianZhiLayer);
+        Viewpoint viewpoint=new Viewpoint(26.713526, 106.759177, 1500000);
+        map.setInitialViewpoint(viewpoint);
         mUndoButton.setClickable(false);
         mUndoButton.setEnabled(false);
         mRedoButton.setClickable(false);
@@ -264,6 +279,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mClearButton.setClickable(false);
         mClearButton.setEnabled(false);
         locationClient = new LocationClient(getApplicationContext());
+        routeClient = new LocationClient(getApplicationContext());
         setListeners();
         if (!checkDownload()) {
             setStatics();
@@ -295,12 +311,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean checkDownload() {
         List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
         boolean isChangeUser = (boolean) SharedUtils.getShare(context, Constant.CHANGE_USER, false);
+        Log.d(TAG, "是否更换账号" + isChangeUser);
         return disasterPoints.size() > 0 && isChangeUser;
     }
 
     private void setLine() {
         if ("1".equals(level)) {
-            llLocation.setVisibility(View.VISIBLE);
+            llRoute.setVisibility(View.VISIBLE);
         }
     }
 
@@ -564,7 +581,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void polygonClick(View v) {
         if (!v.isSelected()) {
-            clearAllGraphics();
             v.setSelected(true);
             setDrawingMode(DrawingMode.POLYGON);
             mPointButton.setEnabled(false);
@@ -623,6 +639,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setListeners() {
+        ivRoute.setOnClickListener(this);
         ivLocation.setOnClickListener(this);
         ivChangeMap.setOnClickListener(this);
         llEnlarge.setOnClickListener(this);
@@ -632,11 +649,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnUtil.setOnClickListener(this);
         ivAreaBack.setOnClickListener(this);
         llUserMessage.setOnClickListener(this);
-        sceneView.setOnTouchListener(new DefaultSceneViewOnTouchListener(sceneView) {
+        mapView.setOnTouchListener(new DefaultMapViewOnTouchListener(context, mapView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 final android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
-                final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = sceneView.identifyGraphicsOverlayAsync(mGraphicsOverlay, screenPoint, 10.0, false);
+                final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = mapView.identifyGraphicsOverlayAsync(mGraphicsOverlay, screenPoint, 10.0, false);
                 identifyGraphic.addDoneListener(new Runnable() {
                     @Override
                     public void run() {
@@ -685,7 +702,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
                             } else {
                                 boolean graphicsWasEmpty = mGraphics.isEmpty();
-                                Point point = sceneView.screenToLocationAsync(screenPoint).get();
+                                Point point = mapView.screenToLocation(screenPoint);
                                 if (mDrawingMode == DrawingMode.POINT) {
                                     if (mCurrentPoint == null) {
                                         mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
@@ -747,10 +764,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 });
-                if (!mPolylineButton.isSelected() && !mPolygonButton.isSelected() && !mPointButton.isSelected()) {
-
-                }
-
+                final ListenableFuture<IdentifyGraphicsOverlayResult> disasterIdentify = mapView.identifyGraphicsOverlayAsync(gzPointGraphicOverlay, screenPoint, 10.0, false);
+                disasterIdentify.addDoneListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            IdentifyGraphicsOverlayResult identifyResult = disasterIdentify.get();
+                            List<Graphic> graphic = identifyResult.getGraphics();
+                            if (graphic.size() > 0) {
+                                int zIndex = graphic.get(0).getZIndex();
+                                for (DisasterPoint disasterPoint : disasterOverlay) {
+                                    if (disasterPoint.getId() == zIndex) {
+                                        showDisasterInfo(disasterPoint);
+                                    }
+                                }
+                            }
+                        } catch (InterruptedException | ExecutionException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
+                final ListenableFuture<IdentifyGraphicsOverlayResult> meIdentify = mapView.identifyGraphicsOverlayAsync(meGraphicOverlay, screenPoint, 10.0, false);
+                meIdentify.addDoneListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            IdentifyGraphicsOverlayResult identifyResult = meIdentify.get();
+                            List<Graphic> graphics = identifyResult.getGraphics();
+                            if (graphics.size() > 0) {
+                                // TODO: 2017/9/22 查看周围隐患点
+                            }
+                        } catch (InterruptedException | ExecutionException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
                 return super.onSingleTapConfirmed(e);
             }
 
@@ -768,8 +816,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (llUtil.getVisibility() == View.VISIBLE) {
                     boolean callSuper = true;
                     if (mCurrentPoint != null) {
-                        LocationToScreenResult locationToScreenResult = sceneView.locationToScreen((Point) mCurrentPoint.getGeometry());
-                        android.graphics.Point currentPoint = locationToScreenResult.getScreenPoint();
+                        android.graphics.Point currentPoint = mapView.locationToScreen((Point) mCurrentPoint.getGeometry());
                         android.graphics.Point fromPoint = new android.graphics.Point((int) from.getX(), (int) from.getY());
                         int dx = currentPoint.x - fromPoint.x;
                         int dy = currentPoint.y - fromPoint.y;
@@ -778,13 +825,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             callSuper = false;
                             android.graphics.Point toPoint = new android.graphics.Point((int) to.getX(), (int) to.getY());
                             Point oldGeometry = (Point) mCurrentPoint.getGeometry();
-                            Point oldPointCopy = new Point(oldGeometry.getX(), oldGeometry.getY(), sceneView.getSpatialReference());
-                            Point newGeometry = null;
-                            try {
-                                newGeometry = sceneView.screenToLocationAsync(toPoint).get();
-                            } catch (InterruptedException | ExecutionException e) {
-                                e.printStackTrace();
-                            }
+                            Point oldPointCopy = new Point(oldGeometry.getX(), oldGeometry.getY(), mapView.getSpatialReference());
+                            Point newGeometry = mapView.screenToLocation(toPoint);
                             if (!mVertexDragStarted) {
                                 if (mDrawingMode == DrawingMode.POINT) {
                                     queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.MOVE_POINT, oldPointCopy));
@@ -844,68 +886,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             }
         });
-        scene.addLoadStatusChangedListener(new LoadStatusChangedListener() {
+        mapView.addMapScaleChangedListener(new MapScaleChangedListener() {
             @Override
-            public void loadStatusChanged(LoadStatusChangedEvent loadStatusChangedEvent) {
-                String name = loadStatusChangedEvent.getNewLoadStatus().name();
-                if ("LOADED".equals(name)) {
-                    if (!layers.contains(gzDianZhiLayer)) {
-                        layers.add(gzDianZhiLayer);
-//                    elevationSources.add(gzElevationSource);
-                        Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
-                        sceneView.setViewpointCamera(camera);
-                    }
-                }
-            }
-        });
-        sceneView.addViewpointChangedListener(new ViewpointChangedListener() {
-            @Override
-            public void viewpointChanged(ViewpointChangedEvent viewpointChangedEvent) {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        super.run();
-                        try {
-                            int widthPixels = context.getResources().getDisplayMetrics().widthPixels;
-                            int heightPixels = context.getResources().getDisplayMetrics().heightPixels;
-                            android.graphics.Point startPoint = new android.graphics.Point(0, 0);
-                            android.graphics.Point endPoint = new android.graphics.Point(widthPixels, heightPixels);
-                            Point start = sceneView.screenToLocationAsync(startPoint).get();
-                            Point end = sceneView.screenToLocationAsync(endPoint).get();
-                            PointCollection collection = new PointCollection(SpatialReferences.getWgs84());
-                            collection.add(start);
-                            collection.add(end);
-                            Polyline polyline = new Polyline(collection);
-                            double realLength = GeometryEngine.lengthGeodetic(polyline, new LinearUnit(LinearUnitId.METERS), GeodeticCurveType.GREAT_ELLIPTIC) * 100;
-                            double screenLength = getScreenSizeOfDevice() * 2.54;
-                            final int scale = (int) (Math.ceil((realLength / screenLength) / 1000) * 1000);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    tvScale.setText("(1  :  " + scale + ")");
-                                }
-                            });
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }.start();
-
+            public void mapScaleChanged(MapScaleChangedEvent mapScaleChangedEvent) {
+                int mapScale = (int) mapScaleChangedEvent.getSource().getMapScale();
+                tvScale.setText("(1  :  " + mapScale + ")");
             }
         });
     }
 
-    private double getScreenSizeOfDevice() {
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        int width = dm.widthPixels;
-        int height = dm.heightPixels;
-        double x = Math.pow(width, 2);
-        double y = Math.pow(height, 2);
-        double diagonal = Math.sqrt(x + y);
-
-        int dens = dm.densityDpi;
-        double screenInches = diagonal / (double) dens;
-        return screenInches;
+    private void showDisasterInfo(DisasterPoint disasterPoint) {
+        // TODO: 2017/9/22 显示隐患点信息
     }
 
 
@@ -914,6 +905,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.iv_location:
                 setLocation();
+                break;
+            case R.id.iv_route:
+                setRoute();
                 break;
             case R.id.iv_change_map:
                 changeBaseMap();
@@ -956,17 +950,144 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setLocation() {
-        LocationInfo locationInfo = GreenDaoManager.queryLocation();
         if (location == 0) {
+            turnOnLocation();
+        } else if (location == 1) {
+            showClearNotice();
+        }
+    }
+
+    private void showClearNotice() {
+        new AlertDialog.Builder(context)
+                .setTitle("提示")
+                .setMessage("是否要清除定位及所有隐患点标记？")
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setPositiveButton("清除", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        ivLocation.setSelected(false);
+                        location = 0;
+                        gzGraphics.clear();
+                        meGraphicOverlay.getGraphics().clear();
+                    }
+                }).show();
+    }
+
+    private void turnOnLocation() {
+        LocationClientOption option = new LocationClientOption();
+        option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
+        option.setCoorType("WGS84");
+        option.setScanSpan(0);
+        //可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
+        option.setOpenGps(true);
+        //可选，默认false,设置是否使用gps
+        option.setIgnoreKillProcess(false);
+        locationClient.setLocOption(option);
+        locationListener = new LocationListener();
+        locationClient.registerLocationListener(locationListener);
+        locationClient.start();
+    }
+
+    private class LocationListener extends BDAbstractLocationListener {
+
+        @Override
+        public void onReceiveLocation(BDLocation bdLocation) {
+            meLongitude = bdLocation.getLongitude();
+            meLatitude = bdLocation.getLatitude();
+            Log.d(TAG, "定位信息：" + meLongitude + "," + meLatitude);
+            setLocationOverlay(meLongitude, meLatitude);
+            ivLocation.setSelected(true);
+            location = 1;
+            locationClient.unRegisterLocationListener(locationListener);
+            locationClient.stop();
+        }
+
+        @Override
+        public void onLocDiagnosticMessage(int locType, int diagnosticType, String diagnosticMessage) {
+            if (diagnosticType == LocationClient.LOC_DIAGNOSTIC_TYPE_BETTER_OPEN_GPS) {
+                ToastUtils.showShort(context, "请打开GPS");
+            } else if (diagnosticType == LocationClient.LOC_DIAGNOSTIC_TYPE_BETTER_OPEN_WIFI) {
+                ToastUtils.showShort(context, "建议打开WIFI提高定位经度");
+            }
+        }
+    }
+
+    private void setLocationOverlay(final double longitude, final double latitude) {
+        final BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.me_location);
+        final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawable);
+        pinStarBlueSymbol.setHeight(50);
+        pinStarBlueSymbol.setWidth(30);
+        pinStarBlueSymbol.loadAsync();
+        pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                Point point = new Point(longitude, latitude, SpatialReferences.getWgs84());
+                Graphic graphic = new Graphic(point, pinStarBlueSymbol);
+                meGraphicOverlay.getGraphics().add(graphic);
+            }
+        });
+    }
+
+    private void setDisasterOverlay(double longitude, double latitude) {// FIXME: 2017/9/22 过滤符合条件的隐患点
+        disasterOverlay.clear();
+        List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
+        int range = (int) SharedUtils.getShare(context, Constant.DISASTER_RANGE, 10 * 1000);
+        for (DisasterPoint disasterPoint : disasterPoints) {
+            double disasterLon = disasterPoint.getDisasterLon();
+            double disasterLat = disasterPoint.getDisasterLat();
+            double distance = AppUtils.getDistance(106.67564, 26.8720671618, disasterLon, disasterLat);
+            if (distance < range) {
+                disasterOverlay.add(disasterPoint);
+            }
+        }
+        if (disasterOverlay.size() > 0) {
+            setOverlay();
+            Log.d(TAG, "开始打点 周围隐患点个数：" + disasterOverlay.size());
+        } else {
+            ToastUtils.showShort(context, "当前位置周围没有隐患点");
+        }
+    }
+
+    private void setOverlay() {
+        allGraphics.clear();
+        final BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.huapo);
+        final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawable);
+        pinStarBlueSymbol.setHeight(40);
+        pinStarBlueSymbol.setWidth(20);
+        pinStarBlueSymbol.loadAsync();
+        pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                for (DisasterPoint disasterPoint : disasterOverlay) {
+                    Point point = new Point(disasterPoint.getDisasterLon(), disasterPoint.getDisasterLat(), SpatialReferences.getWgs84());
+                    Graphic graphic = new Graphic(point, pinStarBlueSymbol);
+                    graphic.setZIndex(disasterPoint.getId().intValue());
+                    allGraphics.add(graphic);
+                }
+                Log.d(TAG, "所有图标个数：" + allGraphics.size());
+                gzGraphics.addAll(allGraphics);
+            }
+        });
+    }
+
+
+    private void setRoute() {
+        LocationInfo locationInfo = GreenDaoManager.queryLocation();
+        if (route == 0) {
             if (locationInfo != null) {
                 showLocationNotice(locationInfo);
             } else {
                 startLocation();
-                ToastUtils.showShort(context, "开启了定位");
-                ivLocation.setSelected(true);
-                location = 1;
+                ToastUtils.showShort(context, "定位信息开始采集");
+                ivRoute.setSelected(true);
+                route = 1;
             }
-        } else if (location == 1) {
+        } else if (route == 1) {
             showUploadNotice(locationInfo);
         }
     }
@@ -980,19 +1101,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LocationClientOption option = new LocationClientOption();
         option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
         option.setCoorType("bd09ll");
-        int span = 10*1000;
+        int span = 10 * 1000;
         option.setScanSpan(span);
         //可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
         option.setOpenGps(true);
         //可选，默认false,设置是否使用gps
         option.setIgnoreKillProcess(false);
         //可选，默认true，定位SDK内部是一个SERVICE，并放到了独立进程，设置是否在stop的时候杀死这个进程，默认不杀死
-        locationClient.setLocOption(option);
-        locationClient.registerLocationListener(new MyLocationListener());
-        locationClient.start();
+        routeClient.setLocOption(option);
+        routeClient.registerLocationListener(new RouteListener());
+        routeClient.start();
     }
 
-    private class MyLocationListener extends BDAbstractLocationListener {
+    private class RouteListener extends BDAbstractLocationListener {
 
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
@@ -1044,9 +1165,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setPositiveButton("上传信息", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        locationClient.stop();
-                        ivLocation.setSelected(false);
-                        location = 0;
+                        routeClient.stop();
+                        ivRoute.setSelected(false);
+                        route = 0;
                         uploadLocation(locationInfo);
                     }
                 })
@@ -1060,9 +1181,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         GreenDaoManager.deleteAllLocation();
-                        locationClient.stop();
-                        ivLocation.setSelected(false);
-                        location = 0;
+                        routeClient.stop();
+                        ivRoute.setSelected(false);
+                        route = 0;
                     }
                 }).show();
     }
@@ -1125,17 +1246,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             layers.clear();
             layers.add(gzYingXiangLayerHigh);
             layers.add(gzYingXiangLayer);
-            elevationSources.add(gzElevationSource);
-            Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
-            sceneView.setViewpointCameraAsync(camera, 1);
+            Viewpoint viewpoint=new Viewpoint(26.713526, 106.759177, 1500000);
+            mapView.setViewpointAsync(viewpoint,2);
             baseMap = 1;
             ivChangeMap.setSelected(true);
         } else if (baseMap == 1) {
             layers.clear();
-            elevationSources.clear();
             layers.add(gzDianZhiLayer);
-            Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
-            sceneView.setViewpointCameraAsync(camera, 1);
+            Viewpoint viewpoint=new Viewpoint(26.713526, 106.759177, 1500000);
+            mapView.setViewpointAsync(viewpoint,2);
             baseMap = 0;
             ivChangeMap.setSelected(false);
         }
@@ -1163,17 +1282,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setNarrow() {
-        Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
-        Camera elevate = currentViewpointCamera.elevate(20000);
-        sceneView.setViewpointCameraAsync(elevate, 1);
+        double mapScale = mapView.getMapScale();
+        mapView.setViewpointScaleAsync(mapScale-100000);
     }
 
     private void setEnlarge() {
-        Camera currentViewpointCamera = sceneView.getCurrentViewpointCamera();
-        Camera elevate = currentViewpointCamera.elevate(-20000);
-        sceneView.setViewpointCameraAsync(elevate, 1);
+        double mapScale = mapView.getMapScale();
+        mapView.setViewpointScaleAsync(mapScale+100000);
     }
-
 
     private void setUtilBack() {
         if (!llUtilState) {
@@ -1191,14 +1307,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void resetPosition() {
-        Camera camera = new Camera(26.713526, 106.759177, 400000.0, 0, 0, 0.0);
-        sceneView.setViewpointCameraAsync(camera, 2);
+        Viewpoint viewpoint=new Viewpoint(26.713526, 106.759177, 1500000);
+        mapView.setViewpointAsync(viewpoint,2);
     }
 
 
-    private void clearAllGraphics() {
-        gzPointGraphicOverlay.getGraphics().clear();
-    }
 
 
     public void setDrawingMode(DrawingMode drawingMode) {
@@ -1209,7 +1322,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDrawingMode = drawingMode;
         // If the drawing mode is polyline or polygon, set the current point collection to an empty collection
         if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
-            mCurrentPointCollection = new PointCollection(sceneView.getSpatialReference());
+            mCurrentPointCollection = new PointCollection(mapView.getSpatialReference());
         }
     }
 
@@ -1305,7 +1418,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mIsMidpointSelected = false;
                     mIsPolylineStarted = false;
                     mCurrentPoint = null;
-                    mCurrentPointCollection = new PointCollection(sceneView.getSpatialReference());
+                    mCurrentPointCollection = new PointCollection(mapView.getSpatialReference());
                     break;
                 // If the event was removing a graphic, then the action taken here is to add it back
                 case REMOVE_POINT:
@@ -1529,7 +1642,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCurrentPolygon = null;
         mCurrentPointCollection = null;
         mListener.onClearStateChanged(false);
-        clearAllGraphics();
     }
 
     /**
@@ -1556,7 +1668,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Point getMidpoint(Point a, Point b) {
         double midX = (a.getX() + b.getX()) / 2.0;
         double midY = (a.getY() + b.getY()) / 2.0;
-        return new Point(midX, midY, sceneView.getSpatialReference());
+        return new Point(midX, midY, mapView.getSpatialReference());
     }
 
     /**
@@ -1812,34 +1924,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void setGZOverlay(final double lon, final double lat) {
-        BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.point_1);
-        final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawable);
-        pinStarBlueSymbol.setHeight(55);
-        pinStarBlueSymbol.setWidth(55);
-        pinStarBlueSymbol.setOffsetY(8);
-        pinStarBlueSymbol.loadAsync();
-        pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
-            @Override
-            public void run() {
-                Point point = new Point(lon, lat, SpatialReferences.getWgs84());
-                Graphic graphic = new Graphic(point, pinStarBlueSymbol);
-                graphic.setZIndex(0);
-                gzPointGraphicOverlay.getGraphics().add(graphic);
-            }
-        });
-    }
 
     @Override
     protected void onPause() {
         super.onPause();
-        sceneView.pause();
+        mapView.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        sceneView.resume();
+        mapView.resume();
     }
 
     @Override

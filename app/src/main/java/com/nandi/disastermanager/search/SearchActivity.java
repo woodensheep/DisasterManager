@@ -373,7 +373,6 @@ public class SearchActivity extends Activity {
         for (int i = 0; i < GreenDaoManager.getDistinct(0).size(); i++) {
             mItems6.add(GreenDaoManager.getDistinct(0).get(i));
         }
-        initViews();
     }
 
 }
