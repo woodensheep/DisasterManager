@@ -112,6 +112,7 @@ public class SearchActivity extends Activity {
         context = this;
         MyApplication.getActivities().add(this);
         getListType();
+        initViews();
     }
 
     private void initViews() {

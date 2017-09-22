@@ -59,6 +59,7 @@ import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.LayerList;
 import com.esri.arcgisruntime.mapping.Surface;
 import com.esri.arcgisruntime.mapping.Viewpoint;
+import com.esri.arcgisruntime.mapping.view.Callout;
 import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.DefaultSceneViewOnTouchListener;
@@ -258,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         gzYingXiangLayer = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_yingxiang_url));
         gzYingXiangLayerHigh = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_yingxiang_url_1));
         map = new ArcGISMap();
-        layers=map.getOperationalLayers();
+        layers = map.getOperationalLayers();
         gzPointGraphicOverlay = new GraphicsOverlay();
         mGraphicsOverlay = new GraphicsOverlay();
         meGraphicOverlay = new GraphicsOverlay();
@@ -270,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         graphicsOverlays.add(meGraphicOverlay);
         mapView.setMap(map);
         layers.add(gzDianZhiLayer);
-        Viewpoint viewpoint=new Viewpoint(26.713526, 106.759177, 1500000);
+        Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
         map.setInitialViewpoint(viewpoint);
         mUndoButton.setClickable(false);
         mUndoButton.setEnabled(false);
@@ -793,6 +794,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             List<Graphic> graphics = identifyResult.getGraphics();
                             if (graphics.size() > 0) {
                                 // TODO: 2017/9/22 查看周围隐患点
+                                Point point = mapView.screenToLocation(screenPoint);
+                                Callout callout = mapView.getCallout();
+                                callout.setLocation(point);
+//                                callout.setContent();
                             }
                         } catch (InterruptedException | ExecutionException e1) {
                             e1.printStackTrace();
@@ -1246,15 +1251,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             layers.clear();
             layers.add(gzYingXiangLayerHigh);
             layers.add(gzYingXiangLayer);
-            Viewpoint viewpoint=new Viewpoint(26.713526, 106.759177, 1500000);
-            mapView.setViewpointAsync(viewpoint,2);
+            Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
+            mapView.setViewpointAsync(viewpoint, 2);
             baseMap = 1;
             ivChangeMap.setSelected(true);
         } else if (baseMap == 1) {
             layers.clear();
             layers.add(gzDianZhiLayer);
-            Viewpoint viewpoint=new Viewpoint(26.713526, 106.759177, 1500000);
-            mapView.setViewpointAsync(viewpoint,2);
+            Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
+            mapView.setViewpointAsync(viewpoint, 2);
             baseMap = 0;
             ivChangeMap.setSelected(false);
         }
@@ -1283,12 +1288,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setNarrow() {
         double mapScale = mapView.getMapScale();
-        mapView.setViewpointScaleAsync(mapScale-100000);
+        mapView.setViewpointScaleAsync(mapScale - 100000);
     }
 
     private void setEnlarge() {
         double mapScale = mapView.getMapScale();
-        mapView.setViewpointScaleAsync(mapScale+100000);
+        mapView.setViewpointScaleAsync(mapScale + 100000);
     }
 
     private void setUtilBack() {
@@ -1307,11 +1312,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void resetPosition() {
-        Viewpoint viewpoint=new Viewpoint(26.713526, 106.759177, 1500000);
-        mapView.setViewpointAsync(viewpoint,2);
+        Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
+        mapView.setViewpointAsync(viewpoint, 2);
     }
-
-
 
 
     public void setDrawingMode(DrawingMode drawingMode) {
