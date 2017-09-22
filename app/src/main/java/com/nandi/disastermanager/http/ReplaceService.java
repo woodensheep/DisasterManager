@@ -68,7 +68,8 @@ public class ReplaceService extends Service {
                                 upMonData();
                             }
                             Log.d(TAG, "开始请求数据");
-                        }if (isMonDataRequest()) {
+                        }
+                        if (isMonDataRequest()) {
                             if (NetworkUtils.isConnected()) {
                                 upMonDatas();
                             }
@@ -113,12 +114,14 @@ public class ReplaceService extends Service {
 
         return currentTime - lastTime > 24 * 60 * 60 * 1000;
     }
+
     private boolean isMonRequest() {
         long currentTime = new Date().getTime();
         long lastTime = (long) SharedUtils.getShare(context, Constant.SAVE_MON_TIME, 0L);
 
         return currentTime - lastTime > 24 * 60 * 60 * 1000;
     }
+
     private boolean isMonDataRequest() {
         long currentTime = new Date().getTime();
         long lastTime = (long) SharedUtils.getShare(context, Constant.SAVE_MONDATA_TIME, 0L);
@@ -127,7 +130,7 @@ public class ReplaceService extends Service {
     }
 
     private void upDisData() {
-         id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
+        id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
         level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
 
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
@@ -145,7 +148,7 @@ public class ReplaceService extends Service {
                 Gson gson = new Gson();
                 try {
                     final DisasterData disasterData = gson.fromJson(response, DisasterData.class);
-                    new Thread(){
+                    new Thread() {
                         @Override
                         public void run() {
                             super.run();
@@ -207,6 +210,7 @@ public class ReplaceService extends Service {
         });
 
     }
+
     private void upMonData() {
         id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
         level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
@@ -221,12 +225,12 @@ public class ReplaceService extends Service {
             @Override
             public void onResponse(final String response, int id) {
                 SharedUtils.putShare(context, Constant.SAVE_MON_TIME, new Date().getTime());
-                Log.i("qingsong",response);
+                Log.i("qingsong", response);
                 GreenDaoManager.deleteAllMonitor();
                 Gson gson = new Gson();
                 try {
                     final MonitorListData monitorListData = gson.fromJson(response, MonitorListData.class);
-                    new Thread(){
+                    new Thread() {
                         @Override
                         public void run() {
                             for (MonitorListData.DataBean dataBean : monitorListData.getData()) {
@@ -250,12 +254,12 @@ public class ReplaceService extends Service {
         });
 
     }
+
     private void upMonDatas() {
         id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
         level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
-//        String url =getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level;
-        String url ="http://192.168.10.195:8080/gzcmd/appdocking/listMonitor/"+ id + "/" + level;
-                RequestCall build = OkHttpUtils.get().url(url)
+        String url = getString(R.string.base_gz_url) + "/appdocking/listMonitor/" + id + "/" + level;
+        RequestCall build = OkHttpUtils.get().url(url)
                 .build();
         build.execute(new StringCallback() {
             @Override
@@ -267,13 +271,13 @@ public class ReplaceService extends Service {
             @Override
             public void onResponse(final String response, int id) {
                 SharedUtils.putShare(context, Constant.SAVE_MONDATA_TIME, new Date().getTime());
-                Log.i("qingsong",response);
+                Log.i("qingsong", response);
                 System.out.println(response);
                 GreenDaoManager.deleteAllMonitorData();
                 Gson gson = new Gson();
                 try {
                     final MonitorData monitorData = gson.fromJson(response, MonitorData.class);
-                    new Thread(){
+                    new Thread() {
                         @Override
                         public void run() {
                             for (MonitorData.DataBean dataBean : monitorData.getData()) {
@@ -304,6 +308,6 @@ public class ReplaceService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("123","onDestroy被执行了");
+        Log.i("123", "onDestroy被执行了");
     }
 }
