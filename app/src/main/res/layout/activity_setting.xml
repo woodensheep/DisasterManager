@@ -112,7 +112,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="15dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:background="#88b2b2b2"
@@ -145,90 +145,43 @@
                 android:textColor="@color/white" />
         </LinearLayout>
 
+        <!-- 移动网络下更新数据 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="15dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:background="#88b2b2b2"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
-            <!-- 移动网络下更新数据 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="2.5"
+                android:gravity="left|center"
+                android:text="移动网络下更新数据"
+                android:textColor="@color/white"/>
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_weight="2.5"
-                    android:gravity="left|center"
-                    android:text="移动网络下更新数据"
-                    android:textColor="@color/white"/>
-
-                <ToggleButton
-                    android:id="@+id/toggle_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="44dp"
-                    android:layout_gravity="right|center"
-                    android:background="@android:color/transparent"
-                    android:button="@drawable/switch_btn"
-                    android:text=""
-                    android:textOff=""
-                    android:textOn=""
-                    android:checked="true"
-                    android:minWidth="25dp"/>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/button_color_gz_gray" />
-
-            <!-- 查找隐患点范围半径 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="44dp"
-                    android:gravity="left|center"
-                    android:text="查找隐患点范围半径"
-                    android:textColor="@color/white"/>
-
-                <EditText
-                    android:id="@+id/toggle_edt"
-                    android:layout_width="0dp"
-                    android:layout_height="28dp"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="6dp"
-                    android:layout_marginRight="40dp"
-                    android:background="@drawable/shape_search_btn"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="44dp"
-                    android:gravity="left|center"
-                    android:textColor="@color/white"/>
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/arrowright"/>
-            </LinearLayout>
-
+            <ToggleButton
+                android:id="@+id/toggle_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_gravity="right|center"
+                android:background="@android:color/transparent"
+                android:button="@drawable/switch_btn"
+                android:text=""
+                android:textOff=""
+                android:textOn=""
+                android:checked="true"
+                android:minWidth="25dp"/>
         </LinearLayout>
 
         <!-- 注销登录 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="44dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="15dp"
             android:background="#88b2b2b2"
             android:gravity="center">
 
