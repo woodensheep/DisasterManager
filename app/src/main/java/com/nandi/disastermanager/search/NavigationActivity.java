@@ -50,34 +50,30 @@ public class NavigationActivity extends Activity {
         lon=disasterPoint.getDisasterLon();
         lat=disasterPoint.getDisasterLat();
         name = disasterPoint.getDisasterName();
-        if (AMapUtil.isInstallByRead("com.baidu.BaiduMap")) {
-        }else{
-            baidu.setText("百度地图（未安装）");
-        }
+//        if (AMapUtil.isInstallByRead("com.baidu.BaiduMap")) {
+//        }else{
+//            baidu.setText("百度地图（未安装）");
+//        }
         if (AMapUtil.isInstallByRead("com.autonavi.minimap")) {
 
         }else{
-            gaode.setText("高德地图（未安装）");
+            title.setText("请选择目的地  （未安装高德地图）");
         }
     }
     @OnClick({R.id.baidu, R.id.gaode})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.baidu:
-                if (lat !=0&& lon !=0){
-
-                    if (AMapUtil.isInstallByRead("com.baidu.BaiduMap")) {
-                        double[] tobd09 = TransformUtil.wgs84tobd09(lon, lat);
-//                    AMapUtil.goToBaidu(this, name, tobd09[1]+"",tobd09[0]+"");
-                        AMapUtil.goToBaidu(this, name, lat+"",lon+"");
-
+                if (lat !=0&&lon !=0){
+                    if (AMapUtil.isInstallByRead("com.autonavi.minimap")) {
+                        double[] togcj02 = TransformUtil.wgs84togcj02(lon, lat);
+                        AMapUtil.goToGaoDe(NavigationActivity.this, name,togcj02[1]+"" , togcj02[0]+"", "0");
                     }else{
-                        ToastUtils.showShort(this,"您尚未安装百度地图");
+                        ToastUtils.showShort(this,"您尚未安装高德地图");
                     }
-                } else{
+                }else{
                     ToastUtils.showShort(this,"未获取到经纬度");
                 }
-
                 break;
             case R.id.gaode:
                 if (lat !=0&&lon !=0){

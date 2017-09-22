@@ -13,7 +13,7 @@
         android:layout_height="44dp"
         android:background="@color/colorPrimary"
         android:gravity="center"
-        android:text="请选择导航模式"
+        android:text="请选择导航目的地"
         android:textColor="#00f3f3"
         android:textSize="22sp" />
 
@@ -32,7 +32,7 @@
             android:layout_margin="10dp"
             android:layout_weight="1"
             android:background="@drawable/linlear_background"
-            android:text="百度地图"
+            android:text="导航到政府"
             android:textColor="@color/white" />
 
         <Button
@@ -42,7 +42,7 @@
             android:layout_margin="10dp"
             android:layout_weight="1"
             android:background="@drawable/linlear_background"
-            android:text="高德地图"
+            android:text="导航到隐患点"
             android:textColor="@color/white" />
     </LinearLayout>
 </RelativeLayout>

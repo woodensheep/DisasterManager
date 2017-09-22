@@ -4,9 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -27,6 +32,7 @@ import com.nandi.disastermanager.search.entity.MonitorListPoint;
 import com.nandi.disastermanager.search.entity.MonitorPoint;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.Constant;
+import com.nandi.disastermanager.utils.InputUtil;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -36,7 +42,6 @@ import com.zhy.http.okhttp.request.RequestCall;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Field;
 import java.util.Date;
 
 import butterknife.BindView;
@@ -46,7 +51,7 @@ import okhttp3.Call;
 
 /**
  * @author qingsong
- * 个人信息页面
+ *         个人信息页面
  */
 
 public class SettingActivity extends Activity {
@@ -100,6 +105,14 @@ public class SettingActivity extends Activity {
     TextView downloadMonDate;
     @BindView(R.id.toggle_btn)
     ToggleButton toggleBtn;
+    @BindView(R.id.toggle_edt)
+    EditText toggleEdt;
+    @BindView(R.id.showeyes_btn1)
+    ImageView showeyesBtn1;
+    @BindView(R.id.showeyes_btn2)
+    ImageView showeyesBtn2;
+    @BindView(R.id.showeyes_btn3)
+    ImageView showeyesBtn3;
 
     private Context mContext;
     private String id;
@@ -134,6 +147,12 @@ public class SettingActivity extends Activity {
         } else {
             toggleBtn.setChecked(false);
         }
+        setListener();
+
+
+    }
+
+    private void setListener() {
         toggleBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
@@ -150,6 +169,78 @@ public class SettingActivity extends Activity {
             }
         });
         loginPost();
+        etPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!TextUtils.isEmpty(s) && showeyesBtn1.getVisibility() == View.GONE) {
+                    showeyesBtn1.setVisibility(View.VISIBLE);
+                } else if (TextUtils.isEmpty(s)) {
+                    showeyesBtn1.setVisibility(View.GONE);
+                }
+            }
+        });
+        etNewPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!TextUtils.isEmpty(s) && showeyesBtn2.getVisibility() == View.GONE) {
+                    showeyesBtn2.setVisibility(View.VISIBLE);
+                } else if (TextUtils.isEmpty(s)) {
+                    showeyesBtn2.setVisibility(View.GONE);
+                }
+            }
+        });
+        etNewPassword1.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!TextUtils.isEmpty(s) && showeyesBtn3.getVisibility() == View.GONE) {
+                    showeyesBtn3.setVisibility(View.VISIBLE);
+                } else if (TextUtils.isEmpty(s)) {
+                    showeyesBtn3.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            // 获得当前得到焦点的View，一般情况下就是EditText（特殊情况就是轨迹求或者实体案件会移动焦点）
+            View v = getCurrentFocus();
+            if (InputUtil.isShouldHideInput(v, ev)) {
+                InputUtil.hideSoftInput(v.getWindowToken(), mContext);
+            }
+        }
+        return super.dispatchTouchEvent(ev);
     }
 
     /*登录请求*/
@@ -372,7 +463,8 @@ public class SettingActivity extends Activity {
     @OnClick({R.id.download, R.id.changePassword, R.id.downloadMap,
             R.id.downloadApp, R.id.changeSure, R.id.downloadMonDate,
             R.id.changeStop, R.id.rl_back_1, R.id.rl_back_2, R.id.logOut,
-            R.id.rl_back_3, R.id.downloadMonitor, R.id.downloadDisater})
+            R.id.rl_back_3, R.id.downloadMonitor, R.id.downloadDisater,
+            R.id.showeyes_btn1, R.id.showeyes_btn2, R.id.showeyes_btn3})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.download:
@@ -396,7 +488,6 @@ public class SettingActivity extends Activity {
                         message.setText("当前不是WIFI状态不能更新");
                     }
                 }
-
                 break;
             case R.id.changeSure:
                 String nameStr = etUserName.getText().toString().trim();
@@ -464,8 +555,38 @@ public class SettingActivity extends Activity {
             case R.id.logOut:
                 outData();
                 break;
+            case R.id.showeyes_btn1:
+                if (etPassword.getInputType() != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) {
+                    etPassword.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    showeyesBtn1.setImageResource(R.mipmap.ic_eye);
+                } else {
+                    etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    showeyesBtn1.setImageResource(R.mipmap.ic_uneye);
+                }
+                break;
+            case R.id.showeyes_btn2:
+                if (etNewPassword.getInputType() != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) {
+                    etNewPassword.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    showeyesBtn2.setImageResource(R.mipmap.ic_eye);
+                } else {
+                    etNewPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    showeyesBtn2.setImageResource(R.mipmap.ic_uneye);
+                }
+                break;
+            case R.id.et_new_password1:
+                break;
+            case R.id.showeyes_btn3:
+                if (etNewPassword1.getInputType() != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) {
+                    etNewPassword1.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    showeyesBtn3.setImageResource(R.mipmap.ic_eye);
+                } else {
+                    etNewPassword1.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    showeyesBtn3.setImageResource(R.mipmap.ic_uneye);
+                }
+                break;
         }
     }
+
     /*APP注销*/
     private void outData() {
         GreenDaoManager.deleteDisaster();
@@ -495,6 +616,7 @@ public class SettingActivity extends Activity {
         Intent intent1 = new Intent(this, LoginActivity.class);
         startActivity(intent1);
     }
+
     /*修改密码*/
     private void changeRquest(String nameStr, String passwordStr, String newPasswordStr) {
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "appdocking/updateAppUser/" + nameStr + "/" + passwordStr + "/" + newPasswordStr)
@@ -531,6 +653,7 @@ public class SettingActivity extends Activity {
             }
         });
     }
+
     /*清空修改密码页面*/
     private void clearAll() {
         etUserName.setText("");
@@ -538,6 +661,7 @@ public class SettingActivity extends Activity {
         etNewPassword.setText("");
         etNewPassword1.setText("");
     }
+
     /*修改密码状态*/
     private boolean isNotNull() {
 
@@ -563,4 +687,6 @@ public class SettingActivity extends Activity {
         }
 
     }
+
+
 }
