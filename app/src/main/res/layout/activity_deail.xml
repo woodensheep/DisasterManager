@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="400dp"
+    android:layout_width="450dp"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.nandi.disastermanager.search.MonitorDataActivity">
@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:text="隐患点详情"
-        android:textSize="20sp"
+        android:textSize="22sp"
         android:gravity="center"
         android:textColor="#00F3F3"
         android:background="#112945" />
@@ -20,6 +20,8 @@
         android:id="@+id/date_show"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:background="@color/white">
 
     </android.support.v7.widget.RecyclerView>

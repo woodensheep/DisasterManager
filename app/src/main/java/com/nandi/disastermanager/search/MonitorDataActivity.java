@@ -210,8 +210,8 @@ public class MonitorDataActivity extends Activity {
             case R.id.data_monitor:
                 monitorData1.setVisibility(View.VISIBLE);
                 llChart.setVisibility(View.GONE);
-                dataCurve.setTextColor(Color.GRAY);
-                dataMonitor.setTextColor(Color.WHITE);
+                dataCurve.setTextColor(Color.WHITE);
+                dataMonitor.setTextColor(Color.parseColor("#00f3f3"));
                 break;
             case R.id.data_curve:
                 Log.d("cp", "开始时间：" + getStartTime() + "结束时间：" + getTime(new Date()));
@@ -219,8 +219,8 @@ public class MonitorDataActivity extends Activity {
                 monitorData1.setVisibility(View.GONE);
                 llChart.setVisibility(View.VISIBLE);
                 mLineChart.setNoDataText("请选择时间");
-                dataCurve.setTextColor(Color.WHITE);
-                dataMonitor.setTextColor(Color.GRAY);
+                dataCurve.setTextColor(Color.parseColor("#00f3f3"));
+                dataMonitor.setTextColor(Color.WHITE);
                 break;
             case R.id.tv_chart_start_time:
                 //时间选择器

@@ -1,341 +1,430 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:background="@color/colorPrimary"
-    >
-
+    android:paddingBottom="10dp"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="125dp"
             android:layout_height="44dp"
-            android:layout_marginBottom="5dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal"
-            android:background="@drawable/shape_search_gz_spinner">
+            android:background="@color/white"
+            android:orientation="horizontal">
 
             <Spinner
                 android:id="@+id/sp_1"
-                android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                />
-
+                android:layout_weight="1" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="125dp"
             android:layout_height="44dp"
-            android:layout_marginBottom="5dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal"
-            android:background="@drawable/shape_search_gz_spinner">
+            android:background="@color/white"
+            android:orientation="horizontal">
 
             <Spinner
                 android:id="@+id/sp_2"
-                android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                />
-
+                android:layout_weight="1" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="125dp"
             android:layout_height="44dp"
-            android:layout_marginBottom="5dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal"
-            android:background="@drawable/shape_search_gz_spinner">
+            android:background="@color/white"
+            android:orientation="horizontal">
 
             <Spinner
                 android:id="@+id/sp_3"
-                android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                />
-
+                android:layout_weight="1" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="125dp"
             android:layout_height="44dp"
-            android:layout_marginBottom="5dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal"
-            android:background="@drawable/shape_search_gz_spinner">
+            android:background="@color/white"
+            android:orientation="horizontal">
 
             <Spinner
                 android:id="@+id/sp_4"
-                android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                />
-
+                android:layout_weight="1" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="125dp"
             android:layout_height="44dp"
-            android:layout_marginBottom="5dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal"
-            android:background="@drawable/shape_search_gz_spinner">
+            android:background="@color/white"
+            android:orientation="horizontal">
 
             <Spinner
                 android:id="@+id/sp_5"
-                android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                />
-
+                android:layout_weight="1" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="125dp"
             android:layout_height="44dp"
-            android:layout_marginBottom="5dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal"
-            android:background="@drawable/shape_search_gz_spinner">
+            android:background="@color/white"
+            android:orientation="horizontal">
 
             <Spinner
                 android:id="@+id/sp_6"
-                android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                />
-
+                android:layout_weight="1" />
         </LinearLayout>
 
-        </LinearLayout>
+    </LinearLayout>
 
     <LinearLayout
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginBottom="5dp"
         android:id="@+id/ll_123"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/shape_search_gz_btn"
         android:orientation="horizontal">
 
-
         <EditText
-            android:textSize="15sp"
-            android:paddingStart="4dp"
             android:id="@+id/etSearch"
-            android:layout_weight="1"
-            android:layout_width="400dp"
-            android:layout_height="44dp"
-            android:layout_margin="5dp"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginLeft="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="9"
+            android:background="@null"
             android:hint="输入关键字"
-            android:background="@drawable/shape_search_gz_btn"
-            android:paddingLeft="10dp" />
+            android:textSize="15sp"
+            android:textColorHint="#cccccc"/>
 
         <Button
             android:id="@+id/btnSearch"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="5dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_gravity="center_vertical"
-            android:background="@mipmap/ic_search" />
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/ic_search" />
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/ll_statics"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
         android:layout_marginBottom="10dp"
-        android:visibility="gone"
-        android:orientation="vertical">
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
                 android:text="现有隐患点台帐总数: "
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/tv_total_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/white"/>
-
+                android:textColor="@color/white"
+                android:textSize="18sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_marginTop="5dp"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
                 android:text="滑坡: "
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/tv_huapo_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
                 android:layout_marginLeft="20dp"
                 android:text="崩塌: "
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/tv_bengta_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:text="塌陷: "
                 android:layout_marginLeft="20dp"
-                android:textColor="@color/white"/>
+                android:text="塌陷: "
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/tv_taxian_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:text="泥石流: "
                 android:layout_marginLeft="20dp"
-                android:textColor="@color/white"/>
+                android:text="泥石流: "
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/tv_nishiliu_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:text="地裂缝: "
                 android:layout_marginLeft="20dp"
-                android:textColor="@color/white"/>
+                android:text="地裂缝: "
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/tv_diliefeng_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:text="不稳定斜坡: "
                 android:layout_marginLeft="20dp"
-                android:textColor="@color/white"/>
+                android:text="不稳定斜坡: "
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/tv_xiepo_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_marginTop="5dp"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
                 android:text="特大型: "
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/tv_teda_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:text="大型: "
                 android:layout_marginLeft="20dp"
-                android:textColor="@color/white"/>
+                android:text="大型: "
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/tv_da_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
                 android:layout_marginLeft="20dp"
                 android:text="中型: "
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/tv_zhong_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:text="小型: "
                 android:layout_marginLeft="20dp"
-                android:textColor="@color/white"/>
+                android:text="小型: "
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/tv_xiao_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:textSize="18sp" />
         </LinearLayout>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="#d3d3d3"/>
+    <!-- 表格标题栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="wrap_content"
+            android:background="#d3d3d3"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="隐患点编号"
+            android:textColor="#00f3f3"
+            android:textSize="20sp"/>
+        <View
+            android:layout_width="1dp"
+            android:layout_height="wrap_content"
+            android:background="#d3d3d3"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            android:gravity="center"
+            android:text="名称"
+            android:textColor="#00f3f3"
+            android:textSize="20sp"/>
+        <View
+            android:layout_width="1dp"
+            android:layout_height="wrap_content"
+            android:background="#d3d3d3"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.5"
+            android:gravity="center"
+            android:text="等级"
+            android:textColor="#00f3f3"
+            android:textSize="20sp"/>
+        <View
+            android:layout_width="1dp"
+            android:layout_height="wrap_content"
+            android:background="#d3d3d3"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:text="诱发因素"
+            android:textColor="#00f3f3"
+            android:textSize="20sp"/>
+        <View
+            android:layout_width="1dp"
+            android:layout_height="wrap_content"
+            android:background="#d3d3d3"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:gravity="center"
+            android:text="操作"
+            android:textColor="#00f3f3"
+            android:textSize="20sp"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="wrap_content"
+            android:background="#d3d3d3"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="#d3d3d3"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/date_show"
-        android:layout_below="@+id/ll_123"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ll_123">
     </android.support.v7.widget.RecyclerView>
-
 
 </LinearLayout>
 

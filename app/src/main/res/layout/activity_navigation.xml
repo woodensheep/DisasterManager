@@ -2,46 +2,47 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="800dp"
+    android:layout_width="600dp"
     android:layout_height="match_parent"
-    android:padding="5dp"
     android:background="@drawable/linlear_background"
-    >
+    android:padding="5dp">
 
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="44dp"
-        android:text="请选择导航模式"
-        android:textSize="20sp"
-        android:gravity="center"
-        android:textColor="@color/white"
         android:background="@color/colorPrimary"
-        />
+        android:gravity="center"
+        android:text="请选择导航模式"
+        android:textColor="#00f3f3"
+        android:textSize="22sp" />
+
     <LinearLayout
-        android:layout_marginTop="10dp"
-        android:layout_below="@id/title"
-        android:background="@color/white"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/white">
+
         <Button
             android:id="@+id/baidu"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:text="百度地图"
-            android:textColor="@color/white"
-            android:background="@drawable/linlear_background"
+            android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:layout_height="wrap_content" />
+            android:layout_weight="1"
+            android:background="@drawable/linlear_background"
+            android:text="百度地图"
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/gaode"
-            android:layout_margin="10dp"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:layout_weight="1"
-            android:text="高德地图"
-            android:textColor="@color/white"
             android:background="@drawable/linlear_background"
-            android:layout_height="wrap_content" />
+            android:text="高德地图"
+            android:textColor="@color/white" />
     </LinearLayout>
 </RelativeLayout>
