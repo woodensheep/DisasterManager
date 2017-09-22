@@ -582,6 +582,7 @@ public class SettingActivity extends Activity {
                 } else {
                     etNewPassword1.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                     showeyesBtn3.setImageResource(R.mipmap.ic_uneye);
+                    ToastUtils.showLong(mContext,"");
                 }
                 break;
         }
