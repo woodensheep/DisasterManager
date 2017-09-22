@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRedoButton.setEnabled(false);
         mClearButton.setClickable(false);
         mClearButton.setEnabled(false);
-        locationClient=new LocationClient(getApplicationContext());
+        locationClient = new LocationClient(getApplicationContext());
         setListeners();
         if (!checkDownload()) {
             setStatics();
@@ -980,7 +980,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LocationClientOption option = new LocationClientOption();
         option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
         option.setCoorType("bd09ll");
-        int span=1000;
+        int span = 10*1000;
         option.setScanSpan(span);
         //可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
         option.setOpenGps(true);
@@ -991,16 +991,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         locationClient.registerLocationListener(new MyLocationListener());
         locationClient.start();
     }
-    private class MyLocationListener extends BDAbstractLocationListener{
+
+    private class MyLocationListener extends BDAbstractLocationListener {
 
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
-            double currentLon = bdLocation.getLongitude();
-            double currentLat = bdLocation.getLatitude();
-            double lastLon= (double) SharedUtils.getShare(context,Constant.SAVE_LON,0L);
-            double lastLat= (double) SharedUtils.getShare(context,Constant.SAVE_LAT,0L);
-            double distance = AppUtils.getDistance(currentLon, currentLat, lastLon, lastLat);
-            if (distance>10.0){
+//            double currentLon = bdLocation.getLongitude();
+//            double currentLat = bdLocation.getLatitude();
+//            String lon = (String) SharedUtils.getShare(context, Constant.SAVE_LON, "0");
+//            String lat = (String) SharedUtils.getShare(context, Constant.SAVE_LAT, "0");
+//            double lastLon = Double.parseDouble(lon);
+//            double lastLat = Double.parseDouble(lat);
+//            double distance = AppUtils.getDistance(currentLon, currentLat, lastLon, lastLat);
+
             String longitude = String.valueOf(bdLocation.getLongitude());
             String latitude = String.valueOf(bdLocation.getLatitude());
             Log.d(TAG, "jd:" + longitude + "/wd:" + latitude);
@@ -1020,20 +1023,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 l.setLonAndLat(lonAndLat + "|" + longitude + "," + latitude);
             }
             GreenDaoManager.updateLocation(l);
-            }
-            SharedUtils.putShare(context,Constant.SAVE_LON,bdLocation.getLongitude());
-            SharedUtils.putShare(context,Constant.SAVE_LAT,bdLocation.getLatitude());
+//            SharedUtils.putShare(context, Constant.SAVE_LON, bdLocation.getLongitude() + "");
+//            SharedUtils.putShare(context, Constant.SAVE_LAT, bdLocation.getLatitude() + "");
         }
 
         @Override
         public void onLocDiagnosticMessage(int locType, int diagnosticType, String diagnosticMessage) {
             if (diagnosticType == LocationClient.LOC_DIAGNOSTIC_TYPE_BETTER_OPEN_GPS) {
-                ToastUtils.showShort(context,"请打开GPS");
+                ToastUtils.showShort(context, "请打开GPS");
             } else if (diagnosticType == LocationClient.LOC_DIAGNOSTIC_TYPE_BETTER_OPEN_WIFI) {
-                ToastUtils.showShort(context,"建议打开WIFI提高定位经度");
+                ToastUtils.showShort(context, "建议打开WIFI提高定位经度");
             }
         }
     }
+
     private void showUploadNotice(final LocationInfo locationInfo) {
         new AlertDialog.Builder(context)
                 .setTitle("提示")
