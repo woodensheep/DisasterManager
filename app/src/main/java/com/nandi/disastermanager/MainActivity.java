@@ -15,6 +15,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -651,7 +652,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnUtil.setOnClickListener(this);
         ivAreaBack.setOnClickListener(this);
         llUserMessage.setOnClickListener(this);
-        mapView.setOnTouchListener(new DefaultMapViewOnTouchListener(context, mapView) {
+        mapView.setOnTouchListener(new DefaultMapViewOnTouchListener(context,mapView){
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 final android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
@@ -786,7 +787,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 });
-                final ListenableFuture<IdentifyGraphicsOverlayResult> meIdentify = mapView.identifyGraphicsOverlayAsync(meGraphicOverlay, screenPoint, 10.0, false);
+                final ListenableFuture<IdentifyGraphicsOverlayResult> meIdentify = mapView.identifyGraphicsOverlayAsync(meGraphicOverlay, screenPoint, 10.0, false, 1);
                 meIdentify.addDoneListener(new Runnable() {
                     @Override
                     public void run() {
@@ -794,18 +795,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             IdentifyGraphicsOverlayResult identifyResult = meIdentify.get();
                             List<Graphic> graphics = identifyResult.getGraphics();
                             if (graphics.size() > 0) {
-                                // TODO: 2017/9/22 查看周围隐患点
+                                View view = LayoutInflater.from(context).inflate(R.layout.callout_view, null);
+                                TextView tvMsg = (TextView) view.findViewById(R.id.tv_message);
+                                Button btnSearch = (Button) view.findViewById(R.id.btn_search);
+                                tvMsg.setText("经度:" + meLongitude + "\n" + "纬度:" + meLatitude);
                                 Point point = mapView.screenToLocation(screenPoint);
-                                Callout callout = mapView.getCallout();
+                                final Callout callout = mapView.getCallout();
                                 callout.setLocation(point);
-//                                callout.setContent();
+                                callout.setContent(view);
+                                callout.show();
+                                btnSearch.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Log.d(TAG, "开始搜索隐患点");
+                                        setDisasterOverlay(106.67564, 26.8720671618);// FIXME: 2017/9/25 应改为定位经纬度
+                                        callout.dismiss();
+                                    }
+                                });
                             }
                         } catch (InterruptedException | ExecutionException e1) {
                             e1.printStackTrace();
                         }
                     }
                 });
-                return super.onSingleTapConfirmed(e);
+                return true;
             }
 
             @Override
@@ -1006,7 +1019,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             meLongitude = bdLocation.getLongitude();
             meLatitude = bdLocation.getLatitude();
             Log.d(TAG, "定位信息：" + meLongitude + "," + meLatitude);
-            setLocationOverlay(meLongitude, meLatitude);
+            setLocationOverlay(106.67564, 26.8720671618);// FIXME: 2017/9/25
             ivLocation.setSelected(true);
             location = 1;
             locationClient.unRegisterLocationListener(locationListener);
@@ -1035,18 +1048,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Point point = new Point(longitude, latitude, SpatialReferences.getWgs84());
                 Graphic graphic = new Graphic(point, pinStarBlueSymbol);
                 meGraphicOverlay.getGraphics().add(graphic);
+                Viewpoint v=new Viewpoint(latitude,longitude,10000);
+                mapView.setViewpointAsync(v,2);
             }
         });
     }
 
-    private void setDisasterOverlay(double longitude, double latitude) {// FIXME: 2017/9/22 过滤符合条件的隐患点
+    private void setDisasterOverlay(double longitude, double latitude) {
         disasterOverlay.clear();
         List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
         int range = (int) SharedUtils.getShare(context, Constant.DISASTER_RANGE, 10 * 1000);
         for (DisasterPoint disasterPoint : disasterPoints) {
             double disasterLon = disasterPoint.getDisasterLon();
             double disasterLat = disasterPoint.getDisasterLat();
-            double distance = AppUtils.getDistance(106.67564, 26.8720671618, disasterLon, disasterLat);
+            double distance = AppUtils.getDistance(longitude, latitude, disasterLon, disasterLat);
             if (distance < range) {
                 disasterOverlay.add(disasterPoint);
             }
@@ -1064,7 +1079,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.huapo);
         final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawable);
         pinStarBlueSymbol.setHeight(40);
-        pinStarBlueSymbol.setWidth(20);
+        pinStarBlueSymbol.setWidth(30);
         pinStarBlueSymbol.loadAsync();
         pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
             @Override
@@ -1077,6 +1092,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 Log.d(TAG, "所有图标个数：" + allGraphics.size());
                 gzGraphics.addAll(allGraphics);
+                double mapScale = mapView.getMapScale();
+                mapView.setViewpointScaleAsync(mapScale+100000);
             }
         });
     }
