@@ -12,7 +12,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -32,6 +31,7 @@ import com.nandi.disastermanager.search.entity.MonitorData;
 import com.nandi.disastermanager.search.entity.MonitorListData;
 import com.nandi.disastermanager.search.entity.MonitorListPoint;
 import com.nandi.disastermanager.search.entity.MonitorPoint;
+import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.InputUtil;
@@ -293,6 +293,7 @@ public class SettingActivity extends Activity {
 
     /*APP更新灾害点数据*/
     private void upDisData() {
+        WaitingDialog.createLoadingDialog(mContext,"正在下载...");
         message.setText("正在更新灾害点信息");
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisasterPoint/" + id + "/" + level)
                 .build();
@@ -363,6 +364,7 @@ public class SettingActivity extends Activity {
                             }
                         }
                     }.start();
+                    WaitingDialog.closeDialog();
                     message.setText("更新灾害点信息成功");
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -375,6 +377,7 @@ public class SettingActivity extends Activity {
 
     /*APP更新监测点列表*/
     private void upMonData() {
+        WaitingDialog.createLoadingDialog(mContext,"正在下载...");
         message.setText("正在更新监测点信息");
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level)
                 .build();
@@ -406,6 +409,7 @@ public class SettingActivity extends Activity {
                             }
                         }
                     }.start();
+                    WaitingDialog.closeDialog();
                     message.setText("更新灾害点信息成功");
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -418,6 +422,7 @@ public class SettingActivity extends Activity {
 
     /*APP更新监测点数据*/
     private void upMonDatas() {
+        WaitingDialog.createLoadingDialog(mContext,"正在下载...");
         message.setText("正在更新灾害点数据信息");
         String url = getString(R.string.base_gz_url) + "/appdocking/listMonitor/" + id + "/" + level;
         RequestCall build = OkHttpUtils.get().url(url)
@@ -452,6 +457,7 @@ public class SettingActivity extends Activity {
                         }
                     }.start();
                     message.setText("更新灾害点数据信息成功");
+                    WaitingDialog.closeDialog();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -40,7 +40,7 @@
     <string name="chongqing_url">http://183.230.182.149:6080/arcgis/rest/services/chongqing_map/MapServer</string>
 
     <!--贵州-->
-    <string name="guizhou_dianzi_url">http://183.230.182.149:6082/arcgis/rest/services/guizhou_map1/MapServer</string>
+    <string name="guizhou_dianzi_url">http://183.230.182.149:6082/arcgis/rest/services/guizhou_dzdt/MapServer</string>
     <string name="guizhou_yingxiang_url">http://183.230.182.149:6082/arcgis/rest/services/guizhou1/MapServer</string>
     <string name="guizhou_yingxiang_url_1">http://183.230.182.149:6080/arcgis/rest/services/guizhou_ok18/MapServer </string>
     <string name="guizhou_xingzheng_url">http://183.230.182.149:6082/arcgis/rest/services/gz_xz_520000/MapServer</string>
@@ -103,8 +103,8 @@
     <string name="permission_white_external_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_WRITE_EXTERNAL_STORAGE</string>
     <string name="permission_recode_audio_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_RECORD_AUDIO</string>
 
-    <!--<string name="base_gz_url">http://202.98.195.125:8081/gzcmd/</string>-->
-    <string name="base_gz_url">http://192.168.10.73:8080/gzcmd/</string>
+    <string name="base_gz_url">http://202.98.195.125:8081/gzcmd/</string>
+    <!--<string name="base_gz_url">http://192.168.10.73:8080/gzcmd/</string>-->
 
 
 </resources>
