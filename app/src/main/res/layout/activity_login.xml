@@ -5,10 +5,9 @@
     android:background="@drawable/login_bg">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="170dp"
             android:layout_height="match_parent"
-            android:paddingLeft="400dp"
-            android:paddingRight="400dp"
+            android:layout_centerInParent="true"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -53,6 +52,7 @@
                 android:id="@+id/loginBtn"
                 android:layout_width="40dp"
                 android:layout_height="50dp"
+                android:layout_marginBottom="8dp"
                 android:background="@drawable/login_btn" />
 
         </LinearLayout>
