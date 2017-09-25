@@ -11,14 +11,15 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -51,32 +52,19 @@ import com.esri.arcgisruntime.geometry.Polygon;
 import com.esri.arcgisruntime.geometry.PolygonBuilder;
 import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
-import com.esri.arcgisruntime.layers.ArcGISMapImageLayer;
-import com.esri.arcgisruntime.layers.ArcGISMapImageSublayer;
-import com.esri.arcgisruntime.layers.ArcGISSceneLayer;
 import com.esri.arcgisruntime.layers.ArcGISTiledLayer;
-import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent;
-import com.esri.arcgisruntime.loadable.LoadStatusChangedListener;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
-import com.esri.arcgisruntime.mapping.ArcGISScene;
 import com.esri.arcgisruntime.mapping.ArcGISTiledElevationSource;
-import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.LayerList;
-import com.esri.arcgisruntime.mapping.Surface;
 import com.esri.arcgisruntime.mapping.Viewpoint;
 import com.esri.arcgisruntime.mapping.view.Callout;
-import com.esri.arcgisruntime.mapping.view.Camera;
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
-import com.esri.arcgisruntime.mapping.view.DefaultSceneViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
-import com.esri.arcgisruntime.mapping.view.LocationToScreenResult;
 import com.esri.arcgisruntime.mapping.view.MapScaleChangedEvent;
 import com.esri.arcgisruntime.mapping.view.MapScaleChangedListener;
 import com.esri.arcgisruntime.mapping.view.MapView;
-import com.esri.arcgisruntime.mapping.view.ViewpointChangedEvent;
-import com.esri.arcgisruntime.mapping.view.ViewpointChangedListener;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
@@ -87,6 +75,9 @@ import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.entity.LocationInfo;
 import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
+import com.nandi.disastermanager.search.DetailDataActivity;
+import com.nandi.disastermanager.search.MonitorListActivity;
+import com.nandi.disastermanager.search.NavigationActivity;
 import com.nandi.disastermanager.search.SearchActivity;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.StaticsInfo;
@@ -248,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private double meLongitude = 0;
     private double meLatitude = 0;
     private Callout callout;
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -935,8 +927,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void showDisasterInfo(DisasterPoint disasterPoint) {
+    private void showDisasterInfo(final DisasterPoint disasterPoint) {
         // TODO: 2017/9/22 显示隐患点信息
+        final View dialog = showPointDataDialog(disasterPoint);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialog);
+        builder.setCancelable(false);
+        alertDialog = builder.create();
+        alertDialog.show();
+
+    }
+
+    @NonNull
+    private View showPointDataDialog(final DisasterPoint disasterPoint) {
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialog = inflater.inflate(R.layout.dialog_point_data, (ViewGroup) findViewById(R.id.dialog));
+        TextView tvMonitorName = (TextView) dialog.findViewById(R.id.tv_monitor_name);
+        TextView tvMonitorNum = (TextView) dialog.findViewById(R.id.tv_monitor_num);
+        TextView tvMonitorGrade = (TextView) dialog.findViewById(R.id.tv_monitor_grade);
+        TextView tvMonitorFactor = (TextView) dialog.findViewById(R.id.tv_monitor_factor);
+        TextView tvDetails = (TextView) dialog.findViewById(R.id.tv_details);
+        TextView tvMonitorPoint = (TextView) dialog.findViewById(R.id.tv_monitor_point);
+        TextView tvNavigation = (TextView) dialog.findViewById(R.id.tv_navigation);
+        ImageView ivClose = (ImageView) dialog.findViewById(R.id.iv_close);
+
+        tvMonitorName.setText(disasterPoint.getDisasterName());
+        tvMonitorNum.setText(disasterPoint.getDisasterNum());
+        tvMonitorGrade.setText(disasterPoint.getDisasterGrade());
+        tvMonitorFactor.setText(disasterPoint.getMajorIncentives());
+        ivClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+        tvDetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, DetailDataActivity.class);
+                intent.putExtra("id", disasterPoint.getId());
+                startActivity(intent);
+            }
+        });
+        tvMonitorPoint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, MonitorListActivity.class);
+                intent.putExtra("id", disasterPoint.getId());
+                startActivity(intent);
+            }
+        });
+        tvNavigation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, NavigationActivity.class);
+                intent.putExtra("id", disasterPoint.getId());
+                startActivity(intent);
+            }
+        });
+        return dialog;
     }
 
 
@@ -1010,7 +1059,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setPositiveButton("清除", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if (callout.isShowing()){
+                        if (callout.isShowing()) {
                             callout.dismiss();
                         }
                         ivLocation.setSelected(false);
@@ -1199,8 +1248,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onLocDiagnosticMessage(int locType, int diagnosticType, String diagnosticMessage) {
             if (diagnosticType == LocationClient.LOC_DIAGNOSTIC_TYPE_BETTER_OPEN_GPS) {
                 ToastUtils.showShort(context, "请打开GPS");
+                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
             } else if (diagnosticType == LocationClient.LOC_DIAGNOSTIC_TYPE_BETTER_OPEN_WIFI) {
                 ToastUtils.showShort(context, "建议打开WIFI提高定位经度");
+                startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+
             }
         }
     }

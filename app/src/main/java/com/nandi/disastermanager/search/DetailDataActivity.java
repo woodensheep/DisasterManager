@@ -53,7 +53,6 @@ public class DetailDataActivity extends Activity {
         ButterKnife.bind(this);
         MyApplication.getActivities().add(this);
         mContext = this;
-        mDetailData = new DetailData();
         Long id = getIntent().getLongExtra("id", 0);
         disasterPoint = GreenDaoManager.queryDisasterById(id + "");
         Log.i("Tag", disasterPoint.getDisasterType());
