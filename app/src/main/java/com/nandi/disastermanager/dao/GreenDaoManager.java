@@ -4,12 +4,11 @@ package com.nandi.disastermanager.dao;
 import android.database.Cursor;
 
 import com.nandi.disastermanager.MyApplication;
-
+import com.nandi.disastermanager.entity.DaoMaster;
+import com.nandi.disastermanager.entity.DaoSession;
 import com.nandi.disastermanager.entity.LocationInfo;
 import com.nandi.disastermanager.search.entity.AreaInfo;
 import com.nandi.disastermanager.search.entity.AreaInfoDao;
-import com.nandi.disastermanager.search.entity.DaoMaster;
-import com.nandi.disastermanager.search.entity.DaoSession;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.DisasterPointDao;
 import com.nandi.disastermanager.search.entity.MonitorListPoint;

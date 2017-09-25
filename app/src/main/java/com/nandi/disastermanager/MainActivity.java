@@ -81,6 +81,7 @@ import com.nandi.disastermanager.search.NavigationActivity;
 import com.nandi.disastermanager.search.SearchActivity;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.StaticsInfo;
+import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.LogUtils;
@@ -941,7 +942,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @NonNull
     private View showPointDataDialog(final DisasterPoint disasterPoint) {
         LayoutInflater inflater = getLayoutInflater();
-        final View dialog = inflater.inflate(R.layout.dialog_point_data, (ViewGroup) findViewById(R.id.dialog));
+        final View dialog = inflater.inflate(R.layout.dialog_point_data, null);
         TextView tvMonitorName = (TextView) dialog.findViewById(R.id.tv_monitor_name);
         TextView tvMonitorNum = (TextView) dialog.findViewById(R.id.tv_monitor_num);
         TextView tvMonitorGrade = (TextView) dialog.findViewById(R.id.tv_monitor_grade);
@@ -1013,11 +1014,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.iv_search_main:
                 List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
                 if (disasterPoints.size() == 0) {
-                    if (downloadSuccess) {
-                        //// TODO: 2017/9/20
-                    } else {
-                        ToastUtils.showShort(context, "正在加载请稍候...");
-                    }
+                    ToastUtils.showShort(context, "正在加载请稍候...");
                 } else {
                     Intent intent = new Intent(context, SearchActivity.class);
                     intent.putExtra("ID", id);
@@ -1041,6 +1038,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setLocation() {
         if (location == 0) {
             turnOnLocation();
+            WaitingDialog.createLoadingDialog(context,"正在获取位置");
         } else if (location == 1) {
             showClearNotice();
         }
@@ -1123,6 +1121,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 meGraphicOverlay.getGraphics().add(graphic);
                 Viewpoint v = new Viewpoint(latitude, longitude, 10000);
                 mapView.setViewpointAsync(v, 2);
+                WaitingDialog.closeDialog();
             }
         });
     }

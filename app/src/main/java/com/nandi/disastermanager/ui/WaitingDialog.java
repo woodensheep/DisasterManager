@@ -7,6 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,7 +32,11 @@ public class WaitingDialog {
         TextView tipTextView = (TextView) v.findViewById(R.id.tipTextView);// 提示文字
         tipTextView.setText(msg);// 设置加载信息
         ImageView ivWaiting= (ImageView) v.findViewById(R.id.img);
-        Glide.with(context).load(R.drawable.waiting_logo).asGif().into(ivWaiting);;
+        RotateAnimation animation=new RotateAnimation(0f,360f,Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF,0.5f);
+        animation.setInterpolator(new LinearInterpolator());
+        animation.setDuration(1000);
+        animation.setRepeatCount(-1);
+        ivWaiting.startAnimation(animation);
         Dialog loadingDialog = new Dialog(context, R.style.MyDialogStyle);// 创建自定义样式dialog
         loadingDialog.setCancelable(true); // 是否可以按“返回键”消失
         loadingDialog.setCanceledOnTouchOutside(false); // 点击加载框以外的区域
