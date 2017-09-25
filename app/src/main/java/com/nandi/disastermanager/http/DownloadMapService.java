@@ -33,7 +33,7 @@ public class DownloadMapService extends Service {
         // 调用下载
         File file = new File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                , "map.tpk");
+                , "guizhou.tpk");
         if (file.exists()) {
             boolean delete = file.delete();
         }
@@ -129,7 +129,7 @@ public class DownloadMapService extends Service {
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdir();
 
         //设置文件存放路径
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "map.tpk");
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "guizhou.tpk");
     }
 
     /**

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -22,6 +23,7 @@ import android.widget.ToggleButton;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.google.gson.Gson;
 import com.nandi.disastermanager.dao.GreenDaoManager;
+import com.nandi.disastermanager.http.DownloadMapService;
 import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.entity.DisasterData;
@@ -42,6 +44,7 @@ import com.zhy.http.okhttp.request.RequestCall;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.Date;
 
 import butterknife.BindView;
@@ -474,6 +477,25 @@ public class SettingActivity extends Activity {
                 llChangePassword.setVisibility(View.VISIBLE);
                 break;
             case R.id.downloadMap:
+                File file = new File(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                        , "guizhou.tpk");
+                if (!file.exists()) {
+                    if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
+                        Intent intent = new Intent(mContext, DownloadMapService.class);
+                        startService(intent);
+                    } else {
+                        if (NetworkUtils.isWifiConnected()) {
+                            Intent intent = new Intent(mContext, DownloadMapService.class);
+                            startService(intent);
+                            Log.i(TAG, "不允许4G时更新");
+                        } else {
+                            message.setText("当前不是WIFI状态不能更新");
+                        }
+                    }
+                }else{
+                    message.setText("地图文件已存在");
+                }
                 break;
             case R.id.downloadApp:
                 if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
