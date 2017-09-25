@@ -21,7 +21,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="left|center"
-                android:paddingLeft="30dp"
+                android:paddingLeft="13dp"
                 android:text="数据统计"
                 android:textColor="#00f3f3"
                 android:textSize="20sp" />
@@ -33,19 +33,20 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:padding="5dp"
-                android:src="@drawable/total_right" />
+                android:src="@drawable/total_left" />
         </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="5dp"
+            android:paddingLeft="13dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginTop="@dimen/margin_neirong"
                 android:layout_weight="1"
                 android:orientation="horizontal">
 
