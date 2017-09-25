@@ -22,6 +22,7 @@ import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.AreaInfo;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.LoginInfo;
+import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.InputUtil;
 import com.nandi.disastermanager.utils.ToastUtils;
 
@@ -322,6 +323,7 @@ public class SearchActivity extends Activity {
                 rcSearchAdapter.notifyDataSetChanged();
             }
         });
+        WaitingDialog.closeDialog();
     }
 
     private void setStatics(List<DisasterPoint> disasterPoints) {

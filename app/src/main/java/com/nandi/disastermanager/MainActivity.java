@@ -811,9 +811,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             List<Graphic> graphics = identifyResult.getGraphics();
                             if (graphics.size() > 0) {
                                 View view = LayoutInflater.from(context).inflate(R.layout.callout_view, null);
-                                TextView tvMsg = (TextView) view.findViewById(R.id.tv_message);
+                                TextView tvLon = (TextView) view.findViewById(R.id.tv_lon);
+                                TextView tvLat = (TextView) view.findViewById(R.id.tv_lat);
                                 Button btnSearch = (Button) view.findViewById(R.id.btn_search);
-                                tvMsg.setText("经度:" + meLongitude + "\n" + "纬度:" + meLatitude);
+                                ImageView ivClose= (ImageView) view.findViewById(R.id.iv_close);
+                                tvLon.setText(meLongitude+"");
+                                tvLat.setText(meLatitude+"");
                                 Point point = mapView.screenToLocation(screenPoint);
                                 callout.setLocation(point);
                                 callout.setContent(view);
@@ -823,6 +826,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     public void onClick(View view) {
                                         Log.d(TAG, "开始搜索隐患点");
                                         setDisasterOverlay(106.67564, 26.8720671618);// FIXME: 2017/9/25 应改为定位经纬度
+                                        callout.dismiss();
+                                    }
+                                });
+                                ivClose.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
                                         callout.dismiss();
                                     }
                                 });
@@ -1016,6 +1025,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (disasterPoints.size() == 0) {
                     ToastUtils.showShort(context, "正在加载请稍候...");
                 } else {
+                    WaitingDialog.createLoadingDialog(context,"正在加载");
                     Intent intent = new Intent(context, SearchActivity.class);
                     intent.putExtra("ID", id);
                     intent.putExtra("LEVEL", level);

@@ -186,7 +186,7 @@ public class ReplaceService extends Service {
     /*灾害点数据的请求*/
     private void upDisData() {
 
-        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
+        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisasterPoint/" + id + "/" + level)
                 .build();
         build.execute(new StringCallback() {
             @Override

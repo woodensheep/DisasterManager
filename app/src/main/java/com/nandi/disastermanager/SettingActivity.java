@@ -294,7 +294,7 @@ public class SettingActivity extends Activity {
     /*APP更新灾害点数据*/
     private void upDisData() {
         message.setText("正在更新灾害点信息");
-        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisaster/" + id + "/" + level)
+        RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisasterPoint/" + id + "/" + level)
                 .build();
         build.execute(new StringCallback() {
             @Override

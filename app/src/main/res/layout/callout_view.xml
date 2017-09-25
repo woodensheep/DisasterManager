@@ -145,5 +145,5 @@
         android:background="@null"
         android:text="查看周围隐患点"
         android:textColor="@color/blue"
-        android:textSize="16sp"/>
+        android:textSize="16sp" />
 </LinearLayout>
