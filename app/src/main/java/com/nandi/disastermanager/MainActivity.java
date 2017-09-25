@@ -247,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private LocationListener locationListener;
     private double meLongitude = 0;
     private double meLatitude = 0;
+    private Callout callout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -311,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
         map.setInitialViewpoint(viewpoint);
+        callout = mapView.getCallout();
     }
 
     /**
@@ -820,7 +822,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Button btnSearch = (Button) view.findViewById(R.id.btn_search);
                                 tvMsg.setText("经度:" + meLongitude + "\n" + "纬度:" + meLatitude);
                                 Point point = mapView.screenToLocation(screenPoint);
-                                final Callout callout = mapView.getCallout();
                                 callout.setLocation(point);
                                 callout.setContent(view);
                                 callout.show();
@@ -1009,6 +1010,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setPositiveButton("清除", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        if (callout.isShowing()){
+                            callout.dismiss();
+                        }
                         ivLocation.setSelected(false);
                         location = 0;
                         gzGraphics.clear();
