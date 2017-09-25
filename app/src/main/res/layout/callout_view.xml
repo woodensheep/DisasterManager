@@ -7,14 +7,16 @@
     <TextView
         android:id="@+id/tv_message"
         android:layout_width="wrap_content"
-        android:textSize="18sp"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textSize="18sp" />
+
     <Button
         android:id="@+id/btn_search"
-        android:text="查看周围隐患点"
-        android:textColor="@color/white"
-        android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
-        android:background="@drawable/textview_background"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="@null"
+        android:text="查看周围隐患点"
+        android:textColor="@color/blue"
+        android:textSize="16sp"/>
 </LinearLayout>
