@@ -1,20 +1,14 @@
 package com.nandi.disastermanager.dao;
 
 
-import android.annotation.TargetApi;
 import android.database.Cursor;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 
 import com.nandi.disastermanager.MyApplication;
-
-
-
+import com.nandi.disastermanager.entity.DaoMaster;
+import com.nandi.disastermanager.entity.DaoSession;
 import com.nandi.disastermanager.entity.LocationInfo;
 import com.nandi.disastermanager.search.entity.AreaInfo;
 import com.nandi.disastermanager.search.entity.AreaInfoDao;
-import com.nandi.disastermanager.search.entity.DaoMaster;
-import com.nandi.disastermanager.search.entity.DaoSession;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.DisasterPointDao;
 import com.nandi.disastermanager.search.entity.MonitorListPoint;

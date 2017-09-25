@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -32,8 +33,10 @@ import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
+import com.esri.arcgisruntime.data.TileCache;
 import com.esri.arcgisruntime.geometry.AreaUnit;
 import com.esri.arcgisruntime.geometry.AreaUnitId;
 import com.esri.arcgisruntime.geometry.GeodeticCurveType;
@@ -99,6 +102,7 @@ import com.zhy.http.okhttp.callback.StringCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -198,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArcGISTiledLayer gzYingXiangLayer;
     ArcGISTiledLayer gzYingXiangLayerHigh;
     ArcGISTiledLayer gzDianZhiLayer;
+    ArcGISTiledLayer localeDianZhiLayer;
     private ArcGISMap map;
     private LayerList layers;
     private GraphicsOverlay gzPointGraphicOverlay;
@@ -260,21 +265,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         gzDianZhiLayer = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_dianzi_url));
         gzYingXiangLayer = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_yingxiang_url));
         gzYingXiangLayerHigh = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_yingxiang_url_1));
-        map = new ArcGISMap();
-        layers = map.getOperationalLayers();
-        gzPointGraphicOverlay = new GraphicsOverlay();
-        mGraphicsOverlay = new GraphicsOverlay();
-        meGraphicOverlay = new GraphicsOverlay();
-        mGraphics = mGraphicsOverlay.getGraphics();
-        gzGraphics = gzPointGraphicOverlay.getGraphics();
-        ListenableList<GraphicsOverlay> graphicsOverlays = mapView.getGraphicsOverlays();
-        graphicsOverlays.add(mGraphicsOverlay);
-        graphicsOverlays.add(gzPointGraphicOverlay);
-        graphicsOverlays.add(meGraphicOverlay);
-        mapView.setMap(map);
-        layers.add(gzDianZhiLayer);
-        Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
-        map.setInitialViewpoint(viewpoint);
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "guizhou.tpk");
+        if (file.exists()) {
+            TileCache tileCache = new TileCache(file.getAbsolutePath());
+            localeDianZhiLayer = new ArcGISTiledLayer(tileCache);
+        } else {
+            ToastUtils.showShort(context, "请在设置页面下载离线地图包");
+        }
+        initMap();
         mUndoButton.setClickable(false);
         mUndoButton.setEnabled(false);
         mRedoButton.setClickable(false);
@@ -284,12 +282,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         locationClient = new LocationClient(getApplicationContext());
         routeClient = new LocationClient(getApplicationContext());
         setListeners();
-        if (!checkDownload()) {
+        if (NetworkUtils.isConnected()) {
             setStatics();
         } else {
             initStaData();
         }
         startUpdateService();
+    }
+
+    private void initMap() {
+        map = new ArcGISMap();//添加底图
+        layers = map.getOperationalLayers();
+        mapView.setMap(map);
+        gzPointGraphicOverlay = new GraphicsOverlay();
+        mGraphicsOverlay = new GraphicsOverlay();
+        meGraphicOverlay = new GraphicsOverlay();
+        mGraphics = mGraphicsOverlay.getGraphics();
+        gzGraphics = gzPointGraphicOverlay.getGraphics();
+        ListenableList<GraphicsOverlay> graphicsOverlays = mapView.getGraphicsOverlays();
+        graphicsOverlays.add(mGraphicsOverlay);
+        graphicsOverlays.add(gzPointGraphicOverlay);
+        graphicsOverlays.add(meGraphicOverlay);
+        //初始显示的地图
+        if (NetworkUtils.isConnected()) {
+            layers.add(gzDianZhiLayer);
+        } else {
+            layers.add(localeDianZhiLayer);
+        }
+        Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
+        map.setInitialViewpoint(viewpoint);
     }
 
     /**
@@ -310,7 +331,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    /*开启下载*/
     private boolean checkDownload() {
         List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
         boolean isChangeUser = (boolean) SharedUtils.getShare(context, Constant.CHANGE_USER, false);
@@ -652,7 +672,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnUtil.setOnClickListener(this);
         ivAreaBack.setOnClickListener(this);
         llUserMessage.setOnClickListener(this);
-        mapView.setOnTouchListener(new DefaultMapViewOnTouchListener(context,mapView){
+        mapView.setOnTouchListener(new DefaultMapViewOnTouchListener(context, mapView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 final android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
@@ -1048,8 +1068,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Point point = new Point(longitude, latitude, SpatialReferences.getWgs84());
                 Graphic graphic = new Graphic(point, pinStarBlueSymbol);
                 meGraphicOverlay.getGraphics().add(graphic);
-                Viewpoint v=new Viewpoint(latitude,longitude,10000);
-                mapView.setViewpointAsync(v,2);
+                Viewpoint v = new Viewpoint(latitude, longitude, 10000);
+                mapView.setViewpointAsync(v, 2);
             }
         });
     }
@@ -1093,7 +1113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d(TAG, "所有图标个数：" + allGraphics.size());
                 gzGraphics.addAll(allGraphics);
                 double mapScale = mapView.getMapScale();
-                mapView.setViewpointScaleAsync(mapScale+100000);
+                mapView.setViewpointScaleAsync(mapScale + 100000);
             }
         });
     }
@@ -1266,20 +1286,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void changeBaseMap() {
         if (baseMap == 0) {
-            layers.clear();
-            layers.add(gzYingXiangLayerHigh);
-            layers.add(gzYingXiangLayer);
-            Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
-            mapView.setViewpointAsync(viewpoint, 2);
-            baseMap = 1;
-            ivChangeMap.setSelected(true);
+            if (NetworkUtils.isConnected()) {
+                layers.clear();
+                layers.add(gzYingXiangLayerHigh);
+                layers.add(gzYingXiangLayer);
+                Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
+                mapView.setViewpointAsync(viewpoint, 2);
+                baseMap = 1;
+                ivChangeMap.setSelected(true);
+            } else {
+                ToastUtils.showShort(context, "当前无网络，无法切换影像图");
+            }
         } else if (baseMap == 1) {
-            layers.clear();
-            layers.add(gzDianZhiLayer);
-            Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
-            mapView.setViewpointAsync(viewpoint, 2);
-            baseMap = 0;
-            ivChangeMap.setSelected(false);
+            if (NetworkUtils.isConnected()) {
+                layers.clear();
+                layers.add(gzDianZhiLayer);
+                Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
+                mapView.setViewpointAsync(viewpoint, 2);
+                baseMap = 0;
+                ivChangeMap.setSelected(false);
+            } else {
+                layers.clear();
+                layers.add(localeDianZhiLayer);
+                Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
+                mapView.setViewpointAsync(viewpoint, 2);
+                baseMap = 0;
+                ivChangeMap.setSelected(false);
+            }
         }
     }
 
@@ -1306,12 +1339,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setNarrow() {
         double mapScale = mapView.getMapScale();
-        mapView.setViewpointScaleAsync(mapScale - 100000);
+        mapView.setViewpointScaleAsync(mapScale + 100000);
     }
 
     private void setEnlarge() {
         double mapScale = mapView.getMapScale();
-        mapView.setViewpointScaleAsync(mapScale + 100000);
+        mapView.setViewpointScaleAsync(mapScale - 100000);
     }
 
     private void setUtilBack() {
