@@ -1039,7 +1039,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             meLatitude = gps.getWgLat();
             meLongitude = gps.getWgLon();
             System.out.println("定位信息：" + meLongitude + "," + meLatitude);
-            setLocationOverlay(meLongitude, meLatitude);// FIXME: 2017/9/25
+            setLocationOverlay(meLongitude, meLatitude);
             locationClient.unRegisterLocationListener(locationListener);
             locationClient.stop();
         }
