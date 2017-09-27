@@ -530,6 +530,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void bindAccount() {
         cloudPushService = PushServiceFactory.getCloudPushService();
+        String level= (String) SharedUtils.getShare(context,Constant.LEVEL,"");
         cloudPushService.turnOnPushChannel(new CommonCallback() {
             @Override
             public void onSuccess(String s) {
@@ -542,16 +543,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-        cloudPushService.bindAccount((String) SharedUtils.getShare(context, Constant.USER_NAME, ""), new CommonCallback() {
+        cloudPushService.bindTag(CloudPushService.DEVICE_TARGET, new String[]{level}, null, new CommonCallback() {
             @Override
             public void onSuccess(String s) {
-                LogUtils.d(TAG, "绑定账号成功！/" + s);
+                Log.d(TAG,"绑定标签成功");
             }
 
             @Override
             public void onFailed(String s, String s1) {
-                LogUtils.d(TAG, "绑定账号失败！/" + s);
-
+                Log.d(TAG,"绑定标签失败");
             }
         });
     }
@@ -873,7 +873,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showDisasterInfo(final DisasterPoint disasterPoint) {
-        // TODO: 2017/9/22 显示隐患点信息
         final View dialog = showPointDataDialog(disasterPoint);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialog);

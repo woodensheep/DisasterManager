@@ -136,7 +136,7 @@
 
     <Button
         android:id="@+id/btn_util"
-        android:layout_width="80dp"
+        android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_below="@+id/ll_userMessage"
         android:layout_alignParentRight="true"
@@ -261,7 +261,7 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@mipmap/compass" />
+                android:src="@drawable/compass" />
         </LinearLayout>
 
         <TextView
