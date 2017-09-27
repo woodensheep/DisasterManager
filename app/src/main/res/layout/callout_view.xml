@@ -136,36 +136,6 @@
             android:layout_height="1dp"
             android:background="#d3d3d3"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#d3d3d3"/>
-
-            <Button
-                android:id="@+id/btn_search"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginRight="50dp"
-                android:background="@drawable/shape_search_gz_item_btn"
-                android:text="查看周围隐患点"
-                android:textColor="@color/white"
-                android:textSize="18sp"/>
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#d3d3d3"/>
-        </LinearLayout>
 
         <View
             android:layout_width="match_parent"

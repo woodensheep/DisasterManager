@@ -19,7 +19,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -72,6 +71,7 @@ import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.esri.arcgisruntime.util.ListenableList;
 import com.google.gson.Gson;
 import com.nandi.disastermanager.dao.GreenDaoManager;
+import com.nandi.disastermanager.entity.Gps;
 import com.nandi.disastermanager.entity.LocationInfo;
 import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.http.UpdataService;
@@ -189,6 +189,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayout llRoute;
     @BindView(R.id.mapView)
     MapView mapView;
+    @BindView(R.id.ll_notice)
+    LinearLayout llNotice;
     private boolean llAreaState = true;
     private boolean llUtilState = false;
     ArcGISTiledLayer gzYingXiangLayer;
@@ -241,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private double meLatitude = 0;
     private Callout callout;
     private AlertDialog alertDialog;
+    private File file;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -253,13 +256,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         level = (String) SharedUtils.getShare(context, Constant.LEVEL, "");
         setLine();
         checkUpdate();
-//        bindAccount();//绑定推送账号，暂时不用
+        bindAccount();//绑定推送账号，暂时不用
         initUtilData();
         loginPost((String) SharedUtils.getShare(context, Constant.USER_NAME, ""), (String) SharedUtils.getShare(context, Constant.PASSWORD, ""));
         gzDianZhiLayer = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_dianzi_url));
         gzYingXiangLayer = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_yingxiang_url));
         gzYingXiangLayerHigh = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_yingxiang_url_1));
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "guizhou.tpk");
+        file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "guizhou.tpk");
         if (file.exists()) {
             TileCache tileCache = new TileCache(file.getAbsolutePath());
             localeDianZhiLayer = new ArcGISTiledLayer(tileCache);
@@ -282,6 +285,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             initStaData();
         }
         startUpdateService();
+        turnOnLocation();
     }
 
     private void initMap() {
@@ -300,10 +304,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //初始显示的地图
         if (NetworkUtils.isConnected()) {
             layers.add(gzDianZhiLayer);
+//            layers.add(new ArcGISTiledLayer(getResources().getString(R.string.chongqing_url)));
         } else {
-            layers.add(localeDianZhiLayer);
+            if (file.exists()) {
+                layers.add(localeDianZhiLayer);
+            } else {
+                ToastUtils.showShort(context, "当前无网络，请下载离线地图包");
+            }
         }
-        Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
+        Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1600000);
         map.setInitialViewpoint(viewpoint);
         callout = mapView.getCallout();
     }
@@ -533,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-        cloudPushService.bindAccount((String) SharedUtils.getShare(context, "loginname", ""), new CommonCallback() {
+        cloudPushService.bindAccount((String) SharedUtils.getShare(context, Constant.USER_NAME, ""), new CommonCallback() {
             @Override
             public void onSuccess(String s) {
                 LogUtils.d(TAG, "绑定账号成功！/" + s);
@@ -657,6 +666,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setListeners() {
+        llNotice.setOnClickListener(this);
         ivRoute.setOnClickListener(this);
         ivLocation.setOnClickListener(this);
         ivChangeMap.setOnClickListener(this);
@@ -813,22 +823,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 View view = LayoutInflater.from(context).inflate(R.layout.callout_view, null);
                                 TextView tvLon = (TextView) view.findViewById(R.id.tv_lon);
                                 TextView tvLat = (TextView) view.findViewById(R.id.tv_lat);
-                                Button btnSearch = (Button) view.findViewById(R.id.btn_search);
-                                ImageView ivClose= (ImageView) view.findViewById(R.id.iv_close);
-                                tvLon.setText(meLongitude+"");
-                                tvLat.setText(meLatitude+"");
+                                ImageView ivClose = (ImageView) view.findViewById(R.id.iv_close);
+                                tvLon.setText(meLongitude + "");
+                                tvLat.setText(meLatitude + "");
                                 Point point = mapView.screenToLocation(screenPoint);
                                 callout.setLocation(point);
                                 callout.setContent(view);
                                 callout.show();
-                                btnSearch.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        Log.d(TAG, "开始搜索隐患点");
-                                        setDisasterOverlay(106.67564, 26.8720671618);// FIXME: 2017/9/25 应改为定位经纬度
-                                        callout.dismiss();
-                                    }
-                                });
                                 ivClose.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
@@ -851,72 +852,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     finishDrawing();
                 }
-            }
-
-            @Override
-            public boolean onScroll(MotionEvent from, MotionEvent to, float distanceX, float distanceY) {
-                if (llUtil.getVisibility() == View.VISIBLE) {
-                    boolean callSuper = true;
-                    if (mCurrentPoint != null) {
-                        android.graphics.Point currentPoint = mapView.locationToScreen((Point) mCurrentPoint.getGeometry());
-                        android.graphics.Point fromPoint = new android.graphics.Point((int) from.getX(), (int) from.getY());
-                        int dx = currentPoint.x - fromPoint.x;
-                        int dy = currentPoint.y - fromPoint.y;
-                        int distance = (int) Math.sqrt((dx * dx) + (dy * dy));
-                        if (distance < 20) {
-                            callSuper = false;
-                            android.graphics.Point toPoint = new android.graphics.Point((int) to.getX(), (int) to.getY());
-                            Point oldGeometry = (Point) mCurrentPoint.getGeometry();
-                            Point oldPointCopy = new Point(oldGeometry.getX(), oldGeometry.getY(), mapView.getSpatialReference());
-                            Point newGeometry = mapView.screenToLocation(toPoint);
-                            if (!mVertexDragStarted) {
-                                if (mDrawingMode == DrawingMode.POINT) {
-                                    queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.MOVE_POINT, oldPointCopy));
-                                } else {
-                                    queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.MOVE_POLYLINE_POINT,
-                                            new UndoRedoItem.MovePolylinePointElement(mCurrentPoint, oldPointCopy, mIsMidpointSelected)));
-                                }
-                            }
-                            if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
-                                int graphicIndex = mGraphics.indexOf(mCurrentPoint);
-                                int pointIndex;
-                                if (mIsMidpointSelected && !mVertexDragStarted) {
-                                    splitMidpoint(newGeometry);
-                                } else {
-                                    pointIndex = mCurrentPointCollection.indexOf(mCurrentPoint.getGeometry());
-                                    mCurrentPointCollection.set(pointIndex, newGeometry);
-                                    Graphic preMidpoint = (pointIndex == 0) ? null : mGraphics.get(graphicIndex - 1);
-                                    if (preMidpoint != null) {
-                                        Point preMidpointGeometry = getMidpoint(mCurrentPointCollection.get(pointIndex - 1), newGeometry);
-                                        preMidpoint.setGeometry(preMidpointGeometry);
-                                    }
-                                    Graphic postMidpoint = (pointIndex == mCurrentPointCollection.size() - 1) ? null : mGraphics.get(graphicIndex + 1);
-                                    if (postMidpoint != null) {
-                                        Point postMidpointGeometry = getMidpoint(newGeometry, mCurrentPointCollection.get(pointIndex + 1));
-                                        postMidpoint.setGeometry(postMidpointGeometry);
-                                    }
-                                    if (mDrawingMode == DrawingMode.POLYGON) {
-                                        if (pointIndex == 0 || pointIndex == mCurrentPointCollection.size() - 2) {
-                                            if (pointIndex == 0) {
-                                                mCurrentPointCollection.set(mCurrentPointCollection.size() - 1, newGeometry);
-                                            }
-                                            updatePolygonMidpoint();
-                                        }
-                                        mCurrentPolygon.setGeometry(new Polygon(mCurrentPointCollection));
-                                    }
-                                    mCurrentLine.setGeometry(new Polyline(mCurrentPointCollection));
-                                }
-                            }
-                            mVertexDragStarted = true;
-                            mCurrentPoint.setGeometry(newGeometry);
-                            clearStack(mRedoElementStack);
-                        }
-                    }
-                    if (callSuper) {
-                        super.onScroll(from, to, distanceX, distanceY);
-                    }
-                }
-                return super.onScroll(from, to, distanceX, distanceY);
             }
 
 
@@ -945,7 +880,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         builder.setCancelable(false);
         alertDialog = builder.create();
         alertDialog.show();
-
     }
 
     @NonNull
@@ -1002,6 +936,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.ll_notice:
+                showNoticeList();
+                break;
             case R.id.iv_location:
                 setLocation();
                 break;
@@ -1025,7 +962,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (disasterPoints.size() == 0) {
                     ToastUtils.showShort(context, "正在加载请稍候...");
                 } else {
-                    WaitingDialog.createLoadingDialog(context,"正在加载");
+                    WaitingDialog.createLoadingDialog(context, "正在加载");
                     Intent intent = new Intent(context, SearchActivity.class);
                     intent.putExtra("ID", id);
                     intent.putExtra("LEVEL", level);
@@ -1045,10 +982,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void showNoticeList() {
+        // TODO: 2017/9/27 展示公告信息
+    }
+
     private void setLocation() {
         if (location == 0) {
-            turnOnLocation();
-            WaitingDialog.createLoadingDialog(context,"正在获取位置");
+            setDisasterOverlay(meLongitude, meLatitude);
         } else if (location == 1) {
             showClearNotice();
         }
@@ -1057,7 +997,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void showClearNotice() {
         new AlertDialog.Builder(context)
                 .setTitle("提示")
-                .setMessage("是否要清除定位及所有隐患点标记？")
+                .setMessage("是否要清除所有隐患点标记？")
                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -1067,13 +1007,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setPositiveButton("清除", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if (callout.isShowing()) {
-                            callout.dismiss();
-                        }
                         ivLocation.setSelected(false);
                         location = 0;
                         gzGraphics.clear();
-                        meGraphicOverlay.getGraphics().clear();
                     }
                 }).show();
     }
@@ -1097,12 +1033,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
-            meLongitude = bdLocation.getLongitude();
-            meLatitude = bdLocation.getLatitude();
-            Log.d(TAG, "定位信息：" + meLongitude + "," + meLatitude);
-            setLocationOverlay(106.67564, 26.8720671618);// FIXME: 2017/9/25
-            ivLocation.setSelected(true);
-            location = 1;
+            double lon = bdLocation.getLongitude();
+            double lat = bdLocation.getLatitude();
+            Gps gps = AppUtils.gcj_To_Gps84(lat, lon);
+            meLatitude = gps.getWgLat();
+            meLongitude = gps.getWgLon();
+            System.out.println("定位信息：" + meLongitude + "," + meLatitude);
+            setLocationOverlay(meLongitude, meLatitude);// FIXME: 2017/9/25
             locationClient.unRegisterLocationListener(locationListener);
             locationClient.stop();
         }
@@ -1118,6 +1055,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setLocationOverlay(final double longitude, final double latitude) {
+        meGraphicOverlay.getGraphics().clear();
         final BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.me_location);
         final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawable);
         pinStarBlueSymbol.setHeight(50);
@@ -1129,7 +1067,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Point point = new Point(longitude, latitude, SpatialReferences.getWgs84());
                 Graphic graphic = new Graphic(point, pinStarBlueSymbol);
                 meGraphicOverlay.getGraphics().add(graphic);
-                Viewpoint v = new Viewpoint(latitude, longitude, 10000);
+                Viewpoint v = new Viewpoint(latitude, longitude, mapView.getMapScale());
                 mapView.setViewpointAsync(v, 2);
                 WaitingDialog.closeDialog();
             }
@@ -1153,6 +1091,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG, "开始打点 周围隐患点个数：" + disasterOverlay.size());
         } else {
             ToastUtils.showShort(context, "当前位置周围没有隐患点");
+            WaitingDialog.closeDialog();
         }
     }
 
@@ -1174,8 +1113,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 Log.d(TAG, "所有图标个数：" + allGraphics.size());
                 gzGraphics.addAll(allGraphics);
-                double mapScale = mapView.getMapScale();
-                mapView.setViewpointScaleAsync(mapScale + 100000);
+                ivLocation.setSelected(true);
+                location = 1;
             }
         });
     }
@@ -1355,8 +1294,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 layers.clear();
                 layers.add(gzYingXiangLayerHigh);
                 layers.add(gzYingXiangLayer);
-                Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
-                mapView.setViewpointAsync(viewpoint, 2);
                 baseMap = 1;
                 ivChangeMap.setSelected(true);
             } else {
@@ -1366,8 +1303,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (NetworkUtils.isConnected()) {
                 layers.clear();
                 layers.add(gzDianZhiLayer);
-                Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
-                mapView.setViewpointAsync(viewpoint, 2);
                 baseMap = 0;
                 ivChangeMap.setSelected(false);
             } else {
@@ -1404,12 +1339,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setNarrow() {
         double mapScale = mapView.getMapScale();
-        mapView.setViewpointScaleAsync(mapScale + 100000);
+        if (mapScale > 200000) {
+            mapView.setViewpointScaleAsync(mapScale + 100000);
+        } else if (200000 >= mapScale && mapScale > 100000) {
+            mapView.setViewpointScaleAsync(mapScale + 50000);
+        } else if (mapScale <= 100000 && mapScale > 50000) {
+            mapView.setViewpointScaleAsync(mapScale + 25000);
+        } else if (mapScale <= 50000 && mapScale > 25000) {
+            mapView.setViewpointScaleAsync(mapScale + 10000);
+        } else if (mapScale <= 25000 && mapScale >= 70) {
+            mapView.setViewpointScaleAsync(mapScale + 1000);
+        }
     }
 
     private void setEnlarge() {
         double mapScale = mapView.getMapScale();
-        mapView.setViewpointScaleAsync(mapScale - 100000);
+        if (mapScale > 200000) {
+            mapView.setViewpointScaleAsync(mapScale - 100000);
+        } else if (200000 >= mapScale && mapScale > 100000) {
+            mapView.setViewpointScaleAsync(mapScale - 50000);
+        } else if (mapScale <= 100000 && mapScale > 50000) {
+            mapView.setViewpointScaleAsync(mapScale - 25000);
+        } else if (mapScale <= 50000 && mapScale > 25000) {
+            mapView.setViewpointScaleAsync(mapScale - 10000);
+        } else if (mapScale <= 25000 && mapScale > 1500) {
+            mapView.setViewpointScaleAsync(mapScale - 1000);
+        }
     }
 
     private void setUtilBack() {
@@ -1428,8 +1383,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void resetPosition() {
-        Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
-        mapView.setViewpointAsync(viewpoint, 2);
+        turnOnLocation();
+        WaitingDialog.createLoadingDialog(context, "正在获取位置");
     }
 
 
@@ -1832,6 +1787,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param point the point to add
      */
     private void addPolylinePoint(Point point) {
+        if (mCurrentPoint==null){
+            return;
+        }
         Point midPoint = getMidpoint((Point) mCurrentPoint.getGeometry(), point);
         mCurrentPoint.setSymbol(mPolylineVertexSymbol);
         mCurrentLine.setGeometry(new Polyline(mCurrentPointCollection));

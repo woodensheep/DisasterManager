@@ -30,10 +30,10 @@
         tools:replace="android:label">
         <meta-data
             android:name="com.alibaba.app.appkey"
-            android:value="24617043" />
+            android:value="24640059" />
         <meta-data
             android:name="com.alibaba.app.appsecret"
-            android:value="d751a1236a17e4f10ac8ddbc72634531" />
+            android:value="8b92c7c28a103144df5775e8126f2f45" />
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="xEkGjXRuw3y7IeswAZl6rEEi9Tp08hBM" />
@@ -158,7 +158,9 @@
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote"></service>
+            android:process=":remote">
+
+        </service>
 
         <receiver
             android:name=".videocall.helloanychat.MyReceiver"
@@ -179,7 +181,8 @@
         <service
             android:name=".http.DownloadMapService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true">
+        </service>
     </application>
 
 </manifest>

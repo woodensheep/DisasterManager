@@ -20,6 +20,8 @@ import com.bairuitech.anychat.AnyChatBaseEvent;
 import com.bairuitech.anychat.AnyChatCoreSDK;
 import com.bairuitech.anychat.AnyChatDefine;
 import com.nandi.disastermanager.R;
+import com.nandi.disastermanager.utils.Constant;
+import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.videocall.config.ConfigEntity;
 import com.nandi.disastermanager.videocall.config.ConfigService;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -40,7 +42,7 @@ public class VideoCallActivity extends Activity implements AnyChatBaseEvent {
     LinearLayout llProgress;
 
     private String mStrIP = "183.230.108.112";
-    private String mStrName = "平板客户端";
+    private String mStrName = "";
     private int mSPort = 8906;
     private String number;
     private final int LOCALVIDEOAUTOROTATION = 1; // 本地视频自动旋转控制
@@ -55,6 +57,7 @@ public class VideoCallActivity extends Activity implements AnyChatBaseEvent {
         setContentView(R.layout.activity_video_main);
         ButterKnife.bind(this);
         number = getIntent().getStringExtra("PHONE_NUMBER");
+        mStrName= (String) SharedUtils.getShare(this, Constant.USER_NAME,"");
         InitSDK();
         InitLayout();
         ApplyVideoConfig();

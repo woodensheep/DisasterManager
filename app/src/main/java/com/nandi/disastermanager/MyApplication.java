@@ -34,7 +34,7 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        initCloudChannel(this);
+        initCloudChannel(this);
         Utils.init(this);
         mContext = getApplicationContext();
         GreenDaoManager.getInstance();
@@ -46,9 +46,7 @@ public class MyApplication extends Application {
                 .readTimeout(10000 * 6L, TimeUnit.MILLISECONDS)
                 //其他配置
                 .build();
-
         OkHttpUtils.initClient(okHttpClient);
-
     }
 
     public static List<Activity> getActivities() {

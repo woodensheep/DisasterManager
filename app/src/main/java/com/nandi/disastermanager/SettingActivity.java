@@ -19,6 +19,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.alibaba.sdk.android.push.CommonCallback;
+import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
+import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.google.gson.Gson;
 import com.nandi.disastermanager.dao.GreenDaoManager;
@@ -293,7 +296,7 @@ public class SettingActivity extends Activity {
 
     /*APP更新灾害点数据*/
     private void upDisData() {
-        WaitingDialog.createLoadingDialog(mContext,"正在下载...");
+        WaitingDialog.createLoadingDialog(mContext, "正在下载...");
         message.setText("正在更新灾害点信息");
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisasterPoint/" + id + "/" + level)
                 .build();
@@ -377,7 +380,7 @@ public class SettingActivity extends Activity {
 
     /*APP更新监测点列表*/
     private void upMonData() {
-        WaitingDialog.createLoadingDialog(mContext,"正在下载...");
+        WaitingDialog.createLoadingDialog(mContext, "正在下载...");
         message.setText("正在更新监测点信息");
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level)
                 .build();
@@ -422,7 +425,7 @@ public class SettingActivity extends Activity {
 
     /*APP更新监测点数据*/
     private void upMonDatas() {
-        WaitingDialog.createLoadingDialog(mContext,"正在下载...");
+        WaitingDialog.createLoadingDialog(mContext, "正在下载...");
         message.setText("正在更新灾害点数据信息");
         String url = getString(R.string.base_gz_url) + "/appdocking/listMonitor/" + id + "/" + level;
         RequestCall build = OkHttpUtils.get().url(url)
@@ -499,7 +502,7 @@ public class SettingActivity extends Activity {
                             message.setText("当前不是WIFI状态不能更新");
                         }
                     }
-                }else{
+                } else {
                     message.setText("地图文件已存在");
                 }
                 break;
@@ -608,7 +611,7 @@ public class SettingActivity extends Activity {
                 } else {
                     etNewPassword1.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                     showeyesBtn3.setImageResource(R.mipmap.ic_uneye);
-                    ToastUtils.showLong(mContext,"");
+                    ToastUtils.showLong(mContext, "");
                 }
                 break;
         }
@@ -622,18 +625,18 @@ public class SettingActivity extends Activity {
         SharedUtils.removeShare(mContext, Constant.SAVE_MONDATA_TIME);
         SharedUtils.removeShare(mContext, Constant.IS_LOGIN);
 
-//                PushServiceFactory.getCloudPushService().turnOffPushChannel(new CommonCallback() {
-//                    @Override
-//                    public void onSuccess(String s) {
-//                        LogUtils.d(TAG, "推送通道关闭成功！");
-//                    }
-//
-//                    @Override
-//                    public void onFailed(String s, String s1) {
-//                        LogUtils.d(TAG, "推送通道关闭失败！");
-//
-//                    }
-//                });
+        PushServiceFactory.getCloudPushService().turnOffPushChannel(new CommonCallback() {
+            @Override
+            public void onSuccess(String s) {
+                LogUtils.d(TAG, "推送通道关闭成功！");
+            }
+
+            @Override
+            public void onFailed(String s, String s1) {
+                LogUtils.d(TAG, "推送通道关闭失败！");
+
+            }
+        });
         getApplicationContext().stopService(new Intent(SettingActivity.this, ReplaceService.class));
         for (Activity activity : MyApplication.getActivities()) {
             if (!activity.isFinishing()) {

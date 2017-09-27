@@ -142,7 +142,6 @@ public class SearchActivity extends Activity {
         }
         mItems3.add("选择乡镇");
         // 建立Adapter并且绑定数据源
-        Log.d("cp1", mItems1.toString() + "/" + mItems2.toString() + "/" + mItems3.toString());
         final ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems1);
         final ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems2);
         final ArrayAdapter<String> adapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems3);
@@ -162,7 +161,6 @@ public class SearchActivity extends Activity {
         sp4.setAdapter(adapter4);
         sp5.setAdapter(adapter5);
         sp6.setAdapter(adapter6);
-        Log.d("cp2", mItems1.toString() + "/" + mItems2.toString() + "/" + mItems3.toString());
         sp1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -368,13 +366,17 @@ public class SearchActivity extends Activity {
 
         mItems4.clear();
         mItems4.add("选择等级");
-        for (int i = 0; i < GreenDaoManager.getDistinct(1).size(); i++) {
-            mItems4.add(GreenDaoManager.getDistinct(1).get(i));
+        for (String s : GreenDaoManager.getDistinct(1)) {
+            if (s!=null){
+                mItems4.add(s);
+            }
         }
         mItems6.clear();
         mItems6.add("选择诱因");
-        for (int i = 0; i < GreenDaoManager.getDistinct(0).size(); i++) {
-            mItems6.add(GreenDaoManager.getDistinct(0).get(i));
+        for (String s : GreenDaoManager.getDistinct(0)) {
+            if (s!=null){
+                mItems6.add(s);
+            }
         }
     }
     @Override
