@@ -86,10 +86,28 @@
         android:background="@drawable/icon_background"
         android:visibility="visible"
         android:layout_above="@+id/btn_util"
-        android:layout_toStartOf="@+id/ll_userMessage">
+        android:layout_toStartOf="@+id/ll_photo">
 
         <ImageView
             android:id="@+id/iv_notice"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_margin="2dp"
+            android:background="@drawable/notice" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_photo"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="5dp"
+        android:background="@drawable/icon_background"
+        android:visibility="gone"
+        android:layout_above="@+id/btn_util"
+        android:layout_toStartOf="@+id/ll_userMessage">
+
+        <ImageView
+            android:id="@+id/iv_photo"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -146,7 +164,7 @@
 
     <LinearLayout
         android:id="@+id/ll_util"
-        android:layout_width="400dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/btn_util"
         android:layout_alignTop="@+id/btn_util"
@@ -179,21 +197,21 @@
             android:background="@drawable/polygon_selector"
             android:onClick="polygonClick" />
 
-        <ImageButton
-            android:id="@+id/undoButton"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="50dp"
-            android:background="@drawable/previous_selector"
-            android:onClick="undoClick" />
+        <!--<ImageButton-->
+            <!--android:id="@+id/undoButton"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:layout_height="50dp"-->
+            <!--android:background="@drawable/previous_selector"-->
+            <!--android:onClick="undoClick" />-->
 
-        <ImageButton
-            android:id="@+id/redoButton"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="50dp"
-            android:background="@drawable/next_selector"
-            android:onClick="redoClick" />
+        <!--<ImageButton-->
+            <!--android:id="@+id/redoButton"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:layout_height="50dp"-->
+            <!--android:background="@drawable/next_selector"-->
+            <!--android:onClick="redoClick" />-->
 
         <ImageButton
             android:id="@+id/clearButton"

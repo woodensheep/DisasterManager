@@ -78,6 +78,7 @@ import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.DetailDataActivity;
 import com.nandi.disastermanager.search.MonitorListActivity;
 import com.nandi.disastermanager.search.NavigationActivity;
+import com.nandi.disastermanager.search.PhotoActivity;
 import com.nandi.disastermanager.search.SearchActivity;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.StaticsInfo;
@@ -128,10 +129,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageButton mPolylineButton;
     @BindView(R.id.polygonButton)
     ImageButton mPolygonButton;
-    @BindView(R.id.undoButton)
-    ImageButton mUndoButton;
-    @BindView(R.id.redoButton)
-    ImageButton mRedoButton;
     @BindView(R.id.clearButton)
     ImageButton mClearButton;
     @BindView(R.id.ll_util)
@@ -192,6 +189,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MapView mapView;
     @BindView(R.id.ll_notice)
     LinearLayout llNotice;
+    @BindView(R.id.ll_photo)
+    LinearLayout llPhoto;
     private boolean llAreaState = true;
     private boolean llUtilState = false;
     ArcGISTiledLayer gzYingXiangLayer;
@@ -256,7 +255,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         id = (String) SharedUtils.getShare(context, Constant.AREA_ID, "");
         level = (String) SharedUtils.getShare(context, Constant.LEVEL, "");
         setLine();
-        checkUpdate();
         bindAccount();//绑定推送账号，暂时不用
         initUtilData();
         loginPost((String) SharedUtils.getShare(context, Constant.USER_NAME, ""), (String) SharedUtils.getShare(context, Constant.PASSWORD, ""));
@@ -271,20 +269,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ToastUtils.showShort(context, "请在设置页面下载离线地图包");
         }
         initMap();
-        mUndoButton.setClickable(false);
-        mUndoButton.setEnabled(false);
-        mRedoButton.setClickable(false);
-        mRedoButton.setEnabled(false);
         mClearButton.setClickable(false);
         mClearButton.setEnabled(false);
         locationClient = new LocationClient(getApplicationContext());
         routeClient = new LocationClient(getApplicationContext());
         setListeners();
-        if (NetworkUtils.isConnected()) {
-            setStatics();
-        } else {
-            initStaData();
-        }
         startUpdateService();
         turnOnLocation();
     }
@@ -331,6 +320,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onResponse(final String response, int id) {
+                        checkUpdate();
+                        if (NetworkUtils.isConnected()) {
+                            setStatics();
+                        } else {
+                            initStaData();
+                        }
                     }
                 });
 
@@ -531,7 +526,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void bindAccount() {
         cloudPushService = PushServiceFactory.getCloudPushService();
-        String level= (String) SharedUtils.getShare(context,Constant.LEVEL,"");
+        String level = (String) SharedUtils.getShare(context, Constant.LEVEL, "");
         cloudPushService.turnOnPushChannel(new CommonCallback() {
             @Override
             public void onSuccess(String s) {
@@ -547,12 +542,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cloudPushService.bindTag(CloudPushService.DEVICE_TARGET, new String[]{level}, null, new CommonCallback() {
             @Override
             public void onSuccess(String s) {
-                Log.d(TAG,"绑定标签成功");
+                Log.d(TAG, "绑定标签成功");
             }
 
             @Override
             public void onFailed(String s, String s1) {
-                Log.d(TAG,"绑定标签失败");
+                Log.d(TAG, "绑定标签失败");
             }
         });
     }
@@ -618,14 +613,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void undoClick(View v) {
-        undo();
-    }
-
-    public void redoClick(View v) {
-        redo();
-    }
-
     public void clearClick(View v) {
         clear();
     }
@@ -635,15 +622,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onUndoStateChanged(boolean undoEnabled) {
             // Set the undo button's enabled/disabled state based on the event boolean
-            mUndoButton.setEnabled(undoEnabled);
-            mUndoButton.setClickable(undoEnabled);
         }
 
         @Override
         public void onRedoStateChanged(boolean redoEnabled) {
             // Set the redo button's enabled/disabled state based on the event boolean
-            mRedoButton.setEnabled(redoEnabled);
-            mRedoButton.setClickable(redoEnabled);
         }
 
         @Override
@@ -667,6 +650,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setListeners() {
+        llPhoto.setOnClickListener(this);
         llNotice.setOnClickListener(this);
         ivRoute.setOnClickListener(this);
         ivLocation.setOnClickListener(this);
@@ -936,6 +920,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.ll_photo:
+                startActivity(new Intent(context, PhotoActivity.class));
+                break;
             case R.id.ll_notice:
                 Intent intent1 = new Intent(context,NoticeActivity.class);
                 startActivity(intent1);
@@ -1303,12 +1290,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 baseMap = 0;
                 ivChangeMap.setSelected(false);
             } else {
-                layers.clear();
-                layers.add(localeDianZhiLayer);
-                Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
-                mapView.setViewpointAsync(viewpoint, 2);
-                baseMap = 0;
-                ivChangeMap.setSelected(false);
+                if (file.exists()) {
+                    layers.clear();
+                    layers.add(localeDianZhiLayer);
+                    Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
+                    mapView.setViewpointAsync(viewpoint, 2);
+                    baseMap = 0;
+                    ivChangeMap.setSelected(false);
+                } else {
+                    ToastUtils.showShort(context, "没有找到离线地图包");
+                }
             }
         }
     }
@@ -1421,22 +1412,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Undo the last event that took place.
-     */
-    public void undo() {
-        // Handle an undo event, popping an event from the undo stack and pushing a new event to the redo stack
-        handleUndoRedoEvent(mUndoElementStack, mRedoElementStack);
-    }
-
-    /**
-     * Redo the action previously undone with a call to undo().
-     */
-    public void redo() {
-        // Handle an redo event, popping an event from the redo stack and pushing a new event to the undo stack
-        handleUndoRedoEvent(mRedoElementStack, mUndoElementStack);
-    }
-
-    /**
      * Convenience method for clearing the undo or redo event stack. Additionally notifies
      * the listener to disable the corresponding button.
      *
@@ -1452,249 +1427,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    /**
-     * This method handles performing an undo or redo event. An event will be popped from the specified
-     * stack and an opposite event type (to undo/redo that) will be pushed into the other stack.
-     *
-     * @param from the stack from which to pop an event
-     * @param to   the stack in which to push the opposing event
-     */
-    @SuppressWarnings("unchecked")
-    private void handleUndoRedoEvent(Stack<UndoRedoItem> from, Stack<UndoRedoItem> to) {
-        // index is used in a couple places so define it here
-        int index, pointIndex;
-        List<Graphic> graphics;
-        if (!from.isEmpty()) {
-            UndoRedoItem item = from.pop();
-            // If this was the last event in the stock, notify the listener to disable the corresponding button
-            if (from.isEmpty()) {
-                if (from == mUndoElementStack) {
-                    // disable to selected drawing mode
-                    mListener.onDrawingFinished();
-                    mListener.onUndoStateChanged(false);
-                } else {
-                    mListener.onRedoStateChanged(false);
-                }
-            }
-            // Check whether the graphics list was empty before we process the event
-            boolean graphicsWasEmpty = mGraphics.isEmpty();
-            switch (item.getEvent()) {
-                // If the event was adding a graphic, then the action taken here is to remove the graphic
-                case ADD_POINT:
-                    // Get the graphic[s] previously added and remove them from the graphics list
-                    graphics = (List<Graphic>) item.getElement();
-                    mGraphics.removeAll(graphics);
-                    // Queue a new event indicating that we've removed the graphic[s]
-                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.REMOVE_POINT, graphics));
-                    mIsMidpointSelected = false;
-                    mIsPolylineStarted = false;
-                    mCurrentPoint = null;
-                    mCurrentPointCollection = new PointCollection(mapView.getSpatialReference());
-                    break;
-                // If the event was removing a graphic, then the action taken here is to add it back
-                case REMOVE_POINT:
-                    // Readd the graphic[s] previously removed.
-                    graphics = (List<Graphic>) item.getElement();
-                    mGraphics.addAll(graphics);
-                    // Queue a new event indicating that we've added the graphic[s]
-                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
-                    break;
-                // If the event was adding a polyline point, the action taken here is to remove the last point added
-                case ADD_POLYLINE_POINT:
-                    // Get the index of the current point (which will be the one most recently added)
-                    pointIndex = (mDrawingMode == DrawingMode.POLYGON) ?
-                            mCurrentPointCollection.size() - 2 : mCurrentPointCollection.size() - 1;
-                    // Remove it from the point collection and update the current line (and polygon if applicable)
-                    Point p = mCurrentPointCollection.remove(pointIndex);
-                    mCurrentLine.setGeometry(new Polyline(mCurrentPointCollection));
-                    if (mDrawingMode == DrawingMode.POLYGON) {
-                        mCurrentPolygon.setGeometry(new Polygon(mCurrentPointCollection));
-                    }
-                    // Undoing an add point always removes the final point
-                    index = mGraphics.size() - 1;
-                    // Remove the point, and remove the midpoint before it
-                    mGraphics.remove(index--);
-                    mGraphics.remove(index--);
-                    // If we're drawing a polygon, we also need to update the final midpoint position
-                    if (mDrawingMode == DrawingMode.POLYGON) {
-                        updatePolygonMidpoint();
-                        // If we are down to only 1 point (size will be 2 because 1st and final point are duplicates)
-                        // Then we want to remove the final midpoint
-                        if (mCurrentPointCollection.size() == 2) {
-                            mGraphics.remove(index--);
-                            mCurrentPoint = mGraphics.get(index);
-                        } else {
-                            // Otherwise just set the point before the final midpoint as current point
-                            mCurrentPoint = mGraphics.get(index - 1);
-                        }
-                    } else {
-                        // If we're drawing a polyline then the current point will be the final point (which is where
-                        // index will now be pointing)
-                        mCurrentPoint = mGraphics.get(index);
-                    }
-                    // Change the symbol to the placement symbol
-                    mCurrentPoint.setSymbol(mPointPlacementSymbol);
-                    // Queue a new event indicating that we've removed a polyline point
-                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.REMOVE_POLYLINE_POINT, p));
-                    break;
-                // If the event was moving a polyline point, the action taken here is to move it back
-                case MOVE_POLYLINE_POINT:
-                    // Get the corresponding MovePolylinePointElement
-                    UndoRedoItem.MovePolylinePointElement element = (UndoRedoItem.MovePolylinePointElement) item.getElement();
-                    // Queue a new event indicating a polyline point move with the necessary information
-                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.MOVE_POLYLINE_POINT,
-                            new UndoRedoItem.MovePolylinePointElement(mCurrentPoint, (Point) mCurrentPoint.getGeometry(), element.isMidpoint())));
-                    // Get the old Graphic of the point that was moved
-                    Graphic oldGraphic = element.getGraphic();
-                    // Get the previous point position
-                    Point oldPoint = element.getPoint();
-                    // Find the index of the moved point. Since we have complete control over how we're adding the undo elements,
-                    // we can safely assume here that oldGraphic.getGeometry() is a Point. However, proper practice (here and other
-                    // places) would be to check that the geometry is an instanceof Point before casting.
-                    pointIndex = mCurrentPointCollection.indexOf(oldGraphic.getGeometry());
-                    // Find the index of the moved graphic
-                    index = mGraphics.indexOf(oldGraphic);
-                    // Set the current working point's symbol to a placed vertex symbol before switching
-                    mCurrentPoint.setSymbol(mPolylineVertexSymbol);
-                    // Change our current working point to the old moved graphic
-                    mCurrentPoint = mGraphics.get(index);
-                    // Set it's symbol to the placement symbol
-                    mCurrentPoint.setSymbol(mPointPlacementSymbol);
-                    // If the element is/was a midpoint, we need to handle adding/removing surrounding midpoints
-                    if (element.isMidpoint()) {
-                        Point newGeometry = oldPoint;
-                        // If this is an undo
-                        if (from == mUndoElementStack) {
-                            // Go back to having a midpoint selected
-                            mIsMidpointSelected = true;
-                            // Remove the current point from the point collection (since it's going back to being a midpoint)
-                            mCurrentPointCollection.remove(pointIndex);
-                            // Remove the midpoint before this point. Since this shifts the index, the index will now be
-                            // for the midpoint after our point
-                            mGraphics.remove(index - 1);
-                            // So remove that index and then decrement to get the index back at our graphic
-                            mGraphics.remove(index--);
-                            // Our point will now be a midpoint so get the midpoint between the points before and after it and set it
-                            Point endPoint = (mDrawingMode == DrawingMode.POLYGON && index == mGraphics.size() - 1) ?
-                                    mCurrentPointCollection.get(mCurrentPointCollection.size() - 1) : (Point) mGraphics.get(index + 1).getGeometry();
-                            newGeometry = getMidpoint((Point) mGraphics.get(index - 1).getGeometry(), endPoint);
-                        } else {
-                            // If it's a redo, then we need to make a new vertex point and add new midpoints before and after it
-                            splitMidpoint(newGeometry);
-                        }
-                        // Finally set the current point's position
-                        mCurrentPoint.setGeometry(newGeometry);
-                    } else {
-                        // If it wasn't a midpoint, then change the point's position within the point collection and update the
-                        // graphic's geometry
-                        mCurrentPointCollection.set(pointIndex, oldPoint);
-                        mCurrentPoint.setGeometry(oldPoint);
-                        // If this isn't the first point, adjust the midpoint's position before it
-                        if (pointIndex != 0) {
-                            Point preMidpoint = getMidpoint(mCurrentPointCollection.get(pointIndex - 1), oldPoint);
-                            mGraphics.get(index - 1).setGeometry(preMidpoint);
-                        }
-                        // If this isn't the last point, adjust the midpoints position after it
-                        if (pointIndex != mCurrentPointCollection.size() - 1) {
-                            Point postMidpoint = getMidpoint(oldPoint, mCurrentPointCollection.get(pointIndex + 1));
-                            mGraphics.get(index + 1).setGeometry(postMidpoint);
-                        }
-                    }
-                    if (mDrawingMode == DrawingMode.POLYGON) {
-                        // If we're moving the first point of a polygon, we need to replicate that change
-                        // in the final point as well and update the final midpoint
-                        if (pointIndex == 0) {
-                            mCurrentPointCollection.set(mCurrentPointCollection.size() - 1, oldPoint);
-                            updatePolygonMidpoint();
-                        }
-                        // In either case, update the polygon's geometry
-                        mCurrentPolygon.setGeometry(new Polygon(mCurrentPointCollection));
-                    }
-                    // Update the line's geometry
-                    mCurrentLine.setGeometry(new Polyline(mCurrentPointCollection));
-                    break;
-                // If the event was removing a polyline point, the action taken here is to add it back
-                case REMOVE_POLYLINE_POINT:
-                    // Get the point that was removed, and add it back to the point collection
-                    Point point = (Point) item.getElement();
-                    if (mDrawingMode == DrawingMode.POLYGON) {
-                        // If adding back to a polygon, remove the final midpoint so it can be readded
-                        if (mCurrentPointCollection.size() > 2) {
-                            mGraphics.remove(mGraphics.size() - 1);
-                        }
-                        // Add it at the second to last position
-                        mCurrentPointCollection.add(mCurrentPointCollection.size() - 1, point);
-                    } else {
-                        // If just a line, add it in the final position
-                        mCurrentPointCollection.add(point);
-                    }
-                    addPolylinePoint(point);
-                    // Queue a new event indicating that we've added a polyline point
-                    to.add(new UndoRedoItem(UndoRedoItem.Event.ADD_POLYLINE_POINT, null));
-                    break;
-                // If the event was finishing a polyline, the action taken here is to remove the whole polyline
-                case ADD_POLYLINE:
-                    // Create a new graphics list and add to it all the pieces of the polyline, so we can add it back with a redo
-                    graphics = new ArrayList<>();
-                    index = mGraphics.size() - 1;
-                    // Add all of the points of the polyline
-                    while (index > 0 && !(mGraphics.get(index).getGeometry() instanceof Polyline)) {
-                        graphics.add(0, mGraphics.remove(index--));
-                    }
-                    // Add the polyline itself
-                    graphics.add(0, mGraphics.remove(index--));
-                    // If removing a polygon, also add the polygon
-                    if (index > -1 && mGraphics.get(index).getGeometry() instanceof Polygon) {
-                        graphics.add(0, mGraphics.remove(index));
-                    }
-                    // Queue a new event indicating that we've removed a polyline
-                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.REMOVE_POLYLINE, graphics));
-                    break;
-                // If the event was removing a polyline, the action taken here is to add it back
-                case REMOVE_POLYLINE:
-                    // Get the graphics that were previously removed
-                    graphics = (List<Graphic>) item.getElement();
-                    // Add them all to the list of graphics
-                    mGraphics.addAll(graphics);
-                    // Queue a new event indicating that we've added a polyline
-                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.ADD_POLYLINE, null));
-                    break;
-                // If the event was moving a point, the action taken here is to move it back
-                case MOVE_POINT:
-                    if (mCurrentPoint != null) {
-                        // Queue a new event indicating that we moved the point, with its current geometry before we change it
-                        queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.MOVE_POINT, mCurrentPoint.getGeometry()));
-                        // Set the geometry back
-                        mCurrentPoint.setGeometry((Geometry) item.getElement());
-                    }
-                    break;
-                // If the event was erasing all graphics, the action taken here is to put them all back
-                case ERASE_GRAPHICS:
-                    // Add all the graphics back
-                    mGraphics.addAll((List<Graphic>) item.getElement());
-                    // Queue a new event indicating that we've replaced all the graphics
-                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.REPLACE_GRAPHICS, null));
-                    break;
-                // If the event was replacing all the graphics, the action taken here is to clear them all
-                case REPLACE_GRAPHICS:
-                    // Queue a new event indicating that we've erased the graphics
-                    queueUndoRedoItem(to, new UndoRedoItem(UndoRedoItem.Event.ERASE_GRAPHICS, copyGraphics()));
-                    // Erase all graphics
-                    mGraphics.clear();
-                    break;
-            }
-            boolean graphicsIsEmpty = mGraphics.isEmpty();
-            // If the graphic list was previously empty and now it's not, notify the listener to enable
-            // the clear button
-            if (graphicsWasEmpty && !graphicsIsEmpty) {
-                mListener.onClearStateChanged(true);
-                // If previously non empty and now it is, notify the listener to disable the clear button
-            } else if (!graphicsWasEmpty && graphicsIsEmpty) {
-                mListener.onDrawingFinished();
-                mListener.onClearStateChanged(false);
-            }
-        }
-    }
 
     /**
      * Clear all of the graphics on the SketchGraphicsOverlay and reset the current drawing state.
@@ -1784,9 +1516,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param point the point to add
      */
     private void addPolylinePoint(Point point) {
-        if (mCurrentPoint==null){
-            return;
-        }
         Point midPoint = getMidpoint((Point) mCurrentPoint.getGeometry(), point);
         mCurrentPoint.setSymbol(mPolylineVertexSymbol);
         mCurrentLine.setGeometry(new Polyline(mCurrentPointCollection));

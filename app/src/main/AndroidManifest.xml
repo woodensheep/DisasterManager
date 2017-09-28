@@ -162,9 +162,7 @@
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote">
-
-        </service>
+            android:process=":remote"/>
 
         <receiver android:name=".http.DownloadManagerReceiver">
             <intent-filter>
@@ -193,10 +191,12 @@
         <service
             android:name=".http.DownloadMapService"
             android:enabled="true"
-            android:exported="true">
-        </service>
-            android:exported="true" />
+            android:exported="true"/>
 
+        <activity android:name=".search.PhotoActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
+            android:screenOrientation="landscape"
+            android:theme="@style/TipDialog1"/>
     </application>
 
 </manifest>
