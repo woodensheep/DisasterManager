@@ -32,7 +32,7 @@
             android:layout_margin="10dp"
             android:layout_weight="1"
             android:background="@drawable/linlear_background"
-            android:text="导航到政府"
+            android:text="导航到国土所"
             android:textColor="@color/white" />
 
         <Button

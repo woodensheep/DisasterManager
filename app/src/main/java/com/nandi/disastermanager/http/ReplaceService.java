@@ -340,6 +340,9 @@ public class ReplaceService extends Service {
                                 monitorPoint.setName(dataBean.getName());
                                 monitorPoint.setTime(dataBean.getTime());
                                 monitorPoint.setMonitorData(dataBean.getMonitorData());
+                                monitorPoint.setDisNum(dataBean.getDisNum());
+                                monitorPoint.setGather(dataBean.getGather());
+                                monitorPoint.setPhone(dataBean.getPhone());
                                 GreenDaoManager.insertMonitorPoint(monitorPoint);
                             }
                         }

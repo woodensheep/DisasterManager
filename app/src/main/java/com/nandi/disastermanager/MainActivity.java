@@ -84,6 +84,7 @@ import com.nandi.disastermanager.search.entity.StaticsInfo;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.Constant;
+import com.nandi.disastermanager.utils.DownloadUtils;
 import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
@@ -471,8 +472,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         try {
                             JSONObject object = new JSONObject(response);
                             String aStatic = object.optString("static");
+                            String remark = object.optString("remark");
                             if ("1".equals(aStatic)) {
-                                showNoticeDialog();
+                                showNoticeDialog(remark);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -483,16 +485,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /*下载APK*/
-    private void showNoticeDialog() {
+    private void showNoticeDialog(String msg) {
         Dialog dialog;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("版本更新");
-        builder.setMessage("发现新版本,是否立即下载？");
+        builder.setMessage(msg);
         builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Intent service = new Intent(MainActivity.this, UpdataService.class);
-                startService(service);
+                new DownloadUtils(context).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do","app-release.apk");
                 dialog.dismiss();
 
             }
@@ -936,7 +937,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ll_notice:
-                showNoticeList();
+                Intent intent1 = new Intent(context,NoticeActivity.class);
+                startActivity(intent1);
                 break;
             case R.id.iv_location:
                 setLocation();
@@ -979,10 +981,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setUtilBack();
                 break;
         }
-    }
-
-    private void showNoticeList() {
-        // TODO: 2017/9/27 展示公告信息
     }
 
     private void setLocation() {

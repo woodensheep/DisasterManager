@@ -45,6 +45,7 @@ public class MonitorAdapter extends RecyclerView.Adapter<MonitorAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(MonitorAdapter.ViewHolderA holder, final int position) {
+           System.out.println("--------------------"+monitorPoints.get(position).getGather());
             holder.tv_1.setText(monitorPoints.get(position).getMonitorId());
             holder.tv_2.setText(monitorPoints.get(position).getName());
             holder.tv_3.setText(monitorPoints.get(position).getTime());

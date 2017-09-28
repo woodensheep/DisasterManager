@@ -71,6 +71,33 @@ public class MonitorData {
         private String monitorId;
         private String name;
         private double monitorData;
+        private  String disNum;
+        private String phone;
+        private String gather;
+
+        public String getDisNum() {
+            return disNum;
+        }
+
+        public void setDisNum(String disNum) {
+            this.disNum = disNum;
+        }
+
+        public String getPhone() {
+            return phone;
+        }
+
+        public void setPhone(String phone) {
+            this.phone = phone;
+        }
+
+        public String getGather() {
+            return gather;
+        }
+
+        public void setGather(String gather) {
+            this.gather = gather;
+        }
 
         public String getTime() {
             return time;

@@ -4,11 +4,12 @@ package com.nandi.disastermanager.dao;
 import android.database.Cursor;
 
 import com.nandi.disastermanager.MyApplication;
-import com.nandi.disastermanager.entity.DaoMaster;
-import com.nandi.disastermanager.entity.DaoSession;
+
 import com.nandi.disastermanager.entity.LocationInfo;
 import com.nandi.disastermanager.search.entity.AreaInfo;
 import com.nandi.disastermanager.search.entity.AreaInfoDao;
+import com.nandi.disastermanager.search.entity.DaoMaster;
+import com.nandi.disastermanager.search.entity.DaoSession;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.DisasterPointDao;
 import com.nandi.disastermanager.search.entity.MonitorListPoint;
@@ -153,6 +154,18 @@ public class GreenDaoManager {
 
         List<MonitorPoint> monitorData = GreenDaoManager.getInstance().getSession().getMonitorPointDao().queryBuilder()
                 .where(MonitorPointDao.Properties.MonitorId.eq(monitorNum))
+                .list();
+        return monitorData;
+    }
+    /**
+     * 根据隐患点编号获取监测人和监测电话
+     */
+    public static List<MonitorPoint> queryMonitorData1(String disNum) {
+
+        List<MonitorPoint> monitorData = GreenDaoManager.getInstance().getSession().getMonitorPointDao().queryBuilder()
+                .where(MonitorPointDao.Properties.DisNum.eq(disNum))
+                .orderDesc(MonitorPointDao.Properties.Time)
+                .limit(1)
                 .list();
         return monitorData;
     }

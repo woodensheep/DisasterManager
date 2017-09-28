@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -181,6 +182,8 @@ public class UpdataService extends Service {
 
             if (action.equals(DownloadManager.ACTION_NOTIFICATION_CLICKED)) {
                 //广播被点击了
+                ToastUtils.showShort(context, "点击了！");
+                Log.i("tag","点击了");
                  installApk(context);
             }
         }

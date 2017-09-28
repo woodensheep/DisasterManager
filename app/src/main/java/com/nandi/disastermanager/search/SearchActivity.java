@@ -142,6 +142,7 @@ public class SearchActivity extends Activity {
         }
         mItems3.add("选择乡镇");
         // 建立Adapter并且绑定数据源
+//        Log.d("cp1", mItems1.toString() + "/" + mItems2.toString() + "/" + mItems3.toString());
         final ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems1);
         final ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems2);
         final ArrayAdapter<String> adapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mItems3);
@@ -161,6 +162,8 @@ public class SearchActivity extends Activity {
         sp4.setAdapter(adapter4);
         sp5.setAdapter(adapter5);
         sp6.setAdapter(adapter6);
+
+//        Log.d("cp2", mItems1.toString() + "/" + mItems2.toString() + "/" + mItems3.toString());
         sp1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

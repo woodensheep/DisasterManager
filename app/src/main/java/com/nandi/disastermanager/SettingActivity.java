@@ -3,6 +3,7 @@ package com.nandi.disastermanager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
@@ -27,7 +28,6 @@ import com.google.gson.Gson;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.http.DownloadMapService;
 import com.nandi.disastermanager.http.ReplaceService;
-import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.entity.DisasterData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.MonitorData;
@@ -37,6 +37,7 @@ import com.nandi.disastermanager.search.entity.MonitorPoint;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.Constant;
+import com.nandi.disastermanager.utils.DownloadUtils;
 import com.nandi.disastermanager.utils.InputUtil;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -279,10 +280,10 @@ public class SettingActivity extends Activity {
                         try {
                             JSONObject object = new JSONObject(response);
                             String aStatic = object.optString("static");
+                            String remark = object.optString("remark");
                             if ("1".equals(aStatic)) {
-                                message.setText("正在后台下载最新APK");
-                                Intent service = new Intent(mContext, UpdataService.class);
-                                startService(service);
+                                message.setText(remark);
+                                new DownloadUtils(mContext).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do","app-release.apk");
                             } else {
                                 message.setText("当前已经是最新版本");
                             }
@@ -455,6 +456,9 @@ public class SettingActivity extends Activity {
                                 monitorPoint.setName(dataBean.getName());
                                 monitorPoint.setTime(dataBean.getTime());
                                 monitorPoint.setMonitorData(dataBean.getMonitorData());
+                                monitorPoint.setDisNum(dataBean.getDisNum());
+                                monitorPoint.setGather(dataBean.getGather());
+                                monitorPoint.setPhone(dataBean.getPhone());
                                 GreenDaoManager.insertMonitorPoint(monitorPoint);
                             }
                         }
@@ -491,11 +495,24 @@ public class SettingActivity extends Activity {
                         , "guizhou.tpk");
                 if (!file.exists()) {
                     if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
-                        Intent intent = new Intent(mContext, DownloadMapService.class);
+                        Intent intent = new Intent(mContext,DownloadMapService.class);
+//                        intent.setAction(Intent.ACTION_VIEW);
+//                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+//                        intent.setData(Uri.parse("http://202.98.195.125:8082/gzcmdback/downloadPackage.do"));
+
                         startService(intent);
                     } else {
                         if (NetworkUtils.isWifiConnected()) {
-                            Intent intent = new Intent(mContext, DownloadMapService.class);
+//                            Intent intent = new Intent();
+//                            intent.setAction(Intent.ACTION_VIEW);
+//                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+//                            intent.setData(Uri.parse("http://202.98.195.125:8082/gzcmdback/downloadPackage.do"));
+//                            startActivity(intent);
+                            Intent intent = new Intent(mContext,DownloadMapService.class);
+//                        intent.setAction(Intent.ACTION_VIEW);
+//                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+//                        intent.setData(Uri.parse("http://202.98.195.125:8082/gzcmdback/downloadPackage.do"));
+
                             startService(intent);
                             Log.i(TAG, "不允许4G时更新");
                         } else {
@@ -686,7 +703,6 @@ public class SettingActivity extends Activity {
 
     /*清空修改密码页面*/
     private void clearAll() {
-        etUserName.setText("");
         etPassword.setText("");
         etNewPassword.setText("");
         etNewPassword1.setText("");

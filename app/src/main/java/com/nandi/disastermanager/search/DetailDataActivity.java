@@ -2,10 +2,12 @@ package com.nandi.disastermanager.search;
 
 import android.app.Activity;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,7 +17,11 @@ import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.DetailData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
+import com.nandi.disastermanager.search.entity.DisasterPointDao;
+import com.nandi.disastermanager.search.entity.MonitorData;
 import com.nandi.disastermanager.search.entity.MonitorListData;
+import com.nandi.disastermanager.search.entity.MonitorPoint;
+import com.nandi.disastermanager.search.entity.MonitorPointDao;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -38,13 +44,12 @@ public class DetailDataActivity extends Activity {
     RecyclerView dateShow;
     /*适配器*/
     private DetailDataAdapter detailAdapter;
-    /**
-     * 数据
-     **/
-    private DetailData mDetailData;
     private Context mContext;
     private String[] array;
     private DisasterPoint disasterPoint;
+    private List<MonitorPoint> monitorPoints;
+    private String gather;
+    private String phone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +60,17 @@ public class DetailDataActivity extends Activity {
         mContext = this;
         Long id = getIntent().getLongExtra("id", 0);
         disasterPoint = GreenDaoManager.queryDisasterById(id + "");
-        Log.i("Tag", disasterPoint.getDisasterType());
+//        monitorPoints = GreenDaoManager.queryMonitorData1(disasterPoint.getDisasterNum());
+//        for (MonitorPoint point : monitorPoints) {
+//            System.out.println(point.getTime());
+//            gather = point.getGather();
+//            phone = point.getPhone();
+//        }
         dateShow.setLayoutManager(new LinearLayoutManager(mContext));
         addArray();
         detailAdapter = new DetailDataAdapter(mContext, array);
         dateShow.setAdapter(detailAdapter);
+
     }
 
     /**

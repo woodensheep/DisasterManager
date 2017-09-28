@@ -21,7 +21,6 @@ import java.io.File;
 
 public class DownloadMapService extends Service {
     String url;
-
     private long mReference = 0;
     private DownloadManager downloadManager;
 
@@ -29,7 +28,7 @@ public class DownloadMapService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         registerReceiver(receiver, filter);
-        url = getString(R.string.base_gz_url)+"/gzcmd-back/downloadPackage.do";
+        url = "http://202.98.195.125:8082/gzcmdback/downloadPackage.do";
         // 调用下载
         File file = new File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
