@@ -16,6 +16,5 @@ public class PhotoActivity extends AppCompatActivity {
         lp.width = WindowManager.LayoutParams.MATCH_PARENT;
         lp.height = WindowManager.LayoutParams.MATCH_PARENT;
         getWindow().setAttributes(lp);
-
     }
 }

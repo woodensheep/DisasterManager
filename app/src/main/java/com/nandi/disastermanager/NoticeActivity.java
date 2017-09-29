@@ -68,7 +68,7 @@ public class NoticeActivity extends Activity {
 
     private void loginPost() {
         WaitingDialog.createLoadingDialog(mContext, "正在获取公告信息");
-        OkHttpUtils.get().url("http://192.168.10.195:8080/gzcmd/appdocking/login/" + name + "/" + password + "/2")
+        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url) + name + "/" + password + "/2")
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -84,7 +84,7 @@ public class NoticeActivity extends Activity {
     }
 
     private void downloadNotice() {
-        OkHttpUtils.get().url("http://192.168.10.195:8080/gzcmd/appdocking/listTabNotice/" + level)
+        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url)+"appdocking/listTabNotice/" + level)
                 .build()
                 .execute(new StringCallback() {
                     @Override

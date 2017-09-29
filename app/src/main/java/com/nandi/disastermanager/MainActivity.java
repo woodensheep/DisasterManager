@@ -304,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ToastUtils.showShort(context, "当前无网络，请下载离线地图包");
             }
         }
-        Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1600000);
+        Viewpoint viewpoint = new Viewpoint(26.713526, 106.759177, 1500000);
         map.setInitialViewpoint(viewpoint);
         callout = mapView.getCallout();
     }
@@ -533,7 +533,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onFailed(String s, String s1) {
                 Log.d(TAG, "推送通道打开失败！");
-
             }
         });
         cloudPushService.bindTag(CloudPushService.DEVICE_TARGET, new String[]{level}, null, new CommonCallback() {
@@ -1001,7 +1000,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LocationClientOption option = new LocationClientOption();
         option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
         option.setCoorType("WGS84");
-        option.setScanSpan(0);
+        option.setScanSpan(1000);
         //可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
         option.setOpenGps(true);
         //可选，默认false,设置是否使用gps
@@ -1016,15 +1015,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
-            double lon = bdLocation.getLongitude();
-            double lat = bdLocation.getLatitude();
-            Gps gps = AppUtils.gcj_To_Gps84(lat, lon);
-            meLatitude = gps.getWgLat();
-            meLongitude = gps.getWgLon();
-            System.out.println("定位信息：" + meLongitude + "," + meLatitude);
-            setLocationOverlay(meLongitude, meLatitude);
-            locationClient.unRegisterLocationListener(locationListener);
-            locationClient.stop();
+            int locType = bdLocation.getLocType();
+            if (locType == BDLocation.TypeOffLineLocation || locType == BDLocation.TypeGpsLocation || locType == BDLocation.TypeNetWorkLocation) {
+                double lon = bdLocation.getLongitude();
+                double lat = bdLocation.getLatitude();
+                Gps gps = AppUtils.gcj_To_Gps84(lat, lon);
+                meLatitude = gps.getWgLat();
+                meLongitude = gps.getWgLon();
+                setLocationOverlay(meLongitude, meLatitude);
+                locationClient.unRegisterLocationListener(locationListener);
+                locationClient.stop();
+            }
         }
 
         @Override
@@ -1144,35 +1145,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
-//            double currentLon = bdLocation.getLongitude();
-//            double currentLat = bdLocation.getLatitude();
-//            String lon = (String) SharedUtils.getShare(context, Constant.SAVE_LON, "0");
-//            String lat = (String) SharedUtils.getShare(context, Constant.SAVE_LAT, "0");
-//            double lastLon = Double.parseDouble(lon);
-//            double lastLat = Double.parseDouble(lat);
-//            double distance = AppUtils.getDistance(currentLon, currentLat, lastLon, lastLat);
-
-            String longitude = String.valueOf(bdLocation.getLongitude());
-            String latitude = String.valueOf(bdLocation.getLatitude());
-            Log.d(TAG, "jd:" + longitude + "/wd:" + latitude);
-            LocationInfo locationInfo = GreenDaoManager.queryLocation();
-            String userName = locationInfo.getUserName();
-            String startTime = locationInfo.getStartTime();
-            Long id = locationInfo.getId();
-            String lonAndLat = locationInfo.getLonAndLat();
-            LocationInfo l = new LocationInfo();
-            l.setId(id);
-            l.setUserName(userName);
-            l.setStartTime(startTime);
-            l.setEndTime(TimeUtils.millis2String(new Date().getTime()));
-            if (lonAndLat == null || "".equals(lonAndLat)) {
-                l.setLonAndLat(longitude + "," + latitude);
-            } else {
-                l.setLonAndLat(lonAndLat + "|" + longitude + "," + latitude);
+            int locType = bdLocation.getLocType();
+            if (locType == BDLocation.TypeOffLineLocation || locType == BDLocation.TypeGpsLocation || locType == BDLocation.TypeNetWorkLocation) {
+                String longitude = String.valueOf(bdLocation.getLongitude());
+                String latitude = String.valueOf(bdLocation.getLatitude());
+                Log.d(TAG, "jd:" + longitude + "/wd:" + latitude);
+                LocationInfo locationInfo = GreenDaoManager.queryLocation();
+                String userName = locationInfo.getUserName();
+                String startTime = locationInfo.getStartTime();
+                Long id = locationInfo.getId();
+                String lonAndLat = locationInfo.getLonAndLat();
+                LocationInfo l = new LocationInfo();
+                l.setId(id);
+                l.setUserName(userName);
+                l.setStartTime(startTime);
+                l.setEndTime(TimeUtils.millis2String(new Date().getTime()));
+                if (lonAndLat == null || "".equals(lonAndLat)) {
+                    l.setLonAndLat(longitude + "," + latitude);
+                } else {
+                    l.setLonAndLat(lonAndLat + "|" + longitude + "," + latitude);
+                }
+                GreenDaoManager.updateLocation(l);
             }
-            GreenDaoManager.updateLocation(l);
-//            SharedUtils.putShare(context, Constant.SAVE_LON, bdLocation.getLongitude() + "");
-//            SharedUtils.putShare(context, Constant.SAVE_LAT, bdLocation.getLatitude() + "");
         }
 
         @Override

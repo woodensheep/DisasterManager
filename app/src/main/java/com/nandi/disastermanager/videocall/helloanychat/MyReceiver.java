@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.alibaba.sdk.android.push.MessageReceiver;
 import com.alibaba.sdk.android.push.notification.CPushMessage;
+import com.nandi.disastermanager.NoticeActivity;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.utils.LogUtils;
 
@@ -29,8 +30,10 @@ public class MyReceiver extends MessageReceiver {
     private Message message;
     @Override
     public void onNotification(Context context, String title, String summary, Map<String, String> extraMap) {
-        // TODO 处理推送通知
         Log.e(TAG, "Receive notification, title: " + title + ", summary: " + summary + ", extraMap: " + extraMap);
+        Intent intent=new Intent(context, NoticeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
     @Override
     public void onNotificationOpened(Context context, String title, String summary, String extraMap) {
@@ -51,9 +54,9 @@ public class MyReceiver extends MessageReceiver {
     @Override
     protected void onMessage(Context context, CPushMessage cPushMessage) {
         super.onMessage(context, cPushMessage);
-        manager= (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        String msg=cPushMessage.getContent();
-        LogUtils.d(TAG,msg);
+//        manager= (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+//        String msg=cPushMessage.getContent();
+//        LogUtils.d(TAG,msg);
     }
 
     private void sendNotification(Context context) {

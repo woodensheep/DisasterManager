@@ -75,6 +75,7 @@ public class DownloadMapService extends Service {
         protected void completed(BaseDownloadTask task) {
             builder.setProgress(0, 0, false);
             builder.setContentText("离线地图下载完成");
+            builder.setAutoCancel(true);
             manager.notify(1, builder.build());
         }
 

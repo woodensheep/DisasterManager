@@ -65,8 +65,8 @@
         android:id="@+id/ll_route"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:layout_marginTop="5dp"
         android:layout_toLeftOf="@+id/ll_notice"
-        android:layout_alignTop="@+id/ll_notice"
         android:background="@drawable/icon_background"
         android:visibility="invisible">
 
@@ -112,7 +112,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="2dp"
-            android:background="@drawable/notice" />
+            android:background="@drawable/take_photo" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/ll_control"
