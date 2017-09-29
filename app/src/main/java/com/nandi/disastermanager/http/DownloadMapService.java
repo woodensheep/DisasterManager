@@ -61,30 +61,29 @@ public class DownloadMapService extends Service {
             Log.d(TAG, "progress/soFarBytes:" + soFarBytes + "/totalBytes:" + totalBytes);
             long l = totalBytes / 100;
             int l1 = (int) Math.ceil(soFarBytes / l);
-            builder.setProgress(100,l1,false);
-            builder.setContentText("已下载"+l1+"%");
-            manager.notify(1,builder.build());
+            builder.setProgress(100, l1, false);
+            builder.setContentText("已下载" + l1 + "%");
+            manager.notify(1, builder.build());
         }
 
         @Override
         protected void paused(BaseDownloadTask task, long soFarBytes, long totalBytes) {
             Log.d(TAG, "paused/soFarBytes:" + soFarBytes + "/totalBytes:" + totalBytes);
-
         }
 
         @Override
         protected void completed(BaseDownloadTask task) {
-            builder.setProgress(0,0,false);
+            builder.setProgress(0, 0, false);
             builder.setContentText("离线地图下载完成");
-            manager.notify(1,builder.build());
+            manager.notify(1, builder.build());
         }
 
         @Override
         protected void error(BaseDownloadTask task, Throwable e) {
             Log.d(TAG, "error/" + e.getMessage());
-            builder.setProgress(0,0,false);
+            builder.setProgress(0, 0, false);
             builder.setContentText("下载失败，请重试");
-            manager.notify(1,builder.build());
+            manager.notify(1, builder.build());
             impl.clear(id, path);
             stopSelf();
         }
@@ -92,7 +91,6 @@ public class DownloadMapService extends Service {
         @Override
         protected void warn(BaseDownloadTask task) {
             Log.d(TAG, "warn");
-
         }
     }
 

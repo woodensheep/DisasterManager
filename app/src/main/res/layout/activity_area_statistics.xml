@@ -56,7 +56,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
-                    android:text="现有隐患点台帐总数:"
+                    android:text="现有隐患点台帐总数："
                     android:textColor="@color/white"
                     android:textSize="@dimen/leirong_text_size" />
 
