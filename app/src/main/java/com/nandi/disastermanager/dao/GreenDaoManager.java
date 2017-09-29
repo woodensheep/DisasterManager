@@ -6,13 +6,16 @@ import android.database.Cursor;
 import com.nandi.disastermanager.MyApplication;
 
 
-import com.nandi.disastermanager.entity.DaoMaster;
-import com.nandi.disastermanager.entity.DaoSession;
+
 import com.nandi.disastermanager.entity.LocationInfo;
 import com.nandi.disastermanager.search.entity.AreaInfo;
 import com.nandi.disastermanager.search.entity.AreaInfoDao;
+import com.nandi.disastermanager.search.entity.DaoMaster;
+import com.nandi.disastermanager.search.entity.DaoSession;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.DisasterPointDao;
+import com.nandi.disastermanager.search.entity.GTSLocationPoint;
+import com.nandi.disastermanager.search.entity.GTSLocationPointDao;
 import com.nandi.disastermanager.search.entity.MonitorListPoint;
 import com.nandi.disastermanager.search.entity.MonitorListPointDao;
 import com.nandi.disastermanager.search.entity.MonitorPoint;
@@ -92,6 +95,9 @@ public class GreenDaoManager {
     public static void deleteAllLocation() {
         GreenDaoManager.getInstance().getSession().getLocationInfoDao().deleteAll();
     }
+  public static void deleteGTSLocation() {
+        GreenDaoManager.getInstance().getSession().getGTSLocationPointDao().deleteAll();
+    }
 
     /**
      * 增加灾害点数据
@@ -111,6 +117,16 @@ public class GreenDaoManager {
     public static void insertMonitorListPoint(MonitorListPoint monitorListPoint) {
         MonitorListPointDao monitorListPointDao = GreenDaoManager.getInstance().getSession().getMonitorListPointDao();
         monitorListPointDao.insert(monitorListPoint);
+    }
+  /**
+     * 增加国土所经纬度
+     *
+     * @param  gtsLocationPoint
+
+   */
+    public static void insertGTSLocation(GTSLocationPoint gtsLocationPoint) {
+      GTSLocationPointDao gtsLocationPointDao = GreenDaoManager.getInstance().getSession().getGTSLocationPointDao();
+        gtsLocationPointDao.insert(gtsLocationPoint);
     }
 
     /**
@@ -136,7 +152,18 @@ public class GreenDaoManager {
     public static void deleteAllMonitorData() {
         GreenDaoManager.getInstance().getSession().getMonitorPointDao().deleteAll();
     }
+    /**
+     * 根据搜索查询
+     */
+    public static GTSLocationPoint queryGTSLocation( String county, String town) {
 
+        GTSLocationPoint gtsList = GreenDaoManager.getInstance().getSession().getGTSLocationPointDao().queryBuilder()
+                .where(GTSLocationPointDao.Properties.Adminname.eq( county),
+                        GTSLocationPointDao.Properties.Town.eq(town))
+                .unique();
+
+        return gtsList;
+    }
     /**
      * 根据隐患点编号查询监测点
      */

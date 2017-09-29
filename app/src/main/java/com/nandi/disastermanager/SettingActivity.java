@@ -29,6 +29,8 @@ import com.nandi.disastermanager.http.DownloadMapService;
 import com.nandi.disastermanager.http.ReplaceService;
 import com.nandi.disastermanager.search.entity.DisasterData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
+import com.nandi.disastermanager.search.entity.GTSLocation;
+import com.nandi.disastermanager.search.entity.GTSLocationPoint;
 import com.nandi.disastermanager.search.entity.MonitorData;
 import com.nandi.disastermanager.search.entity.MonitorListData;
 import com.nandi.disastermanager.search.entity.MonitorListPoint;
@@ -257,22 +259,26 @@ public class SettingActivity extends Activity {
                         if (ids ==1){
                             startService(new Intent(mContext, DownloadMapService.class));
                             ToastUtils.showShort(mContext, "开始下载地图包");
-                        }else if (ids == 2){
+                        }
+                        if (ids == 2){
                             checkUpdate();
-                        }else if (ids == 3){
+                        }
+                        if (ids == 3){
                            upDisData();
-                        }else if (ids == 4){
+                        }
+                        if (ids == 4){
                             upMonData();
-                        }else if (ids == 5){
+                        }
+                        if (ids == 5){
                           upMonDatas();
-                        }else if (ids == 6){
+                        }
+                        if (ids == 6){
                            upLocation();
                         }
                     }
                 });
 
     }
-
     /*APP更新*/
     private void checkUpdate() {
         OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")
@@ -313,7 +319,8 @@ public class SettingActivity extends Activity {
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                upDisData();
+                ToastUtils.showShort(mContext,"灾害点信息下载失败");
+                WaitingDialog.closeDialog();
             }
 
             @Override
@@ -394,7 +401,8 @@ public class SettingActivity extends Activity {
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                upMonData();
+                ToastUtils.showShort(mContext,"监测列表下载失败");
+                WaitingDialog.closeDialog();
             }
 
             @Override
@@ -419,8 +427,8 @@ public class SettingActivity extends Activity {
                             }
                         }
                     }.start();
-                    WaitingDialog.closeDialog();
                     ToastUtils.showShort(mContext, "更新监测点信息成功");
+                    WaitingDialog.closeDialog();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -439,7 +447,8 @@ public class SettingActivity extends Activity {
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                upMonDatas();
+                ToastUtils.showShort(mContext,"监测数据下载失败");
+                WaitingDialog.closeDialog();
             }
 
             @Override
@@ -653,6 +662,48 @@ public class SettingActivity extends Activity {
     }
 
     private void upLocation() {
+        WaitingDialog.createLoadingDialog(mContext, "正在下载...");
+        String url = getString(R.string.base_gz_url) +"appdocking/listLandJdWd";
+        RequestCall build = OkHttpUtils.get().url(url)
+                .build();
+        build.execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                ToastUtils.showShort(mContext,"坐标信息下载失败");
+                WaitingDialog.closeDialog();
+            }
+
+            @Override
+            public void onResponse(final String response, int id) {
+                SharedUtils.putShare(mContext, Constant.SAVE_DIS_TIME, new Date().getTime());
+                Log.i("qingsong", response);
+                System.out.println(response);
+                GreenDaoManager.deleteGTSLocation();
+                Gson gson = new Gson();
+                try {
+                    final GTSLocation gtsLocation= gson.fromJson(response, GTSLocation.class);
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            for (GTSLocation.DataBean dataBean : gtsLocation.getData()) {
+                                GTSLocationPoint gtsLocationPoint = new GTSLocationPoint();
+                                gtsLocationPoint.setAdminname(dataBean.getAdminname());
+                                gtsLocationPoint.setJd(dataBean.getJd());
+                                gtsLocationPoint.setWd(dataBean.getWd());
+                                gtsLocationPoint.setTown(dataBean.getTown());
+                                GreenDaoManager.insertGTSLocation(gtsLocationPoint);
+                            }
+                        }
+                    }.start();
+                    ToastUtils.showShort(mContext, "更新坐标信息成功");
+                    WaitingDialog.closeDialog();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
     }
 
     /*APP注销*/

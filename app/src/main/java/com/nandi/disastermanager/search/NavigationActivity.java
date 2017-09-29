@@ -11,6 +11,7 @@ import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
+import com.nandi.disastermanager.search.entity.GTSLocationPoint;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.AMapUtil;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -20,6 +21,8 @@ import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,6 +40,9 @@ public class NavigationActivity extends Activity {
     private double lat;
     private double lon;
     private String name;
+    private double jd;
+    private double wd;
+    private GTSLocationPoint gtsLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +56,8 @@ public class NavigationActivity extends Activity {
         lon=disasterPoint.getDisasterLon();
         lat=disasterPoint.getDisasterLat();
         name = disasterPoint.getDisasterName();
-//        if (AMapUtil.isInstallByRead("com.baidu.BaiduMap")) {
-//        }else{
-//            baidu.setText("百度地图（未安装）");
-//        }
+        gtsLocation = GreenDaoManager.queryGTSLocation(disasterPoint.getCounty(), disasterPoint.getTown());
+
         if (AMapUtil.isInstallByRead("com.autonavi.minimap")) {
 
         }else{
@@ -64,15 +68,17 @@ public class NavigationActivity extends Activity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.baidu:
-                if (lat !=0&&lon !=0){
+                if (null != gtsLocation){
+                    jd = gtsLocation.getJd();
+                    wd = gtsLocation.getWd();
                     if (AMapUtil.isInstallByRead("com.autonavi.minimap")) {
-                        double[] togcj02 = TransformUtil.wgs84togcj02(lon, lat);
-                        AMapUtil.goToGaoDe(NavigationActivity.this, name,togcj02[1]+"" , togcj02[0]+"", "0");
+                        double[] togcj02 = TransformUtil.wgs84togcj02(jd, wd);
+                        AMapUtil.goToGaoDe(NavigationActivity.this, gtsLocation.getTown(),togcj02[1]+"" , togcj02[0]+"", "0");
                     }else{
                         ToastUtils.showShort(this,"您尚未安装高德地图");
                     }
                 }else{
-                    ToastUtils.showShort(this,"未获取到经纬度");
+                    ToastUtils.showShort(this,"未提交数据");
                 }
                 break;
             case R.id.gaode:

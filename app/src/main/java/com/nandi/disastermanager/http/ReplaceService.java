@@ -16,10 +16,13 @@ import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.DisasterData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
+import com.nandi.disastermanager.search.entity.GTSLocation;
+import com.nandi.disastermanager.search.entity.GTSLocationPoint;
 import com.nandi.disastermanager.search.entity.MonitorData;
 import com.nandi.disastermanager.search.entity.MonitorListData;
 import com.nandi.disastermanager.search.entity.MonitorListPoint;
 import com.nandi.disastermanager.search.entity.MonitorPoint;
+import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
@@ -199,7 +202,7 @@ public class ReplaceService extends Service {
             @Override
             public void onResponse(final String response, int id) {
                 LogUtils.d(TAG, response);
-                SharedUtils.putShare(context, Constant.SAVE_DIS_TIME, new Date().getTime());
+
                 Gson gson = new Gson();
                 try {
                     final DisasterData disasterData = gson.fromJson(response, DisasterData.class);
@@ -257,6 +260,7 @@ public class ReplaceService extends Service {
                             }
                         }
                     }.start();
+                    upLocation();
                     LogUtils.d(TAG, "数据保存结束");
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -355,7 +359,49 @@ public class ReplaceService extends Service {
         });
 
     }
+    /*国土所坐标数据的请求*/
+    private void upLocation() {
 
+        String url = getString(R.string.base_gz_url) +"appdocking/listLandJdWd";
+        RequestCall build = OkHttpUtils.get().url(url)
+                .build();
+        build.execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                upMonDatas();
+            }
+
+            @Override
+            public void onResponse(final String response, int id) {
+                SharedUtils.putShare(context, Constant.SAVE_DIS_TIME, new Date().getTime());
+                Log.i("qingsong", response);
+                System.out.println(response);
+                GreenDaoManager.deleteGTSLocation();
+                Gson gson = new Gson();
+                try {
+                    final GTSLocation gtsLocation= gson.fromJson(response, GTSLocation.class);
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            for (GTSLocation.DataBean dataBean : gtsLocation.getData()) {
+                                GTSLocationPoint gtsLocationPoint = new GTSLocationPoint();
+                                gtsLocationPoint.setAdminname(dataBean.getAdminname());
+                                gtsLocationPoint.setJd(dataBean.getJd());
+                                gtsLocationPoint.setWd(dataBean.getWd());
+                                gtsLocationPoint.setTown(dataBean.getTown());
+                                GreenDaoManager.insertGTSLocation(gtsLocationPoint);
+                            }
+                        }
+                    }.start();
+                    ToastUtils.showShort(context, "更新坐标信息成功");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+    }
     @Override
     public IBinder onBind(Intent intent) {
         throw new UnsupportedOperationException("Not yet implemented");
