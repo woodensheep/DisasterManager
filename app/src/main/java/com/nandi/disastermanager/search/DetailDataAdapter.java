@@ -46,7 +46,7 @@ public class DetailDataAdapter extends RecyclerView.Adapter<DetailDataAdapter.Vi
     public void onBindViewHolder(DetailDataAdapter.ViewHolderA holder, int position) {
         holder.tv_1.setText(arrayLable[position]);
         holder.tv_2.setText(mArray[position]);
-        if ("".equals(mArray[position])){
+        if ("".equals(mArray[position])||mArray[position]==null){
             holder.tv_1.setVisibility(View.GONE);
             holder.tv_2.setVisibility(View.GONE);
         }

@@ -538,7 +538,7 @@ public class SettingActivity extends Activity {
                 if (NetworkUtils.isWifiConnected()) {
                     upMonData();
                 } else {
-                    if (NetworkUtils.is4G() && openGprs) {
+                    if (NetworkUtils.getDataEnabled() && openGprs) {
                         upMonData();
                     }
                 }
@@ -547,7 +547,7 @@ public class SettingActivity extends Activity {
                 if (NetworkUtils.isWifiConnected()) {
                     upDisData();
                 } else {
-                    if (NetworkUtils.is4G() && openGprs) {
+                    if (NetworkUtils.getDataEnabled() && openGprs) {
                         upDisData();
                     }
                 }
@@ -556,7 +556,7 @@ public class SettingActivity extends Activity {
                 if (NetworkUtils.isWifiConnected()) {
                     upMonDatas();
                 } else {
-                    if (NetworkUtils.is4G() && openGprs) {
+                    if (NetworkUtils.getDataEnabled() && openGprs) {
                         upMonDatas();
                     }
                 }

@@ -66,7 +66,7 @@ public class ReplaceService extends Service {
                             if (NetworkUtils.isWifiConnected()) {
                                 loginPost(1);
                             }else {
-                                if (NetworkUtils.is4G()&&openGprs){
+                                if (NetworkUtils.getDataEnabled()&&openGprs){
                                     loginPost(1);
                                 }
                             }
@@ -75,7 +75,7 @@ public class ReplaceService extends Service {
                             if (NetworkUtils.isWifiConnected()) {
                                 loginPost(2);
                             }else {
-                                if (NetworkUtils.is4G()&&openGprs){
+                                if (NetworkUtils.getDataEnabled()&&openGprs){
                                     loginPost(2);
                                 }
                             }
@@ -84,7 +84,7 @@ public class ReplaceService extends Service {
                             if (NetworkUtils.isWifiConnected()) {
                                 loginPost(3);
                             }else {
-                                if (NetworkUtils.is4G()&&openGprs){
+                                if (NetworkUtils.getDataEnabled()&&openGprs){
                                     loginPost(3);
                                 }
                             }
