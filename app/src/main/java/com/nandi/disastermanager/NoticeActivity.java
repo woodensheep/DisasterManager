@@ -73,7 +73,6 @@ public class NoticeActivity extends Activity {
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        ToastUtils.showShort(mContext, "获取权限失败");
                     }
 
                     @Override

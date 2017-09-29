@@ -168,7 +168,7 @@ public class SettingActivity extends Activity {
                 }
             }
         });
-        loginPost();
+
         etPassword.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -244,7 +244,7 @@ public class SettingActivity extends Activity {
     }
 
     /*登录请求*/
-    private void loginPost() {
+    private void loginPost(final int ids) {
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + name + "/" + password + "/2")
                 .build()
                 .execute(new StringCallback() {
@@ -254,6 +254,20 @@ public class SettingActivity extends Activity {
 
                     @Override
                     public void onResponse(final String response, int id) {
+                        if (ids ==1){
+                            startService(new Intent(mContext, DownloadMapService.class));
+                            ToastUtils.showShort(mContext, "开始下载地图包");
+                        }else if (ids == 2){
+                            checkUpdate();
+                        }else if (ids == 3){
+                           upDisData();
+                        }else if (ids == 4){
+                            upMonData();
+                        }else if (ids == 5){
+                          upMonDatas();
+                        }else if (ids == 6){
+                           upLocation();
+                        }
                     }
                 });
 
@@ -484,12 +498,11 @@ public class SettingActivity extends Activity {
                 if (!file.exists()) {
                     if (NetworkUtils.isConnected()) {
                         if (NetworkUtils.isWifiConnected()) {
-                            startService(new Intent(mContext, DownloadMapService.class));
-                            ToastUtils.showShort(mContext, "开始下载地图包");
+                            loginPost(1);
+
                         } else {
                             if (openGprs) {
-                                startService(new Intent(mContext, DownloadMapService.class));
-                                ToastUtils.showShort(mContext, "开始下载地图包");
+                                loginPost(1);
                             } else {
                                 ToastUtils.showShort(mContext, "请打开允许4G开关");
                             }
@@ -501,45 +514,13 @@ public class SettingActivity extends Activity {
                     ToastUtils.showShort(mContext,"地图文件已存在");
                 }
                 break;
-            case R.id.downloadMonDate:
-                if (NetworkUtils.isConnected()) {
-                    if (NetworkUtils.isWifiConnected()) {
-                        upMonDatas();
-                    } else {
-                        if (openGprs) {
-                            upMonDatas();
-                        } else {
-                            ToastUtils.showShort(mContext, "请打开允许4G开关");
-                        }
-                    }
-                } else {
-                    ToastUtils.showShort(mContext, "没有网络请稍后");
-                }
-
-                break;
-            case R.id.downloadMonitor:
-                if (NetworkUtils.isConnected()) {
-                    if (NetworkUtils.isWifiConnected()) {
-                        upMonData();
-                    } else {
-                        if (openGprs) {
-                            upMonData();
-                        } else {
-                            ToastUtils.showShort(mContext, "请打开允许4G开关");
-                        }
-                    }
-                } else {
-                    ToastUtils.showShort(mContext, "没有网络请稍后");
-                }
-
-                break;
             case R.id.downloadApp:
                 if (NetworkUtils.isConnected()) {
                     if (NetworkUtils.isWifiConnected()) {
-                        checkUpdate();
+                        loginPost(2);
                     } else {
                         if (openGprs) {
-                            checkUpdate();
+                            loginPost(2);
                         } else {
                             ToastUtils.showShort(mContext, "请打开允许4G开关");
                         }
@@ -551,10 +532,10 @@ public class SettingActivity extends Activity {
             case R.id.downloadDisater:
                 if (NetworkUtils.isConnected()) {
                     if (NetworkUtils.isWifiConnected()) {
-                        upDisData();
+                        loginPost(3);
                     } else {
                         if (openGprs) {
-                            upDisData();
+                            loginPost(3);
                         } else {
                             ToastUtils.showShort(mContext, "请打开允许4G开关");
                         }
@@ -563,13 +544,45 @@ public class SettingActivity extends Activity {
                     ToastUtils.showShort(mContext, "没有网络请稍后");
                 }
                 break;
+            case R.id.downloadMonitor:
+                if (NetworkUtils.isConnected()) {
+                    if (NetworkUtils.isWifiConnected()) {
+                        loginPost(4);
+                    } else {
+                        if (openGprs) {
+                            loginPost(4);
+                        } else {
+                            ToastUtils.showShort(mContext, "请打开允许4G开关");
+                        }
+                    }
+                } else {
+                    ToastUtils.showShort(mContext, "没有网络请稍后");
+                }
+
+                break;
+            case R.id.downloadMonDate:
+                if (NetworkUtils.isConnected()) {
+                    if (NetworkUtils.isWifiConnected()) {
+                       loginPost(5);
+                    } else {
+                        if (openGprs) {
+                            loginPost(5);
+                        } else {
+                            ToastUtils.showShort(mContext, "请打开允许4G开关");
+                        }
+                    }
+                } else {
+                    ToastUtils.showShort(mContext, "没有网络请稍后");
+                }
+
+                break;
             case R.id.downloadLocation:
                 if (NetworkUtils.isConnected()) {
                     if (NetworkUtils.isWifiConnected()) {
-                        upLocation();
+                       loginPost(6);
                     } else {
                         if (openGprs) {
-                            upLocation();
+                          loginPost(6);
                         } else {
                             ToastUtils.showShort(mContext, "请打开允许4G开关");
                         }
