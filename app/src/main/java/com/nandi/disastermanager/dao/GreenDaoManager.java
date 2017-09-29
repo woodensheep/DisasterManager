@@ -157,18 +157,18 @@ public class GreenDaoManager {
                 .list();
         return monitorData;
     }
-    /**
-     * 根据隐患点编号获取监测人和监测电话
-     */
-    public static List<MonitorPoint> queryMonitorData1(String disNum) {
-
-        List<MonitorPoint> monitorData = GreenDaoManager.getInstance().getSession().getMonitorPointDao().queryBuilder()
-                .where(MonitorPointDao.Properties.DisNum.eq(disNum))
-                .orderDesc(MonitorPointDao.Properties.Time)
-                .limit(1)
-                .list();
-        return monitorData;
-    }
+//    /**
+//     * 根据隐患点编号获取监测人和监测电话
+//     */
+//    public static List<MonitorPoint> queryMonitorData1(String disNum) {
+//
+//        List<MonitorPoint> monitorData = GreenDaoManager.getInstance().getSession().getMonitorPointDao().queryBuilder()
+//                .where(MonitorPointDao.Properties.DisNum.eq(disNum))
+//                .orderDesc(MonitorPointDao.Properties.Time)
+//                .limit(1)
+//                .list();
+//        return monitorData;
+//    }
 
     /*灾害点去重*/
     public static List<String> getDistinct(int id) {

@@ -456,9 +456,6 @@ public class SettingActivity extends Activity {
                                 monitorPoint.setName(dataBean.getName());
                                 monitorPoint.setTime(dataBean.getTime());
                                 monitorPoint.setMonitorData(dataBean.getMonitorData());
-                                monitorPoint.setDisNum(dataBean.getDisNum());
-                                monitorPoint.setGather(dataBean.getGather());
-                                monitorPoint.setPhone(dataBean.getPhone());
                                 GreenDaoManager.insertMonitorPoint(monitorPoint);
                             }
                         }
@@ -496,23 +493,10 @@ public class SettingActivity extends Activity {
                 if (!file.exists()) {
                     if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
                         Intent intent = new Intent(mContext,DownloadMapService.class);
-//                        intent.setAction(Intent.ACTION_VIEW);
-//                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
-//                        intent.setData(Uri.parse("http://202.98.195.125:8082/gzcmdback/downloadPackage.do"));
-
                         startService(intent);
                     } else {
                         if (NetworkUtils.isWifiConnected()) {
-//                            Intent intent = new Intent();
-//                            intent.setAction(Intent.ACTION_VIEW);
-//                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
-//                            intent.setData(Uri.parse("http://202.98.195.125:8082/gzcmdback/downloadPackage.do"));
-//                            startActivity(intent);
                             Intent intent = new Intent(mContext,DownloadMapService.class);
-//                        intent.setAction(Intent.ACTION_VIEW);
-//                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
-//                        intent.setData(Uri.parse("http://202.98.195.125:8082/gzcmdback/downloadPackage.do"));
-
                             startService(intent);
                             Log.i(TAG, "不允许4G时更新");
                         } else {

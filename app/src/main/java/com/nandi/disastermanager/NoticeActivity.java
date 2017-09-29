@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,8 +26,9 @@ import okhttp3.Call;
 
 /**
  * @author qingsong
- * 公告
- */public class NoticeActivity extends Activity {
+ *         公告
+ */
+public class NoticeActivity extends Activity {
 
     @BindView(R.id.date_show)
     RecyclerView dateShow;
@@ -95,6 +97,14 @@ import okhttp3.Call;
                         Gson gson = new Gson();
                         noticeInfo = gson.fromJson(response, NoticeInfo.class);
                         setAdapter();
+                        if (noticeInfo.getData().size() > 0) {
+                           noticeTitle.setText("\u3000\u3000"+noticeInfo.getData().get(noticeInfo.getData().size() - 1).getContent());
+                            noticeTime.setText(noticeInfo.getData().get(noticeInfo.getData().size() - 1).getAnn_time());
+                        }else{
+                            noticeTitle.setText("暂无公告");
+                            noticeTitle.setTextSize(30);
+                            dateShow.setVisibility(View.GONE);
+                        }
                         WaitingDialog.closeDialog();
                     }
                 });
@@ -107,8 +117,11 @@ import okhttp3.Call;
         noticeAdapter.setOnItemClickListener(new NoticeAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
-                noticeTime.setText(noticeInfo.getData().get(position).getAnn_time());
-                noticeTitle.setText("\u3000\u3000" + noticeInfo.getData().get(position).getContent());
+                if (noticeInfo.getData().size() > 0) {
+                    noticeTime.setText(noticeInfo.getData().get(noticeInfo.getData().size() - position - 1).getAnn_time());
+                    noticeTitle.setText("\u3000\u3000" + noticeInfo.getData().get(noticeInfo.getData().size() - position - 1).getContent());
+
+                }
             }
         });
         dateShow.setAdapter(noticeAdapter);

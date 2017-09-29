@@ -1,6 +1,8 @@
 package com.nandi.disastermanager;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -27,7 +29,6 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.ViewHolder
     private Context mContext;
     private NoticeInfo noticeInfo;
     public NoticeAdapter.OnItemClickListener mOnItemClickListener;
-
     public NoticeAdapter(Context context, NoticeInfo noticeInfo) {
         mContext = context;
         this.noticeInfo = noticeInfo;
@@ -44,15 +45,19 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(final NoticeAdapter.ViewHolderA holder, final int position) {
-        holder.textView.setText(noticeInfo.getData().get(position).getTitle());
-        if (mOnItemClickListener != null) {
-            holder.textView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mOnItemClickListener.onClick(position);
-                }
-            });
+        if (noticeInfo.getData().size()>0){
+            holder.textView.setText(noticeInfo.getData().get(noticeInfo.getData().size()-position-1).getTitle());
+            if (mOnItemClickListener != null) {
+                holder.textView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mOnItemClickListener.onClick(position);
+                        holder.textView.setFocusable(true);
+                    }
+                });
+            }
         }
+
     }
 
     @Override

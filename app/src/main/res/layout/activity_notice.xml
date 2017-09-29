@@ -4,15 +4,34 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/colorPrimary"
         android:gravity="center"
-        android:text="公告"
-        android:textColor="@color/white"
-        android:textSize="30sp" />
+        android:background="@drawable/notice_head"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="150dp"
+            android:layout_height="2dp"
+            android:background="#00f3f3" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="最新公告"
+            android:layout_marginLeft="100dp"
+            android:layout_marginRight="100dp"
+            android:textColor="#00f3f3"
+            android:textSize="30sp" />
+        <View
+            android:layout_width="150dp"
+            android:layout_height="2dp"
+            android:background="#00f3f3" />
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
@@ -29,35 +48,29 @@
             android:id="@+id/date_show"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:background="#4c4c4c"></android.support.v7.widget.RecyclerView>
+            android:layout_weight="2"></android.support.v7.widget.RecyclerView>
 
-        <TextView
-            android:layout_width="2dp"
-            android:layout_height="match_parent"
-            android:background="#d3d3d3" />
 
         <ScrollView
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="7"
-            android:background="#b2b2b2"
+            android:background="@color/white"
             android:scrollbars="vertical">
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#b2b2b2">
+                android:background="@color/white">
 
                 <TextView
                     android:id="@+id/notice_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginBottom="20dp"
                     android:layout_centerInParent="true"
-                    android:background="#b3b3b3"
-                    android:textColor="@color/white"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="20sp" />
 
                 <TextView
@@ -67,8 +80,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_below="@id/notice_title"
                     android:layout_marginRight="20dp"
-                    android:background="#b3b3b3"
-                    android:textColor="@color/white"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="20sp" />
             </RelativeLayout>
         </ScrollView>

@@ -15,20 +15,14 @@ public class MonitorPoint {
     private String monitorId;
     private String name;
     private double monitorData;
-    private String disNum;
-    private String phone;
-    private String gather;
-    @Generated(hash = 1606696482)
+    @Generated(hash = 2037224672)
     public MonitorPoint(Long id, String time, String monitorId, String name,
-            double monitorData, String disNum, String phone, String gather) {
+            double monitorData) {
         this.id = id;
         this.time = time;
         this.monitorId = monitorId;
         this.name = name;
         this.monitorData = monitorData;
-        this.disNum = disNum;
-        this.phone = phone;
-        this.gather = gather;
     }
     @Generated(hash = 32220235)
     public MonitorPoint() {
@@ -63,23 +57,4 @@ public class MonitorPoint {
     public void setMonitorData(double monitorData) {
         this.monitorData = monitorData;
     }
-    public String getDisNum() {
-        return this.disNum;
-    }
-    public void setDisNum(String disNum) {
-        this.disNum = disNum;
-    }
-    public String getPhone() {
-        return this.phone;
-    }
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-    public String getGather() {
-        return this.gather;
-    }
-    public void setGather(String gather) {
-        this.gather = gather;
-    }
-
 }
