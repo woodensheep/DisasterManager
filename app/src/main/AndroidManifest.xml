@@ -142,19 +142,16 @@
             android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:screenOrientation="landscape"
             android:theme="@style/TipDialog1" />
-      <activity android:name=".NoticeActivity"
-          android:configChanges="keyboardHidden|orientation|screenSize|navigation"
-          android:screenOrientation="landscape"
-          android:theme="@style/TipDialog1"
-          />
+        <activity
+            android:name=".NoticeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation"
+            android:screenOrientation="landscape"
+            android:theme="@style/TipDialog1" />
+
         <service
             android:name=".videocall.helloanychat.MyService"
             android:enabled="true" />
         <service android:name="com.alibaba.sdk.android.push.AliyunPushIntentService" />
-        <service
-            android:name=".http.UpdataService"
-            android:enabled="true"
-            android:exported="true" />
         <service
             android:name=".http.ReplaceService"
             android:enabled="true"
@@ -162,7 +159,7 @@
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote"/>
+            android:process=":remote" />
 
         <receiver
             android:name=".videocall.helloanychat.MyReceiver"
@@ -183,12 +180,13 @@
         <service
             android:name=".http.DownloadMapService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
-        <activity android:name=".search.PhotoActivity"
+        <activity
+            android:name=".search.PhotoActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:screenOrientation="landscape"
-            android:theme="@style/TipDialog1"/>
+            android:theme="@style/TipDialog1" />
     </application>
 
 </manifest>

@@ -74,7 +74,6 @@ import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.entity.Gps;
 import com.nandi.disastermanager.entity.LocationInfo;
 import com.nandi.disastermanager.http.ReplaceService;
-import com.nandi.disastermanager.http.UpdataService;
 import com.nandi.disastermanager.search.DetailDataActivity;
 import com.nandi.disastermanager.search.MonitorListActivity;
 import com.nandi.disastermanager.search.NavigationActivity;
@@ -86,7 +85,6 @@ import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.DownloadUtils;
-import com.nandi.disastermanager.utils.LogUtils;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -488,9 +486,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                new DownloadUtils(context).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do","app-release.apk");
+                new DownloadUtils(context).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do", "app-release.apk");
                 dialog.dismiss();
-
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -698,79 +695,81 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                                 }
                             }
-                            if (!graphic.isEmpty() && !(graphic.get(0).getGeometry() instanceof Polygon)) {
-                                if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
-                                    Graphic g = graphic.get(0);
-                                    if (mCurrentPoint != null && !mCurrentPoint.equals(g)) {
-                                        if (mIsMidpointSelected && !mVertexDragStarted) {
-                                            mCurrentPoint.setSymbol(mPolylineMidpointSymbol);
-                                        } else {
-                                            mCurrentPoint.setSymbol(mPolylineVertexSymbol);
-                                        }
-                                        mIsMidpointSelected = (g.getSymbol().equals(mPolylineMidpointSymbol));
-                                        mVertexDragStarted = false;
-                                        mCurrentPoint = g;
-                                        mCurrentPoint.setSymbol(mPointPlacementSymbol);
-                                    }
-                                }
-                            } else {
-                                boolean graphicsWasEmpty = mGraphics.isEmpty();
-                                Point point = mapView.screenToLocation(screenPoint);
-                                if (mDrawingMode == DrawingMode.POINT) {
-                                    if (mCurrentPoint == null) {
-                                        mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
-                                        mGraphics.add(mCurrentPoint);
-                                        List<Graphic> graphics = new ArrayList<>();
-                                        graphics.add(mCurrentPoint);
-                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
-                                    } else {
-                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.MOVE_POINT, mCurrentPoint.getGeometry()));
-                                        mCurrentPoint.setGeometry(point);
-                                    }
-                                } else if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
-                                    mIsMidpointSelected = false;
-                                    if (!mIsPolylineStarted) {
-                                        mCurrentPointCollection.add(point);
-                                        if (mDrawingMode == DrawingMode.POLYGON) {
-                                            mCurrentPointCollection.add(point);
-                                        }
-                                    } else {
-                                        if (mDrawingMode == DrawingMode.POLYGON) {
-                                            if (mCurrentPointCollection.size() > 2) {
-                                                mGraphics.remove(mGraphics.size() - 1);
+                            if (graphic.isEmpty()) {
+                                if (!graphic.isEmpty() && !(graphic.get(0).getGeometry() instanceof Polygon)) {
+                                    if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
+                                        Graphic g = graphic.get(0);
+                                        if (mCurrentPoint != null && !mCurrentPoint.equals(g)) {
+                                            if (mIsMidpointSelected && !mVertexDragStarted) {
+                                                mCurrentPoint.setSymbol(mPolylineMidpointSymbol);
+                                            } else {
+                                                mCurrentPoint.setSymbol(mPolylineVertexSymbol);
                                             }
-                                            mCurrentPointCollection.add(mCurrentPointCollection.size() - 1, point);
+                                            mIsMidpointSelected = (g.getSymbol().equals(mPolylineMidpointSymbol));
+                                            mVertexDragStarted = false;
+                                            mCurrentPoint = g;
+                                            mCurrentPoint.setSymbol(mPointPlacementSymbol);
+                                        }
+                                    }
+                                } else {
+                                    boolean graphicsWasEmpty = mGraphics.isEmpty();
+                                    Point point = mapView.screenToLocation(screenPoint);
+                                    if (mDrawingMode == DrawingMode.POINT) {
+                                        if (mCurrentPoint == null) {
+                                            mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
+                                            mGraphics.add(mCurrentPoint);
+                                            List<Graphic> graphics = new ArrayList<>();
+                                            graphics.add(mCurrentPoint);
+                                            queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
                                         } else {
+                                            queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.MOVE_POINT, mCurrentPoint.getGeometry()));
+                                            mCurrentPoint.setGeometry(point);
+                                        }
+                                    } else if (mDrawingMode == DrawingMode.POLYLINE || mDrawingMode == DrawingMode.POLYGON) {
+                                        mIsMidpointSelected = false;
+                                        if (!mIsPolylineStarted) {
                                             mCurrentPointCollection.add(point);
+                                            if (mDrawingMode == DrawingMode.POLYGON) {
+                                                mCurrentPointCollection.add(point);
+                                            }
+                                        } else {
+                                            if (mDrawingMode == DrawingMode.POLYGON) {
+                                                if (mCurrentPointCollection.size() > 2) {
+                                                    mGraphics.remove(mGraphics.size() - 1);
+                                                }
+                                                mCurrentPointCollection.add(mCurrentPointCollection.size() - 1, point);
+                                            } else {
+                                                mCurrentPointCollection.add(point);
+                                            }
+                                        }
+                                        if (!mIsPolylineStarted) {
+                                            mCurrentLine = new Graphic(new Polyline(mCurrentPointCollection), mPolylinePlacementSymbol);
+                                            mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
+                                            List<Graphic> graphics = new ArrayList<>();
+                                            if (mDrawingMode == DrawingMode.POLYGON) {
+                                                mCurrentPolygon = new Graphic(new Polygon(mCurrentPointCollection), mPolygonFillSymbol);
+                                                mGraphics.add(mCurrentPolygon);
+                                                graphics.add(mCurrentPolygon);
+                                            }
+                                            mGraphics.add(mCurrentLine);
+                                            mGraphics.add(mCurrentPoint);
+                                            graphics.add(mCurrentLine);
+                                            graphics.add(mCurrentPoint);
+                                            queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
+                                            mIsPolylineStarted = true;
+                                        } else {
+                                            addPolylinePoint(point);
+                                            queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POLYLINE_POINT, null));
                                         }
                                     }
-                                    if (!mIsPolylineStarted) {
-                                        mCurrentLine = new Graphic(new Polyline(mCurrentPointCollection), mPolylinePlacementSymbol);
-                                        mCurrentPoint = new Graphic(point, mPointPlacementSymbol);
-                                        List<Graphic> graphics = new ArrayList<>();
-                                        if (mDrawingMode == DrawingMode.POLYGON) {
-                                            mCurrentPolygon = new Graphic(new Polygon(mCurrentPointCollection), mPolygonFillSymbol);
-                                            mGraphics.add(mCurrentPolygon);
-                                            graphics.add(mCurrentPolygon);
-                                        }
-                                        mGraphics.add(mCurrentLine);
-                                        mGraphics.add(mCurrentPoint);
-                                        graphics.add(mCurrentLine);
-                                        graphics.add(mCurrentPoint);
-                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POINT, graphics));
-                                        mIsPolylineStarted = true;
-                                    } else {
-                                        addPolylinePoint(point);
-                                        queueUndoRedoItem(mUndoElementStack, new UndoRedoItem(UndoRedoItem.Event.ADD_POLYLINE_POINT, null));
+                                    boolean graphicsIsEmpty = mGraphics.isEmpty();
+                                    if (graphicsWasEmpty && !graphicsIsEmpty) {
+                                        mListener.onClearStateChanged(true);
+                                    } else if (!graphicsWasEmpty && graphicsIsEmpty) {
+                                        mListener.onClearStateChanged(false);
                                     }
+                                    clearStack(mRedoElementStack);
                                 }
-                                boolean graphicsIsEmpty = mGraphics.isEmpty();
-                                if (graphicsWasEmpty && !graphicsIsEmpty) {
-                                    mListener.onClearStateChanged(true);
-                                } else if (!graphicsWasEmpty && graphicsIsEmpty) {
-                                    mListener.onClearStateChanged(false);
-                                }
-                                clearStack(mRedoElementStack);
                             }
                         } catch (InterruptedException | ExecutionException ie) {
                             ie.printStackTrace();
@@ -924,7 +923,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(context, PhotoActivity.class));
                 break;
             case R.id.ll_notice:
-                Intent intent1 = new Intent(context,NoticeActivity.class);
+                Intent intent1 = new Intent(context, NoticeActivity.class);
                 startActivity(intent1);
                 break;
             case R.id.iv_location:

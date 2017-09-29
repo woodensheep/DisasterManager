@@ -54,21 +54,6 @@ public class MyReceiver extends MessageReceiver {
         manager= (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         String msg=cPushMessage.getContent();
         LogUtils.d(TAG,msg);
-        try {
-            message=new Message();
-            JSONObject object=new JSONObject(msg);
-            message.setInvite_userId(object.getInt("userid"));
-            message.setRoom_id(object.getInt("roomid"));
-            message.setPush_msg(object.getString("message"));
-            sendNotification(context);
-            Intent intent=new Intent();
-            intent.putExtra("MESSAGE",message);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setClass(context,ReceiveVideoActivity.class);
-            context.startActivity(intent);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     private void sendNotification(Context context) {

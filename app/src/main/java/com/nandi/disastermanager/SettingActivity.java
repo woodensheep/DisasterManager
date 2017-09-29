@@ -124,6 +124,7 @@ public class SettingActivity extends Activity {
     private String level;
     private String password;
     private String name;
+    private boolean openGprs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +138,7 @@ public class SettingActivity extends Activity {
 
     /*初始化数据*/
     private void initView() {
+        openGprs = (boolean) SharedUtils.getShare(this, Constant.isOpenGPRS, false);
         name = (String) SharedUtils.getShare(this, Constant.USER_NAME, "");
         id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
         level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
@@ -147,14 +149,12 @@ public class SettingActivity extends Activity {
         etUserName.setText(name);
         etUserName.setEnabled(false);
             /*设置初始化网络选择*/
-        if ((Boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
+        if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, false)) {
             toggleBtn.setChecked(true);
         } else {
             toggleBtn.setChecked(false);
         }
         setListener();
-
-
     }
 
     private void setListener() {
@@ -283,7 +283,7 @@ public class SettingActivity extends Activity {
                             String remark = object.optString("remark");
                             if ("1".equals(aStatic)) {
                                 message.setText(remark);
-                                new DownloadUtils(mContext).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do","app-release.apk");
+                                new DownloadUtils(mContext).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do", "app-release.apk");
                             } else {
                                 message.setText("当前已经是最新版本");
                             }
@@ -309,7 +309,6 @@ public class SettingActivity extends Activity {
 
             @Override
             public void onResponse(final String response, int id) {
-
                 SharedUtils.putShare(mContext, Constant.SAVE_DIS_TIME, new Date().getTime());
                 GreenDaoManager.deleteDisaster();
                 Gson gson = new Gson();
@@ -373,7 +372,6 @@ public class SettingActivity extends Activity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
             }
         });
 
@@ -434,7 +432,6 @@ public class SettingActivity extends Activity {
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-
                 upMonDatas();
             }
 
@@ -491,16 +488,11 @@ public class SettingActivity extends Activity {
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                         , "guizhou.tpk");
                 if (!file.exists()) {
-                    if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
-                        Intent intent = new Intent(mContext,DownloadMapService.class);
-                        startService(intent);
+                    if (NetworkUtils.isWifiConnected()) {
+                        startService(new Intent(mContext, DownloadMapService.class));
                     } else {
-                        if (NetworkUtils.isWifiConnected()) {
-                            Intent intent = new Intent(mContext,DownloadMapService.class);
-                            startService(intent);
-                            Log.i(TAG, "不允许4G时更新");
-                        } else {
-                            message.setText("当前不是WIFI状态不能更新");
+                        if (NetworkUtils.is4G() && openGprs) {
+                            startService(new Intent(mContext, DownloadMapService.class));
                         }
                     }
                 } else {
@@ -545,40 +537,29 @@ public class SettingActivity extends Activity {
                 llChangePassword.setVisibility(View.GONE);
                 break;
             case R.id.downloadMonitor:
-                if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
+                if (NetworkUtils.isWifiConnected()) {
                     upMonData();
                 } else {
-                    if (NetworkUtils.isWifiConnected()) {
+                    if (NetworkUtils.is4G() && openGprs) {
                         upMonData();
-                        Log.i(TAG, "不允许4G时更新");
-                    } else {
-                        message.setText("当前不是WIFI状态不能更新");
                     }
                 }
-
                 break;
             case R.id.downloadDisater:
-                if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
+                if (NetworkUtils.isWifiConnected()) {
                     upDisData();
                 } else {
-                    if (NetworkUtils.isWifiConnected()) {
+                    if (NetworkUtils.is4G() && openGprs) {
                         upDisData();
-                        Log.i(TAG, "不允许4G时更新");
-                    } else {
-                        message.setText("当前不是WIFI状态不能更新");
                     }
                 }
-
                 break;
             case R.id.downloadMonDate:
-                if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
+                if (NetworkUtils.isWifiConnected()) {
                     upMonDatas();
                 } else {
-                    if (NetworkUtils.isWifiConnected()) {
+                    if (NetworkUtils.is4G() && openGprs) {
                         upMonDatas();
-                        Log.i(TAG, "不允许4G时更新");
-                    } else {
-                        message.setText("当前不是WIFI状态不能更新");
                     }
                 }
                 break;

@@ -5,8 +5,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
@@ -46,6 +44,7 @@ public class ReplaceService extends Service {
     private String level;
     private String name;
     private String password;
+    private boolean openGprs;
 
     @Override
     public void onCreate() {
@@ -56,6 +55,7 @@ public class ReplaceService extends Service {
         password = (String) SharedUtils.getShare(this, Constant.PASSWORD, "");
         id = (String) SharedUtils.getShare(this, Constant.AREA_ID, "");
         level = (String) SharedUtils.getShare(this, Constant.LEVEL, "");
+        openGprs = (boolean) SharedUtils.getShare(this, Constant.isOpenGPRS, false);
         new Thread() {
             @Override
             public void run() {
@@ -63,45 +63,31 @@ public class ReplaceService extends Service {
                 while (true) {
                     try {
                         if (isDisRequest()) {
-                            loginPost();
-                            if ((boolean) SharedUtils.getShare(context, Constant.isOpenGPRS, true)) {
-                                upDisData();
-                            } else {
-                                if (NetworkUtils.isWifiConnected()) {
-                                    upDisData();
-                                    Log.i(TAG, "不允许4G时更新");
-                                } else {
-                                    ToastUtils.showShort(context, "当前不是WIFI状态不能更新");
+                            if (NetworkUtils.isWifiConnected()) {
+                                loginPost(1);
+                            }else {
+                                if (NetworkUtils.is4G()&&openGprs){
+                                    loginPost(1);
                                 }
                             }
-                            Log.d(TAG, "开始请求数据");
                         }
                         if (isMonRequest()) {
-                            loginPost();
-                            if ((boolean) SharedUtils.getShare(context, Constant.isOpenGPRS, true)) {
-                                upMonData();
-                            } else {
-                                if (NetworkUtils.isWifiConnected()) {
-                                    upMonData();
-                                    Log.i(TAG, "不允许4G时更新");
-                                } else {
-                                    ToastUtils.showShort(context, "当前不是WIFI状态不能更新");
+                            if (NetworkUtils.isWifiConnected()) {
+                                loginPost(2);
+                            }else {
+                                if (NetworkUtils.is4G()&&openGprs){
+                                    loginPost(2);
                                 }
                             }
                         }
                         if (isMonDataRequest()) {
-                            loginPost();
-                            if ((boolean) SharedUtils.getShare(context, Constant.isOpenGPRS, true)) {
-                                upMonDatas();
-                            } else {
-                                if (NetworkUtils.isWifiConnected()) {
-                                    upMonDatas();
-                                    Log.i(TAG, "不允许4G时更新");
-                                } else {
-                                    ToastUtils.showShort(context, "当前不是WIFI状态不能更新");
+                            if (NetworkUtils.isWifiConnected()) {
+                                loginPost(3);
+                            }else {
+                                if (NetworkUtils.is4G()&&openGprs){
+                                    loginPost(3);
                                 }
                             }
-                            Log.d(TAG, "开始请求数据");
                         }
 
                         Thread.sleep(5 * 60 * 1000);
@@ -116,20 +102,30 @@ public class ReplaceService extends Service {
 
     /**
      * 登录请求
+     * @param i
      */
 
-    private void loginPost() {
+    private void loginPost(final int i) {
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + name + "/" + password + "/2")
                 .build()
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        ToastUtils.showShort(context, "获取权限失败");
                     }
 
                     @Override
                     public void onResponse(final String response, int id) {
-
+                        switch (i){
+                            case 1:
+                                upDisData();
+                                break;
+                            case 2:
+                                upMonData();
+                                break;
+                            case 3:
+                                upMonDatas();
+                                break;
+                        }
                     }
                 });
 
