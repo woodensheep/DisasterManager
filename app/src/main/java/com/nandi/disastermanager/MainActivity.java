@@ -255,7 +255,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setLine();
         bindAccount();//绑定推送账号，暂时不用
         initUtilData();
-        loginPost((String) SharedUtils.getShare(context, Constant.USER_NAME, ""), (String) SharedUtils.getShare(context, Constant.PASSWORD, ""));
+        if (NetworkUtils.isConnected()) {
+            loginPost((String) SharedUtils.getShare(context, Constant.USER_NAME, ""), (String) SharedUtils.getShare(context, Constant.PASSWORD, ""));
+        } else {
+            initStaData();
+        }
         gzDianZhiLayer = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_dianzi_url));
         gzYingXiangLayer = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_yingxiang_url));
         gzYingXiangLayerHigh = new ArcGISTiledLayer(getResources().getString(R.string.guizhou_yingxiang_url_1));
@@ -319,11 +323,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onResponse(final String response, int id) {
                         checkUpdate();
-                        if (NetworkUtils.isConnected()) {
-                            setStatics();
-                        } else {
-                            initStaData();
-                        }
+                        setStatics();
                     }
                 });
 
