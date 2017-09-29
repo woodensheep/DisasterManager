@@ -63,6 +63,7 @@ public class DownloadMapService extends Service {
             int l1 = (int) Math.ceil(soFarBytes / l);
             builder.setProgress(100,l1,false);
             builder.setContentText("已下载"+l1+"%");
+            manager.notify(1,builder.build());
         }
 
         @Override

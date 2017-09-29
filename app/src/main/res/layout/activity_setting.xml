@@ -349,12 +349,10 @@
         android:orientation="vertical"
         android:padding="10dp"
         android:visibility="gone">
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
             <ImageView
                 android:id="@+id/rl_back_3"
                 android:layout_width="wrap_content"
@@ -362,7 +360,6 @@
                 android:layout_centerVertical="true"
                 android:gravity="center"
                 android:src="@drawable/icon_back" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -392,7 +389,6 @@
             android:layout_marginTop="15dp"
             android:background="#55b2b2b2"
             android:orientation="horizontal">
-
             <EditText
                 android:id="@+id/et_password"
                 android:layout_width="0dp"
@@ -406,7 +402,6 @@
                 android:textColorHint="#b3b3b3"
                 android:textColor="#fff"
                 android:inputType="textPassword" />
-
             <ImageView
                 android:id="@+id/showeyes_btn1"
                 android:visibility="gone"

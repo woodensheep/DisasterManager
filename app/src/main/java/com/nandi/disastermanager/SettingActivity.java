@@ -145,11 +145,10 @@ public class SettingActivity extends Activity {
         userLevel.setText(GreenDaoManager.queryAreaLevel(Integer.parseInt(level)).get(0).getName());
         password = (String) SharedUtils.getShare(this, Constant.PASSWORD, "");
         userName.setText(name);
-
         etUserName.setText(name);
         etUserName.setEnabled(false);
             /*设置初始化网络选择*/
-        if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, false)) {
+        if (openGprs) {
             toggleBtn.setChecked(true);
         } else {
             toggleBtn.setChecked(false);
@@ -159,11 +158,8 @@ public class SettingActivity extends Activity {
 
     private void setListener() {
         toggleBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
             @Override
-            public void onCheckedChanged(CompoundButton buttonView,
-                                         boolean isChecked) {
-                // TODO Auto-generated method stub
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     Log.i(TAG, "选择允许");
                     SharedUtils.putShare(mContext, Constant.isOpenGPRS, true);
@@ -490,9 +486,11 @@ public class SettingActivity extends Activity {
                 if (!file.exists()) {
                     if (NetworkUtils.isWifiConnected()) {
                         startService(new Intent(mContext, DownloadMapService.class));
+                        ToastUtils.showShort(mContext, "开始下载地图包");
                     } else {
                         if (NetworkUtils.is4G() && openGprs) {
                             startService(new Intent(mContext, DownloadMapService.class));
+                            ToastUtils.showShort(mContext, "开始下载地图包");
                         }
                     }
                 } else {
