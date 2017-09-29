@@ -3,7 +3,6 @@ package com.nandi.disastermanager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
@@ -102,14 +101,8 @@ public class SettingActivity extends Activity {
     ImageView rlBack2;
     @BindView(R.id.rl_back_3)
     ImageView rlBack3;
-    @BindView(R.id.message)
-    TextView message;
-    @BindView(R.id.downloadMonitor)
-    TextView downloadMonitor;
     @BindView(R.id.downloadDisater)
     TextView downloadDisater;
-    @BindView(R.id.downloadMonDate)
-    TextView downloadMonDate;
     @BindView(R.id.toggle_btn)
     ToggleButton toggleBtn;
     @BindView(R.id.showeyes_btn1)
@@ -118,6 +111,12 @@ public class SettingActivity extends Activity {
     ImageView showeyesBtn2;
     @BindView(R.id.showeyes_btn3)
     ImageView showeyesBtn3;
+    @BindView(R.id.downloadMonitor)
+    TextView downloadMonitor;
+    @BindView(R.id.downloadMonDate)
+    TextView downloadMonDate;
+    @BindView(R.id.downloadLocation)
+    TextView downloadLocation;
 
     private Context mContext;
     private String id;
@@ -268,7 +267,7 @@ public class SettingActivity extends Activity {
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        message.setText("获取最新版本失败，请稍后重试");
+                        ToastUtils.showShort(mContext,"获取最新版本失败，请稍后重试");
                     }
 
                     @Override
@@ -278,10 +277,11 @@ public class SettingActivity extends Activity {
                             String aStatic = object.optString("static");
                             String remark = object.optString("remark");
                             if ("1".equals(aStatic)) {
-                                message.setText(remark);
+
+                                ToastUtils.showShort(mContext,remark);
                                 new DownloadUtils(mContext).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do", "app-release.apk");
                             } else {
-                                message.setText("当前已经是最新版本");
+                                ToastUtils.showShort(mContext,"当前已经是最新版本");
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -294,7 +294,6 @@ public class SettingActivity extends Activity {
     /*APP更新灾害点数据*/
     private void upDisData() {
         WaitingDialog.createLoadingDialog(mContext, "正在下载...");
-        message.setText("正在更新灾害点信息");
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisasterPoint/" + id + "/" + level)
                 .build();
         build.execute(new StringCallback() {
@@ -363,8 +362,8 @@ public class SettingActivity extends Activity {
                             }
                         }
                     }.start();
+                    ToastUtils.showShort(mContext, "更新灾害点信息成功");
                     WaitingDialog.closeDialog();
-                    message.setText("更新灾害点信息成功");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -376,7 +375,6 @@ public class SettingActivity extends Activity {
     /*APP更新监测点列表*/
     private void upMonData() {
         WaitingDialog.createLoadingDialog(mContext, "正在下载...");
-        message.setText("正在更新监测点信息");
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listMonitorOrigin/" + id + "/" + level)
                 .build();
         build.execute(new StringCallback() {
@@ -408,7 +406,7 @@ public class SettingActivity extends Activity {
                         }
                     }.start();
                     WaitingDialog.closeDialog();
-                    message.setText("更新灾害点信息成功");
+                    ToastUtils.showShort(mContext, "更新监测点信息成功");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -421,7 +419,6 @@ public class SettingActivity extends Activity {
     /*APP更新监测点数据*/
     private void upMonDatas() {
         WaitingDialog.createLoadingDialog(mContext, "正在下载...");
-        message.setText("正在更新灾害点数据信息");
         String url = getString(R.string.base_gz_url) + "/appdocking/listMonitor/" + id + "/" + level;
         RequestCall build = OkHttpUtils.get().url(url)
                 .build();
@@ -453,7 +450,7 @@ public class SettingActivity extends Activity {
                             }
                         }
                     }.start();
-                    message.setText("更新灾害点数据信息成功");
+                    ToastUtils.showShort(mContext, "更新监测点数据信息成功");
                     WaitingDialog.closeDialog();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -467,8 +464,9 @@ public class SettingActivity extends Activity {
     @OnClick({R.id.download, R.id.changePassword, R.id.downloadMap,
             R.id.downloadApp, R.id.changeSure, R.id.downloadMonDate,
             R.id.changeStop, R.id.rl_back_1, R.id.rl_back_2, R.id.logOut,
-            R.id.rl_back_3, R.id.downloadMonitor, R.id.downloadDisater,
-            R.id.showeyes_btn1, R.id.showeyes_btn2, R.id.showeyes_btn3})
+            R.id.rl_back_3, R.id.downloadDisater, R.id.downloadMonitor,
+            R.id.downloadLocation,R.id.showeyes_btn1, R.id.showeyes_btn2,
+            R.id.showeyes_btn3})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.download:
@@ -484,29 +482,100 @@ public class SettingActivity extends Activity {
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                         , "guizhou.tpk");
                 if (!file.exists()) {
-                    if (NetworkUtils.isWifiConnected()) {
-                        startService(new Intent(mContext, DownloadMapService.class));
-                        ToastUtils.showShort(mContext, "开始下载地图包");
-                    } else {
-                        if (NetworkUtils.is4G() && openGprs) {
+                    if (NetworkUtils.isConnected()) {
+                        if (NetworkUtils.isWifiConnected()) {
                             startService(new Intent(mContext, DownloadMapService.class));
                             ToastUtils.showShort(mContext, "开始下载地图包");
+                        } else {
+                            if (openGprs) {
+                                startService(new Intent(mContext, DownloadMapService.class));
+                                ToastUtils.showShort(mContext, "开始下载地图包");
+                            } else {
+                                ToastUtils.showShort(mContext, "请打开允许4G开关");
+                            }
+                        }
+                    } else {
+                        ToastUtils.showShort(mContext, "没有网络请稍后");
+                    }
+                } else {
+                    ToastUtils.showShort(mContext,"地图文件已存在");
+                }
+                break;
+            case R.id.downloadMonDate:
+                if (NetworkUtils.isConnected()) {
+                    if (NetworkUtils.isWifiConnected()) {
+                        upMonDatas();
+                    } else {
+                        if (openGprs) {
+                            upMonDatas();
+                        } else {
+                            ToastUtils.showShort(mContext, "请打开允许4G开关");
                         }
                     }
                 } else {
-                    message.setText("地图文件已存在");
+                    ToastUtils.showShort(mContext, "没有网络请稍后");
                 }
+
+                break;
+            case R.id.downloadMonitor:
+                if (NetworkUtils.isConnected()) {
+                    if (NetworkUtils.isWifiConnected()) {
+                        upMonData();
+                    } else {
+                        if (openGprs) {
+                            upMonData();
+                        } else {
+                            ToastUtils.showShort(mContext, "请打开允许4G开关");
+                        }
+                    }
+                } else {
+                    ToastUtils.showShort(mContext, "没有网络请稍后");
+                }
+
                 break;
             case R.id.downloadApp:
-                if ((boolean) SharedUtils.getShare(mContext, Constant.isOpenGPRS, true)) {
-                    checkUpdate();
-                } else {
+                if (NetworkUtils.isConnected()) {
                     if (NetworkUtils.isWifiConnected()) {
                         checkUpdate();
-                        Log.i(TAG, "不允许4G时更新");
                     } else {
-                        message.setText("当前不是WIFI状态不能更新");
+                        if (openGprs) {
+                            checkUpdate();
+                        } else {
+                            ToastUtils.showShort(mContext, "请打开允许4G开关");
+                        }
                     }
+                } else {
+                    ToastUtils.showShort(mContext, "没有网络请稍后");
+                }
+                break;
+            case R.id.downloadDisater:
+                if (NetworkUtils.isConnected()) {
+                    if (NetworkUtils.isWifiConnected()) {
+                        upDisData();
+                    } else {
+                        if (openGprs) {
+                            upDisData();
+                        } else {
+                            ToastUtils.showShort(mContext, "请打开允许4G开关");
+                        }
+                    }
+                } else {
+                    ToastUtils.showShort(mContext, "没有网络请稍后");
+                }
+                break;
+            case R.id.downloadLocation:
+                if (NetworkUtils.isConnected()) {
+                    if (NetworkUtils.isWifiConnected()) {
+                        upLocation();
+                    } else {
+                        if (openGprs) {
+                            upLocation();
+                        } else {
+                            ToastUtils.showShort(mContext, "请打开允许4G开关");
+                        }
+                    }
+                } else {
+                    ToastUtils.showShort(mContext, "没有网络请稍后");
                 }
                 break;
             case R.id.changeSure:
@@ -533,33 +602,6 @@ public class SettingActivity extends Activity {
             case R.id.rl_back_3:
                 userMessage.setVisibility(View.VISIBLE);
                 llChangePassword.setVisibility(View.GONE);
-                break;
-            case R.id.downloadMonitor:
-                if (NetworkUtils.isWifiConnected()) {
-                    upMonData();
-                } else {
-                    if (NetworkUtils.getDataEnabled() && openGprs) {
-                        upMonData();
-                    }
-                }
-                break;
-            case R.id.downloadDisater:
-                if (NetworkUtils.isWifiConnected()) {
-                    upDisData();
-                } else {
-                    if (NetworkUtils.getDataEnabled() && openGprs) {
-                        upDisData();
-                    }
-                }
-                break;
-            case R.id.downloadMonDate:
-                if (NetworkUtils.isWifiConnected()) {
-                    upMonDatas();
-                } else {
-                    if (NetworkUtils.getDataEnabled() && openGprs) {
-                        upMonDatas();
-                    }
-                }
                 break;
             case R.id.logOut:
                 outData();
@@ -595,6 +637,9 @@ public class SettingActivity extends Activity {
                 }
                 break;
         }
+    }
+
+    private void upLocation() {
     }
 
     /*APP注销*/

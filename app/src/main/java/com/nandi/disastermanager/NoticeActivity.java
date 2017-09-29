@@ -36,6 +36,8 @@ public class NoticeActivity extends Activity {
     TextView noticeTitle;
     @BindView(R.id.notice_time)
     TextView noticeTime;
+    @BindView(R.id.notice_content)
+    TextView noticeContent;
     private NoticeAdapter noticeAdapter;
     private NoticeInfo noticeInfo;
     private Context mContext;
@@ -98,9 +100,10 @@ public class NoticeActivity extends Activity {
                         noticeInfo = gson.fromJson(response, NoticeInfo.class);
                         setAdapter();
                         if (noticeInfo.getData().size() > 0) {
-                           noticeTitle.setText("\u3000\u3000"+noticeInfo.getData().get(noticeInfo.getData().size() - 1).getContent());
+                            noticeTitle.setText(noticeInfo.getData().get(noticeInfo.getData().size() - 1).getTitle());
                             noticeTime.setText(noticeInfo.getData().get(noticeInfo.getData().size() - 1).getAnn_time());
-                        }else{
+                            noticeContent.setText("\u3000\u3000" + noticeInfo.getData().get(noticeInfo.getData().size() - 1).getContent());
+                        } else {
                             noticeTitle.setText("暂无公告");
                             noticeTitle.setTextSize(30);
                             dateShow.setVisibility(View.GONE);
@@ -119,7 +122,8 @@ public class NoticeActivity extends Activity {
             public void onClick(int position) {
                 if (noticeInfo.getData().size() > 0) {
                     noticeTime.setText(noticeInfo.getData().get(noticeInfo.getData().size() - position - 1).getAnn_time());
-                    noticeTitle.setText("\u3000\u3000" + noticeInfo.getData().get(noticeInfo.getData().size() - position - 1).getContent());
+                    noticeTitle.setText(noticeInfo.getData().get(noticeInfo.getData().size() - position - 1).getTitle());
+                    noticeContent.setText("\u3000\u3000" + noticeInfo.getData().get(noticeInfo.getData().size() - position - 1).getContent());
 
                 }
             }

@@ -63,29 +63,35 @@ public class ReplaceService extends Service {
                 while (true) {
                     try {
                         if (isDisRequest()) {
-                            if (NetworkUtils.isWifiConnected()) {
-                                loginPost(1);
-                            }else {
-                                if (NetworkUtils.getDataEnabled()&&openGprs){
+                            if (NetworkUtils.isConnected()) {
+                                if (NetworkUtils.isWifiConnected()) {
                                     loginPost(1);
+                                } else {
+                                    if (openGprs) {
+                                        loginPost(1);
+                                    }
                                 }
                             }
                         }
                         if (isMonRequest()) {
-                            if (NetworkUtils.isWifiConnected()) {
-                                loginPost(2);
-                            }else {
-                                if (NetworkUtils.getDataEnabled()&&openGprs){
+                            if (NetworkUtils.isConnected()) {
+                                if (NetworkUtils.isWifiConnected()) {
                                     loginPost(2);
+                                } else {
+                                    if (openGprs) {
+                                        loginPost(2);
+                                    }
                                 }
                             }
                         }
                         if (isMonDataRequest()) {
-                            if (NetworkUtils.isWifiConnected()) {
-                                loginPost(3);
-                            }else {
-                                if (NetworkUtils.getDataEnabled()&&openGprs){
+                            if (NetworkUtils.isConnected()) {
+                                if (NetworkUtils.isWifiConnected()) {
                                     loginPost(3);
+                                } else {
+                                    if (openGprs) {
+                                        loginPost(3);
+                                    }
                                 }
                             }
                         }

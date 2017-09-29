@@ -13,9 +13,6 @@
         android:text="内容"
         android:textColor="#00f3f3"
         android:background="@drawable/notice_item_selector"
-        android:clickable="true"
-        android:focusableInTouchMode="true"
-        android:focusable="true"
         android:padding="10dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
