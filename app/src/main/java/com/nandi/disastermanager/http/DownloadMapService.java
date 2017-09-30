@@ -59,7 +59,7 @@ public class DownloadMapService extends Service {
         @Override
         protected void progress(BaseDownloadTask task, long soFarBytes, long totalBytes) {
             Log.d(TAG, "progress/soFarBytes:" + soFarBytes + "/totalBytes:" + totalBytes);
-            long l = totalBytes / 100;
+            long l = 2282787977L / 100;
             int l1 = (int) Math.ceil(soFarBytes / l);
             builder.setProgress(100, l1, false);
             builder.setContentText("已下载" + l1 + "%");
