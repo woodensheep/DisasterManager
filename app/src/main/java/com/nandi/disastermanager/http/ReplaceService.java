@@ -190,7 +190,6 @@ public class ReplaceService extends Service {
 
     /*灾害点数据的请求*/
     private void upDisData() {
-
         RequestCall build = OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/listDisasterPoint/" + id + "/" + level)
                 .build();
         build.execute(new StringCallback() {
@@ -410,6 +409,5 @@ public class ReplaceService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("123", "onDestroy被执行了");
     }
 }
