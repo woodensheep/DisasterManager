@@ -32,6 +32,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.google.gson.Gson;
 import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
+import com.nandi.disastermanager.SettingActivity;
 import com.nandi.disastermanager.dao.GreenDaoManager;
 import com.nandi.disastermanager.search.entity.ChartData;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
@@ -89,6 +90,8 @@ public class MonitorDataActivity extends Activity {
     private List<MonitorPoint> monitorPoints;
     private String name;
     private String password;
+    public static final int MIN_CLICK_DELAY_TIME = 1000;
+    private long lastClickTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,12 +102,12 @@ public class MonitorDataActivity extends Activity {
         MyApplication.getActivities().add(this);
         name = (String) SharedUtils.getShare(this, Constant.USER_NAME, "");
         password = (String) SharedUtils.getShare(this, Constant.PASSWORD, "");
+        loginPost();
         setAdapter();
     }
 
     private void setAdapter() {
         ID = getIntent().getStringExtra("ID");
-
         monitorPoints = GreenDaoManager.queryMonitorData(ID);
         if (monitorPoints.size() == 0) {
             ToastUtils.showShort(mContext, "当前没有监测点数据");
@@ -116,7 +119,11 @@ public class MonitorDataActivity extends Activity {
                 public void onClick(int position) {
                     String id = monitorPoints.get(position).getMonitorId();
                     String time = monitorPoints.get(position).getTime();
-                    downloadPhoto(id, time);
+                    long currentTime = Calendar.getInstance().getTimeInMillis();
+                    if (currentTime - lastClickTime > MIN_CLICK_DELAY_TIME) {
+                        lastClickTime = currentTime;
+                        downloadPhoto(id, time);
+                    }
                 }
             });
             dateShow.setAdapter(monitorAdapter);
@@ -146,7 +153,6 @@ public class MonitorDataActivity extends Activity {
     }
 
     private void monitorCurveRequest(String id, String startTime, String endTime) {
-        loginPost();
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/tabcollect/findHighcharts/" + id + "/" + startTime + "/" + endTime)
                 .build()
                 .execute(new StringCallback() {
@@ -171,7 +177,6 @@ public class MonitorDataActivity extends Activity {
     }
 
     private void downloadPhoto(String id, String time) {
-        loginPost();
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/detection/findPhoto/" + id + "/" + time)
                 .build()
                 .execute(new StringCallback() {

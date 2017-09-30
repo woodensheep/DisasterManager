@@ -145,7 +145,7 @@ public class ReplaceService extends Service {
          *创建Notification
          */
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setSmallIcon(R.mipmap.icon);
+        builder.setSmallIcon(R.drawable.icon);
         builder.setContentTitle("前台服务");
         builder.setContentText("后台数据持续更新");
         Intent intent = new Intent(this, MainActivity.class);

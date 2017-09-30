@@ -83,6 +83,7 @@ public class DownloadMapService extends Service {
         protected void error(BaseDownloadTask task, Throwable e) {
             Log.d(TAG, "error/" + e.getMessage());
             builder.setProgress(0, 0, false);
+            builder.setAutoCancel(true);
             builder.setContentText("下载失败，请重试");
             manager.notify(1, builder.build());
             impl.clear(id, path);

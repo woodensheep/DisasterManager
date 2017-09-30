@@ -21,6 +21,7 @@ import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -37,7 +38,8 @@ public class MonitorListActivity extends Activity {
     private MonitorListAdapter monitorListAdapter;
     private Context mContext;
     private List<MonitorListPoint> monitorListPoints;
-
+    private static final int MIN_CLICK_DELAY_TIME = 1000;
+    private long lastClickTime = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,9 +62,13 @@ public class MonitorListActivity extends Activity {
             monitorListAdapter.setOnItemClickListener(new MonitorListAdapter.OnItemClickListener() {
                 @Override
                 public void onClick(int position) {
-                    Intent intent = new Intent(mContext, MonitorDataActivity.class);
-                    intent.putExtra("ID", monitorListPoints.get(position).getMonitorId());
-                    startActivity(intent);
+                    long currentTime = Calendar.getInstance().getTimeInMillis();
+                    if (currentTime - lastClickTime > MIN_CLICK_DELAY_TIME) {
+                        lastClickTime = currentTime;
+                        Intent intent = new Intent(mContext, MonitorDataActivity.class);
+                        intent.putExtra("ID", monitorListPoints.get(position).getMonitorId());
+                        startActivity(intent);
+                    }
                 }
             });
             dateShow.setAdapter(monitorListAdapter);

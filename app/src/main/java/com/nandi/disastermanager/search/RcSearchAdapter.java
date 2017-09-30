@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
+import com.nandi.disastermanager.utils.NoDoubleClickListener;
 
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
     }
 
     //Item的ViewHolder以及item内部布局控件的id绑定
-    class ViewHolderA extends RecyclerView.ViewHolder implements View.OnClickListener{
+    class ViewHolderA extends RecyclerView.ViewHolder {
 
         TextView tv_1;
         TextView tv_2;
@@ -83,7 +84,7 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
         View view_line;
         public ViewHolderA(View itemView) {
             super(itemView);
-            itemView.setOnClickListener(this);
+            itemView.setOnClickListener(noDoubleClickListener);
             tv_1 = (TextView) itemView.findViewById(R.id.tv_search_1);
             tv_2 = (TextView) itemView.findViewById(R.id.tv_search_2);
             tv_3 = (TextView) itemView.findViewById(R.id.tv_search_3);
@@ -93,39 +94,38 @@ public class RcSearchAdapter extends RecyclerView.Adapter<RcSearchAdapter.ViewHo
             tv_7 = (TextView) itemView.findViewById(tv_search_7);
             view_line = (View) itemView.findViewById(R.id.view_line);
 
-            tv_5.setOnClickListener(this);
-            tv_6.setOnClickListener(this);
-            tv_7.setOnClickListener(this);
+            tv_5.setOnClickListener(noDoubleClickListener);
+            tv_6.setOnClickListener(noDoubleClickListener);
+            tv_7.setOnClickListener(noDoubleClickListener);
         }
+        NoDoubleClickListener noDoubleClickListener=new NoDoubleClickListener() {
+            @Override
+            public void onNoDoubleClick(View view) {
+                switch (view.getId()){
+                    case tv_search_5:
 
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()){
-                case tv_search_5:
-
-                    Intent intent1 =  new Intent(mContext,DetailDataActivity.class);
-                    intent1.putExtra("id", (Long)view.getTag());
-                    mContext.startActivity(intent1);
-                    break;
-                case tv_search_6:
-                    Intent intent =  new Intent(mContext,MonitorListActivity.class);
-                    intent.putExtra("id", (Long)view.getTag());
-                    mContext.startActivity(intent);
-                    break;
-                case tv_search_7:
-                    Intent intent2 =  new Intent(mContext,NavigationActivity.class);
-                    intent2.putExtra("id", (Long)view.getTag());
-                    mContext.startActivity(intent2);
-                    break;
-                default:
-                    if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemClick(view);
-                    }
-                    break;
+                        Intent intent1 =  new Intent(mContext,DetailDataActivity.class);
+                        intent1.putExtra("id", (Long)view.getTag());
+                        mContext.startActivity(intent1);
+                        break;
+                    case tv_search_6:
+                        Intent intent =  new Intent(mContext,MonitorListActivity.class);
+                        intent.putExtra("id", (Long)view.getTag());
+                        mContext.startActivity(intent);
+                        break;
+                    case tv_search_7:
+                        Intent intent2 =  new Intent(mContext,NavigationActivity.class);
+                        intent2.putExtra("id", (Long)view.getTag());
+                        mContext.startActivity(intent2);
+                        break;
+                    default:
+                        if (mOnItemClickListener != null) {
+                            mOnItemClickListener.onItemClick(view);
+                        }
+                        break;
+                }
             }
-
-
-        }
+        };
     }
 
 }

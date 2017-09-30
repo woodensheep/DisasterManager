@@ -3,11 +3,15 @@ package com.nandi.disastermanager;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
@@ -15,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -85,6 +90,7 @@ import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.AppUtils;
 import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.DownloadUtils;
+import com.nandi.disastermanager.utils.NoDoubleClickListener;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.SketchGraphicsOverlayEventListener;
 import com.nandi.disastermanager.utils.ToastUtils;
@@ -98,6 +104,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -108,7 +115,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     @BindView(R.id.iv_area_back)
@@ -253,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         id = (String) SharedUtils.getShare(context, Constant.AREA_ID, "");
         level = (String) SharedUtils.getShare(context, Constant.LEVEL, "");
         setLine();
-        bindAccount();//绑定推送账号，暂时不用
+        bindAccount();
         initUtilData();
         if (NetworkUtils.isConnected()) {
             loginPost((String) SharedUtils.getShare(context, Constant.USER_NAME, ""), (String) SharedUtils.getShare(context, Constant.PASSWORD, ""));
@@ -278,6 +285,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setListeners();
         startUpdateService();
         turnOnLocation();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(connectionReceiver, intentFilter);
     }
 
     private void initMap() {
@@ -296,7 +306,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //初始显示的地图
         if (NetworkUtils.isConnected()) {
             layers.add(gzDianZhiLayer);
-//            layers.add(new ArcGISTiledLayer(getResources().getString(R.string.chongqing_url)));
         } else {
             if (file.exists()) {
                 layers.add(localeDianZhiLayer);
@@ -466,6 +475,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             JSONObject object = new JSONObject(response);
                             String aStatic = object.optString("static");
                             String remark = object.optString("remark");
+                            if (TextUtils.isEmpty(remark)){
+                                remark="发现新版本，是否立即更新？";
+                            }
                             if ("1".equals(aStatic)) {
                                 showNoticeDialog(remark);
                             }
@@ -646,18 +658,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setListeners() {
-        llPhoto.setOnClickListener(this);
-        llNotice.setOnClickListener(this);
-        ivRoute.setOnClickListener(this);
-        ivLocation.setOnClickListener(this);
-        ivChangeMap.setOnClickListener(this);
-        llEnlarge.setOnClickListener(this);
-        llNarrow.setOnClickListener(this);
-        llCompass.setOnClickListener(this);
-        ivSearchMain.setOnClickListener(this);
-        btnUtil.setOnClickListener(this);
-        ivAreaBack.setOnClickListener(this);
-        llUserMessage.setOnClickListener(this);
+        llPhoto.setOnClickListener(noDoubleClickListener);
+        llNotice.setOnClickListener(noDoubleClickListener);
+        ivRoute.setOnClickListener(noDoubleClickListener);
+        ivLocation.setOnClickListener(noDoubleClickListener);
+        ivChangeMap.setOnClickListener(noDoubleClickListener);
+        llEnlarge.setOnClickListener(noDoubleClickListener);
+        llNarrow.setOnClickListener(noDoubleClickListener);
+        llCompass.setOnClickListener(noDoubleClickListener);
+        ivSearchMain.setOnClickListener(noDoubleClickListener);
+        btnUtil.setOnClickListener(noDoubleClickListener);
+        ivAreaBack.setOnClickListener(noDoubleClickListener);
+        llUserMessage.setOnClickListener(noDoubleClickListener);
         mapView.setOnTouchListener(new DefaultMapViewOnTouchListener(context, mapView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -914,59 +926,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return dialog;
     }
 
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.ll_photo:
-                startActivity(new Intent(context, PhotoActivity.class));
-                break;
-            case R.id.ll_notice:
-                Intent intent1 = new Intent(context, NoticeActivity.class);
-                startActivity(intent1);
-                break;
-            case R.id.iv_location:
-                setLocation();
-                break;
-            case R.id.iv_route:
-                setRoute();
-                break;
-            case R.id.iv_change_map:
-                changeBaseMap();
-                break;
-            case R.id.ll_enlarge:
-                setEnlarge();
-                break;
-            case R.id.ll_narrow:
-                setNarrow();
-                break;
-            case R.id.iv_area_back:
-                setAreaBack();
-                break;
-            case R.id.iv_search_main:
-                List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
-                if (disasterPoints.size() == 0) {
-                    ToastUtils.showShort(context, "正在加载请稍候...");
-                } else {
-                    WaitingDialog.createLoadingDialog(context, "正在加载");
-                    Intent intent = new Intent(context, SearchActivity.class);
-                    intent.putExtra("ID", id);
-                    intent.putExtra("LEVEL", level);
+    NoDoubleClickListener noDoubleClickListener = new NoDoubleClickListener() {
+        @Override
+        public void onNoDoubleClick(View v) {
+            switch (v.getId()) {
+                case R.id.ll_photo:
+                    startActivity(new Intent(context, PhotoActivity.class));
+                    break;
+                case R.id.ll_notice:
+                    Intent intent1 = new Intent(context, NoticeActivity.class);
+                    startActivity(intent1);
+                    break;
+                case R.id.iv_location:
+                    setLocation();
+                    break;
+                case R.id.iv_route:
+                    setRoute();
+                    break;
+                case R.id.iv_change_map:
+                    changeBaseMap();
+                    break;
+                case R.id.ll_enlarge:
+                    setEnlarge();
+                    break;
+                case R.id.ll_narrow:
+                    setNarrow();
+                    break;
+                case R.id.iv_area_back:
+                    setAreaBack();
+                    break;
+                case R.id.iv_search_main:
+                    List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
+                    if (disasterPoints.size() == 0) {
+                        ToastUtils.showShort(context, "正在加载请稍候...");
+                    } else {
+                        WaitingDialog.createLoadingDialog(context, "正在加载");
+                        Intent intent = new Intent(context, SearchActivity.class);
+                        startActivity(intent);
+                    }
+                    break;
+                case R.id.ll_userMessage:
+                    Intent intent = new Intent(context, SettingActivity.class);
                     startActivity(intent);
-                }
-                break;
-            case R.id.ll_userMessage:
-                Intent intent = new Intent(context, SettingActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.ll_compass:
-                resetPosition();
-                break;
-            case R.id.btn_util:
-                setUtilBack();
-                break;
+                    break;
+                case R.id.ll_compass:
+                    resetPosition();
+                    break;
+                case R.id.btn_util:
+                    setUtilBack();
+                    break;
+            }
         }
-    }
+    };
 
     private void setLocation() {
         if (location == 0) {
@@ -1736,6 +1747,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(connectionReceiver);
     }
 
     @Override
@@ -1761,4 +1773,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }).show();
     }
+    BroadcastReceiver connectionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ConnectivityManager connectMgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            NetworkInfo mobNetInfo = connectMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            NetworkInfo wifiNetInfo = connectMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
+                Log.d("cp","断网了");
+                if (file.exists()){
+                    layers.clear();
+                    layers.add(localeDianZhiLayer);
+                }else {
+                    ToastUtils.showShort(context,"网络断开，离线地图未找到");
+                }
+            }else {
+                Log.d("cp","有网了");
+                if (!layers.contains(gzDianZhiLayer)){
+                    layers.clear();
+                    layers.add(gzDianZhiLayer);
+                }
+            }
+        }
+    };
 }

@@ -713,7 +713,6 @@ public class SettingActivity extends Activity {
         SharedUtils.removeShare(mContext, Constant.SAVE_MON_TIME);
         SharedUtils.removeShare(mContext, Constant.SAVE_MONDATA_TIME);
         SharedUtils.removeShare(mContext, Constant.IS_LOGIN);
-
         PushServiceFactory.getCloudPushService().turnOffPushChannel(new CommonCallback() {
             @Override
             public void onSuccess(String s) {

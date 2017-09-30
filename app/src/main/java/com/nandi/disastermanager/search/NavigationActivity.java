@@ -68,7 +68,7 @@ public class NavigationActivity extends Activity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.baidu:
-                if (null != gtsLocation){
+                if (null != gtsLocation&&gtsLocation.getJd()!=0&&gtsLocation.getWd()!=0){
                     jd = gtsLocation.getJd();
                     wd = gtsLocation.getWd();
                     if (AMapUtil.isInstallByRead("com.autonavi.minimap")) {
