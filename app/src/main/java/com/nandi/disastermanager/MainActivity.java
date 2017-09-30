@@ -225,6 +225,8 @@ public class MainActivity extends AppCompatActivity {
     public CloudPushService cloudPushService;
     private String id;
     private String level;
+    private String userName;
+    private String password;
     private boolean downloadSuccess = false;
     private ArcGISTiledElevationSource gzElevationSource;
     private GraphicsOverlay mGraphicsOverlay;
@@ -259,11 +261,13 @@ public class MainActivity extends AppCompatActivity {
         context = this;
         id = (String) SharedUtils.getShare(context, Constant.AREA_ID, "");
         level = (String) SharedUtils.getShare(context, Constant.LEVEL, "");
+        userName=(String) SharedUtils.getShare(context, Constant.USER_NAME, "");
+        password=(String) SharedUtils.getShare(context, Constant.PASSWORD, "");
         setLine();
         bindAccount();
         initUtilData();
         if (NetworkUtils.isConnected()) {
-            loginPost((String) SharedUtils.getShare(context, Constant.USER_NAME, ""), (String) SharedUtils.getShare(context, Constant.PASSWORD, ""));
+            loginPost(userName,password);
         } else {
             initStaData();
         }
@@ -1203,7 +1207,7 @@ public class MainActivity extends AppCompatActivity {
                         routeClient.stop();
                         ivRoute.setSelected(false);
                         route = 0;
-                        uploadLocation(locationInfo);
+                        loginPost(locationInfo);
                     }
                 })
                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -1230,7 +1234,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("上传信息", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        uploadLocation(locationInfo);
+                        loginPost(locationInfo);
                     }
                 })
                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -1246,7 +1250,21 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).show();
     }
+    private void loginPost(final LocationInfo locationInfo) {
+        OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + userName + "/" + password + "/2")
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                    }
 
+                    @Override
+                    public void onResponse(final String response, int id) {
+                        uploadLocation(locationInfo);
+                    }
+                });
+
+    }
     private void uploadLocation(LocationInfo locationInfo) {
         if (locationInfo != null) {
             String userName = locationInfo.getUserName();
