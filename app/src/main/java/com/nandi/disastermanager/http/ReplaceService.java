@@ -368,7 +368,7 @@ public class ReplaceService extends Service {
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                upMonDatas();
+                upLocation();
             }
 
             @Override
