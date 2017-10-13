@@ -19,6 +19,7 @@ public class Constant {
     public static final String SAVE_LAT="saveLat";
     public static final String DISASTER_RANGE="disasterRange";
     public static final String isOpenGPRS="isOpenGPRS";
+    public static final String SAVE_NOTE="saveNote";
 
 
 }

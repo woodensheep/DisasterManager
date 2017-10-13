@@ -66,7 +66,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="5dp"
-        android:layout_toLeftOf="@+id/ll_notice"
+        android:layout_toLeftOf="@+id/ll_photo"
         android:background="@drawable/icon_background"
         android:visibility="invisible">
 
@@ -86,7 +86,7 @@
         android:background="@drawable/icon_background"
         android:visibility="visible"
         android:layout_above="@+id/btn_util"
-        android:layout_toStartOf="@+id/ll_photo">
+        android:layout_toStartOf="@+id/ll_userMessage">
 
         <ImageView
             android:id="@+id/iv_notice"
@@ -102,9 +102,9 @@
         android:layout_height="50dp"
         android:layout_marginLeft="5dp"
         android:background="@drawable/icon_background"
-        android:visibility="visible"
+        android:visibility="invisible"
         android:layout_above="@+id/btn_util"
-        android:layout_toStartOf="@+id/ll_userMessage">
+        android:layout_toStartOf="@+id/ll_notice">
 
         <ImageView
             android:id="@+id/iv_photo"

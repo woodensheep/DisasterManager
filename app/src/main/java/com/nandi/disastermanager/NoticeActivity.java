@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,12 +17,12 @@ import com.nandi.disastermanager.entity.NoticeInfo;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.Constant;
 import com.nandi.disastermanager.utils.SharedUtils;
-import com.nandi.disastermanager.utils.ToastUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import okhttp3.Call;
 
 /**
@@ -38,6 +39,8 @@ public class NoticeActivity extends Activity {
     TextView noticeTime;
     @BindView(R.id.notice_content)
     TextView noticeContent;
+    @BindView(R.id.iv_cancel)
+    ImageView ivCancel;
     private NoticeAdapter noticeAdapter;
     private NoticeInfo noticeInfo;
     private Context mContext;
@@ -68,7 +71,7 @@ public class NoticeActivity extends Activity {
 
     private void loginPost() {
         WaitingDialog.createLoadingDialog(mContext, "正在获取公告信息");
-        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url)+"appdocking/login/" + name + "/" + password + "/2")
+        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url) + "appdocking/login/" + name + "/" + password + "/2")
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -84,7 +87,7 @@ public class NoticeActivity extends Activity {
     }
 
     private void downloadNotice() {
-        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url)+"appdocking/listTabNotice/" + level)
+        OkHttpUtils.get().url(getResources().getString(R.string.base_gz_url) + "appdocking/listTabNotice/" + level)
                 .build()
                 .execute(new StringCallback() {
                     @Override
@@ -130,4 +133,8 @@ public class NoticeActivity extends Activity {
         dateShow.setAdapter(noticeAdapter);
     }
 
+    @OnClick(R.id.iv_cancel)
+    public void onViewClicked() {
+        finish();
+    }
 }

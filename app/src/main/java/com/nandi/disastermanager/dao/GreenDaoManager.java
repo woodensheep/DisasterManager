@@ -6,12 +6,11 @@ import android.database.Cursor;
 import com.nandi.disastermanager.MyApplication;
 
 
-
+import com.nandi.disastermanager.entity.DaoMaster;
+import com.nandi.disastermanager.entity.DaoSession;
 import com.nandi.disastermanager.entity.LocationInfo;
 import com.nandi.disastermanager.search.entity.AreaInfo;
 import com.nandi.disastermanager.search.entity.AreaInfoDao;
-import com.nandi.disastermanager.search.entity.DaoMaster;
-import com.nandi.disastermanager.search.entity.DaoSession;
 import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.DisasterPointDao;
 import com.nandi.disastermanager.search.entity.GTSLocationPoint;
@@ -20,6 +19,8 @@ import com.nandi.disastermanager.search.entity.MonitorListPoint;
 import com.nandi.disastermanager.search.entity.MonitorListPointDao;
 import com.nandi.disastermanager.search.entity.MonitorPoint;
 import com.nandi.disastermanager.search.entity.MonitorPointDao;
+import com.nandi.disastermanager.search.entity.PhotoPath;
+import com.nandi.disastermanager.search.entity.PhotoPathDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -358,6 +359,19 @@ public class GreenDaoManager {
 
         return disasterList;
     }
-
-
+    public static void insertPhoto(PhotoPath photoPath){
+        GreenDaoManager.getInstance().getSession().getPhotoPathDao().insertOrReplace(photoPath);
+    }
+    public static void deletePhoto(PhotoPath photoPath){
+        GreenDaoManager.getInstance().getSession().getPhotoPathDao().delete(photoPath);
+    }
+    public static void deleteAllPhoto(){
+        GreenDaoManager.getInstance().getSession().getPhotoPathDao().deleteAll();
+    }
+    public static PhotoPath queryPhotoById(Long id){
+       return GreenDaoManager.getInstance().getSession().getPhotoPathDao().queryBuilder().where(PhotoPathDao.Properties.Id.eq(id)).unique();
+    }
+    public static List<PhotoPath> queryPhotoList(){
+        return GreenDaoManager.getInstance().getSession().getPhotoPathDao().queryBuilder().list();
+    }
 }

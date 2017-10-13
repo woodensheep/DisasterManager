@@ -256,29 +256,30 @@ public class SettingActivity extends Activity {
 
                     @Override
                     public void onResponse(final String response, int id) {
-                        if (ids ==1){
+                        if (ids == 1) {
                             startService(new Intent(mContext, DownloadMapService.class));
                             ToastUtils.showShort(mContext, "开始下载地图包");
                         }
-                        if (ids == 2){
+                        if (ids == 2) {
                             checkUpdate();
                         }
-                        if (ids == 3){
-                           upDisData();
+                        if (ids == 3) {
+                            upDisData();
                         }
-                        if (ids == 4){
+                        if (ids == 4) {
                             upMonData();
                         }
-                        if (ids == 5){
-                          upMonDatas();
+                        if (ids == 5) {
+                            upMonDatas();
                         }
-                        if (ids == 6){
-                           upLocation();
+                        if (ids == 6) {
+                            upLocation();
                         }
                     }
                 });
 
     }
+
     /*APP更新*/
     private void checkUpdate() {
         OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")
@@ -287,7 +288,7 @@ public class SettingActivity extends Activity {
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        ToastUtils.showShort(mContext,"获取最新版本失败，请稍后重试");
+                        ToastUtils.showShort(mContext, "获取最新版本失败，请稍后重试");
                     }
 
                     @Override
@@ -298,10 +299,10 @@ public class SettingActivity extends Activity {
                             String remark = object.optString("remark");
                             if ("1".equals(aStatic)) {
 
-                                ToastUtils.showShort(mContext,remark);
+                                ToastUtils.showShort(mContext, remark);
                                 new DownloadUtils(mContext).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do", "app-release.apk");
                             } else {
-                                ToastUtils.showShort(mContext,"当前已经是最新版本");
+                                ToastUtils.showShort(mContext, "当前已经是最新版本");
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -319,7 +320,7 @@ public class SettingActivity extends Activity {
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                ToastUtils.showShort(mContext,"灾害点信息下载失败");
+                ToastUtils.showShort(mContext, "灾害点信息下载失败");
                 WaitingDialog.closeDialog();
             }
 
@@ -401,7 +402,7 @@ public class SettingActivity extends Activity {
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                ToastUtils.showShort(mContext,"监测列表下载失败");
+                ToastUtils.showShort(mContext, "监测列表下载失败");
                 WaitingDialog.closeDialog();
             }
 
@@ -447,7 +448,7 @@ public class SettingActivity extends Activity {
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                ToastUtils.showShort(mContext,"监测数据下载失败");
+                ToastUtils.showShort(mContext, "监测数据下载失败");
                 WaitingDialog.closeDialog();
             }
 
@@ -488,7 +489,7 @@ public class SettingActivity extends Activity {
             R.id.downloadApp, R.id.changeSure, R.id.downloadMonDate,
             R.id.changeStop, R.id.rl_back_1, R.id.rl_back_2, R.id.logOut,
             R.id.rl_back_3, R.id.downloadDisater, R.id.downloadMonitor,
-            R.id.downloadLocation,R.id.showeyes_btn1, R.id.showeyes_btn2,
+            R.id.downloadLocation, R.id.showeyes_btn1, R.id.showeyes_btn2,
             R.id.showeyes_btn3})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -520,7 +521,7 @@ public class SettingActivity extends Activity {
                         ToastUtils.showShort(mContext, "没有网络请稍后");
                     }
                 } else {
-                    ToastUtils.showShort(mContext,"地图文件已存在");
+                    ToastUtils.showShort(mContext, "地图文件已存在");
                 }
                 break;
             case R.id.downloadApp:
@@ -572,7 +573,7 @@ public class SettingActivity extends Activity {
             case R.id.downloadMonDate:
                 if (NetworkUtils.isConnected()) {
                     if (NetworkUtils.isWifiConnected()) {
-                       loginPost(5);
+                        loginPost(5);
                     } else {
                         if (openGprs) {
                             loginPost(5);
@@ -588,10 +589,10 @@ public class SettingActivity extends Activity {
             case R.id.downloadLocation:
                 if (NetworkUtils.isConnected()) {
                     if (NetworkUtils.isWifiConnected()) {
-                       loginPost(6);
+                        loginPost(6);
                     } else {
                         if (openGprs) {
-                          loginPost(6);
+                            loginPost(6);
                         } else {
                             ToastUtils.showShort(mContext, "请打开允许4G开关");
                         }
@@ -663,13 +664,13 @@ public class SettingActivity extends Activity {
 
     private void upLocation() {
         WaitingDialog.createLoadingDialog(mContext, "正在下载...");
-        String url = getString(R.string.base_gz_url) +"appdocking/listLandJdWd";
+        String url = getString(R.string.base_gz_url) + "appdocking/listLandJdWd";
         RequestCall build = OkHttpUtils.get().url(url)
                 .build();
         build.execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                ToastUtils.showShort(mContext,"坐标信息下载失败");
+                ToastUtils.showShort(mContext, "坐标信息下载失败");
                 WaitingDialog.closeDialog();
             }
 
@@ -681,7 +682,7 @@ public class SettingActivity extends Activity {
                 GreenDaoManager.deleteGTSLocation();
                 Gson gson = new Gson();
                 try {
-                    final GTSLocation gtsLocation= gson.fromJson(response, GTSLocation.class);
+                    final GTSLocation gtsLocation = gson.fromJson(response, GTSLocation.class);
                     new Thread() {
                         @Override
                         public void run() {
@@ -709,10 +710,15 @@ public class SettingActivity extends Activity {
     /*APP注销*/
     private void outData() {
         GreenDaoManager.deleteDisaster();
+        GreenDaoManager.deleteAllPhoto();
+        GreenDaoManager.deleteAllLocation();
+        GreenDaoManager.deleteAllMonitor();
+        GreenDaoManager.deleteAllMonitorData();
         SharedUtils.removeShare(mContext, Constant.SAVE_DIS_TIME);
         SharedUtils.removeShare(mContext, Constant.SAVE_MON_TIME);
         SharedUtils.removeShare(mContext, Constant.SAVE_MONDATA_TIME);
         SharedUtils.removeShare(mContext, Constant.IS_LOGIN);
+        SharedUtils.removeShare(mContext, Constant.SAVE_NOTE);
         PushServiceFactory.getCloudPushService().turnOffPushChannel(new CommonCallback() {
             @Override
             public void onSuccess(String s) {

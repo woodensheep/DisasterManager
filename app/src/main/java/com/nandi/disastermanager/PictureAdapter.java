@@ -7,6 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.nandi.disastermanager.search.entity.PhotoPath;
+import com.nandi.disastermanager.utils.AppUtils;
 
 import java.util.List;
 
@@ -16,10 +20,10 @@ import java.util.List;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PicViewHolder> {
     private Context context;
-    private List<Bitmap> list;
+    private List<PhotoPath> list;
     private OnItemViewClickListener listener;
 
-    public PictureAdapter(Context context, List<Bitmap> list) {
+    public PictureAdapter(Context context, List<PhotoPath> list) {
         this.context = context;
         this.list = list;
     }
@@ -30,6 +34,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PicViewH
 
     public interface OnItemViewClickListener {
         void onPictureClick(int position);
+
         void onDeleteClick(int position);
     }
 
@@ -41,7 +46,8 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PicViewH
 
     @Override
     public void onBindViewHolder(final PicViewHolder holder, final int position) {
-        holder.ivImage.setImageBitmap(list.get(position));
+        Bitmap smallBitmap = AppUtils.getSmallBitmap(list.get(position).getPath(), 100, 100);
+        holder.ivImage.setImageBitmap(smallBitmap);
         if (listener != null) {
             holder.ivImage.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -53,19 +59,9 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PicViewH
                 @Override
                 public void onClick(View v) {
                     listener.onDeleteClick(position);
-                    holder.ivDelete.setVisibility(View.GONE);
                 }
             });
         }
-        holder.ivImage.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                System.out.println("长按图片");
-                holder.ivDelete.setVisibility(View.VISIBLE);
-                notifyDataSetChanged();
-                return true;
-            }
-        });
     }
 
     @Override

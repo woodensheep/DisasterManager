@@ -39,5 +39,9 @@
         <item name="android:windowCloseOnTouchOutside">false</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
-
+    <style name="Transparent">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
 </resources>

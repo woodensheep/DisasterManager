@@ -14,6 +14,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -261,13 +262,13 @@ public class MainActivity extends AppCompatActivity {
         context = this;
         id = (String) SharedUtils.getShare(context, Constant.AREA_ID, "");
         level = (String) SharedUtils.getShare(context, Constant.LEVEL, "");
-        userName=(String) SharedUtils.getShare(context, Constant.USER_NAME, "");
-        password=(String) SharedUtils.getShare(context, Constant.PASSWORD, "");
+        userName = (String) SharedUtils.getShare(context, Constant.USER_NAME, "");
+        password = (String) SharedUtils.getShare(context, Constant.PASSWORD, "");
         setLine();
         bindAccount();
         initUtilData();
         if (NetworkUtils.isConnected()) {
-            loginPost(userName,password);
+            loginPost(userName, password);
         } else {
             initStaData();
         }
@@ -292,6 +293,20 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(connectionReceiver, intentFilter);
+        alertNotice();
+    }
+
+    private void alertNotice() {
+        if (NetworkUtils.isConnected()) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    startActivity(new Intent(context, NoticeActivity.class));
+                }
+            }, 2000);
+        }else {
+            ToastUtils.showShort(context,"当前无网络");
+        }
     }
 
     private void initMap() {
@@ -352,6 +367,7 @@ public class MainActivity extends AppCompatActivity {
     private void setLine() {
         if ("1".equals(level)) {
             llRoute.setVisibility(View.VISIBLE);
+            llPhoto.setVisibility(View.VISIBLE);
         }
     }
 
@@ -479,8 +495,8 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject object = new JSONObject(response);
                             String aStatic = object.optString("static");
                             String remark = object.optString("remark");
-                            if (TextUtils.isEmpty(remark)){
-                                remark="发现新版本，是否立即更新？";
+                            if (TextUtils.isEmpty(remark)) {
+                                remark = "发现新版本，是否立即更新？";
                             }
                             if ("1".equals(aStatic)) {
                                 showNoticeDialog(remark);
@@ -540,6 +556,7 @@ public class MainActivity extends AppCompatActivity {
     private void bindAccount() {
         cloudPushService = PushServiceFactory.getCloudPushService();
         String level = (String) SharedUtils.getShare(context, Constant.LEVEL, "");
+        Log.e(TAG, "绑定的tag：" + level);
         cloudPushService.turnOnPushChannel(new CommonCallback() {
             @Override
             public void onSuccess(String s) {
@@ -551,15 +568,15 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "推送通道打开失败！");
             }
         });
-        cloudPushService.bindTag(CloudPushService.DEVICE_TARGET, new String[]{level}, null, new CommonCallback() {
+        cloudPushService.bindAccount(level, new CommonCallback() {
             @Override
             public void onSuccess(String s) {
-                Log.d(TAG, "绑定标签成功");
+                Log.d(TAG, "绑定账号成功");
             }
 
             @Override
             public void onFailed(String s, String s1) {
-                Log.d(TAG, "绑定标签失败");
+                Log.d(TAG, "绑定账号失败");
             }
         });
     }
@@ -1250,6 +1267,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).show();
     }
+
     private void loginPost(final LocationInfo locationInfo) {
         OkHttpUtils.get().url(getString(R.string.base_gz_url) + "/appdocking/login/" + userName + "/" + password + "/2")
                 .build()
@@ -1265,6 +1283,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
     }
+
     private void uploadLocation(LocationInfo locationInfo) {
         if (locationInfo != null) {
             String userName = locationInfo.getUserName();
@@ -1791,6 +1810,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).show();
     }
+
     BroadcastReceiver connectionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1798,16 +1818,16 @@ public class MainActivity extends AppCompatActivity {
             NetworkInfo mobNetInfo = connectMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
             NetworkInfo wifiNetInfo = connectMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
-                Log.d("cp","断网了");
-                if (file.exists()){
+                Log.d("cp", "断网了");
+                if (file.exists()) {
                     layers.clear();
                     layers.add(localeDianZhiLayer);
-                }else {
-                    ToastUtils.showShort(context,"网络断开，离线地图未找到");
+                } else {
+                    ToastUtils.showShort(context, "网络断开，离线地图未找到");
                 }
-            }else {
-                Log.d("cp","有网了");
-                if (!layers.contains(gzDianZhiLayer)){
+            } else {
+                Log.d("cp", "有网了");
+                if (!layers.contains(gzDianZhiLayer)) {
                     layers.clear();
                     layers.add(gzDianZhiLayer);
                 }

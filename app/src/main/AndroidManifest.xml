@@ -147,6 +147,7 @@
             android:name=".NoticeActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:screenOrientation="landscape"
+            android:launchMode="singleTop"
             android:theme="@style/TipDialog1" />
 
         <service
@@ -187,7 +188,7 @@
             android:name=".search.PhotoActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|navigation"
             android:screenOrientation="landscape"
-            android:theme="@style/TipDialog1" />
+             />
     </application>
 
 </manifest>
