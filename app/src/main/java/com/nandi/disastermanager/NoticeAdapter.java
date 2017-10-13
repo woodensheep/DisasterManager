@@ -19,6 +19,8 @@ import com.nandi.disastermanager.search.entity.MonitorPhoto;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -29,9 +31,17 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.ViewHolder
     private Context mContext;
     private NoticeInfo noticeInfo;
     public NoticeAdapter.OnItemClickListener mOnItemClickListener;
+    private List<Boolean> isClicks;
     public NoticeAdapter(Context context, NoticeInfo noticeInfo) {
         mContext = context;
         this.noticeInfo = noticeInfo;
+        isClicks = new ArrayList<>();
+        for(int i = 0;i<noticeInfo.getData().size();i++) {
+            if (i==0){
+                isClicks.add(true);
+            }
+            isClicks.add(false);
+        }
     }
 
 
@@ -47,12 +57,21 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.ViewHolder
     public void onBindViewHolder(final NoticeAdapter.ViewHolderA holder, final int position) {
         if (noticeInfo.getData().size()>0){
             holder.textView.setText(noticeInfo.getData().get(noticeInfo.getData().size()-position-1).getTitle());
+            if(isClicks.get(position)){
+                holder.textView.setTextColor(Color.parseColor("#00a0e9"));
+            }else{
+                holder.textView.setTextColor(Color.parseColor("#00f3f3"));
+            }
             if (mOnItemClickListener != null) {
                 holder.textView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        for(int i = 0; i <isClicks.size();i++){
+                            isClicks.set(i,false);
+                        }
+                        isClicks.set(position,true);
+                        notifyDataSetChanged();
                         mOnItemClickListener.onClick(position);
-                        holder.textView.setFocusable(true);
                     }
                 });
             }

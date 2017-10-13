@@ -2,13 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/notice_background"
     android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@drawable/notice_head"
         >
 
         <View
@@ -85,7 +85,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:text="暂无公告"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="#00a0e9"
                     android:textSize="25sp" />
 
 
@@ -96,7 +96,7 @@
                     android:layout_centerInParent="true"
                     android:layout_below="@+id/notice_title"
                     android:layout_margin="10dp"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="#00a0e9"
                     android:textSize="20sp" />
 
                 <TextView
@@ -105,7 +105,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_below="@id/notice_content"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="#00a0e9"
                     android:layout_margin="10dp"
                     android:textSize="20sp" />
             </RelativeLayout>

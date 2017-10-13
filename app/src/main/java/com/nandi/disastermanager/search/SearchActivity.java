@@ -24,6 +24,7 @@ import com.nandi.disastermanager.search.entity.DisasterPoint;
 import com.nandi.disastermanager.search.entity.LoginInfo;
 import com.nandi.disastermanager.ui.WaitingDialog;
 import com.nandi.disastermanager.utils.InputUtil;
+import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
 
 import java.util.ArrayList;
