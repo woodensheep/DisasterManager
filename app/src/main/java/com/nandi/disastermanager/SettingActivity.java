@@ -301,7 +301,7 @@ public class SettingActivity extends Activity {
                             if ("1".equals(aStatic)) {
 
                                 ToastUtils.showShort(mContext, remark);
-                                new DownloadUtils(mContext).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do", "app-release.apk");
+                                new DownloadUtils(mContext).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do", "app-release"+AppUtils.getVerCode(mContext)+".apk");
                             } else {
                                 ToastUtils.showShort(mContext, "当前已经是最新版本");
                             }

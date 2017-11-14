@@ -2,6 +2,7 @@ package com.nandi.disastermanager.search;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.nandi.disastermanager.MainActivity;
 import com.nandi.disastermanager.MyApplication;
 import com.nandi.disastermanager.R;
 import com.nandi.disastermanager.dao.GreenDaoManager;
@@ -27,6 +29,7 @@ import com.nandi.disastermanager.utils.InputUtil;
 import com.nandi.disastermanager.utils.SharedUtils;
 import com.nandi.disastermanager.utils.ToastUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -299,10 +302,13 @@ public class SearchActivity extends Activity {
         rcSearchAdapter.setOnItemClickListener(new RcSearchAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view) {
-                Long id = (Long) view.getTag();
-                if (id == -1) {
-                    return;
-                }
+                int childAdapterPosition = dateShow.getChildAdapterPosition(view);
+                DisasterPoint disasterPoint = mDisasterPoints.get(childAdapterPosition);
+                Intent intent =new Intent();
+                intent.setAction(MainActivity.LOCATION_POINT);
+                intent.putExtra(MainActivity.DISASTER_POINT, disasterPoint);
+                sendBroadcast(intent);
+                finish();
             }
         });
         dateShow.setAdapter(rcSearchAdapter);

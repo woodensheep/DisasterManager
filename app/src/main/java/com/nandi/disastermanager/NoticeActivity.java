@@ -20,6 +20,9 @@ import com.nandi.disastermanager.utils.SharedUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -103,7 +106,8 @@ public class NoticeActivity extends Activity {
                         setAdapter();
                         if (noticeInfo.getData().size() > 0) {
                             noticeTitle.setText(noticeInfo.getData().get(noticeInfo.getData().size() - 1).getTitle());
-                            noticeTime.setText(noticeInfo.getData().get(noticeInfo.getData().size() - 1).getAnn_time());
+                            String ann_time = noticeInfo.getData().get(noticeInfo.getData().size() - 1).getAnn_time();
+                            noticeTime.setText(ann_time);
                             noticeContent.setText("\u3000\u3000" + noticeInfo.getData().get(noticeInfo.getData().size() - 1).getContent());
                         } else {
                             noticeTitle.setText("暂无公告");

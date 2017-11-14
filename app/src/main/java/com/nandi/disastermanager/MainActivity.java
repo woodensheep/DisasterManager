@@ -26,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -119,6 +120,8 @@ import okhttp3.Call;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    public static final String LOCATION_POINT = "locationPoint";
+    public static final String DISASTER_POINT = "disasterPoint";
     @BindView(R.id.iv_area_back)
     ImageView ivAreaBack;
     @BindView(R.id.ll_area)
@@ -207,8 +210,13 @@ public class MainActivity extends AppCompatActivity {
     private LayerList layers;
     private GraphicsOverlay gzPointGraphicOverlay;
     private GraphicsOverlay meGraphicOverlay;
+    private GraphicsOverlay pointGraphicOverlay;
+    private GraphicsOverlay editGraphicOverlay;
+    private GraphicsOverlay editPointGraphicOverlay;
     private ListenableList<Graphic> gzGraphics;
+    private ListenableList<Graphic> editGzGraphics;
     private List<Graphic> allGraphics = new ArrayList<>();
+    private List<Graphic> editAllGraphics = new ArrayList<>();
 
     private Context context;
     private Graphic mCurrentPoint;
@@ -228,8 +236,6 @@ public class MainActivity extends AppCompatActivity {
     private String level;
     private String userName;
     private String password;
-    private boolean downloadSuccess = false;
-    private ArcGISTiledElevationSource gzElevationSource;
     private GraphicsOverlay mGraphicsOverlay;
     private List<Graphic> mGraphics;
     private SketchGraphicsOverlayEventListener mListener;
@@ -246,12 +252,15 @@ public class MainActivity extends AppCompatActivity {
     private LocationClient locationClient = null;
     private LocationClient routeClient = null;
     private List<DisasterPoint> disasterOverlay = new ArrayList<>();
+    private List<DisasterPoint> editDisasterOverlay = new ArrayList<>();
     private LocationListener locationListener;
     private double meLongitude = 0;
     private double meLatitude = 0;
     private Callout callout;
     private AlertDialog alertDialog;
     private File file;
+    private String editLongitude;
+    private String editLatitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -292,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
         turnOnLocation();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        intentFilter.addAction(LOCATION_POINT);
         registerReceiver(connectionReceiver, intentFilter);
         alertNotice();
     }
@@ -304,24 +314,33 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(context, NoticeActivity.class));
                 }
             }, 2000);
-        }else {
-            ToastUtils.showShort(context,"当前无网络");
+        } else {
+            ToastUtils.showShort(context, "当前无网络");
         }
     }
 
     private void initMap() {
+        mapView.setAttributionTextVisible(false);
         map = new ArcGISMap();//添加底图
         layers = map.getOperationalLayers();
         mapView.setMap(map);
         gzPointGraphicOverlay = new GraphicsOverlay();
         mGraphicsOverlay = new GraphicsOverlay();
         meGraphicOverlay = new GraphicsOverlay();
+        pointGraphicOverlay = new GraphicsOverlay();
+        editGraphicOverlay = new GraphicsOverlay();
+        editPointGraphicOverlay=new GraphicsOverlay();
         mGraphics = mGraphicsOverlay.getGraphics();
         gzGraphics = gzPointGraphicOverlay.getGraphics();
+        editGzGraphics=editPointGraphicOverlay.getGraphics();
         ListenableList<GraphicsOverlay> graphicsOverlays = mapView.getGraphicsOverlays();
         graphicsOverlays.add(mGraphicsOverlay);
         graphicsOverlays.add(gzPointGraphicOverlay);
         graphicsOverlays.add(meGraphicOverlay);
+        graphicsOverlays.add(pointGraphicOverlay);
+        graphicsOverlays.add(editGraphicOverlay);
+        graphicsOverlays.add(editPointGraphicOverlay);
+
         //初始显示的地图
         if (NetworkUtils.isConnected()) {
             layers.add(gzDianZhiLayer);
@@ -518,7 +537,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                new DownloadUtils(context).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do", "app-release.apk");
+                new DownloadUtils(context).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do", "app-release" + AppUtils.getVerCode(context) + ".apk");
                 dialog.dismiss();
             }
         });
@@ -644,6 +663,45 @@ public class MainActivity extends AppCompatActivity {
 
     public void clearClick(View v) {
         clear();
+    }
+
+    public void editLocation(View view) {
+        // TODO: 2017/11/14
+        View customView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_location, null);
+        final EditText etLon = (EditText) customView.findViewById(R.id.et_longitude);
+        final EditText etLat = (EditText) customView.findViewById(R.id.et_latitude);
+        Button btnLocation = (Button) customView.findViewById(R.id.btn_location);
+        final AlertDialog show = new AlertDialog.Builder(context)
+                .setView(customView)
+                .show();
+        btnLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editLongitude = etLon.getText().toString().trim();
+                editLatitude = etLat.getText().toString().trim();
+                setEditLocationOverlay(Double.parseDouble(editLongitude), Double.parseDouble(editLatitude));
+                show.dismiss();
+            }
+        });
+    }
+
+    private void setEditLocationOverlay(final double lon, final double lat) {
+        pointGraphicOverlay.getGraphics().clear();
+        final BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.ecit_point);
+        final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawable);
+        pinStarBlueSymbol.setHeight(50);
+        pinStarBlueSymbol.setWidth(35);
+        pinStarBlueSymbol.loadAsync();
+        pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                Point point = new Point(lon, lat, SpatialReferences.getWgs84());
+                Graphic graphic = new Graphic(point, pinStarBlueSymbol);
+                editGraphicOverlay.getGraphics().add(graphic);
+                Viewpoint v = new Viewpoint(lat, lon, mapView.getMapScale());
+                mapView.setViewpointAsync(v, 2);
+            }
+        });
     }
 
     private class MySketchGraphicsOverlayEventListener implements SketchGraphicsOverlayEventListener {
@@ -858,6 +916,80 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+                final ListenableFuture<IdentifyGraphicsOverlayResult> pointLocationIdentify = mapView.identifyGraphicsOverlayAsync(pointGraphicOverlay, screenPoint, 10.0, false, 1);
+                pointLocationIdentify.addDoneListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            IdentifyGraphicsOverlayResult identifyResult = pointLocationIdentify.get();
+                            List<Graphic> graphic = identifyResult.getGraphics();
+                            if (graphic.size() > 0) {
+                                showDisasterInfo(locationPoint);
+                            }
+                        } catch (InterruptedException | ExecutionException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
+                final ListenableFuture<IdentifyGraphicsOverlayResult> editLocationIdentify = mapView.identifyGraphicsOverlayAsync(editGraphicOverlay, screenPoint, 10.0, false, 1);
+                editLocationIdentify.addDoneListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            IdentifyGraphicsOverlayResult identifyResult = editLocationIdentify.get();
+                            List<Graphic> graphic = identifyResult.getGraphics();
+                            if (graphic.size() > 0) {
+                                View view = LayoutInflater.from(context).inflate(R.layout.edit_callout_view, null);
+                                TextView tvLon = (TextView) view.findViewById(R.id.tv_lon);
+                                TextView tvLat = (TextView) view.findViewById(R.id.tv_lat);
+                                TextView tvSearch = (TextView) view.findViewById(R.id.tv_search);
+                                ImageView ivClose = (ImageView) view.findViewById(R.id.iv_close);
+                                tvLon.setText(editLongitude);
+                                tvLat.setText(editLatitude);
+                                Point point = mapView.screenToLocation(screenPoint);
+                                callout.setLocation(point);
+                                callout.setContent(view);
+                                callout.show();
+                                ivClose.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        callout.dismiss();
+                                    }
+                                });
+                                tvSearch.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        callout.dismiss();
+                                        setEditDisasterOverlay(Double.parseDouble(editLongitude),Double.parseDouble(editLatitude));
+
+                                    }
+                                });
+                            }
+                        } catch (InterruptedException | ExecutionException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
+                final ListenableFuture<IdentifyGraphicsOverlayResult> editDisasterIdentify = mapView.identifyGraphicsOverlayAsync(editPointGraphicOverlay, screenPoint, 10.0, false);
+                editDisasterIdentify.addDoneListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            IdentifyGraphicsOverlayResult identifyResult = editDisasterIdentify.get();
+                            List<Graphic> graphic = identifyResult.getGraphics();
+                            if (graphic.size() > 0) {
+                                int zIndex = graphic.get(0).getZIndex();
+                                for (DisasterPoint disasterPoint : editDisasterOverlay) {
+                                    if (disasterPoint.getId() == zIndex) {
+                                        showDisasterInfo(disasterPoint);
+                                    }
+                                }
+                            }
+                        } catch (InterruptedException | ExecutionException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
                 return true;
             }
 
@@ -892,7 +1024,7 @@ public class MainActivity extends AppCompatActivity {
         final View dialog = showPointDataDialog(disasterPoint);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialog);
-        builder.setCancelable(false);
+        builder.setCancelable(true);
         alertDialog = builder.create();
         alertDialog.show();
     }
@@ -977,6 +1109,9 @@ public class MainActivity extends AppCompatActivity {
                     setAreaBack();
                     break;
                 case R.id.iv_search_main:
+                    if (pointGraphicOverlay.getGraphics().size() > 0) {
+                        pointGraphicOverlay.getGraphics().clear();
+                    }
                     List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
                     if (disasterPoints.size() == 0) {
                         ToastUtils.showShort(context, "正在加载请稍候...");
@@ -1107,16 +1242,33 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "开始打点 周围隐患点个数：" + disasterOverlay.size());
         } else {
             ToastUtils.showShort(context, "当前位置周围没有隐患点");
-            WaitingDialog.closeDialog();
         }
     }
-
+    private void setEditDisasterOverlay(double longitude, double latitude) {
+        editDisasterOverlay.clear();
+        List<DisasterPoint> disasterPoints = GreenDaoManager.queryDisasterData();
+        int range = (int) SharedUtils.getShare(context, Constant.DISASTER_RANGE, 10 * 1000);
+        for (DisasterPoint disasterPoint : disasterPoints) {
+            double disasterLon = disasterPoint.getDisasterLon();
+            double disasterLat = disasterPoint.getDisasterLat();
+            double distance = AppUtils.getDistance(longitude, latitude, disasterLon, disasterLat);
+            if (distance < range) {
+                editDisasterOverlay.add(disasterPoint);
+            }
+        }
+        if (editDisasterOverlay.size() > 0) {
+            setEditOverlay();
+            Log.d(TAG, "开始打点 周围隐患点个数：" + editDisasterOverlay.size());
+        } else {
+            ToastUtils.showShort(context, "当前位置周围没有隐患点");
+        }
+    }
     private void setOverlay() {
         allGraphics.clear();
         final BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.huapo);
         final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawable);
-        pinStarBlueSymbol.setHeight(40);
-        pinStarBlueSymbol.setWidth(30);
+        pinStarBlueSymbol.setHeight(50);
+        pinStarBlueSymbol.setWidth(35);
         pinStarBlueSymbol.loadAsync();
         pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
             @Override
@@ -1134,7 +1286,27 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    private void setEditOverlay() {
+        editAllGraphics.clear();
+        final BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.huapo);
+        final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawable);
+        pinStarBlueSymbol.setHeight(50);
+        pinStarBlueSymbol.setWidth(35);
+        pinStarBlueSymbol.loadAsync();
+        pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                for (DisasterPoint disasterPoint : editDisasterOverlay) {
+                    Point point = new Point(disasterPoint.getDisasterLon(), disasterPoint.getDisasterLat(), SpatialReferences.getWgs84());
+                    Graphic graphic = new Graphic(point, pinStarBlueSymbol);
+                    graphic.setZIndex(disasterPoint.getId().intValue());
+                    editAllGraphics.add(graphic);
+                }
+                Log.d(TAG, "所有图标个数：" + editAllGraphics.size());
+                editGzGraphics.addAll(editAllGraphics);
+            }
+        });
+    }
 
     private void setRoute() {
         LocationInfo locationInfo = GreenDaoManager.queryLocation();
@@ -1274,6 +1446,7 @@ public class MainActivity extends AppCompatActivity {
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
+                        ToastUtils.showShort(context, "当前无网络");
                     }
 
                     @Override
@@ -1402,6 +1575,8 @@ public class MainActivity extends AppCompatActivity {
             llUtil.setVisibility(View.VISIBLE);
             llUtilState = true;
         } else {
+            editGzGraphics.clear();
+            editGraphicOverlay.getGraphics().clear();
             btnUtil.setSelected(false);
             clear();
             tvMeasureResult.setText("");
@@ -1811,27 +1986,52 @@ public class MainActivity extends AppCompatActivity {
                 }).show();
     }
 
+    private DisasterPoint locationPoint;
     BroadcastReceiver connectionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            ConnectivityManager connectMgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-            NetworkInfo mobNetInfo = connectMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            NetworkInfo wifiNetInfo = connectMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
-                Log.d("cp", "断网了");
-                if (file.exists()) {
-                    layers.clear();
-                    layers.add(localeDianZhiLayer);
+            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+                ConnectivityManager connectMgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+                NetworkInfo mobNetInfo = connectMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+                NetworkInfo wifiNetInfo = connectMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
+                    Log.d("cp", "断网了");
+                    if (file.exists()) {
+                        layers.clear();
+                        layers.add(localeDianZhiLayer);
+                    } else {
+                        ToastUtils.showShort(context, "网络断开，离线地图未找到");
+                    }
                 } else {
-                    ToastUtils.showShort(context, "网络断开，离线地图未找到");
+                    Log.d("cp", "有网了");
+                    if (!layers.contains(gzDianZhiLayer)) {
+                        layers.clear();
+                        layers.add(gzDianZhiLayer);
+                    }
                 }
-            } else {
-                Log.d("cp", "有网了");
-                if (!layers.contains(gzDianZhiLayer)) {
-                    layers.clear();
-                    layers.add(gzDianZhiLayer);
-                }
+            } else if (LOCATION_POINT.equals(intent.getAction())) {
+                locationPoint = (DisasterPoint) intent.getSerializableExtra(DISASTER_POINT);
+                setLocationPointOverlay(locationPoint);
             }
         }
     };
+
+    private void setLocationPointOverlay(final DisasterPoint disasterPoint) {
+        pointGraphicOverlay.getGraphics().clear();
+        final BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(this, R.mipmap.location_point);
+        final PictureMarkerSymbol pinStarBlueSymbol = new PictureMarkerSymbol(drawable);
+        pinStarBlueSymbol.setHeight(50);
+        pinStarBlueSymbol.setWidth(35);
+        pinStarBlueSymbol.loadAsync();
+        pinStarBlueSymbol.addDoneLoadingListener(new Runnable() {
+            @Override
+            public void run() {
+                Point point = new Point(disasterPoint.getDisasterLon(), disasterPoint.getDisasterLat(), SpatialReferences.getWgs84());
+                Graphic graphic = new Graphic(point, pinStarBlueSymbol);
+                pointGraphicOverlay.getGraphics().add(graphic);
+                Viewpoint v = new Viewpoint(disasterPoint.getDisasterLat(), disasterPoint.getDisasterLon(), mapView.getMapScale());
+                mapView.setViewpointAsync(v, 2);
+            }
+        });
+    }
 }

@@ -46,12 +46,12 @@
         android:id="@+id/ll_location"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_above="@+id/ll_change_map"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="11dp"
         android:layout_marginRight="10dp"
         android:background="@drawable/icon_background"
-        android:visibility="visible">
+        android:visibility="visible"
+        android:layout_above="@+id/ll_change_map"
+        android:layout_alignStart="@+id/ll_control">
 
         <ImageView
             android:id="@+id/iv_location"
@@ -171,7 +171,13 @@
         android:background="@color/white"
         android:orientation="horizontal"
         android:visibility="invisible">
-
+        <ImageButton
+            android:id="@+id/undoButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:background="@drawable/edit_location_selector"
+            android:onClick="editLocation" />
         <ImageButton
             android:id="@+id/pointButton"
             android:layout_width="0dp"
@@ -197,13 +203,7 @@
             android:background="@drawable/polygon_selector"
             android:onClick="polygonClick" />
 
-        <!--<ImageButton-->
-            <!--android:id="@+id/undoButton"-->
-            <!--android:layout_width="0dp"-->
-            <!--android:layout_weight="1"-->
-            <!--android:layout_height="50dp"-->
-            <!--android:background="@drawable/previous_selector"-->
-            <!--android:onClick="undoClick" />-->
+
 
         <!--<ImageButton-->
             <!--android:id="@+id/redoButton"-->

@@ -32,9 +32,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="5dp"
-                android:text="拍照"
+                android:text="选择照片"
                 android:textColor="@color/color_white"
-                android:textSize="25sp" />
+                android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -56,7 +56,7 @@
                 android:layout_marginTop="5dp"
                 android:text="保存"
                 android:textColor="@color/color_white"
-                android:textSize="25sp" />
+                android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -80,7 +80,7 @@
                 android:layout_marginTop="5dp"
                 android:text="上传"
                 android:textColor="@color/color_white"
-                android:textSize="25sp" />
+                android:textSize="20sp" />
         </LinearLayout>
     </RelativeLayout>
     <TextView

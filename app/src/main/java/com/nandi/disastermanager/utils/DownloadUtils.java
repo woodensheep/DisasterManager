@@ -25,6 +25,7 @@ public class DownloadUtils {
     private Context mContext;
     //下载的ID
     private long downloadId;
+    private String fileName;
 
     public DownloadUtils(Context context) {
         this.mContext = context;
@@ -36,7 +37,7 @@ public class DownloadUtils {
      */
     //下载apk
     public void downloadAPK(String url, String apkName) {
-
+        fileName=apkName;
         //创建下载任务
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         //移动网络情况下是否允许漫游
@@ -59,7 +60,6 @@ public class DownloadUtils {
         downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
         //将下载请求加入下载队列，加入下载队列后会给该任务返回一个long型的id，通过该id可以取消任务，重启任务、获取下载的文件等等
         downloadId = downloadManager.enqueue(request);
-
         //注册广播接收者，监听下载状态
         mContext.registerReceiver(receiver,
                 new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
@@ -111,7 +111,7 @@ public class DownloadUtils {
     private void installAPK() {
         File file = new File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                , "app-release.apk");
+                , fileName);
         Intent i = new Intent(Intent.ACTION_VIEW);
         // 由于没有在Activity环境下启动Activity,设置下面的标签
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

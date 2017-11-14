@@ -2,6 +2,7 @@ package com.nandi.disastermanager.ui;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,7 +69,6 @@ public class WaitingDialog {
             mDialogUtils.dismiss();
         }
     }
-
     /**
      * 关闭dialog
      *

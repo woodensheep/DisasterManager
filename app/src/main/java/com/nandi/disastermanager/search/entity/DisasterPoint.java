@@ -4,12 +4,15 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 
+import java.io.Serializable;
+
 /**
  * Created by lemon on 2017/9/7.
  * 建数据库表
  */
 @Entity
-public class DisasterPoint {
+public class DisasterPoint implements Serializable{
+    private static final long serialVersionUID = 1L;
     @Id
     private Long id;
     private String threatObject;
@@ -231,5 +234,37 @@ public class DisasterPoint {
     }
     public void setDisasterName(String disasterName) {
         this.disasterName = disasterName;
+    }
+
+    @Override
+    public String toString() {
+        return "DisasterPoint{" +
+                "id=" + id +
+                ", threatObject='" + threatObject + '\'' +
+                ", threatMoney='" + threatMoney + '\'' +
+                ", disasterNum='" + disasterNum + '\'' +
+                ", disasterSite='" + disasterSite + '\'' +
+                ", userid=" + userid +
+                ", adminid=" + adminid +
+                ", monitorPersonnel='" + monitorPersonnel + '\'' +
+                ", threatNum='" + threatNum + '\'' +
+                ", city='" + city + '\'' +
+                ", formationTime='" + formationTime + '\'' +
+                ", phoneNum='" + phoneNum + '\'' +
+                ", level=" + level +
+                ", county='" + county + '\'' +
+                ", majorIncentives='" + majorIncentives + '\'' +
+                ", area_name='" + area_name + '\'' +
+                ", disasterLat=" + disasterLat +
+                ", province='" + province + '\'' +
+                ", tableTime='" + tableTime + '\'' +
+                ", disasterType='" + disasterType + '\'' +
+                ", disasterLon=" + disasterLon +
+                ", investigationUnit='" + investigationUnit + '\'' +
+                ", town='" + town + '\'' +
+                ", disasterGrade='" + disasterGrade + '\'' +
+                ", disasterAdress='" + disasterAdress + '\'' +
+                ", disasterName='" + disasterName + '\'' +
+                '}';
     }
 }
