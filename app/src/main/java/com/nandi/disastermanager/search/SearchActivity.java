@@ -302,8 +302,10 @@ public class SearchActivity extends Activity {
         rcSearchAdapter.setOnItemClickListener(new RcSearchAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view) {
-                int childAdapterPosition = dateShow.getChildAdapterPosition(view);
-                DisasterPoint disasterPoint = mDisasterPoints.get(childAdapterPosition);
+            }
+            @Override
+            public void onViewClick(int position) {
+                DisasterPoint disasterPoint = mDisasterPoints.get(position);
                 Intent intent =new Intent();
                 intent.setAction(MainActivity.LOCATION_POINT);
                 intent.putExtra(MainActivity.DISASTER_POINT, disasterPoint);
