@@ -1,6 +1,7 @@
 package com.nandi.disastermanager;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -750,6 +751,7 @@ public class MainActivity extends AppCompatActivity {
         ivAreaBack.setOnClickListener(noDoubleClickListener);
         llUserMessage.setOnClickListener(noDoubleClickListener);
         mapView.setOnTouchListener(new DefaultMapViewOnTouchListener(context, mapView) {
+
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 final android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
