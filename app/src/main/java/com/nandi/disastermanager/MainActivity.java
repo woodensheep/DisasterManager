@@ -499,7 +499,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkUpdate() {
-        OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")
+        OkHttpUtils.get().url("http://111.85.191.203:9082/gzcmdback/findNewVersionNumber.do")
                 .addParams("version", AppUtils.getVerCode(this))
                 .build()
                 .execute(new StringCallback() {
@@ -538,7 +538,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                new DownloadUtils(context).downloadAPK("http://202.98.195.125:8082/gzcmdback/downloadApk.do", "app-release" + AppUtils.getVerCode(context) + ".apk");
+                new DownloadUtils(context).downloadAPK("http://111.85.191.203:9082/gzcmdback/downloadApk.do", "app-release" + AppUtils.getVerCode(context) + ".apk");
                 dialog.dismiss();
             }
         });

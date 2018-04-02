@@ -283,7 +283,7 @@ public class SettingActivity extends Activity {
 
     /*APP更新*/
     private void checkUpdate() {
-        OkHttpUtils.get().url("http://202.98.195.125:8082/gzcmdback/findNewVersionNumber.do")
+        OkHttpUtils.get().url("http://111.85.191.203:9082/gzcmdback/findNewVersionNumber.do")
                 .addParams("version", AppUtils.getVerCode(mContext))
                 .build()
                 .execute(new StringCallback() {
